@@ -9,7 +9,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import com.example.uzradyab.feature.auth.signin.SignInRoute
 import com.example.uzradyab.ui.theme.UzradyabTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             UzradyabTheme {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    SignInRoute()
+                    UzradyabApp()
                 }
             }
         }
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
 fun AppPreview() {
     UzradyabTheme {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            SignInRoute()
+            UzradyabApp()
         }
     }
 }

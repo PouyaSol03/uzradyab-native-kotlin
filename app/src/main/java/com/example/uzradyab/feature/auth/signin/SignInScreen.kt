@@ -16,12 +16,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -40,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uzradyab.core.designsystem.AppLabeledTextField
 import com.example.uzradyab.core.designsystem.AppPrimaryButton
 import com.example.uzradyab.core.designsystem.AppTextAction
@@ -55,26 +55,25 @@ import com.example.uzradyab.ui.theme.UzradyabTheme
 @Composable
 fun SignInRoute(
     modifier: Modifier = Modifier,
-    onSignIn: (phoneNumber: String, password: String) -> Unit = { _, _ -> },
+    onSignedIn: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
+    viewModel: SignInViewModel = viewModel(),
 ) {
-    var phoneNumber by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(state.signedIn) {
+        if (state.signedIn) {
+            onSignedIn()
+        }
+    }
 
     SignInScreen(
-        state = SignInUiState(
-            phoneNumber = phoneNumber,
-            password = password,
-            isPasswordVisible = isPasswordVisible
-        ),
-        onPhoneNumberChange = { value ->
-            phoneNumber = value.filter(Char::isDigit).take(11)
-        },
-        onPasswordChange = { password = it },
-        onPasswordVisibilityChange = { isPasswordVisible = !isPasswordVisible },
-        onSignInClick = { onSignIn(phoneNumber, password) },
+        state = state,
+        onPhoneNumberChange = viewModel::onPhoneNumberChange,
+        onPasswordChange = viewModel::onPasswordChange,
+        onPasswordVisibilityChange = viewModel::onPasswordVisibilityChange,
+        onSignInClick = viewModel::signIn,
         onForgotPasswordClick = onForgotPassword,
         onCreateAccountClick = onCreateAccount,
         modifier = modifier
@@ -161,13 +160,29 @@ fun SignInScreen(
                             onClick = onForgotPasswordClick,
                             modifier = Modifier
                                 .align(Alignment.Start)
-                                .padding(top = 28.dp)
+                                .padding(top = 18.dp)
                         )
-                        Spacer(modifier = Modifier.height(82.dp))
+                        if (state.errorMessage != null) {
+                            Text(
+                                text = state.errorMessage,
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
+                                textAlign = TextAlign.Right,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(if (state.errorMessage == null) 72.dp else 34.dp))
                         AppPrimaryButton(
-                            text = if (state.isSubmitting) SignInCopy.submitting else SignInCopy.signIn,
+                            text = when {
+                                state.isCheckingSession -> SignInCopy.checkingSession
+                                state.isSubmitting -> SignInCopy.submitting
+                                else -> SignInCopy.signIn
+                            },
                             onClick = onSignInClick,
-                            enabled = !state.isSubmitting
+                            enabled = !state.isSubmitting && !state.isCheckingSession
                         )
                         Spacer(modifier = Modifier.height(54.dp))
                         Text(
@@ -197,6 +212,7 @@ private object SignInCopy {
     const val forgotPassword = "\u0641\u0631\u0627\u0645\u0648\u0634\u06CC \u0631\u0645\u0632 \u0639\u0628\u0648\u0631"
     const val signIn = "\u0648\u0631\u0648\u062F"
     const val submitting = "\u062F\u0631 \u062D\u0627\u0644 \u0648\u0631\u0648\u062F..."
+    const val checkingSession = "\u0628\u0631\u0631\u0633\u06CC \u0646\u0634\u0633\u062A..."
     const val noAccount = "\u0622\u06CC\u0627 \u062D\u0633\u0627\u0628 \u06A9\u0627\u0631\u0628\u0631\u06CC \u0646\u062F\u0627\u0631\u06CC\u062F\u061F"
     const val createAccount = "\u0627\u06CC\u062C\u0627\u062F \u062D\u0633\u0627\u0628 \u06A9\u0627\u0631\u0628\u0631\u06CC"
 }
