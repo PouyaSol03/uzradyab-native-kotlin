@@ -2,6 +2,7 @@ package com.example.uzradyab.di
 
 import android.content.Context
 import com.example.uzradyab.core.network.PersistentCookieJar
+import com.example.uzradyab.data.remote.api.AuthHelperApi
 import com.example.uzradyab.data.remote.api.TraccarApi
 import com.google.gson.Gson
 import dagger.Module
@@ -10,12 +11,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 private const val DEFAULT_SERVER_URL = "https://app.uzradyab.ir/"
+private const val AUTH_HELPER_URL = "https://pay.uzradyab.ir/"
+private const val AUTH_HELPER_RETROFIT = "authHelperRetrofit"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -52,7 +56,24 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named(AUTH_HELPER_RETROFIT)
+    fun provideAuthHelperRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(AUTH_HELPER_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
+
+    @Provides
+    @Singleton
     fun provideTraccarApi(retrofit: Retrofit): TraccarApi {
         return retrofit.create(TraccarApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthHelperApi(@Named(AUTH_HELPER_RETROFIT) retrofit: Retrofit): AuthHelperApi {
+        return retrofit.create(AuthHelperApi::class.java)
     }
 }
