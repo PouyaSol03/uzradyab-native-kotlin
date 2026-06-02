@@ -1,6 +1,6 @@
 package com.example.uzradyab.presentation.map
 
-import androidx.compose.foundation.Canvas
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,15 +10,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
+import com.example.uzradyab.map.tile.ExirFirmTileSource
+import org.osmdroid.config.Configuration
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+
+private val Tehran = GeoPoint(35.6892, 51.3890)
+private const val OSMDROID_PREFS = "osmdroid"
 
 @Composable
 fun TrackingMap(
@@ -27,51 +35,53 @@ fun TrackingMap(
     selectedDeviceId: Long?,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val selectedPosition = latestPositions[selectedDeviceId]
+    val center = selectedPosition?.toGeoPoint()
+        ?: latestPositions.values.firstOrNull()?.toGeoPoint()
+        ?: Tehran
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFE8F0F6)),
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val gridColor = Color(0xFFD1DEE8)
-            val roadColor = Color.White.copy(alpha = 0.86f)
-            val step = 72.dp.toPx()
-            var x = -step
-            while (x < size.width + step) {
-                drawLine(gridColor, Offset(x, 0f), Offset(x + size.height, size.height), 1.dp.toPx())
-                x += step
-            }
-            var y = 0f
-            while (y < size.height) {
-                drawLine(gridColor, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
-                y += step
-            }
-            drawLine(
-                color = roadColor,
-                start = Offset(size.width * 0.08f, size.height * 0.62f),
-                end = Offset(size.width * 0.92f, size.height * 0.36f),
-                strokeWidth = 18.dp.toPx(),
-                cap = StrokeCap.Round,
-            )
-            drawLine(
-                color = roadColor,
-                start = Offset(size.width * 0.18f, size.height * 0.16f),
-                end = Offset(size.width * 0.72f, size.height * 0.86f),
-                strokeWidth = 14.dp.toPx(),
-            )
-        }
-        devices.forEachIndexed { index, device ->
-            val selected = device.id == selectedDeviceId
-            val position = latestPositions[device.id]
-            MapMarker(
-                label = device.name.take(2),
-                selected = selected,
-                hasPosition = position != null,
-                modifier = Modifier
-                    .align(markerAlignment(index))
-                    .padding(24.dp),
-            )
-        }
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = {
+                Configuration.getInstance().load(
+                    it,
+                    it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE),
+                )
+                Configuration.getInstance().userAgentValue = context.packageName
+                MapView(it).apply {
+                    setTileSource(ExirFirmTileSource())
+                    setMultiTouchControls(true)
+                    setMinZoomLevel(3.0)
+                    setMaxZoomLevel(19.0)
+                    controller.setZoom(13.0)
+                    controller.setCenter(center)
+                }
+            },
+            update = { mapView ->
+                mapView.setTileSource(ExirFirmTileSource())
+                mapView.overlays.removeAll { it is Marker }
+                devices.forEach { device ->
+                    latestPositions[device.id]?.let { position ->
+                        mapView.overlays.add(
+                            Marker(mapView).apply {
+                                this.position = position.toGeoPoint()
+                                title = device.name
+                                snippet = formatStatus(device.status)
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                            },
+                        )
+                    }
+                }
+                mapView.controller.setCenter(center)
+                mapView.invalidate()
+            },
+        )
         Text(
             text = "نقشه زنده",
             color = MaterialTheme.colorScheme.secondary,
@@ -86,36 +96,10 @@ fun TrackingMap(
     }
 }
 
-private fun markerAlignment(index: Int): Alignment {
-    return when (index % 5) {
-        0 -> Alignment.Center
-        1 -> Alignment.TopStart
-        2 -> Alignment.TopEnd
-        3 -> Alignment.BottomStart
-        else -> Alignment.BottomEnd
-    }
-}
+private fun Position.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
 
-@Composable
-private fun MapMarker(
-    label: String,
-    selected: Boolean,
-    hasPosition: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val fill = when {
-        selected -> MaterialTheme.colorScheme.primary
-        hasPosition -> Color(0xFF22A566)
-        else -> Color(0xFF8A98A8)
-    }
-    Text(
-        text = label.ifBlank { "خ" },
-        color = Color.White,
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center,
-        modifier = modifier
-            .background(fill, MaterialTheme.shapes.extraLarge)
-            .padding(horizontal = 12.dp, vertical = 9.dp),
-    )
+private fun formatStatus(status: String): String = when (status) {
+    "online" -> "دستگاه آنلاین"
+    "offline" -> "دستگاه آفلاین"
+    else -> "وضعیت نامشخص"
 }

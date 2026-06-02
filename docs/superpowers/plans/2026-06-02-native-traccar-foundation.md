@@ -6,7 +6,7 @@
 
 **Architecture:** Replace the temporary starter structure with the requested clean architecture packages. Remote REST and WebSocket code writes to Room; repositories expose Room `Flow`; ViewModels shape screen state; Compose renders React-matching Persian RTL mobile UI.
 
-**Tech Stack:** Kotlin, Jetpack Compose, MVVM/Clean Architecture, Hilt, Retrofit 3, OkHttp WebSocket, Room, WorkManager, Mapbox Maps SDK, Coroutines, Flow.
+**Tech Stack:** Kotlin, Jetpack Compose, MVVM/Clean Architecture, Hilt, Retrofit 3, OkHttp WebSocket, Room, WorkManager, osmdroid with self-hosted OSM tiles, Coroutines, Flow.
 
 ---
 
@@ -15,7 +15,7 @@
 - Room stable line: `androidx.room:room-*:2.8.4`.
 - Hilt Android docs: `com.google.dagger:hilt-android:2.57.1` and Java 17.
 - Retrofit Maven Central: `com.squareup.retrofit2:retrofit:3.0.0`.
-- Mapbox Android install docs: `com.mapbox.maps:android-ndk27:11.24.3` and `com.mapbox.extension:maps-compose-ndk27:11.24.3`.
+- osmdroid Maven Central artifact: `org.osmdroid:osmdroid-android:6.1.20`.
 
 Do not run Gradle build/test tasks unless the user explicitly asks.
 
@@ -123,7 +123,9 @@ app/src/main/java/com/example/uzradyab/
       FallbackPositionSyncWorker.kt
   map/
     offline/
-      MapboxOfflineRegionManager.kt
+      SelfHostedTileCacheManager.kt
+    tile/
+      ExirFirmTileSource.kt
 ```
 
 Keep existing `ui/theme/*` if useful. Existing `core/*` and `feature/*` code can be removed after replacement files compile in the user's local build.
@@ -207,9 +209,9 @@ git commit -m "docs: add react api audit boundary"
 - Modify: `app/src/main/AndroidManifest.xml`
 - Create: `app/src/main/java/com/example/uzradyab/UzradyabApplication.kt`
 
-- [ ] **Step 1: Update repositories for Mapbox**
+- [ ] **Step 1: Keep repositories token-free**
 
-In `settings.gradle.kts`, add the Mapbox Maven repository inside `dependencyResolutionManagement.repositories`:
+In `settings.gradle.kts`, use only standard repositories. Do not add Mapbox Maven or any token-based map repository:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -217,9 +219,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
-        }
     }
 }
 ```
@@ -236,7 +235,7 @@ room = "2.8.4"
 retrofit = "3.0.0"
 gson = "2.13.2"
 work = "2.11.0"
-mapbox = "11.24.3"
+osmdroid = "6.1.20"
 
 [libraries]
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -250,8 +249,7 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
-mapbox-android = { group = "com.mapbox.maps", name = "android-ndk27", version.ref = "mapbox" }
-mapbox-compose = { group = "com.mapbox.extension", name = "maps-compose-ndk27", version.ref = "mapbox" }
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 [plugins]
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
@@ -312,8 +310,25 @@ implementation(libs.retrofit)
 implementation(libs.retrofit.converter.gson)
 implementation(libs.gson)
 implementation(libs.androidx.work.runtime.ktx)
-implementation(libs.mapbox.android)
-implementation(libs.mapbox.compose)
+implementation(libs.osmdroid.android)
+```
+
+Also enable `buildConfig` and expose the self-hosted tile base URL:
+
+```kotlin
+android {
+    defaultConfig {
+        buildConfigField(
+            "String",
+            "EXIR_TILE_BASE_URL",
+            "\"https://map.exirfirm.com/tile/\""
+        )
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+}
 ```
 
 - [ ] **Step 5: Create Hilt application class**
@@ -1801,9 +1816,9 @@ fun HomeMapRoute(
 
 Build the screen to match React mobile `MainPage`: map fills the screen, toolbar overlays top, device list overlays when open, selected device status card anchors at the bottom.
 
-- [ ] **Step 3: Add staged Mapbox composable boundary**
+- [ ] **Step 3: Add self-hosted OSM tile composable boundary**
 
-Create `TrackingMap.kt` with a real Mapbox composable when token is present and a graceful visual fallback when no token is configured. The fallback must look like a map surface, not a blank screen.
+Create `TrackingMap.kt` with an osmdroid `MapView` hosted by Compose `AndroidView`. Configure it with `ExirFirmTileSource`, which builds tile URLs from `BuildConfig.EXIR_TILE_BASE_URL` in the `{z}/{x}/{y}.png` pattern. Do not use Mapbox, Google Maps, OpenStreetMap public tile servers, or any token-based map service.
 
 - [ ] **Step 4: Create React-matching device list and status card**
 
@@ -2057,34 +2072,44 @@ git commit -m "feat: add sync and cache cleanup workers"
 
 ---
 
-### Task 11: Mapbox Offline Boundary And Settings Entry
+### Task 11: Self-Hosted Tile Cache Boundary And Settings Entry
 
 **Files:**
-- Create: `app/src/main/java/com/example/uzradyab/map/offline/MapboxOfflineRegionManager.kt`
+- Create: `app/src/main/java/com/example/uzradyab/map/offline/SelfHostedTileCacheManager.kt`
 - Create: `app/src/main/java/com/example/uzradyab/data/repository/MapCacheRepositoryImpl.kt`
 - Create: `app/src/main/java/com/example/uzradyab/presentation/settings/OfflineMapSettingsState.kt`
 
 - [ ] **Step 1: Create offline manager boundary**
 
-Create `MapboxOfflineRegionManager.kt`:
+Create `SelfHostedTileCacheManager.kt`:
 
 ```kotlin
 package com.example.uzradyab.map.offline
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.osmdroid.config.Configuration
 
 @Singleton
-class MapboxOfflineRegionManager @Inject constructor() {
+class SelfHostedTileCacheManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
     suspend fun clearOfflineMapData(): Result<Unit> {
-        return runCatching { Unit }
+        return runCatching {
+            val prefs = context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+            Configuration.getInstance().load(context, prefs)
+            Configuration.getInstance().osmdroidTileCache?.deleteRecursively()
+            Unit
+        }
     }
 }
 ```
 
 - [ ] **Step 2: Connect map cache repository**
 
-Implement `MapCacheRepositoryImpl` so `observeOfflineRegions()` reads `OfflineRegionDao` and `clearOfflineRegions()` clears Room metadata and calls `MapboxOfflineRegionManager.clearOfflineMapData()`.
+Implement `MapCacheRepositoryImpl` so `observeOfflineRegions()` reads `OfflineRegionDao` and `clearOfflineRegions()` clears Room metadata and calls `SelfHostedTileCacheManager.clearOfflineMapData()`.
 
 - [ ] **Step 3: Add settings-facing state contract**
 
@@ -2108,7 +2133,7 @@ data class OfflineMapSettingsState(
 - [ ] **Step 4: Static inspection**
 
 ```bash
-rg -n "MapboxOfflineRegionManager|clearOfflineRegions|OfflineRegionDao|500|5-15" app/src/main/java/com/example/uzradyab
+rg -n "SelfHostedTileCacheManager|clearOfflineRegions|OfflineRegionDao|500|5.0|15.0" app/src/main/java/com/example/uzradyab
 ```
 
 Expected: offline map logic is behind repository/manager boundaries.

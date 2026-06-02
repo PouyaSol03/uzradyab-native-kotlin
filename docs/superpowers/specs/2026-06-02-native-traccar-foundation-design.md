@@ -18,7 +18,7 @@ This design covers the first complete foundation and vertical slice:
 - REST polling fallback only while WebSocket is disconnected.
 - Mobile home/map experience that visually follows the React mobile app.
 
-Full reports, settings detail screens, commands, geofences, notifications, payment, OTP registration, and complete offline Mapbox download UI are follow-up slices. The foundation must leave clean package boundaries for them.
+Full reports, settings detail screens, commands, geofences, notifications, payment, OTP registration, and complete offline self-hosted tile download UI are follow-up slices. The foundation must leave clean package boundaries for them.
 
 ## Source References
 
@@ -140,7 +140,7 @@ Add the foundation libraries requested in the brief:
 - Room for local cache and source-of-truth flows.
 - Hilt for dependency injection.
 - WorkManager for retry/sync work that requires network.
-- Mapbox Maps SDK for map rendering and offline map regions.
+- osmdroid with self-hosted OSM tiles from `https://map.exirfirm.com/tile/` for map rendering and offline map regions.
 - Kotlin Coroutines and Flow for async and reactive state.
 
 The existing handwritten OkHttp JSON client should be replaced by Retrofit APIs, except OkHttp remains the WebSocket transport and Retrofit's HTTP client.
@@ -168,7 +168,7 @@ Create these entities:
 - `PositionEntity`: positions keyed by Traccar position id when available, with device id, coordinates, speed, course, times, address, and raw attributes JSON.
 - `LatestPositionEntity` or a latest-position query strategy: latest position per device must be cheap to observe.
 - `EventEntity`: latest relevant events from WebSocket/REST.
-- `OfflineRegionEntity`: Mapbox offline region metadata, size estimate, zoom range, and download state.
+- `OfflineRegionEntity`: self-hosted OSM offline region metadata, size estimate, zoom range, and download state.
 
 Caching rules:
 
@@ -236,15 +236,20 @@ Initial workers:
 
 Workers write to Room through repositories or data-layer sync coordinators.
 
-## Mapbox
+## Self-Hosted OSM Tiles
 
-Mapbox integration is part of the target architecture, but first implementation can stage it behind a stable Compose boundary:
+Self-hosted OSM tile integration is part of the target architecture. The app must not depend on Mapbox, Google Maps, public OSM tile servers, or a map download token. Map tiles should be fetched from the ExirFirm tile server by default:
+
+```text
+https://map.exirfirm.com/tile/{z}/{x}/{y}.png
+```
 
 - `TrackingMap` composable in presentation.
 - Map state derived from latest position flows.
 - Only latest marker per device for live view.
 - Selected device marker follows React `MainMap`/`MapPositions` behavior.
-- Offline region code in `map/offline`.
+- Tile source code in `map/tile`.
+- Offline/cache boundary code in `map/offline`.
 
 Offline map rules:
 
@@ -307,7 +312,7 @@ Responsibilities:
 - `DeviceRepository`: observe devices, refresh devices from REST, cache devices.
 - `PositionRepository`: observe latest positions and limited history, refresh latest positions from REST, cache and prune history.
 - `TrackingRepository`: coordinate WebSocket lifecycle, fallback polling, connection state, and live update persistence.
-- `MapCacheRepository`: offline Mapbox region metadata and commands.
+- `MapCacheRepository`: offline self-hosted OSM region metadata and commands.
 
 ## Error Handling
 
@@ -367,6 +372,6 @@ Suggested migration order:
 7. Implement initial home/map slice using Room flows.
 8. Add WebSocket tracking updates.
 9. Add fallback polling and cleanup workers.
-10. Stage Mapbox map and offline-region repository.
+10. Stage self-hosted OSM map and offline-region repository.
 
 Each screen after the first slice should start by inspecting its React counterpart, then implementing reusable Compose components with the native architecture.
