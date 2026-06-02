@@ -34,6 +34,12 @@ fun UzradyabApp(
         }
         composable(AppRoute.Register.path) {
             RegisterRoute(
+                onSignedIn = {
+                    navController.navigate(AppRoute.Home.path) {
+                        popUpTo(AppRoute.SignIn.path) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 onLoginClick = {
                     navController.popBackStack()
                 },
