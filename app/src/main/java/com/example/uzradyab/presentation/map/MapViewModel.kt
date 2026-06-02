@@ -17,10 +17,10 @@ import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -32,7 +32,9 @@ data class HomeMapUiState(
     val devices: List<Device> = emptyList(),
     val latestPositions: Map<Long, Position> = emptyMap(),
     val selectedDeviceId: Long? = null,
-    val devicesOpen: Boolean = true,
+    val devicesOpen: Boolean = false,
+    val deviceCardExpanded: Boolean = false,
+    val deviceManagementOpen: Boolean = false,
     val connectionState: TrackingConnectionState = TrackingConnectionState.Idle,
     val signedOut: Boolean = false,
     val todayDistanceText: String = "در حال دریافت",
@@ -67,11 +69,35 @@ class MapViewModel @Inject constructor(
     }
 
     fun selectDevice(deviceId: Long) {
-        localState.update { it.copy(selectedDeviceId = deviceId, devicesOpen = false) }
+        localState.update {
+            it.copy(
+                selectedDeviceId = deviceId,
+                devicesOpen = false,
+                deviceManagementOpen = false,
+            )
+        }
     }
 
     fun toggleDevices() {
-        localState.update { it.copy(devicesOpen = !it.devicesOpen) }
+        localState.update { it.copy(devicesOpen = !it.devicesOpen, deviceManagementOpen = false) }
+    }
+
+    fun toggleDeviceCard() {
+        localState.update { it.copy(deviceCardExpanded = !it.deviceCardExpanded) }
+    }
+
+    fun openDeviceManagement() {
+        localState.update {
+            it.copy(
+                deviceCardExpanded = true,
+                deviceManagementOpen = true,
+                devicesOpen = false,
+            )
+        }
+    }
+
+    fun closeDeviceManagement() {
+        localState.update { it.copy(deviceManagementOpen = false) }
     }
 
     fun logout() {

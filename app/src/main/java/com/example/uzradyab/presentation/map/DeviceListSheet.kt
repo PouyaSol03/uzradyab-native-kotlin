@@ -123,7 +123,9 @@ private fun DeviceRowCard(
             Surface(
                 shape = CircleShape,
                 color = statusColor(device.status),
-                modifier = Modifier.width(42.dp).height(42.dp),
+                modifier = Modifier
+                    .width(42.dp)
+                    .height(42.dp),
             ) {
                 Text(
                     text = device.name.take(1).ifBlank { "خ" },

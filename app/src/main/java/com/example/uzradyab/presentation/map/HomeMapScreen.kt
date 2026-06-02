@@ -3,7 +3,9 @@ package com.example.uzradyab.presentation.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -33,6 +35,9 @@ fun HomeMapRoute(
         state = state,
         onDeviceClick = viewModel::selectDevice,
         onToggleDevices = viewModel::toggleDevices,
+        onToggleDeviceCard = viewModel::toggleDeviceCard,
+        onManageDeviceClick = viewModel::openDeviceManagement,
+        onMapTabClick = viewModel::closeDeviceManagement,
         onLogoutClick = viewModel::logout,
     )
 }
@@ -42,6 +47,9 @@ fun HomeMapScreen(
     state: HomeMapUiState,
     onDeviceClick: (Long) -> Unit,
     onToggleDevices: () -> Unit,
+    onToggleDeviceCard: () -> Unit,
+    onManageDeviceClick: () -> Unit,
+    onMapTabClick: () -> Unit,
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -64,13 +72,11 @@ fun HomeMapScreen(
                 modifier = Modifier.fillMaxSize(),
             )
             MapTopToolbar(
-                devicesOpen = state.devicesOpen,
-                connectionState = state.connectionState,
-                onToggleDevices = onToggleDevices,
-                onLogoutClick = onLogoutClick,
+                onMenuClick = onLogoutClick,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 18.dp),
+                    .statusBarsPadding()
+                    .padding(top = 16.dp),
             )
             if (state.devicesOpen) {
                 DeviceListSheet(
@@ -82,19 +88,40 @@ fun HomeMapScreen(
                 )
             }
             if (selectedDevice != null) {
-                SelectedDeviceStatusCard(
-                    device = selectedDevice,
-                    position = selectedPosition,
-                    todayDistanceText = state.todayDistanceText,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 92.dp),
-                )
+                if (state.deviceManagementOpen) {
+                    DeviceManagementPanel(
+                        device = selectedDevice,
+                        position = selectedPosition,
+                        todayDistanceText = state.todayDistanceText,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(bottom = 92.dp),
+                    )
+                } else {
+                    SelectedDeviceStatusCard(
+                        device = selectedDevice,
+                        position = selectedPosition,
+                        todayDistanceText = state.todayDistanceText,
+                        expanded = state.deviceCardExpanded,
+                        onToggleExpanded = onToggleDeviceCard,
+                        onManageClick = onManageDeviceClick,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(bottom = 92.dp),
+                    )
+                }
             }
             HomeBottomMenu(
-                onDevicesClick = onToggleDevices,
+                selectedItem = if (state.deviceManagementOpen) HomeBottomItem.Management else HomeBottomItem.Map,
+                onEventsClick = {},
+                onManagementClick = onManageDeviceClick,
+                onMapClick = onMapTabClick,
+                onAccountClick = {},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
                     .padding(bottom = 18.dp),
             )
         }
