@@ -5,9 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.uzradyab.feature.home.HomeRoute
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
+import com.example.uzradyab.presentation.map.HomeMapRoute
 
 @Composable
 fun UzradyabApp(
@@ -40,7 +40,7 @@ fun UzradyabApp(
             )
         }
         composable(AppRoute.Home.path) {
-            HomeRoute(
+            HomeMapRoute(
                 onSignedOut = {
                     navController.navigate(AppRoute.SignIn.path) {
                         popUpTo(AppRoute.Home.path) { inclusive = true }
