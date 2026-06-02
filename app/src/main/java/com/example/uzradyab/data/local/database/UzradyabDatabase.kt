@@ -4,9 +4,11 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.uzradyab.data.local.dao.DeviceDao
 import com.example.uzradyab.data.local.dao.EventDao
+import com.example.uzradyab.data.local.dao.DailyDistanceDao
 import com.example.uzradyab.data.local.dao.OfflineRegionDao
 import com.example.uzradyab.data.local.dao.PositionDao
 import com.example.uzradyab.data.local.dao.UserSessionDao
+import com.example.uzradyab.data.local.entity.DailyDistanceEntity
 import com.example.uzradyab.data.local.entity.DeviceEntity
 import com.example.uzradyab.data.local.entity.EventEntity
 import com.example.uzradyab.data.local.entity.OfflineRegionEntity
@@ -20,8 +22,9 @@ import com.example.uzradyab.data.local.entity.UserSessionEntity
         PositionEntity::class,
         EventEntity::class,
         OfflineRegionEntity::class,
+        DailyDistanceEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class UzradyabDatabase : RoomDatabase() {
@@ -30,4 +33,5 @@ abstract class UzradyabDatabase : RoomDatabase() {
     abstract fun positionDao(): PositionDao
     abstract fun eventDao(): EventDao
     abstract fun offlineRegionDao(): OfflineRegionDao
+    abstract fun dailyDistanceDao(): DailyDistanceDao
 }

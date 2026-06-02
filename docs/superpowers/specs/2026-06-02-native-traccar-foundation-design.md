@@ -169,6 +169,7 @@ Create these entities:
 - `LatestPositionEntity` or a latest-position query strategy: latest position per device must be cheap to observe.
 - `EventEntity`: latest relevant events from WebSocket/REST.
 - `OfflineRegionEntity`: self-hosted OSM offline region metadata, size estimate, zoom range, and download state.
+- `DailyDistanceEntity`: cached `/api/reports/summary` daily distance per device/date for React `StatusCard` parity.
 
 Caching rules:
 
