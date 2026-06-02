@@ -1,35 +1,116 @@
 package com.example.uzradyab.data.repository
 
+import com.example.uzradyab.data.local.dao.DeviceDao
+import com.example.uzradyab.data.local.dao.EventDao
+import com.example.uzradyab.data.local.dao.PositionDao
+import com.example.uzradyab.data.mapper.toEntity
+import com.example.uzradyab.data.remote.api.TraccarApi
+import com.example.uzradyab.data.remote.websocket.SocketEvent
+import com.example.uzradyab.data.remote.websocket.TraccarSocketClient
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.TrackingRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 
 @Singleton
-class TrackingRepositoryImpl @Inject constructor() : TrackingRepository {
+class TrackingRepositoryImpl @Inject constructor(
+    private val socketClient: TraccarSocketClient,
+    private val api: TraccarApi,
+    private val deviceDao: DeviceDao,
+    private val positionDao: PositionDao,
+    private val eventDao: EventDao,
+) : TrackingRepository {
     private val _connectionState = MutableStateFlow(TrackingConnectionState.Idle)
     override val connectionState: StateFlow<TrackingConnectionState> = _connectionState.asStateFlow()
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var socketJob: Job? = null
+    private var fallbackJob: Job? = null
+    private var stopped = false
+
     override fun start() {
-        if (_connectionState.value == TrackingConnectionState.Idle) {
-            _connectionState.value = TrackingConnectionState.Connecting
+        if (socketJob?.isActive == true) return
+        stopped = false
+        socketJob = scope.launch {
+            var backoffMs = 2_000L
+            while (!stopped) {
+                _connectionState.value = TrackingConnectionState.Connecting
+                socketClient.connect()
+                    .catch {
+                        handleSocketDisconnected()
+                    }
+                    .collect { event ->
+                        when (event) {
+                            SocketEvent.Opened -> {
+                                backoffMs = 2_000L
+                                _connectionState.value = TrackingConnectionState.Connected
+                                stopFallbackPolling()
+                            }
+                            is SocketEvent.Message -> persistSocketMessage(event)
+                            is SocketEvent.Closed -> {
+                                if (event.code != 4000) handleSocketDisconnected()
+                            }
+                            is SocketEvent.Failed -> handleSocketDisconnected()
+                        }
+                    }
+                if (!stopped) {
+                    delay(backoffMs)
+                    backoffMs = (backoffMs * 2).coerceAtMost(60_000L)
+                }
+            }
         }
     }
 
     override fun stop() {
+        stopped = true
+        socketJob?.cancel()
+        fallbackJob?.cancel()
         _connectionState.value = TrackingConnectionState.Idle
     }
 
     override fun startFallbackPolling() {
-        _connectionState.value = TrackingConnectionState.PollingFallback
+        if (fallbackJob?.isActive == true) return
+        fallbackJob = scope.launch {
+            _connectionState.value = TrackingConnectionState.PollingFallback
+            while (!stopped && _connectionState.value == TrackingConnectionState.PollingFallback) {
+                runCatching {
+                    positionDao.upsertLatest(api.getPositions().map { it.toEntity(isLatest = true) })
+                }
+                delay(45_000L)
+            }
+        }
     }
 
     override fun stopFallbackPolling() {
-        if (_connectionState.value == TrackingConnectionState.PollingFallback) {
-            _connectionState.value = TrackingConnectionState.Disconnected
+        fallbackJob?.cancel()
+        fallbackJob = null
+    }
+
+    private suspend fun persistSocketMessage(event: SocketEvent.Message) {
+        event.data.devices?.let { devices ->
+            deviceDao.upsertAll(devices.map { it.toEntity() })
         }
+        event.data.positions?.let { positions ->
+            positionDao.upsertLatest(positions.map { it.toEntity(isLatest = true) })
+        }
+        event.data.events?.let { events ->
+            eventDao.upsertAll(events.map { it.toEntity() })
+        }
+    }
+
+    private fun handleSocketDisconnected() {
+        if (stopped) return
+        _connectionState.value = TrackingConnectionState.Disconnected
+        startFallbackPolling()
     }
 }
