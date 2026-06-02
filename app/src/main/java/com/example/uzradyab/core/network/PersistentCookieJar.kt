@@ -43,7 +43,7 @@ class PersistentCookieJar(context: Context) : CookieJar {
 
     private fun loadAllCookies(): List<Cookie> {
         return preferences.getStringSet(KEY_COOKIES, emptySet()).orEmpty()
-            .mapNotNull { Cookie.parse(NetworkConfig.BASE_URL.toHttpUrl(), it) }
+            .mapNotNull { Cookie.parse(DEFAULT_SERVER_URL.toHttpUrl(), it) }
     }
 
     private fun String.toHttpUrl(): HttpUrl = HttpUrl.Builder()
@@ -53,5 +53,6 @@ class PersistentCookieJar(context: Context) : CookieJar {
 
     private companion object {
         const val KEY_COOKIES = "cookies"
+        const val DEFAULT_SERVER_URL = "https://app.uzradyab.ir"
     }
 }
