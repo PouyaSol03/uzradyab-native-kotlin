@@ -5,8 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.uzradyab.feature.auth.signin.SignInRoute
 import com.example.uzradyab.feature.home.HomeRoute
+import com.example.uzradyab.presentation.auth.LoginRoute
+import com.example.uzradyab.presentation.auth.RegisterRoute
 
 @Composable
 fun UzradyabApp(
@@ -17,13 +18,25 @@ fun UzradyabApp(
         startDestination = AppRoute.SignIn.path,
     ) {
         composable(AppRoute.SignIn.path) {
-            SignInRoute(
+            LoginRoute(
                 onSignedIn = {
                     navController.navigate(AppRoute.Home.path) {
                         popUpTo(AppRoute.SignIn.path) { inclusive = true }
                         launchSingleTop = true
                     }
-                }
+                },
+                onRegisterClick = {
+                    navController.navigate(AppRoute.Register.path) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(AppRoute.Register.path) {
+            RegisterRoute(
+                onLoginClick = {
+                    navController.popBackStack()
+                },
             )
         }
         composable(AppRoute.Home.path) {
@@ -41,5 +54,6 @@ fun UzradyabApp(
 
 private enum class AppRoute(val path: String) {
     SignIn("/signin"),
+    Register("/register"),
     Home("/home"),
 }
