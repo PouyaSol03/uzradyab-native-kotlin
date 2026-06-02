@@ -39,6 +39,32 @@ Primary React references for the first slice:
 
 The React state model must not be copied. Redux, direct `fetch` calls in UI components, and browser-specific APIs are implementation details of the reference app, not native architecture guidance.
 
+## React API Audit Rule
+
+Before implementing each native screen, inspect the matching React mobile component for the exact APIs it calls. The native app should implement only the endpoints needed for that screen and keep each service in the correct boundary.
+
+For the first foundation slice, the React mobile flow uses these Traccar endpoints:
+
+- `GET /api/session`
+- `POST /api/session`
+- `DELETE /api/session`
+- `POST /api/session/token` only for native/web token handoff in the React app; do not add it to Android until a native token flow is required.
+- `GET /api/devices`
+- `GET /api/devices/{id}` for device detail/payment verification follow-up screens.
+- `PUT /api/devices/{id}` for device update/expiration follow-up screens.
+- `GET /api/positions`
+- `GET /api/positions?...` for replay/history follow-up screens.
+- WebSocket `/api/socket`
+- `GET /api/reports/summary?...` for today distance in `StatusCard` and report screens.
+
+Secondary/custom services found in the React project must not be mixed into the Traccar API client:
+
+- OTP and account helpers use `VITE_BACKEND_URL`, such as `/otp/send-otp/`, `/otp/verify-otp/`, `/api/traccar/check-user-exists/`, `/api/traccar/change-password/`, and `/api/traccar/positions/time-range/`.
+- Payment and account charge flows use `https://pay.uzradyab.ir` through `settings.secoundBackendUrl`, such as `/accountChargeList/`, `/pay/`, and `/verify/`.
+- Notification preferences/latest events use `https://notification.uzradyab.ir`, such as `/handle_events/preferences/...` and `/handle_events/latest/...`.
+
+Do not add broad Traccar endpoints just because Traccar supports them. Add endpoint interfaces when the React-referenced native screen needs them.
+
 ## Architecture
 
 Target package structure:
@@ -163,7 +189,8 @@ Create Retrofit APIs for the Traccar server:
 - `GET /api/devices`
 - `GET /api/positions`
 - `GET /api/reports/summary`
-- History/report endpoints needed by later slices.
+
+History, geofence, command, notification, payment, and OTP endpoints are follow-up slices. They should be added only after auditing their React mobile source component and identifying whether the call belongs to the Traccar server, `pay.uzradyab.ir`, `notification.uzradyab.ir`, or the custom backend from `VITE_BACKEND_URL`.
 
 Use `https://app.uzradyab.ir` as the default server. Do not hardcode the server in screen code. Keep server configuration in data/di so custom Traccar servers can be supported later.
 
@@ -343,4 +370,3 @@ Suggested migration order:
 10. Stage Mapbox map and offline-region repository.
 
 Each screen after the first slice should start by inspecting its React counterpart, then implementing reusable Compose components with the native architecture.
-

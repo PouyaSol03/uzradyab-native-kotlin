@@ -19,6 +19,17 @@
 
 Do not run Gradle build/test tasks unless the user explicitly asks.
 
+## React API Boundary
+
+Before implementing a native screen, audit the matching React mobile component and add only the APIs that screen actually uses. The React project is a customized Traccar frontend, so keep service boundaries separate:
+
+- Traccar server `https://app.uzradyab.ir`: session, devices, positions, reports, commands, geofences, WebSocket.
+- Custom backend from `VITE_BACKEND_URL`: OTP, check-user, password helper, custom positions time-range helper.
+- Payment server `https://pay.uzradyab.ir`: account charge list, pay, verify.
+- Notification server `https://notification.uzradyab.ir`: notification preferences and latest event helpers.
+
+For this first foundation, implement only Traccar session/devices/positions/socket and summary report distance. Add OTP/payment/notification APIs in later UI slices after auditing the exact React files.
+
 ## File Structure
 
 Create or migrate toward this structure:
@@ -60,6 +71,7 @@ app/src/main/java/com/example/uzradyab/
         EventDto.kt
         PositionDto.kt
         SessionDto.kt
+        SummaryReportDto.kt
         SocketMessageDto.kt
       websocket/
         TraccarSocketClient.kt
@@ -118,7 +130,74 @@ Keep existing `ui/theme/*` if useful. Existing `core/*` and `feature/*` code can
 
 ---
 
-### Task 1: Gradle, Repositories, And Hilt Application Setup
+### Task 1: React Mobile API Audit For Foundation Slice
+
+**Files:**
+- Inspect: `/Users/pouyasoltani/Desktop/Projects/uzradyab/src/App.jsx`
+- Inspect: `/Users/pouyasoltani/Desktop/Projects/uzradyab/src/SocketController.jsx`
+- Inspect: `/Users/pouyasoltani/Desktop/Projects/uzradyab/src/login/LoginPage.jsx`
+- Inspect: `/Users/pouyasoltani/Desktop/Projects/uzradyab/src/main/DeviceList.jsx`
+- Inspect: `/Users/pouyasoltani/Desktop/Projects/uzradyab/src/common/components/StatusCard.jsx`
+
+- [ ] **Step 1: List foundation Traccar calls from React**
+
+Run:
+
+```bash
+rg -n "api/session|api/devices|api/positions|api/socket|api/reports/summary" \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/App.jsx \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/SocketController.jsx \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/login/LoginPage.jsx \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/main/DeviceList.jsx \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/common/components/StatusCard.jsx
+```
+
+Expected foundation allowlist:
+
+```text
+GET /api/session
+POST /api/session
+DELETE /api/session
+GET /api/devices
+GET /api/positions
+WebSocket /api/socket
+GET /api/reports/summary
+```
+
+- [ ] **Step 2: List secondary-service calls but do not implement them in this slice**
+
+Run:
+
+```bash
+rg -n "VITE_BACKEND_URL|settings.secoundBackendUrl|VITE_NOTIFICATION_URL|notificationUrl|otp|pay|verify|accountChargeList" \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/login \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/settings \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/main \
+  /Users/pouyasoltani/Desktop/Projects/uzradyab/src/common/components
+```
+
+Expected: OTP/custom helper calls belong to the custom backend, payment calls belong to `pay.uzradyab.ir`, and notification calls belong to `notification.uzradyab.ir`. Do not add these to `TraccarApi`.
+
+- [ ] **Step 3: Confirm plan still matches audit**
+
+Run:
+
+```bash
+rg -n "GET /api/session|POST /api/session|DELETE /api/session|GET /api/devices|GET /api/positions|GET /api/reports/summary|api/socket|VITE_BACKEND_URL|pay.uzradyab.ir|notification.uzradyab.ir" docs/superpowers/plans/2026-06-02-native-traccar-foundation.md
+```
+
+Expected: Traccar foundation endpoints are planned in Retrofit/WebSocket tasks; secondary-service APIs are documented as follow-up boundaries, not implemented.
+
+- [ ] **Step 4: Commit audit amendment if this task changed the plan**
+
+```bash
+git add docs/superpowers/plans/2026-06-02-native-traccar-foundation.md docs/superpowers/specs/2026-06-02-native-traccar-foundation-design.md
+git commit -m "docs: add react api audit boundary"
+```
+
+---
+
+### Task 2: Gradle, Repositories, And Hilt Application Setup
 
 **Files:**
 - Modify: `settings.gradle.kts`
@@ -314,7 +393,7 @@ git commit -m "chore: add native architecture dependencies"
 
 ---
 
-### Task 2: Domain Models And Repository Contracts
+### Task 3: Domain Models And Repository Contracts
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/domain/model/*.kt`
@@ -561,7 +640,7 @@ git commit -m "feat: add domain contracts for tracking"
 
 ---
 
-### Task 3: Room Source Of Truth
+### Task 4: Room Source Of Truth
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/data/local/entity/*.kt`
@@ -926,7 +1005,7 @@ git commit -m "feat: add room source of truth"
 
 ---
 
-### Task 4: Retrofit API, DTOs, Cookie Jar, And Mappers
+### Task 5: Retrofit API, DTOs, Cookie Jar, And Mappers
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/data/remote/api/TraccarApi.kt`
@@ -945,11 +1024,13 @@ package com.example.uzradyab.data.remote.api
 import com.example.uzradyab.data.remote.dto.DeviceDto
 import com.example.uzradyab.data.remote.dto.PositionDto
 import com.example.uzradyab.data.remote.dto.SessionDto
+import com.example.uzradyab.data.remote.dto.SummaryReportDto
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface TraccarApi {
     @GET("api/session")
@@ -970,6 +1051,14 @@ interface TraccarApi {
 
     @GET("api/positions")
     suspend fun getPositions(): List<PositionDto>
+
+    @GET("api/reports/summary")
+    suspend fun getSummaryReport(
+        @Query("from") from: String,
+        @Query("to") to: String,
+        @Query("daily") daily: Boolean,
+        @Query("deviceId") deviceId: Long,
+    ): List<SummaryReportDto>
 }
 ```
 
@@ -1022,6 +1111,19 @@ data class PositionDto(
     val serverTime: String? = null,
     val address: String? = null,
     val attributes: JsonObject? = null,
+)
+```
+
+```kotlin
+package com.example.uzradyab.data.remote.dto
+
+data class SummaryReportDto(
+    val deviceId: Long = 0,
+    val distance: Double = 0.0,
+    val averageSpeed: Double = 0.0,
+    val maxSpeed: Double = 0.0,
+    val startOdometer: Double = 0.0,
+    val endOdometer: Double = 0.0,
 )
 ```
 
@@ -1217,10 +1319,10 @@ object NetworkModule {
 - [ ] **Step 5: Static inspection**
 
 ```bash
-rg -n "api/session|api/devices|api/positions|DEFAULT_SERVER_URL|toEntity|toDomain" app/src/main/java/com/example/uzradyab/data app/src/main/java/com/example/uzradyab/di/NetworkModule.kt
+rg -n "api/session|api/devices|api/positions|api/reports/summary|DEFAULT_SERVER_URL|toEntity|toDomain" app/src/main/java/com/example/uzradyab/data app/src/main/java/com/example/uzradyab/di/NetworkModule.kt
 ```
 
-Expected: endpoint strings only in `TraccarApi`, default server only in DI/network config, mapping code in `data/mapper`.
+Expected: endpoint strings only in `TraccarApi`, default server only in DI/network config, mapping code in `data/mapper`. No OTP, payment, or notification-service endpoints should appear in `TraccarApi`.
 
 - [ ] **Step 6: Commit**
 
@@ -1231,7 +1333,7 @@ git commit -m "feat: add traccar retrofit data layer"
 
 ---
 
-### Task 5: Repository Implementations And DI Bindings
+### Task 6: Repository Implementations And DI Bindings
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/data/repository/*.kt`
@@ -1407,7 +1509,7 @@ git commit -m "feat: connect repositories to room source of truth"
 
 ---
 
-### Task 6: Auth UI Connected To ViewModel, With Login And Register Screens
+### Task 7: Auth UI Connected To ViewModel, With Login And Register Screens
 
 **Files:**
 - Modify: `app/src/main/java/com/example/uzradyab/UzradyabApp.kt`
@@ -1552,6 +1654,8 @@ Create `RegisterScreen.kt` with React-matching mobile fields:
 
 For this foundation slice, submit calls `registerVisualSubmit()` and shows a Persian info message. Do not call a fake API. The screen is still connected to ViewModel state and ready for OTP service wiring.
 
+Do not wire OTP or password-reset APIs in this task. React uses `VITE_BACKEND_URL` for those calls, not the Traccar API client.
+
 - [ ] **Step 5: Update navigation**
 
 Update `UzradyabApp.kt` routes:
@@ -1583,7 +1687,7 @@ git commit -m "feat: add connected auth screens"
 
 ---
 
-### Task 7: First Map/Home UI From Room Flows
+### Task 8: First Map/Home UI From Room Flows
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/presentation/map/MapViewModel.kt`
@@ -1707,6 +1811,8 @@ Create `DeviceListSheet.kt` using `LazyColumn` and 72dp rows, matching React `De
 
 Create `SelectedDeviceStatusCard.kt` matching React mobile `StatusCard`: centered bottom card, pull handle, device name, last update, GSM/GPS labels, primary manage-device button, share/directions icon buttons, and expiration warning when data exists.
 
+The React `StatusCard` fetches `/api/reports/summary` for today distance. For this task, expose a placeholder today-distance field from ViewModel state unless `SummaryReportDto` has already been connected through a repository. Do not fetch summary directly from the composable.
+
 - [ ] **Step 5: Create bottom menu**
 
 Create `HomeBottomMenu.kt` matching React `BottomMenu`: rounded pill, RTL item ordering, map/devices/notifications/account actions as visible UI. Actions can update local state or navigate when routes exist.
@@ -1732,7 +1838,7 @@ git commit -m "feat: add room-backed mobile map home"
 
 ---
 
-### Task 8: WebSocket Live Updates And REST Fallback
+### Task 9: WebSocket Live Updates And REST Fallback
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/data/remote/websocket/TraccarSocketClient.kt`
@@ -1843,7 +1949,7 @@ git commit -m "feat: add traccar websocket tracking"
 
 ---
 
-### Task 9: WorkManager Sync And Cache Cleanup
+### Task 10: WorkManager Sync And Cache Cleanup
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/sync/worker/FallbackPositionSyncWorker.kt`
@@ -1951,7 +2057,7 @@ git commit -m "feat: add sync and cache cleanup workers"
 
 ---
 
-### Task 10: Mapbox Offline Boundary And Settings Entry
+### Task 11: Mapbox Offline Boundary And Settings Entry
 
 **Files:**
 - Create: `app/src/main/java/com/example/uzradyab/map/offline/MapboxOfflineRegionManager.kt`
@@ -2016,7 +2122,7 @@ git commit -m "feat: add map cache repository boundary"
 
 ---
 
-### Task 11: Remove Temporary Starter Architecture
+### Task 12: Remove Temporary Starter Architecture
 
 **Files:**
 - Delete or migrate: `app/src/main/java/com/example/uzradyab/core/AppContainer.kt`
@@ -2054,7 +2160,7 @@ git commit -m "refactor: remove temporary starter architecture"
 
 ---
 
-### Task 12: Final Static Verification Handoff
+### Task 13: Final Static Verification Handoff
 
 **Files:**
 - Inspect all changed files.
