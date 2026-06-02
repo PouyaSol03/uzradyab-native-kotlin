@@ -33,6 +33,35 @@ fun AuthBackground(
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
+            fun drawMapPin(center: Offset, scale: Float) {
+                val pin = Path().apply {
+                    moveTo(center.x, center.y + 25f * scale)
+                    cubicTo(
+                        center.x - 28f * scale,
+                        center.y - 8f * scale,
+                        center.x - 19f * scale,
+                        center.y - 41f * scale,
+                        center.x,
+                        center.y - 41f * scale,
+                    )
+                    cubicTo(
+                        center.x + 19f * scale,
+                        center.y - 41f * scale,
+                        center.x + 28f * scale,
+                        center.y - 8f * scale,
+                        center.x,
+                        center.y + 25f * scale,
+                    )
+                    close()
+                }
+                drawPath(pin, color = Color.White.copy(alpha = 0.1f))
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.1f),
+                    radius = 8f * scale,
+                    center = Offset(center.x, center.y - 15f * scale),
+                )
+            }
+
             drawPath(
                 path = Path().apply {
                     moveTo(size.width * 0.06f, 0f)
@@ -71,6 +100,10 @@ fun AuthBackground(
                 color = Color.White.copy(alpha = 0.16f),
                 style = Stroke(width = 3f, cap = StrokeCap.Round, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 12f)))
             )
+            drawMapPin(Offset(size.width * 0.65f, size.height * 0.07f), 0.75f)
+            drawMapPin(Offset(size.width * 0.16f, size.height * 0.94f), 0.9f)
+            drawMapPin(Offset(size.width * 0.96f, size.height * 0.56f), 0.75f)
+            drawMapPin(Offset(size.width * 0.04f, size.height * 0.27f), 0.75f)
         }
         content()
     }

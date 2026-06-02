@@ -79,13 +79,31 @@ class AuthViewModel @Inject constructor(
 
     fun registerVisualSubmit() {
         val state = _uiState.value
-        val message = when {
-            state.name.isBlank() -> "نام و نام خانوادگی را وارد کنید"
-            state.phoneNumber.length != 11 -> "شماره تلفن باید ۱۱ رقم باشد"
-            state.password.length < 6 -> "رمز عبور باید حداقل ۶ کاراکتر باشد"
-            state.password != state.confirmPassword -> "رمز عبور و تایید آن یکسان نیست"
-            else -> "ثبت‌نام در مرحله بعد به سرویس OTP متصل می‌شود"
+        when {
+            state.name.isBlank() -> {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "نام و نام خانوادگی را وارد کنید",
+                        infoMessage = null,
+                    )
+                }
+            }
+            state.phoneNumber.length != 11 -> {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = "شماره تلفن باید ۱۱ رقم باشد",
+                        infoMessage = null,
+                    )
+                }
+            }
+            else -> {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = null,
+                        infoMessage = "کد تایید در مرحله بعد دریافت می‌شود",
+                    )
+                }
+            }
         }
-        _uiState.update { it.copy(infoMessage = message, errorMessage = null) }
     }
 }
