@@ -1,0 +1,41 @@
+package com.example.uzradyab.di
+
+import com.example.uzradyab.data.repository.AuthRepositoryImpl
+import com.example.uzradyab.data.repository.DeviceRepositoryImpl
+import com.example.uzradyab.data.repository.MapCacheRepositoryImpl
+import com.example.uzradyab.data.repository.PositionRepositoryImpl
+import com.example.uzradyab.data.repository.TrackingRepositoryImpl
+import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.DeviceRepository
+import com.example.uzradyab.domain.repository.MapCacheRepository
+import com.example.uzradyab.domain.repository.PositionRepository
+import com.example.uzradyab.domain.repository.TrackingRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDeviceRepository(impl: DeviceRepositoryImpl): DeviceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPositionRepository(impl: PositionRepositoryImpl): PositionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTrackingRepository(impl: TrackingRepositoryImpl): TrackingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMapCacheRepository(impl: MapCacheRepositoryImpl): MapCacheRepository
+}
