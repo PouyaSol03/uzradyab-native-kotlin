@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
+import com.example.uzradyab.presentation.events.EventsDevicesRoute
 import com.example.uzradyab.presentation.map.HomeMapRoute
 
 @Composable
@@ -52,7 +53,19 @@ fun UzradyabApp(
                         popUpTo(AppRoute.Home.path) { inclusive = true }
                         launchSingleTop = true
                     }
-                }
+                },
+                onEventsClick = {
+                    navController.navigate(AppRoute.Events.path) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(AppRoute.Events.path) {
+            EventsDevicesRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
             )
         }
     }
@@ -62,4 +75,5 @@ private enum class AppRoute(val path: String) {
     SignIn("/signin"),
     Register("/register"),
     Home("/home"),
+    Events("/events"),
 }

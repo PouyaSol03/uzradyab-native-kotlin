@@ -2,10 +2,14 @@ package com.example.uzradyab.presentation.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -13,6 +17,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,6 +27,7 @@ import com.example.uzradyab.ui.theme.AppBackground
 @Composable
 fun HomeMapRoute(
     onSignedOut: () -> Unit,
+    onEventsClick: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -35,10 +42,11 @@ fun HomeMapRoute(
         state = state,
         onDeviceClick = viewModel::selectDevice,
         onToggleDevices = viewModel::toggleDevices,
+        onOpenMapSettings = viewModel::openMapSettings,
+        onCloseMapSettings = viewModel::closeMapSettings,
         onToggleDeviceCard = viewModel::toggleDeviceCard,
         onManageDeviceClick = viewModel::openDeviceManagement,
-        onMapTabClick = viewModel::closeDeviceManagement,
-        onLogoutClick = viewModel::logout,
+        onEventsClick = onEventsClick,
     )
 }
 
@@ -47,10 +55,11 @@ fun HomeMapScreen(
     state: HomeMapUiState,
     onDeviceClick: (Long) -> Unit,
     onToggleDevices: () -> Unit,
+    onOpenMapSettings: () -> Unit,
+    onCloseMapSettings: () -> Unit,
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
-    onMapTabClick: () -> Unit,
-    onLogoutClick: () -> Unit,
+    onEventsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
@@ -60,70 +69,79 @@ fun HomeMapScreen(
         modifier = modifier.fillMaxSize(),
         color = AppBackground,
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(Color.White),
         ) {
-            TrackingMap(
-                devices = state.devices,
-                latestPositions = state.latestPositions,
-                selectedDeviceId = state.selectedDeviceId,
-                modifier = Modifier.fillMaxSize(),
-            )
             MapTopToolbar(
-                onMenuClick = onLogoutClick,
+                onMenuClick = onToggleDevices,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
                     .statusBarsPadding()
-                    .padding(top = 16.dp),
+                    .height(64.dp),
             )
-            if (state.devicesOpen) {
-                DeviceListSheet(
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                TrackingMap(
                     devices = state.devices,
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
-                    onDeviceClick = onDeviceClick,
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                    modifier = Modifier.fillMaxSize(),
                 )
-            }
-            if (selectedDevice != null) {
-                if (state.deviceManagementOpen) {
-                    DeviceManagementPanel(
-                        device = selectedDevice,
-                        position = selectedPosition,
-                        todayDistanceText = state.todayDistanceText,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .navigationBarsPadding()
-                            .padding(bottom = 92.dp),
-                    )
-                } else {
-                    SelectedDeviceStatusCard(
-                        device = selectedDevice,
-                        position = selectedPosition,
-                        todayDistanceText = state.todayDistanceText,
-                        expanded = state.deviceCardExpanded,
-                        onToggleExpanded = onToggleDeviceCard,
-                        onManageClick = onManageDeviceClick,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .navigationBarsPadding()
-                            .padding(bottom = 92.dp),
+                MapTopControls(
+                    devices = state.devices,
+                    selectedDeviceId = state.selectedDeviceId,
+                    latestEvent = state.latestEvent,
+                    onDeviceSelectorClick = onToggleDevices,
+                    onSettingsClick = onOpenMapSettings,
+                    onEventsClick = onEventsClick,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 16.dp),
+                )
+                if (state.devicesOpen) {
+                    DeviceSelectDialog(
+                        devices = state.devices,
+                        selectedDeviceId = state.selectedDeviceId,
+                        onDeviceClick = onDeviceClick,
+                        onDismiss = onToggleDevices,
                     )
                 }
+                if (state.mapSettingsOpen) {
+                    MapSettingsDialog(onDismiss = onCloseMapSettings)
+                }
+                if (selectedDevice != null) {
+                    if (state.deviceManagementOpen) {
+                        DeviceManagementPanel(
+                            device = selectedDevice,
+                            position = selectedPosition,
+                            todayDistanceText = state.todayDistanceText,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .navigationBarsPadding()
+                                .padding(bottom = 16.dp),
+                        )
+                    } else {
+                        SelectedDeviceStatusCard(
+                            device = selectedDevice,
+                            position = selectedPosition,
+                            todayDistanceText = state.todayDistanceText,
+                            expanded = state.deviceCardExpanded,
+                            onToggleExpanded = onToggleDeviceCard,
+                            onManageClick = onManageDeviceClick,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .navigationBarsPadding()
+                                .padding(bottom = 16.dp),
+                        )
+                    }
+                }
             }
-            HomeBottomMenu(
-                selectedItem = if (state.deviceManagementOpen) HomeBottomItem.Management else HomeBottomItem.Map,
-                onEventsClick = {},
-                onManagementClick = onManageDeviceClick,
-                onMapClick = onMapTabClick,
-                onAccountClick = {},
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = 18.dp),
-            )
         }
     }
 }

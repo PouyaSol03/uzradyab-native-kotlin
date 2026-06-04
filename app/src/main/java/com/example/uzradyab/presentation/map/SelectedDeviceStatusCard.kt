@@ -1,6 +1,9 @@
 package com.example.uzradyab.presentation.map
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,6 +25,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,14 +34,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uzradyab.R
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import kotlin.math.abs
+import kotlin.math.ceil
+import org.json.JSONObject
 
 @Composable
 fun SelectedDeviceStatusCard(
@@ -47,12 +64,29 @@ fun SelectedDeviceStatusCard(
     onManageClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val hasExpirationWarning = device.expirationTime != null
-    val cardHeight = when {
+    val daysRemaining = daysUntilExpiration(device.expirationTime)
+    val hasExpirationWarning = daysRemaining != null && daysRemaining < 10
+    val targetCardHeight = when {
         expanded && hasExpirationWarning -> 273.dp
         expanded -> 214.dp
         else -> 163.dp
     }
+    val cardHeight by animateDpAsState(
+        targetValue = targetCardHeight,
+        animationSpec = tween(durationMillis = 260),
+        label = "selectedDeviceCardHeight",
+    )
+    val bodyHeight = cardHeight - 23.dp
+    val targetActionY = when {
+        expanded && hasExpirationWarning -> 191.dp
+        expanded -> 135.dp
+        else -> 83.dp
+    }
+    val actionY by animateDpAsState(
+        targetValue = targetActionY,
+        animationSpec = tween(durationMillis = 260),
+        label = "selectedDeviceCardActionY",
+    )
 
     Box(
         modifier = modifier
@@ -64,29 +98,49 @@ fun SelectedDeviceStatusCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(cardHeight - 23.dp),
+                .height(bodyHeight),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
-            Column(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 14.dp)) {
-                DeviceHeader(device = device, position = position, showWarningIcon = expanded && hasExpirationWarning)
-                if (expanded) {
-                    Spacer(modifier = Modifier.height(15.dp))
-                    if (hasExpirationWarning) {
-                        ExpirationRow()
-                        Spacer(modifier = Modifier.height(16.dp))
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Box(modifier = Modifier.fillMaxWidth().height(bodyHeight)) {
+                    DeviceHeader(
+                        device = device,
+                        position = position,
+                        showWarningIcon = expanded && hasExpirationWarning,
+                        modifier = Modifier
+                            .offset(x = 16.dp, y = 16.dp)
+                            .width(311.dp),
+                    )
+                    if (expanded) {
+                        DistanceRow(
+                            todayDistanceText = todayDistanceText,
+                            dark = false,
+                            modifier = Modifier
+                                .offset(x = 16.dp, y = 79.dp)
+                                .width(311.dp),
+                        )
+                        if (hasExpirationWarning) {
+                            ExpirationRow(
+                                daysRemaining = daysRemaining,
+                                modifier = Modifier
+                                    .offset(x = 16.dp, y = 135.dp)
+                                    .width(311.dp),
+                            )
+                        }
                     }
-                    DistanceRow(todayDistanceText = todayDistanceText, dark = false)
-                    Spacer(modifier = Modifier.height(16.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(19.dp))
+                    ActionRow(
+                        onManageClick = onManageClick,
+                        expanded = expanded,
+                        modifier = Modifier
+                            .offset(x = 16.dp, y = actionY)
+                            .width(311.dp),
+                    )
                 }
-                ActionRow(onManageClick = onManageClick)
             }
         }
         ChevronHandle(
-            expanded = expanded,
             onClick = onToggleExpanded,
             modifier = Modifier.align(Alignment.TopCenter),
         )
@@ -98,15 +152,19 @@ private fun DeviceHeader(
     device: Device,
     position: Position?,
     showWarningIcon: Boolean,
+    modifier: Modifier = Modifier,
 ) {
+    val gpsActive = (position?.attributesJson?.attributeInt("sat") ?: 0) >= 6
+    val gsmActive = position != null
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.height(48.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            SignalBlock(label = "GSM", active = position != null)
-            SignalBlock(label = "GPS", active = position != null)
+            SignalBlock(label = "GSM", active = gsmActive)
+            SignalBlock(label = "GPS", active = gpsActive)
         }
         Column(horizontalAlignment = Alignment.End) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -125,7 +183,7 @@ private fun DeviceHeader(
                 )
             }
             Text(
-                text = "آخرین بروزرسانی: ${position?.serverTime ?: device.lastUpdate ?: "نامشخص"}",
+                text = "آخرین بروزرسانی: ${formatRelativeTime(position?.serverTime ?: device.lastUpdate)}",
                 color = Color(0xFF9DA2A5),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
@@ -137,21 +195,20 @@ private fun DeviceHeader(
 }
 
 @Composable
-private fun DistanceRow(todayDistanceText: String, dark: Boolean) {
+private fun DistanceRow(
+    todayDistanceText: String,
+    dark: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(40.dp)
             .background(if (dark) Color(0xFF27343F) else Color(0xFFF7F7F8), RoundedCornerShape(8.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SecondaryActionPill(
-            text = "بازپخش مسیر",
-            dark = dark,
-            width = if (dark) 139.dp else 127.dp,
-        )
+        SecondaryActionPill(text = "بازپخش مسیر", dark = dark, width = if (dark) 139.dp else 127.dp)
         Text(
             text = "پیمایش امروز: $todayDistanceText",
             color = if (dark) Color.White else AppTextPrimary,
@@ -164,10 +221,12 @@ private fun DistanceRow(todayDistanceText: String, dark: Boolean) {
 }
 
 @Composable
-private fun ExpirationRow() {
+private fun ExpirationRow(
+    daysRemaining: Int?,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(40.dp)
             .background(Color(0xFFFADDDD), RoundedCornerShape(8.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -177,7 +236,7 @@ private fun ExpirationRow() {
         SecondaryActionPill(text = "تمدید اعتبار", dark = false, width = 92.dp, primaryText = true)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "2 روز تا پایان اعتبار دستگاه",
+                text = expirationText(daysRemaining),
                 color = Color(0xFF7D2D2D),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
@@ -223,53 +282,41 @@ private fun SecondaryActionPill(
 }
 
 @Composable
-private fun ActionRow(onManageClick: () -> Unit) {
+private fun ActionRow(
+    onManageClick: () -> Unit,
+    expanded: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.height(40.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            CircleIconButton { DirectionIcon() }
-            CircleIconButton { ShareIcon() }
-        }
         PrimaryActionButton(
             text = "مدیریت دستگاه",
             onClick = onManageClick,
-            width = 199.dp,
+            width = if (expanded) 189.dp else 199.dp,
         )
+        Row(horizontalArrangement = Arrangement.spacedBy(if (expanded) 21.dp else 16.dp)) {
+            CircleIconButton { DirectionIcon() }
+            CircleIconButton { ShareIcon() }
+        }
     }
 }
 
 @Composable
 private fun ChevronHandle(
-    expanded: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Image(
+        painter = painterResource(id = R.drawable.selected_device_card_handle),
+        contentDescription = null,
         modifier = modifier
             .width(107.dp)
             .height(30.dp)
             .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(modifier = Modifier.matchParentSize()) {
-            drawRoundRect(
-                color = Color.White,
-                topLeft = Offset(0f, 23.5.dp.toPx()),
-                size = androidx.compose.ui.geometry.Size(size.width, 6.5.dp.toPx()),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(21.dp.toPx(), 21.dp.toPx()),
-            )
-            drawRoundRect(
-                color = Color.White,
-                topLeft = Offset(23.5.dp.toPx(), 0f),
-                size = androidx.compose.ui.geometry.Size(60.dp.toPx(), 28.dp.toPx()),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(21.dp.toPx(), 21.dp.toPx()),
-            )
-        }
-        ChevronIcon(up = !expanded)
-    }
+    )
 }
 
 @Composable
@@ -287,7 +334,7 @@ private fun PrimaryActionButton(
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ChevronSideIcon(left = false, color = Color.White, size = 20)
+            ChevronSideIcon(left = true, color = Color.White, size = 20)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
@@ -296,8 +343,6 @@ private fun PrimaryActionButton(
                 lineHeight = 24.sp,
                 fontWeight = FontWeight.Medium,
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            ChevronSideIcon(left = true, color = Color.White, size = 20)
         }
     }
 }
@@ -347,27 +392,25 @@ private fun WarningDotIcon() {
 private fun WifiIcon(color: Color) {
     Canvas(modifier = Modifier.size(24.dp)) {
         val neutral = Color(0xFFBEC1C3)
-        drawArc(neutral, 205f, 130f, false, Offset(1.dp.toPx(), 2.dp.toPx()), androidx.compose.ui.geometry.Size(22.dp.toPx(), 14.dp.toPx()), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-        drawArc(color, 215f, 110f, false, Offset(5.dp.toPx(), 9.dp.toPx()), androidx.compose.ui.geometry.Size(14.dp.toPx(), 8.dp.toPx()), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
+        drawArc(
+            color = neutral,
+            startAngle = 205f,
+            sweepAngle = 130f,
+            useCenter = false,
+            topLeft = Offset(1.dp.toPx(), 2.dp.toPx()),
+            size = androidx.compose.ui.geometry.Size(22.dp.toPx(), 14.dp.toPx()),
+            style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
+        )
+        drawArc(
+            color = color,
+            startAngle = 215f,
+            sweepAngle = 110f,
+            useCenter = false,
+            topLeft = Offset(5.dp.toPx(), 9.dp.toPx()),
+            size = androidx.compose.ui.geometry.Size(14.dp.toPx(), 8.dp.toPx()),
+            style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
+        )
         drawCircle(color, radius = 1.5.dp.toPx(), center = Offset(12.dp.toPx(), 19.dp.toPx()))
-    }
-}
-
-@Composable
-private fun ChevronIcon(up: Boolean) {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val path = Path().apply {
-            if (up) {
-                moveTo(4.dp.toPx(), 12.dp.toPx())
-                lineTo(10.dp.toPx(), 6.dp.toPx())
-                lineTo(16.dp.toPx(), 12.dp.toPx())
-            } else {
-                moveTo(4.dp.toPx(), 8.dp.toPx())
-                lineTo(10.dp.toPx(), 14.dp.toPx())
-                lineTo(16.dp.toPx(), 8.dp.toPx())
-            }
-        }
-        drawPath(path, AppBlue, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
     }
 }
 
@@ -421,5 +464,63 @@ private fun PlayCircleIcon(color: Color, size: Int) {
             close()
         }
         drawPath(path, color)
+    }
+}
+
+private fun String.attributeInt(key: String): Int? {
+    return runCatching {
+        if (JSONObject(this).has(key)) JSONObject(this).optInt(key) else null
+    }.getOrNull()
+}
+
+private fun daysUntilExpiration(value: String?): Int? {
+    val expiration = parseServerDate(value) ?: return null
+    return ceil((expiration.time - Date().time) / 86_400_000.0).toInt()
+}
+
+private fun expirationText(daysRemaining: Int?): String {
+    return when {
+        daysRemaining == null -> "اعتبار دستگاه نامشخص است"
+        daysRemaining >= 0 -> "${daysRemaining.toString().toPersianDigits()} روز تا پایان اعتبار دستگاه"
+        else -> "اعتبار دستگاه به پایان رسیده است"
+    }
+}
+
+private fun formatRelativeTime(value: String?): String {
+    val date = parseServerDate(value) ?: return "نامشخص"
+    val seconds = abs(Date().time - date.time) / 1_000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+    return when {
+        seconds < 60 -> "${seconds.toString().toPersianDigits()} ثانیه قبل"
+        minutes < 60 -> "${minutes.toString().toPersianDigits()} دقیقه قبل"
+        hours < 24 -> "${hours.toString().toPersianDigits()} ساعت قبل"
+        else -> "${days.toString().toPersianDigits()} روز قبل"
+    }
+}
+
+private fun parseServerDate(value: String?): Date? {
+    if (value.isNullOrBlank()) return null
+    return listOf(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+        "yyyy-MM-dd'T'HH:mm:ssX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    ).firstNotNullOfOrNull { pattern ->
+        runCatching {
+            SimpleDateFormat(pattern, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.parse(value)
+        }.getOrNull()
+    }
+}
+
+private fun String.toPersianDigits(): String {
+    val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
+    return buildString(length) {
+        this@toPersianDigits.forEach { char ->
+            append(if (char in '0'..'9') persianDigits[char - '0'] else char)
+        }
     }
 }

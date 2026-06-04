@@ -2,6 +2,7 @@ package com.example.uzradyab.di
 
 import com.example.uzradyab.data.repository.AuthRepositoryImpl
 import com.example.uzradyab.data.repository.DeviceRepositoryImpl
+import com.example.uzradyab.data.repository.EventRepositoryImpl
 import com.example.uzradyab.data.repository.MapCacheRepositoryImpl
 import com.example.uzradyab.data.repository.PositionRepositoryImpl
 import com.example.uzradyab.data.repository.RegistrationRepositoryImpl
@@ -9,6 +10,7 @@ import com.example.uzradyab.data.repository.ReportRepositoryImpl
 import com.example.uzradyab.data.repository.TrackingRepositoryImpl
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.DeviceRepository
+import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.MapCacheRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.RegistrationRepository
@@ -34,6 +36,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPositionRepository(impl: PositionRepositoryImpl): PositionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEventRepository(impl: EventRepositoryImpl): EventRepository
 
     @Binds
     @Singleton

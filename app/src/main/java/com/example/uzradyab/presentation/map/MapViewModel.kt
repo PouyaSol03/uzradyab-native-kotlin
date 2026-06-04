@@ -3,9 +3,12 @@ package com.example.uzradyab.presentation.map
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uzradyab.domain.model.Device
+import com.example.uzradyab.domain.model.Event
+import com.example.uzradyab.domain.model.LatestNotificationEvent
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
 import com.example.uzradyab.domain.usecase.ObserveHomeSnapshotUseCase
@@ -17,6 +20,7 @@ import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,12 +42,20 @@ data class HomeMapUiState(
     val connectionState: TrackingConnectionState = TrackingConnectionState.Idle,
     val signedOut: Boolean = false,
     val todayDistanceText: String = "در حال دریافت",
+    val latestEvent: MapLatestEventItem? = null,
+    val mapSettingsOpen: Boolean = false,
+)
+
+data class MapLatestEventItem(
+    val text: String,
+    val timeText: String?,
 )
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     observeHomeSnapshot: ObserveHomeSnapshotUseCase,
     private val authRepository: AuthRepository,
+    private val eventRepository: EventRepository,
     private val reportRepository: ReportRepository,
     private val trackingRepository: TrackingRepository,
 ) : ViewModel() {
@@ -53,19 +65,22 @@ class MapViewModel @Inject constructor(
         observeHomeSnapshot(),
         trackingRepository.connectionState,
         localState,
-    ) { snapshot, connection, local ->
+        eventRepository.observeRecentEvents(limit = 8),
+    ) { snapshot, connection, local, recentEvents ->
         val selected = local.selectedDeviceId ?: snapshot.devices.firstOrNull()?.id
         local.copy(
             devices = snapshot.devices,
             latestPositions = snapshot.latestPositions,
             selectedDeviceId = selected,
             connectionState = connection,
+            latestEvent = local.latestEvent ?: latestEventForDevice(recentEvents, selected),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
 
     init {
         trackingRepository.start()
         observeSelectedDeviceDistance()
+        observeSelectedDeviceLatestEvent()
     }
 
     fun selectDevice(deviceId: Long) {
@@ -80,6 +95,14 @@ class MapViewModel @Inject constructor(
 
     fun toggleDevices() {
         localState.update { it.copy(devicesOpen = !it.devicesOpen, deviceManagementOpen = false) }
+    }
+
+    fun openMapSettings() {
+        localState.update { it.copy(mapSettingsOpen = true, devicesOpen = false) }
+    }
+
+    fun closeMapSettings() {
+        localState.update { it.copy(mapSettingsOpen = false) }
     }
 
     fun toggleDeviceCard() {
@@ -152,6 +175,30 @@ class MapViewModel @Inject constructor(
                 }
         }
     }
+
+    private fun observeSelectedDeviceLatestEvent() {
+        viewModelScope.launch {
+            uiState
+                .map { it.selectedDeviceId }
+                .distinctUntilChanged()
+                .collectLatest { deviceId ->
+                    if (deviceId == null) {
+                        localState.update { it.copy(latestEvent = null) }
+                        return@collectLatest
+                    }
+                    localState.update { it.copy(latestEvent = null) }
+                    while (true) {
+                        eventRepository.fetchLatestDeviceEvents(deviceId)
+                            .onSuccess { events ->
+                                localState.update { state ->
+                                    state.copy(latestEvent = events.firstOrNull()?.toTickerItem())
+                                }
+                            }
+                        delay(120_000L)
+                    }
+                }
+        }
+    }
 }
 
 private data class UtcDayRange(
@@ -174,8 +221,68 @@ private fun utcTodayRange(now: Date = Date()): UtcDayRange {
 
 private fun formatDistance(distanceMeters: Double): String {
     return if (distanceMeters < 1_000.0) {
-        "${distanceMeters.roundToInt()} متر"
+        "${distanceMeters.roundToInt()} متر".toPersianDigits()
     } else {
-        String.format(Locale.US, "%.1f کیلومتر", distanceMeters / 1_000.0)
+        String.format(Locale.US, "%.1f کیلومتر", distanceMeters / 1_000.0).toPersianDigits()
+    }
+}
+
+private fun latestEventForDevice(events: List<Event>, deviceId: Long?): MapLatestEventItem? {
+    val event = events.firstOrNull { it.deviceId == deviceId } ?: events.firstOrNull()
+    return event?.let {
+        MapLatestEventItem(
+            text = formatEventText(it),
+            timeText = formatEventTime(it.eventTime),
+        )
+    }
+}
+
+private fun LatestNotificationEvent.toTickerItem(): MapLatestEventItem {
+    return MapLatestEventItem(
+        text = text,
+        timeText = formatEventTime(time),
+    )
+}
+
+private fun formatEventText(event: Event): String {
+    return when (event.type) {
+        "deviceOnline" -> "دستگاه آنلاین شد"
+        "deviceOffline" -> "دستگاه آفلاین شد"
+        "deviceUnknown" -> "وضعیت دستگاه نامشخص شد"
+        "ignitionOn" -> "روشن شدن خودرو"
+        "ignitionOff" -> "خاموش شدن خودرو"
+        "geofenceEnter" -> "ورود به محدوده"
+        "geofenceExit" -> "خروج از محدوده"
+        "alarm" -> "هشدار دستگاه"
+        else -> if (event.type.isBlank()) "رویداد جدید" else "رویداد ${event.type}"
+    }
+}
+
+private fun formatEventTime(value: String?): String? {
+    if (value.isNullOrBlank()) return null
+    val parsed = listOf(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+        "yyyy-MM-dd'T'HH:mm:ssX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    ).firstNotNullOfOrNull { pattern ->
+        runCatching {
+            SimpleDateFormat(pattern, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.parse(value)
+        }.getOrNull()
+    } ?: return null
+
+    return SimpleDateFormat("yyyy/MM/dd - HH:mm", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("Asia/Tehran")
+    }.format(parsed).toPersianDigits()
+}
+
+private fun String.toPersianDigits(): String {
+    val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
+    return buildString(length) {
+        this@toPersianDigits.forEach { char ->
+            append(if (char in '0'..'9') persianDigits[char - '0'] else char)
+        }
     }
 }
