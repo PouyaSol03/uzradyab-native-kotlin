@@ -11,6 +11,9 @@ interface UserSessionDao {
     @Query("SELECT * FROM user_session WHERE singletonId = 1")
     fun observeCurrentSession(): Flow<UserSessionEntity?>
 
+    @Query("SELECT * FROM user_session WHERE singletonId = 1")
+    suspend fun getCurrentSession(): UserSessionEntity?
+
     @Upsert
     suspend fun upsert(session: UserSessionEntity)
 

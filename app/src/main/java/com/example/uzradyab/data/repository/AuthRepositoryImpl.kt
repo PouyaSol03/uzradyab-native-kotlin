@@ -38,4 +38,18 @@ class AuthRepositoryImpl @Inject constructor(
         cookieJar.clear()
         userSessionDao.clear()
     }
+
+    override suspend fun isSessionExpired(): Boolean {
+        val session = userSessionDao.getCurrentSession() ?: return false
+        val ageMs = System.currentTimeMillis() - session.loginTimestamp
+        if (ageMs > SESSION_EXPIRY_MS) {
+            logout()
+            return true
+        }
+        return false
+    }
+
+    companion object {
+        private const val SESSION_EXPIRY_MS = 30L * 24L * 60L * 60L * 1000L // 30 days
+    }
 }

@@ -8,4 +8,5 @@ interface AuthRepository {
     suspend fun refreshSession(): Result<UserSession>
     suspend fun login(phoneNumber: String, password: String): Result<UserSession>
     suspend fun logout(): Result<Unit>
+    suspend fun isSessionExpired(): Boolean
 }

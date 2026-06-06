@@ -24,7 +24,7 @@ import com.example.uzradyab.data.local.entity.UserSessionEntity
         OfflineRegionEntity::class,
         DailyDistanceEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class UzradyabDatabase : RoomDatabase() {

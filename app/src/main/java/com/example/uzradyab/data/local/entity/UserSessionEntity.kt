@@ -10,4 +10,5 @@ data class UserSessionEntity(
     val name: String,
     val email: String,
     val readonly: Boolean,
+    val loginTimestamp: Long = System.currentTimeMillis(),
 )
