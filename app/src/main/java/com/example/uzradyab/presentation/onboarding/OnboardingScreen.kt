@@ -33,6 +33,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,88 +85,76 @@ fun OnboardingScreen(
         onOnboardingFinished()
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        // Horizontal Pager for onboarding screens
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { page ->
-            OnboardingPageContent(
-                pageData = pages[page],
+    // Force LTR layout direction for the onboarding flow to swipe left-to-right (like English apps)
+    // and correctly place indicators on the left and the next button on the right.
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
+            // Horizontal Pager for onboarding screens (scrolling LTR)
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier.fillMaxSize()
-            )
-        }
+            ) { page ->
+                OnboardingPageContent(
+                    pageData = pages[page],
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
-        // Cancel (×) Circle Button at Top-Right (Start)
-        IconButton(
-            onClick = handleFinish,
-            modifier = Modifier
-                .statusBarsPadding()
-                .padding(top = 16.dp, start = 16.dp)
-                .size(40.dp)
-                .background(Color(0xFFEFF3F5), shape = CircleShape)
-                .align(Alignment.TopStart)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "بستن",
-                tint = Color(0xFF384C5C),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-
-        // Bottom Navigation Bar (indicators + prev/next buttons)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 36.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Cancel (×) Circle Button at Top-Right
+            IconButton(
+                onClick = handleFinish,
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(top = 16.dp, end = 16.dp)
+                    .size(40.dp)
+                    .background(Color(0xFFEFF3F5), shape = CircleShape)
+                    .align(Alignment.TopEnd)
             ) {
-                // Prev / Next Action buttons (aligned to the right/start in RTL)
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "بستن",
+                    tint = Color(0xFF384C5C),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            // Bottom Navigation Bar (indicators on the left + next button on the right)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 36.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Previous Button (visible on page 2 & 3)
-                    AnimatedVisibility(
-                        visible = pagerState.currentPage > 0,
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                    // Page Indicators (aligned to the left in LTR)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                                }
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color(0xFF384C5C)
-                            ),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Text(
-                                text = "قبلی",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
+                        repeat(3) { index ->
+                            val isActive = pagerState.currentPage == index
+                            Box(
+                                modifier = Modifier
+                                    .height(8.dp)
+                                    .width(if (isActive) 24.dp else 8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(if (isActive) Color(0xFF384C5C) else Color(0xFF97ADBF))
                             )
                         }
                     }
 
-                    // Next / Enter Button
+                    // Next / Enter Button (aligned to the right in LTR)
                     Button(
                         onClick = {
                             if (pagerState.currentPage < 2) {
@@ -186,23 +177,6 @@ fun OnboardingScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                    }
-                }
-
-                // Page Indicators (aligned to the left/end in RTL)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(3) { index ->
-                        val isActive = pagerState.currentPage == index
-                        Box(
-                            modifier = Modifier
-                                .height(8.dp)
-                                .width(if (isActive) 24.dp else 8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(if (isActive) Color(0xFF384C5C) else Color(0xFF97ADBF))
                         )
                     }
                 }
