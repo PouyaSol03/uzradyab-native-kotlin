@@ -102,10 +102,10 @@ fun OnboardingScreen(
             onClick = handleFinish,
             modifier = Modifier
                 .statusBarsPadding()
-                .padding(top = 16.dp, end = 16.dp)
+                .padding(top = 16.dp, start = 16.dp)
                 .size(40.dp)
                 .background(Color(0xFFEFF3F5), shape = CircleShape)
-                .align(Alignment.TopEnd)
+                .align(Alignment.TopStart)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
@@ -129,24 +129,7 @@ fun OnboardingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Page Indicators (aligned to the left/start as in Figma layout)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(3) { index ->
-                        val isActive = pagerState.currentPage == index
-                        Box(
-                            modifier = Modifier
-                                .height(8.dp)
-                                .width(if (isActive) 24.dp else 8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(if (isActive) Color(0xFF384C5C) else Color(0xFF97ADBF))
-                        )
-                    }
-                }
-
-                // Prev / Next Action buttons
+                // Prev / Next Action buttons (aligned to the right/start in RTL)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -201,6 +184,23 @@ fun OnboardingScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                    }
+                }
+
+                // Page Indicators (aligned to the left/end in RTL)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(3) { index ->
+                        val isActive = pagerState.currentPage == index
+                        Box(
+                            modifier = Modifier
+                                .height(8.dp)
+                                .width(if (isActive) 24.dp else 8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(if (isActive) Color(0xFF384C5C) else Color(0xFF97ADBF))
                         )
                     }
                 }
