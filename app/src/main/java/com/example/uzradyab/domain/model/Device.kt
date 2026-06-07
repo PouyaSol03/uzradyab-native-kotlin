@@ -10,4 +10,6 @@ data class Device(
     val lastUpdate: String?,
     val expirationTime: String?,
     val attributesJson: String,
+    val phone: String?,
 )
+

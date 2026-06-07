@@ -22,7 +22,7 @@ object DatabaseModule {
             context,
             UzradyabDatabase::class.java,
             "uzradyab.db",
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 
@@ -63,6 +63,12 @@ object DatabaseModule {
     private val MIGRATION_2_3: Migration = object : Migration(2, 3) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE user_session ADD COLUMN loginTimestamp INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    private val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE devices ADD COLUMN phone TEXT")
         }
     }
 }

@@ -6,6 +6,7 @@ import com.example.uzradyab.data.mapper.toEntity
 import com.example.uzradyab.data.remote.api.TraccarApi
 import com.example.uzradyab.domain.model.DailyDistance
 import com.example.uzradyab.domain.repository.ReportRepository
+import com.example.uzradyab.domain.model.CombinedReportItem
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -40,4 +41,17 @@ class ReportRepositoryImpl @Inject constructor(
             ).toEntity(),
         )
     }
+
+    override suspend fun getCombinedReport(
+        deviceIds: List<Long>,
+        from: String,
+        to: String,
+    ): Result<List<CombinedReportItem>> = runCatching {
+        api.getCombinedReport(
+            from = from,
+            to = to,
+            deviceIds = deviceIds
+        ).map { it.toDomain() }
+    }
 }
+

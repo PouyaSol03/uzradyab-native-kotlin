@@ -11,6 +11,9 @@ interface DeviceDao {
     @Query("SELECT * FROM devices ORDER BY name COLLATE NOCASE")
     fun observeDevices(): Flow<List<DeviceEntity>>
 
+    @Query("SELECT * FROM devices WHERE id = :id")
+    suspend fun getDeviceById(id: Long): DeviceEntity?
+
     @Upsert
     suspend fun upsertAll(devices: List<DeviceEntity>)
 

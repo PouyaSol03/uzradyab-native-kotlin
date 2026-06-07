@@ -14,6 +14,7 @@ fun DeviceDto.toEntity(): DeviceEntity = DeviceEntity(
     lastUpdate = lastUpdate,
     expirationTime = expirationTime,
     attributesJson = attributes?.toString() ?: "{}",
+    phone = phone,
 )
 
 fun DeviceEntity.toDomain(): Device = Device(
@@ -26,4 +27,5 @@ fun DeviceEntity.toDomain(): Device = Device(
     lastUpdate = lastUpdate,
     expirationTime = expirationTime,
     attributesJson = attributesJson,
+    phone = phone,
 )

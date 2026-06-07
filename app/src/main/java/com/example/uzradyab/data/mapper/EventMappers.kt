@@ -18,4 +18,15 @@ fun EventEntity.toDomain(): Event = Event(
     type = type,
     eventTime = eventTime,
     attributesJson = attributesJson,
+    positionId = null,
 )
+
+fun EventDto.toDomain(): Event = Event(
+    id = id,
+    deviceId = deviceId,
+    type = type,
+    eventTime = eventTime,
+    attributesJson = attributes?.toString() ?: "{}",
+    positionId = positionId,
+)
+

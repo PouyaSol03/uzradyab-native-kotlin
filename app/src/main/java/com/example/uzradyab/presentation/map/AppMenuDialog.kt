@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Business
@@ -42,6 +43,8 @@ import androidx.compose.ui.window.DialogProperties
 fun AppMenuDialog(
     onDismiss: () -> Unit,
     onLogoutClick: () -> Unit,
+    onAddDeviceClick: () -> Unit,
+    onReportsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Dialog(
@@ -65,6 +68,15 @@ fun AppMenuDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Right side: Title
+                Text(
+                    text = "تنظیمات زبان برنامه",
+                    color = Color(0xFF333638),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Right,
+                )
+
                 // Left side: Language selection
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -78,15 +90,6 @@ fun AppMenuDialog(
                     )
                     IranFlagIcon()
                 }
-
-                // Right side: Title
-                Text(
-                    text = "تنظیمات زبان برنامه",
-                    color = Color(0xFF333638),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Right,
-                )
             }
 
             // Group 2: Main Menu Items (1-4)
@@ -97,7 +100,10 @@ fun AppMenuDialog(
                 MenuCardItem(
                     label = "افزودن دستگاه جدید",
                     icon = Icons.Default.Add,
-                    onClick = onDismiss
+                    onClick = {
+                        onAddDeviceClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = "سرویس‌های دوره‌ای",
@@ -107,7 +113,10 @@ fun AppMenuDialog(
                 MenuCardItem(
                     label = "گزارش‌ها",
                     icon = Icons.Default.Description,
-                    onClick = onDismiss
+                    onClick = {
+                        onReportsClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = "محدوده‌های جغرافیایی",
@@ -133,8 +142,7 @@ fun AppMenuDialog(
                 )
                 MenuCardItem(
                     label = "خروج از حساب کاربری",
-                    icon = Icons.Default.ExitToApp,
-                    color = Color(0xFFE55353),
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
                     onClick = {
                         onLogoutClick()
                         onDismiss()
@@ -162,6 +170,13 @@ private fun MenuCardItem(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = if (color == Color(0xFFE55353)) color else Color(0xFFAEB1B4),
+            modifier = Modifier.size(24.dp)
+        )
+
         Text(
             text = label,
             color = color,
@@ -170,13 +185,7 @@ private fun MenuCardItem(
             textAlign = TextAlign.Right,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 12.dp)
-        )
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = if (color == Color(0xFFE55353)) color else Color(0xFFAEB1B4),
-            modifier = Modifier.size(24.dp)
+                .padding(start = 6.dp)
         )
     }
 }

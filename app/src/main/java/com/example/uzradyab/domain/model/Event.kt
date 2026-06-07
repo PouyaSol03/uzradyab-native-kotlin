@@ -6,4 +6,6 @@ data class Event(
     val type: String,
     val eventTime: String?,
     val attributesJson: String,
+    val positionId: Long? = null,
 )
+

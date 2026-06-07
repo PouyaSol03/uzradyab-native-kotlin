@@ -8,4 +8,6 @@ data class EventDto(
     val type: String = "",
     val eventTime: String? = null,
     val attributes: JsonObject? = null,
+    val positionId: Long? = null,
 )
+

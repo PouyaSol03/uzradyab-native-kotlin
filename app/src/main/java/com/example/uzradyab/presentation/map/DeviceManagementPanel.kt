@@ -1,6 +1,7 @@
 package com.example.uzradyab.presentation.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ fun DeviceManagementPanel(
     device: Device,
     position: Position?,
     todayDistanceText: String,
+    onEditDeviceClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -54,6 +56,7 @@ fun DeviceManagementPanel(
             device = device,
             position = position,
             todayDistanceText = todayDistanceText,
+            onEditClick = onEditDeviceClick
         )
         Box(
             modifier = Modifier
@@ -75,6 +78,7 @@ private fun DeviceManagementHeader(
     device: Device,
     position: Position?,
     todayDistanceText: String,
+    onEditClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -88,7 +92,10 @@ private fun DeviceManagementHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HeaderButton(text = "مشخصات دستگاه")
+            HeaderButton(
+                text = "مشخصات دستگاه",
+                onClick = onEditClick
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
@@ -141,12 +148,14 @@ private fun HeaderButton(
     text: String,
     white: Boolean = false,
     width: Int = 137,
+    onClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
             .width(width.dp)
             .height(40.dp)
-            .background(if (white) Color.Transparent else AppBlue, RoundedCornerShape(8.dp)),
+            .background(if (white) Color.Transparent else AppBlue, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

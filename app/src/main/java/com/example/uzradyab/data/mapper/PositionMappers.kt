@@ -31,3 +31,17 @@ fun PositionEntity.toDomain(): Position = Position(
     address = address,
     attributesJson = attributesJson,
 )
+
+fun PositionDto.toDomain(): Position = Position(
+    id = id,
+    deviceId = deviceId,
+    latitude = latitude,
+    longitude = longitude,
+    speed = speed,
+    course = course,
+    fixTime = fixTime,
+    serverTime = serverTime,
+    address = address,
+    attributesJson = attributes?.toString() ?: "{}",
+)
+

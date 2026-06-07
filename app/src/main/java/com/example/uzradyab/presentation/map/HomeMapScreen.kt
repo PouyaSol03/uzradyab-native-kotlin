@@ -31,6 +31,9 @@ import com.example.uzradyab.ui.theme.AppBackground
 fun HomeMapRoute(
     onSignedOut: () -> Unit,
     onEventsClick: () -> Unit,
+    onAddDeviceClick: () -> Unit,
+    onEditDeviceClick: (Long) -> Unit,
+    onReportsClick: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,6 +54,9 @@ fun HomeMapRoute(
         onManageDeviceClick = viewModel::openDeviceManagement,
         onEventsClick = onEventsClick,
         onLogoutClick = viewModel::logout,
+        onAddDeviceClick = onAddDeviceClick,
+        onEditDeviceClick = onEditDeviceClick,
+        onReportsClick = onReportsClick,
     )
 }
 
@@ -65,6 +71,9 @@ fun HomeMapScreen(
     onManageDeviceClick: () -> Unit,
     onEventsClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onAddDeviceClick: () -> Unit,
+    onEditDeviceClick: (Long) -> Unit,
+    onReportsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
@@ -124,7 +133,9 @@ fun HomeMapScreen(
                 if (menuOpen) {
                     AppMenuDialog(
                         onDismiss = { menuOpen = false },
-                        onLogoutClick = onLogoutClick
+                        onLogoutClick = onLogoutClick,
+                        onAddDeviceClick = onAddDeviceClick,
+                        onReportsClick = onReportsClick,
                     )
                 }
                 if (selectedDevice != null) {
@@ -133,6 +144,7 @@ fun HomeMapScreen(
                             device = selectedDevice,
                             position = selectedPosition,
                             todayDistanceText = state.todayDistanceText,
+                            onEditDeviceClick = { onEditDeviceClick(selectedDevice.id) },
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .navigationBarsPadding()

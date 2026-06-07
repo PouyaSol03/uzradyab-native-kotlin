@@ -12,4 +12,6 @@ data class DeviceDto(
     val lastUpdate: String? = null,
     val expirationTime: String? = null,
     val attributes: JsonObject? = null,
+    val phone: String? = null,
 )
+

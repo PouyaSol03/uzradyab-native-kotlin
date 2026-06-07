@@ -14,4 +14,6 @@ data class DeviceEntity(
     val lastUpdate: String?,
     val expirationTime: String?,
     val attributesJson: String,
+    val phone: String?,
 )
+

@@ -124,7 +124,7 @@ private fun DeviceSelectTrigger(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ChevronDownIcon(color = AppTextPrimary)
+        SmallCarIcon(color = Color.Black)
         Text(
             text = text,
             color = Color.Black,
@@ -138,7 +138,7 @@ private fun DeviceSelectTrigger(
                 .weight(1f)
                 .padding(horizontal = 8.dp),
         )
-        SmallCarIcon(color = Color.Black)
+        ChevronDownIcon(color = AppTextPrimary)
     }
 }
 

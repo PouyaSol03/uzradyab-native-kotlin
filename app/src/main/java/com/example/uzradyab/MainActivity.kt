@@ -19,15 +19,21 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import com.example.uzradyab.ui.theme.UzradyabTheme
+import androidx.fragment.app.FragmentActivity
+import com.example.uzradyab.core.biometric.BiometricHelper
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
+    @Inject
+    lateinit var biometricHelper: BiometricHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            UzradyabAppRoot()
+            UzradyabAppRoot(biometricHelper = biometricHelper)
         }
     }
 }
@@ -40,14 +46,14 @@ fun AppPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun UzradyabAppRoot() {
+private fun UzradyabAppRoot(biometricHelper: BiometricHelper? = null) {
     UzradyabTheme {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl,
             LocalIndication provides NoIndication,
             LocalRippleConfiguration provides null,
         ) {
-            UzradyabApp()
+            UzradyabApp(biometricHelper = biometricHelper)
         }
     }
 }
