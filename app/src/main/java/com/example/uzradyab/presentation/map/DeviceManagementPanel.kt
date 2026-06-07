@@ -1,6 +1,5 @@
 package com.example.uzradyab.presentation.map
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,15 +14,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -221,116 +226,96 @@ private fun MovingCarBadge() {
     }
 }
 
+
+
 @Composable
 private fun MiniChevronIcon() {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val path = Path().apply {
-            moveTo(12.dp.toPx(), 4.dp.toPx())
-            lineTo(6.dp.toPx(), 10.dp.toPx())
-            lineTo(12.dp.toPx(), 16.dp.toPx())
-        }
-        drawPath(path, Color.White, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-    }
+    Icon(
+        imageVector = Icons.Default.ChevronLeft,
+        contentDescription = "Chevron",
+        tint = Color.White,
+        modifier = Modifier.size(20.dp)
+    )
 }
 
 @Composable
 private fun MiniPlayIcon() {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        drawCircle(Color.White, radius = 7.dp.toPx(), center = Offset(size.width / 2, size.height / 2), style = Stroke(1.5.dp.toPx()))
-        val path = Path().apply {
-            moveTo(6.dp.toPx(), 5.dp.toPx())
-            lineTo(11.dp.toPx(), 8.dp.toPx())
-            lineTo(6.dp.toPx(), 11.dp.toPx())
-            close()
-        }
-        drawPath(path, Color.White)
-    }
+    Icon(
+        imageVector = Icons.Default.PlayCircleOutline,
+        contentDescription = "Play",
+        tint = Color.White,
+        modifier = Modifier.size(16.dp)
+    )
 }
 
 @Composable
 private fun CarGlyph(color: Color, modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        val path = Path().apply {
-            moveTo(1.dp.toPx(), 11.dp.toPx())
-            lineTo(4.dp.toPx(), 6.dp.toPx())
-            lineTo(14.dp.toPx(), 6.dp.toPx())
-            lineTo(17.dp.toPx(), 11.dp.toPx())
-            lineTo(17.dp.toPx(), 14.dp.toPx())
-            lineTo(1.dp.toPx(), 14.dp.toPx())
-            close()
-        }
-        drawPath(path, color, style = stroke)
-    }
+    Icon(
+        imageVector = Icons.Default.DirectionsCar,
+        contentDescription = "Car",
+        tint = color,
+        modifier = modifier
+    )
 }
 
 @Composable
-private fun MapFrameIcon(color: Color) = SimpleBoxIcon(color)
+private fun MapFrameIcon(color: Color) {
+    Icon(
+        imageVector = Icons.Default.Layers,
+        contentDescription = "Geofence",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
+}
 
 @Composable
 private fun PlayIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        drawCircle(color, radius = 10.dp.toPx(), center = Offset(12.dp.toPx(), 12.dp.toPx()), style = Stroke(2.dp.toPx()))
-        val path = Path().apply {
-            moveTo(10.dp.toPx(), 8.dp.toPx())
-            lineTo(16.dp.toPx(), 12.dp.toPx())
-            lineTo(10.dp.toPx(), 16.dp.toPx())
-            close()
-        }
-        drawPath(path, color)
-    }
+    Icon(
+        imageVector = Icons.Default.PlayCircleOutline,
+        contentDescription = "Playback",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
-private fun SettingsIcon(color: Color) = SimpleGearIcon(color)
+private fun SettingsIcon(color: Color) {
+    Icon(
+        imageVector = Icons.Default.Settings,
+        contentDescription = "Settings",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
+}
 
 @Composable
 private fun DocumentsIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        drawRoundRect(color, topLeft = Offset(5.dp.toPx(), 4.dp.toPx()), size = androidx.compose.ui.geometry.Size(12.dp.toPx(), 16.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()), style = Stroke(2.dp.toPx()))
-        drawLine(color, Offset(8.dp.toPx(), 9.dp.toPx()), Offset(14.dp.toPx(), 9.dp.toPx()), strokeWidth = 1.5.dp.toPx())
-        drawLine(color, Offset(8.dp.toPx(), 13.dp.toPx()), Offset(14.dp.toPx(), 13.dp.toPx()), strokeWidth = 1.5.dp.toPx())
-    }
+    Icon(
+        imageVector = Icons.Default.Description,
+        contentDescription = "Reports",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun AlarmTileIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        drawArc(color, 205f, 130f, false, Offset(4.dp.toPx(), 6.dp.toPx()), androidx.compose.ui.geometry.Size(16.dp.toPx(), 14.dp.toPx()), style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-        drawLine(color, Offset(7.dp.toPx(), 21.dp.toPx()), Offset(17.dp.toPx(), 21.dp.toPx()), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
-    }
+    Icon(
+        imageVector = Icons.Default.Notifications,
+        contentDescription = "Alerts",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun FlashIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val path = Path().apply {
-            moveTo(13.dp.toPx(), 2.dp.toPx())
-            lineTo(5.dp.toPx(), 13.dp.toPx())
-            lineTo(12.dp.toPx(), 13.dp.toPx())
-            lineTo(10.dp.toPx(), 22.dp.toPx())
-            lineTo(19.dp.toPx(), 10.dp.toPx())
-            lineTo(12.dp.toPx(), 10.dp.toPx())
-            close()
-        }
-        drawPath(path, color)
-    }
-}
-
-@Composable
-private fun SimpleBoxIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        drawRoundRect(color, topLeft = Offset(3.dp.toPx(), 5.dp.toPx()), size = androidx.compose.ui.geometry.Size(18.dp.toPx(), 14.dp.toPx()), cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()), style = Stroke(2.dp.toPx()))
-        drawLine(color, Offset(3.dp.toPx(), 10.dp.toPx()), Offset(21.dp.toPx(), 10.dp.toPx()), strokeWidth = 2.dp.toPx())
-    }
-}
-
-@Composable
-private fun SimpleGearIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        drawCircle(color, radius = 8.dp.toPx(), center = Offset(12.dp.toPx(), 12.dp.toPx()), style = Stroke(2.dp.toPx()))
-        drawCircle(color, radius = 2.5.dp.toPx(), center = Offset(12.dp.toPx(), 12.dp.toPx()))
-    }
+    Icon(
+        imageVector = Icons.Default.Bolt,
+        contentDescription = "Commands",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 private fun formatDeviceStatus(status: String): String = when (status) {

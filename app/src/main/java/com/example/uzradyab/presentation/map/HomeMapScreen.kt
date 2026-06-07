@@ -15,6 +15,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ fun HomeMapRoute(
         onToggleDeviceCard = viewModel::toggleDeviceCard,
         onManageDeviceClick = viewModel::openDeviceManagement,
         onEventsClick = onEventsClick,
+        onLogoutClick = viewModel::logout,
     )
 }
 
@@ -60,10 +64,12 @@ fun HomeMapScreen(
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
     onEventsClick: () -> Unit,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
     val selectedPosition = state.latestPositions[state.selectedDeviceId]
+    var menuOpen by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -75,7 +81,7 @@ fun HomeMapScreen(
                 .background(Color.White),
         ) {
             MapTopToolbar(
-                onMenuClick = onToggleDevices,
+                onMenuClick = { menuOpen = true },
                 modifier = Modifier
                     .statusBarsPadding()
                     .height(64.dp),
@@ -114,6 +120,12 @@ fun HomeMapScreen(
                 }
                 if (state.mapSettingsOpen) {
                     MapSettingsDialog(onDismiss = onCloseMapSettings)
+                }
+                if (menuOpen) {
+                    AppMenuDialog(
+                        onDismiss = { menuOpen = false },
+                        onLogoutClick = onLogoutClick
+                    )
                 }
                 if (selectedDevice != null) {
                     if (state.deviceManagementOpen) {

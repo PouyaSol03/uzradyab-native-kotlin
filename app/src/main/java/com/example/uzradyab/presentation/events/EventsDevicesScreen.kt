@@ -1,6 +1,5 @@
 package com.example.uzradyab.presentation.events
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,18 +17,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -270,26 +269,26 @@ private fun DateFilters() {
     }
 }
 
+
+
 @Composable
 private fun BackIcon() {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val path = Path().apply {
-            moveTo(9.dp.toPx(), 5.dp.toPx())
-            lineTo(16.dp.toPx(), 12.dp.toPx())
-            lineTo(9.dp.toPx(), 19.dp.toPx())
-        }
-        drawPath(path, AppTextPrimary, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-    }
+    Icon(
+        imageVector = Icons.Default.ChevronRight,
+        contentDescription = "Back",
+        tint = AppTextPrimary,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun SettingsIcon() {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val stroke = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
-        val center = Offset(size.width / 2, size.height / 2)
-        drawCircle(AppBlue, radius = 3.dp.toPx(), center = center, style = stroke)
-        drawCircle(AppBlue, radius = 8.dp.toPx(), center = center, style = stroke)
-    }
+    Icon(
+        imageVector = Icons.Default.Settings,
+        contentDescription = "Settings",
+        tint = AppBlue,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 private fun eventToItem(event: Event): EventDeviceItem {

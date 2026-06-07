@@ -2,7 +2,6 @@ package com.example.uzradyab.presentation.map
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,8 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.NearMe
+import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -373,98 +377,66 @@ private fun SignalBlock(label: String, active: Boolean) {
     }
 }
 
+
+
 @Composable
 private fun WarningDotIcon() {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        drawCircle(Color(0xFFE55353), radius = 6.67.dp.toPx(), center = Offset(size.width / 2, size.height / 2))
-        drawCircle(Color.White, radius = 1.dp.toPx(), center = Offset(size.width / 2, 11.dp.toPx()))
-        drawLine(
-            color = Color.White,
-            start = Offset(size.width / 2, 4.dp.toPx()),
-            end = Offset(size.width / 2, 8.dp.toPx()),
-            strokeWidth = 1.5.dp.toPx(),
-            cap = StrokeCap.Round,
-        )
-    }
+    Icon(
+        imageVector = Icons.Default.Error,
+        contentDescription = "Warning",
+        tint = Color(0xFFE55353),
+        modifier = Modifier.size(16.dp)
+    )
 }
 
 @Composable
 private fun WifiIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val neutral = Color(0xFFBEC1C3)
-        drawArc(
-            color = neutral,
-            startAngle = 205f,
-            sweepAngle = 130f,
-            useCenter = false,
-            topLeft = Offset(1.dp.toPx(), 2.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(22.dp.toPx(), 14.dp.toPx()),
-            style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
-        )
-        drawArc(
-            color = color,
-            startAngle = 215f,
-            sweepAngle = 110f,
-            useCenter = false,
-            topLeft = Offset(5.dp.toPx(), 9.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(14.dp.toPx(), 8.dp.toPx()),
-            style = Stroke(2.dp.toPx(), cap = StrokeCap.Round),
-        )
-        drawCircle(color, radius = 1.5.dp.toPx(), center = Offset(12.dp.toPx(), 19.dp.toPx()))
-    }
+    Icon(
+        imageVector = Icons.Default.Wifi,
+        contentDescription = "Wifi",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun ChevronSideIcon(left: Boolean, color: Color, size: Int) {
-    Canvas(modifier = Modifier.size(size.dp)) {
-        val path = Path().apply {
-            if (left) {
-                moveTo(12.dp.toPx(), 4.dp.toPx())
-                lineTo(6.dp.toPx(), 10.dp.toPx())
-                lineTo(12.dp.toPx(), 16.dp.toPx())
-            } else {
-                moveTo(8.dp.toPx(), 4.dp.toPx())
-                lineTo(14.dp.toPx(), 10.dp.toPx())
-                lineTo(8.dp.toPx(), 16.dp.toPx())
-            }
-        }
-        drawPath(path, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-    }
+    Icon(
+        imageVector = if (left) Icons.Default.ChevronLeft else Icons.Default.ChevronRight,
+        contentDescription = "Chevron",
+        tint = color,
+        modifier = Modifier.size(size.dp)
+    )
 }
 
 @Composable
 private fun DirectionIcon() {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        drawCircle(AppBlue, radius = 10.dp.toPx(), center = Offset(12.dp.toPx(), 12.dp.toPx()), style = stroke)
-        drawLine(AppBlue, Offset(8.dp.toPx(), 16.dp.toPx()), Offset(16.dp.toPx(), 8.dp.toPx()), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
-    }
+    Icon(
+        imageVector = Icons.Default.NearMe,
+        contentDescription = "Directions",
+        tint = AppBlue,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun ShareIcon() {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        val points = listOf(Offset(7.dp.toPx(), 12.dp.toPx()), Offset(16.dp.toPx(), 7.dp.toPx()), Offset(16.dp.toPx(), 17.dp.toPx()))
-        drawLine(AppBlue, points[0], points[1], strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(AppBlue, points[0], points[2], strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
-        points.forEach { drawCircle(AppBlue, radius = 2.5.dp.toPx(), center = it, style = stroke) }
-    }
+    Icon(
+        imageVector = Icons.Default.Share,
+        contentDescription = "Share",
+        tint = AppBlue,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun PlayCircleIcon(color: Color, size: Int) {
-    Canvas(modifier = Modifier.size(size.dp)) {
-        val stroke = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
-        drawCircle(color, radius = (size / 2 - 1).dp.toPx(), center = Offset(this.size.width / 2, this.size.height / 2), style = stroke)
-        val path = Path().apply {
-            moveTo(7.dp.toPx(), 5.dp.toPx())
-            lineTo(11.dp.toPx(), 8.dp.toPx())
-            lineTo(7.dp.toPx(), 11.dp.toPx())
-            close()
-        }
-        drawPath(path, color)
-    }
+    Icon(
+        imageVector = Icons.Default.PlayCircleOutline,
+        contentDescription = "Play",
+        tint = color,
+        modifier = Modifier.size(size.dp)
+    )
 }
 
 private fun String.attributeInt(key: String): Int? {

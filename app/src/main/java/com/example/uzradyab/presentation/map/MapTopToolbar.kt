@@ -1,7 +1,6 @@
 package com.example.uzradyab.presentation.map
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,11 +8,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -53,20 +54,14 @@ fun MapTopToolbar(
     }
 }
 
+
+
 @Composable
 private fun MenuGridIcon(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.size(24.dp)) {
-        val dot = 2.96.dp.toPx()
-        val xs = listOf(5.5.dp.toPx(), 16.5.dp.toPx())
-        val ys = listOf(5.5.dp.toPx(), 17.5.dp.toPx())
-        xs.forEach { x ->
-            ys.forEach { y ->
-                drawCircle(
-                    color = AppTextPrimary,
-                    radius = dot,
-                    center = Offset(x, y),
-                )
-            }
-        }
-    }
+    Icon(
+        imageVector = Icons.Default.GridView,
+        contentDescription = "Grid Menu",
+        tint = AppTextPrimary,
+        modifier = modifier.size(24.dp)
+    )
 }

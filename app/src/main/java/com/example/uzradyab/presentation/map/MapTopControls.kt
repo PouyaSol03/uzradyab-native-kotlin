@@ -16,8 +16,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -76,14 +82,14 @@ fun MapTopControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MapSettingsTrigger(
-                onClick = onSettingsClick,
-                modifier = Modifier.width(142.dp),
-            )
             DeviceSelectTrigger(
                 text = selectedDevice?.name ?: "انتخاب دستگاه",
                 onClick = onDeviceSelectorClick,
                 modifier = Modifier.weight(1f),
+            )
+            MapSettingsTrigger(
+                onClick = onSettingsClick,
+                modifier = Modifier.width(142.dp),
             )
         }
         Row(
@@ -636,77 +642,44 @@ private fun EventPulseDot() {
     }
 }
 
+
+
 @Composable
 private fun SmallCarIcon(color: Color) {
-    Canvas(modifier = Modifier.size(width = 20.dp, height = 16.dp)) {
-        val stroke = Stroke(width = 1.7.dp.toPx(), cap = StrokeCap.Round)
-        val path = Path().apply {
-            moveTo(2.dp.toPx(), 10.dp.toPx())
-            lineTo(5.dp.toPx(), 5.dp.toPx())
-            lineTo(15.dp.toPx(), 5.dp.toPx())
-            lineTo(18.dp.toPx(), 10.dp.toPx())
-            lineTo(18.dp.toPx(), 13.dp.toPx())
-            lineTo(2.dp.toPx(), 13.dp.toPx())
-            close()
-        }
-        drawPath(path, color, style = stroke)
-        drawCircle(color, 1.5.dp.toPx(), Offset(6.dp.toPx(), 13.dp.toPx()))
-        drawCircle(color, 1.5.dp.toPx(), Offset(14.dp.toPx(), 13.dp.toPx()))
-    }
+    Icon(
+        imageVector = Icons.Default.DirectionsCar,
+        contentDescription = "Car",
+        tint = color,
+        modifier = Modifier.size(width = 20.dp, height = 16.dp)
+    )
 }
 
 @Composable
 private fun ChevronDownIcon(color: Color) {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val path = Path().apply {
-            moveTo(7.dp.toPx(), 9.dp.toPx())
-            lineTo(12.dp.toPx(), 14.dp.toPx())
-            lineTo(17.dp.toPx(), 9.dp.toPx())
-        }
-        drawPath(path, color, style = Stroke(2.dp.toPx(), cap = StrokeCap.Round))
-    }
+    Icon(
+        imageVector = Icons.Default.KeyboardArrowDown,
+        contentDescription = "Chevron Down",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun SettingsGearIcon(size: Int, color: Color = Color.White) {
-    Canvas(modifier = Modifier.size(size.dp)) {
-        val stroke = Stroke(width = 1.7.dp.toPx(), cap = StrokeCap.Round)
-        val center = Offset(this.size.width / 2f, this.size.height / 2f)
-        drawCircle(color, radius = this.size.width * 0.16f, center = center, style = stroke)
-        drawCircle(color, radius = this.size.width * 0.38f, center = center, style = stroke)
-        repeat(8) { index ->
-            val angle = Math.toRadians((index * 45).toDouble())
-            drawLine(
-                color,
-                Offset(
-                    x = center.x + kotlin.math.cos(angle).toFloat() * this.size.width * 0.38f,
-                    y = center.y + kotlin.math.sin(angle).toFloat() * this.size.width * 0.38f,
-                ),
-                Offset(
-                    x = center.x + kotlin.math.cos(angle).toFloat() * this.size.width * 0.45f,
-                    y = center.y + kotlin.math.sin(angle).toFloat() * this.size.width * 0.45f,
-                ),
-                strokeWidth = 1.5.dp.toPx(),
-                cap = StrokeCap.Round,
-            )
-        }
-    }
+    Icon(
+        imageVector = Icons.Default.Settings,
+        contentDescription = "Settings",
+        tint = color,
+        modifier = Modifier.size(size.dp)
+    )
 }
 
 @Composable
 private fun NotificationBellIcon(color: Color = Color.White) {
-    Canvas(modifier = Modifier.size(28.dp)) {
-        val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        val bell = Path().apply {
-            moveTo(8.dp.toPx(), 20.dp.toPx())
-            cubicTo(9.dp.toPx(), 18.dp.toPx(), 9.5.dp.toPx(), 16.dp.toPx(), 9.5.dp.toPx(), 12.dp.toPx())
-            cubicTo(9.5.dp.toPx(), 8.dp.toPx(), 12.dp.toPx(), 6.dp.toPx(), 14.dp.toPx(), 6.dp.toPx())
-            cubicTo(16.dp.toPx(), 6.dp.toPx(), 18.5.dp.toPx(), 8.dp.toPx(), 18.5.dp.toPx(), 12.dp.toPx())
-            cubicTo(18.5.dp.toPx(), 16.dp.toPx(), 19.dp.toPx(), 18.dp.toPx(), 20.dp.toPx(), 20.dp.toPx())
-        }
-        drawPath(bell, color, style = stroke)
-        drawLine(color, Offset(7.dp.toPx(), 20.dp.toPx()), Offset(21.dp.toPx(), 20.dp.toPx()), strokeWidth = 2.dp.toPx(), cap = StrokeCap.Round)
-        drawCircle(color, radius = 1.8.dp.toPx(), center = Offset(14.dp.toPx(), 23.dp.toPx()))
-        drawCircle(color, radius = 3.dp.toPx(), center = Offset(20.dp.toPx(), 7.dp.toPx()))
-    }
+    Icon(
+        imageVector = Icons.Default.Notifications,
+        contentDescription = "Notifications",
+        tint = color,
+        modifier = Modifier.size(28.dp)
+    )
 }

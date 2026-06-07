@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -181,26 +184,16 @@ private fun DeviceMarkerIcon(modifier: Modifier = Modifier) {
     }
 }
 
+
+
 @Composable
 private fun SettingsGearIcon() {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        val stroke = Stroke(width = 1.7.dp.toPx(), cap = StrokeCap.Round)
-        val center = Offset(size.width / 2f, size.height / 2f)
-        drawCircle(Color.White, radius = 2.4.dp.toPx(), center = center, style = stroke)
-        drawCircle(Color.White, radius = 6.3.dp.toPx(), center = center, style = stroke)
-        repeat(8) { index ->
-            val angle = Math.toRadians((index * 45).toDouble())
-            val start = Offset(
-                x = center.x + kotlin.math.cos(angle).toFloat() * 6.3.dp.toPx(),
-                y = center.y + kotlin.math.sin(angle).toFloat() * 6.3.dp.toPx(),
-            )
-            val end = Offset(
-                x = center.x + kotlin.math.cos(angle).toFloat() * 7.4.dp.toPx(),
-                y = center.y + kotlin.math.sin(angle).toFloat() * 7.4.dp.toPx(),
-            )
-            drawLine(Color.White, start, end, strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-        }
-    }
+    Icon(
+        imageVector = Icons.Default.Settings,
+        contentDescription = "Settings",
+        tint = Color.White,
+        modifier = Modifier.size(16.dp)
+    )
 }
 
 private fun String.toPersianDigits(): String {

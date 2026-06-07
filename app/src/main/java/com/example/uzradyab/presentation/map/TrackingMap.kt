@@ -63,8 +63,8 @@ fun TrackingMap(
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setMinZoomLevel(3.0)
-                    setMaxZoomLevel(19.0)
-                    controller.setZoom(13.0)
+                    setMaxZoomLevel(23.0)
+                    controller.setZoom(18.0)
                     controller.setCenter(center)
                     tag = centerKey
                 }
@@ -74,6 +74,7 @@ fun TrackingMap(
                 mapView.setBuiltInZoomControls(false)
                 mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 if (mapView.tag != centerKey) {
+                    mapView.controller.setZoom(18.0)
                     mapView.controller.setCenter(center)
                     mapView.tag = centerKey
                 }

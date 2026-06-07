@@ -19,8 +19,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -318,26 +321,16 @@ internal fun PasswordEyeIcon() {
     EyeOffIcon(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
 }
 
+
+
 @Composable
 internal fun UserFieldIcon() {
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        drawCircle(
-            color = Color(0xFFC0CDD8),
-            radius = 5.75.dp.toPx(),
-            center = Offset(size.width / 2f, 7.dp.toPx()),
-            style = stroke,
-        )
-        drawArc(
-            color = Color(0xFFC0CDD8),
-            startAngle = 205f,
-            sweepAngle = 130f,
-            useCenter = false,
-            topLeft = Offset(3.dp.toPx(), 12.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(18.dp.toPx(), 10.dp.toPx()),
-            style = stroke,
-        )
-    }
+    Icon(
+        imageVector = Icons.Default.Person,
+        contentDescription = "User",
+        tint = Color(0xFFC0CDD8),
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
