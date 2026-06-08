@@ -155,8 +155,7 @@ fun HomeMapScreen(
                             onEditDeviceClick = { onEditDeviceClick(selectedDevice.id) },
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .navigationBarsPadding()
-                                .padding(bottom = 16.dp),
+                                .navigationBarsPadding(),
                         )
                     } else {
                         SelectedDeviceStatusCard(
@@ -173,6 +172,26 @@ fun HomeMapScreen(
                         )
                     }
                 }
+                
+                // Bottom Navigation
+                AppBottomNavigation(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 8.dp),
+                    onItemSelected = { item ->
+                        when (item) {
+                            BottomNavItem.ALARM -> onEventsClick()
+                            BottomNavItem.MANAGEMENT -> {} // Currently here
+                            BottomNavItem.MAP -> {
+                                if (state.deviceManagementOpen) {
+                                    viewModel.closeDeviceManagement()
+                                }
+                            }
+                            BottomNavItem.ACCOUNT -> {} // TODO
+                        }
+                    }
+                )
             }
         }
     }

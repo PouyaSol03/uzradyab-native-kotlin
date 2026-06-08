@@ -50,7 +50,8 @@ fun DeviceManagementPanel(
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = 375.dp)
-            .height(369.dp),
+            .height(446.dp)
+            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
     ) {
         DeviceManagementHeader(
             device = device,
@@ -83,7 +84,7 @@ private fun DeviceManagementHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(128.dp)
+            .height(152.dp)
             .background(Color(0xFF384C5C))
             .padding(horizontal = 16.dp, vertical = 24.dp),
     ) {
@@ -92,12 +93,11 @@ private fun DeviceManagementHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HeaderButton(
-                text = "مشخصات دستگاه",
-                onClick = onEditClick
-            )
+            // Right side (first in RTL)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(horizontalAlignment = Alignment.End) {
+                MovingCarBadge()
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(horizontalAlignment = Alignment.Start) {
                     Text(
                         text = device.name,
                         color = Color.White,
@@ -116,21 +116,24 @@ private fun DeviceManagementHeader(
                         maxLines = 1,
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                MovingCarBadge()
             }
+            // Left side (second in RTL)
+            HeaderButton(
+                text = "مشخصات دستگاه",
+                onClick = onEditClick
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(48.dp)
                 .background(Color(0xFF27343F), RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HeaderButton(text = "بازپخش مسیر", white = true, width = 139)
+            // Right side (first in RTL)
             Text(
                 text = "پیمایش امروز: $todayDistanceText",
                 color = Color.White,
@@ -138,7 +141,10 @@ private fun DeviceManagementHeader(
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,
                 maxLines = 1,
+                modifier = Modifier.padding(start = 8.dp),
             )
+            // Left side (second in RTL)
+            HeaderButton(text = "بازپخش مسیر", white = true, width = 139)
         }
     }
 }
@@ -159,17 +165,27 @@ private fun HeaderButton(
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = text,
-                color = Color.White,
-                fontSize = 14.sp,
-                lineHeight = 24.sp,
-                fontWeight = FontWeight.Medium,
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             if (white) {
                 MiniPlayIcon()
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = text,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                MiniChevronIcon()
             } else {
+                Text(
+                    text = text,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 MiniChevronIcon()
             }
         }
