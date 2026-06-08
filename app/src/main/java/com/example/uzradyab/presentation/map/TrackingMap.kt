@@ -25,6 +25,11 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.views.overlay.MapEventsOverlay
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
 private const val OSMDROID_PREFS = "osmdroid"
@@ -35,9 +40,14 @@ fun TrackingMap(
     devices: List<Device>,
     latestPositions: Map<Long, Position>,
     selectedDeviceId: Long?,
+    mapBottomPadding: Dp = 0.dp,
+    onMapClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
+    
     val selectedPosition = latestPositions[selectedDeviceId]
     val center = selectedPosition?.toGeoPoint()
         ?: latestPositions.values.firstOrNull()?.toGeoPoint()
@@ -78,9 +88,24 @@ fun TrackingMap(
                     mapView.controller.setCenter(center)
                     mapView.tag = centerKey
                 }
+                
+                // Offset map center so the device marker stays vertically centered above panels
+                mapView.setMapCenterOffset(0, bottomPaddingPx / 2)
+
+                // Handle map clicks
                 mapView.overlays.removeAll { overlay ->
-                    overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER
+                    (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER) ||
+                    overlay is MapEventsOverlay
                 }
+                
+                val eventsReceiver = object : MapEventsReceiver {
+                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                        onMapClick()
+                        return true
+                    }
+                    override fun longPressHelper(p: GeoPoint?): Boolean = false
+                }
+                mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
                 selectedPosition?.let { position ->
                     mapView.overlays.add(
                         Marker(mapView).apply {

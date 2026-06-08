@@ -126,9 +126,13 @@ fun HomeMapScreen(
                     devices = state.devices,
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = mapBottomPadding),
+                    mapBottomPadding = mapBottomPadding,
+                    onMapClick = {
+                        if (state.deviceManagementOpen) {
+                            onCloseDeviceManagement()
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
                 )
                 MapTopControls(
                     devices = state.devices,
