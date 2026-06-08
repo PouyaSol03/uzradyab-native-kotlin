@@ -177,34 +177,51 @@ fun DebugLogScreen(onBackClick: () -> Unit) {
                 }
 
                 // Scroll-to-bottom FAB
-                AnimatedVisibility(
+                ScrollToBottomFab(
                     visible = !autoScroll,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
+                    onClick = {
+                        scope.launch {
+                            if (filtered.isNotEmpty()) listState.animateScrollToItem(filtered.lastIndex)
+                            autoScroll = true
+                        }
+                    },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(12.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .shadow(6.dp, CircleShape)
-                            .background(ColorRequest, CircleShape)
-                            .clickable {
-                                scope.launch {
-                                    if (filtered.isNotEmpty()) listState.animateScrollToItem(filtered.lastIndex)
-                                    autoScroll = true
-                                }
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(Icons.Default.ArrowDownward, contentDescription = "Scroll to bottom",
-                            tint = Color.White, modifier = Modifier.size(20.dp))
-                    }
-                }
+                )
             }
 
             Spacer(Modifier.navigationBarsPadding())
+        }
+    }
+}
+
+@Composable
+private fun ScrollToBottomFab(
+    visible: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .shadow(6.dp, CircleShape)
+                .background(ColorRequest, CircleShape)
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowDownward,
+                contentDescription = "Scroll to bottom",
+                tint = Color.White,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }
