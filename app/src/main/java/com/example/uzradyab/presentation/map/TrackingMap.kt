@@ -80,9 +80,6 @@ fun TrackingMap(
                 }
             },
             update = { mapView ->
-                mapView.setTileSource(ExirFirmTileSource())
-                mapView.setBuiltInZoomControls(false)
-                mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 if (mapView.tag != centerKey) {
                     mapView.controller.setZoom(18.0)
                     mapView.controller.setCenter(center)
