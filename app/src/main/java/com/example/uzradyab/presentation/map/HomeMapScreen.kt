@@ -159,6 +159,26 @@ fun HomeMapScreen(
                                 .align(Alignment.BottomCenter)
                                 .navigationBarsPadding(),
                         )
+                        
+                        // Bottom Navigation
+                        AppBottomNavigation(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .navigationBarsPadding()
+                                .padding(bottom = 8.dp),
+                            onItemSelected = { item ->
+                                when (item) {
+                                    BottomNavItem.ALARM -> onEventsClick()
+                                    BottomNavItem.MANAGEMENT -> {} // Currently here
+                                    BottomNavItem.MAP -> {
+                                        if (state.deviceManagementOpen) {
+                                            onCloseDeviceManagement()
+                                        }
+                                    }
+                                    BottomNavItem.ACCOUNT -> {} // TODO
+                                }
+                            }
+                        )
                     } else {
                         SelectedDeviceStatusCard(
                             device = selectedDevice,
@@ -173,27 +193,6 @@ fun HomeMapScreen(
                                 .padding(bottom = 16.dp),
                         )
                     }
-                }
-                
-                // Bottom Navigation
-                AppBottomNavigation(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .padding(bottom = 8.dp),
-                    onItemSelected = { item ->
-                        when (item) {
-                            BottomNavItem.ALARM -> onEventsClick()
-                            BottomNavItem.MANAGEMENT -> {} // Currently here
-                            BottomNavItem.MAP -> {
-                                if (state.deviceManagementOpen) {
-                                    onCloseDeviceManagement()
-                                }
-                            }
-                            BottomNavItem.ACCOUNT -> {} // TODO
-                        }
-                    }
-                )
             }
         }
     }
