@@ -111,11 +111,24 @@ fun HomeMapScreen(
                     .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                     .background(MaterialTheme.colorScheme.background),
             ) {
+                val targetMapPadding = when {
+                    state.deviceManagementOpen -> 446.dp
+                    selectedDevice != null -> if (state.deviceCardExpanded) 240.dp else 163.dp
+                    else -> 0.dp
+                }
+                val mapBottomPadding by androidx.compose.animation.core.animateDpAsState(
+                    targetValue = targetMapPadding,
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 260),
+                    label = "mapBottomPadding",
+                )
+
                 TrackingMap(
                     devices = state.devices,
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = mapBottomPadding),
                 )
                 MapTopControls(
                     devices = state.devices,
