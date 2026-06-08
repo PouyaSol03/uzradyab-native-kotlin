@@ -1,6 +1,8 @@
 package com.example.uzradyab.di
 
 import android.content.Context
+import com.example.uzradyab.BuildConfig
+import com.example.uzradyab.core.debug.NetworkLogInterceptor
 import com.example.uzradyab.core.network.PersistentCookieJar
 import com.example.uzradyab.data.remote.api.AuthHelperApi
 import com.example.uzradyab.data.remote.api.TraccarApi
@@ -24,6 +26,7 @@ private const val AUTH_HELPER_RETROFIT = "authHelperRetrofit"
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
     @Provides
     @Singleton
     fun provideCookieJar(@ApplicationContext context: Context): PersistentCookieJar {
@@ -33,11 +36,14 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(cookieJar: PersistentCookieJar): OkHttpClient {
-        return OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-            .build()
+        if (BuildConfig.DEBUG) {
+            builder.addInterceptor(NetworkLogInterceptor())
+        }
+        return builder.build()
     }
 
     @Provides

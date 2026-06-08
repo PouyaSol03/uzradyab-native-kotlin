@@ -1,6 +1,8 @@
 package com.example.uzradyab.presentation.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,10 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.ui.theme.AppBackground
@@ -34,6 +41,7 @@ fun HomeMapRoute(
     onAddDeviceClick: () -> Unit,
     onEditDeviceClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
+    onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,6 +65,7 @@ fun HomeMapRoute(
         onAddDeviceClick = onAddDeviceClick,
         onEditDeviceClick = onEditDeviceClick,
         onReportsClick = onReportsClick,
+        onDebugLogsClick = onDebugLogsClick,
     )
 }
 
@@ -74,6 +83,7 @@ fun HomeMapScreen(
     onAddDeviceClick: () -> Unit,
     onEditDeviceClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
+    onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
@@ -163,6 +173,22 @@ fun HomeMapScreen(
                                 .navigationBarsPadding()
                                 .padding(bottom = 16.dp),
                         )
+                    }
+                }
+                // ── Debug log FAB (only when callback is wired = debug builds) ──
+                if (onDebugLogsClick != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 80.dp, end = 12.dp)
+                            .size(36.dp)
+                            .shadow(4.dp, CircleShape)
+                            .background(Color(0xFF1C2128), CircleShape)
+                            .border(1.dp, Color(0xFF30363D), CircleShape)
+                            .clickable(onClick = onDebugLogsClick),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text("🐛", fontSize = 16.sp)
                     }
                 }
             }

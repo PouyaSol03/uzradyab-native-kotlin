@@ -9,9 +9,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
+import com.example.uzradyab.presentation.debug.DebugLogScreen
 import com.example.uzradyab.presentation.device.AddDeviceRoute
 import com.example.uzradyab.presentation.events.EventsDevicesRoute
 import com.example.uzradyab.presentation.map.HomeMapRoute
@@ -122,6 +124,11 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onDebugLogsClick = if (BuildConfig.DEBUG) ({
+                    navController.navigate(AppRoute.DebugLog.path) {
+                        launchSingleTop = true
+                    }
+                }) else null,
             )
         }
         composable(AppRoute.Events.path) {
@@ -171,6 +178,13 @@ fun UzradyabApp(
                 }
             )
         }
+        if (BuildConfig.DEBUG) {
+            composable(AppRoute.DebugLog.path) {
+                DebugLogScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+        }
     }
 }
 
@@ -183,4 +197,5 @@ private enum class AppRoute(val path: String) {
     Events("/events"),
     AddDevice("/add-device"),
     Reports("/reports"),
+    DebugLog("/debug-logs"),
 }
