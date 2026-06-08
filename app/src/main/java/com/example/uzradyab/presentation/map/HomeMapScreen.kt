@@ -193,6 +193,7 @@ fun HomeMapScreen(
                                 .padding(bottom = 16.dp),
                         )
                     }
+                }
             }
         }
     }
