@@ -57,6 +57,7 @@ fun HomeMapRoute(
         onCloseMapSettings = viewModel::closeMapSettings,
         onToggleDeviceCard = viewModel::toggleDeviceCard,
         onManageDeviceClick = viewModel::openDeviceManagement,
+        onCloseDeviceManagement = viewModel::closeDeviceManagement,
         onEventsClick = onEventsClick,
         onLogoutClick = viewModel::logout,
         onAddDeviceClick = onAddDeviceClick,
@@ -75,6 +76,7 @@ fun HomeMapScreen(
     onCloseMapSettings: () -> Unit,
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
+    onCloseDeviceManagement: () -> Unit,
     onEventsClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
@@ -185,7 +187,7 @@ fun HomeMapScreen(
                             BottomNavItem.MANAGEMENT -> {} // Currently here
                             BottomNavItem.MAP -> {
                                 if (state.deviceManagementOpen) {
-                                    viewModel.closeDeviceManagement()
+                                    onCloseDeviceManagement()
                                 }
                             }
                             BottomNavItem.ACCOUNT -> {} // TODO
