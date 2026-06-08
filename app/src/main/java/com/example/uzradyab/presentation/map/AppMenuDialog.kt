@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.uzradyab.BuildConfig
 
 @Composable
 fun AppMenuDialog(
@@ -45,6 +47,7 @@ fun AppMenuDialog(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onReportsClick: () -> Unit = {},
+    onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Dialog(
@@ -125,7 +128,7 @@ fun AppMenuDialog(
                 )
             }
 
-            // Group 3: Support Items (5-6) + Logout (7)
+            // Group 3: Support Items (5-6) + Logout + Debug (if debug build)
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -148,6 +151,14 @@ fun AppMenuDialog(
                         onDismiss()
                     }
                 )
+                if (BuildConfig.DEBUG && onDebugLogsClick != null) {
+                    DebugLogsMenuItem(
+                        onClick = {
+                            onDebugLogsClick()
+                            onDismiss()
+                        }
+                    )
+                }
             }
         }
     }
@@ -210,6 +221,41 @@ private fun IranFlagIcon() {
             color = Color(0xFF333638),
             cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
+        )
+    }
+}
+
+@Composable
+private fun DebugLogsMenuItem(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(Color(0xFF1C2128), RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // Bug emoji badge
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(Color(0xFF30363D), RoundedCornerShape(6.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("🐛", fontSize = 14.sp)
+        }
+
+        Text(
+            text = "لاگ‌های شبکه  [DEBUG]",
+            color = Color(0xFF58A6FF),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Right,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 6.dp),
         )
     }
 }
