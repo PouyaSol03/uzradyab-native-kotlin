@@ -87,7 +87,7 @@ fun TrackingMap(
                 }
                 
                 // Offset map center so the device marker stays vertically centered above panels
-                mapView.setMapCenterOffset(0, bottomPaddingPx / 2)
+                mapView.setMapCenterOffset(0, -bottomPaddingPx / 2)
 
                 // Handle map clicks
                 mapView.overlays.removeAll { overlay ->
