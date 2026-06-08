@@ -63,7 +63,7 @@ fun DeviceManagementPanel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(241.dp)
+                .weight(1f)
                 .background(Color.White),
         ) {
             ManagementGrid(
