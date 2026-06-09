@@ -21,7 +21,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 private const val DEFAULT_SERVER_URL = "https://app.uzradyab.ir/"
 private const val AUTH_HELPER_URL = "https://pay.uzradyab.ir/"
+private const val NOTIFICATION_URL = "https://notification.uzradyab.ir/"
 private const val AUTH_HELPER_RETROFIT = "authHelperRetrofit"
+private const val NOTIFICATION_RETROFIT = "notificationRetrofit"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -73,6 +75,25 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @Named(NOTIFICATION_RETROFIT)
+    fun provideNotificationRetrofit(
+        client: OkHttpClient,
+        gson: Gson,
+        cookieJar: PersistentCookieJar
+    ): Retrofit {
+        val notificationClient = client.newBuilder()
+            .addInterceptor(com.example.uzradyab.core.network.CsrfInterceptor(cookieJar))
+            .build()
+            
+        return Retrofit.Builder()
+            .baseUrl(NOTIFICATION_URL)
+            .client(notificationClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+    }
+
+    @Provides
+    @Singleton
     fun provideTraccarApi(retrofit: Retrofit): TraccarApi {
         return retrofit.create(TraccarApi::class.java)
     }
@@ -81,5 +102,11 @@ object NetworkModule {
     @Singleton
     fun provideAuthHelperApi(@Named(AUTH_HELPER_RETROFIT) retrofit: Retrofit): AuthHelperApi {
         return retrofit.create(AuthHelperApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationApi(@Named(NOTIFICATION_RETROFIT) retrofit: Retrofit): com.example.uzradyab.data.remote.api.NotificationApi {
+        return retrofit.create(com.example.uzradyab.data.remote.api.NotificationApi::class.java)
     }
 }

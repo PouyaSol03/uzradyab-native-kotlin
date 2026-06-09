@@ -44,7 +44,12 @@ fun DeviceManagementPanel(
     device: Device,
     position: Position?,
     todayDistanceText: String,
-    onEditDeviceClick: () -> Unit,
+    onDeviceSpecsClick: () -> Unit,
+    onDeviceSettingsClick: () -> Unit,
+    onReplayTripClick: () -> Unit,
+    onCommandsClick: () -> Unit,
+    onReportsClick: () -> Unit,
+    onAlertsSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -58,7 +63,8 @@ fun DeviceManagementPanel(
             device = device,
             position = position,
             todayDistanceText = todayDistanceText,
-            onEditClick = onEditDeviceClick
+            onSpecsClick = onDeviceSpecsClick,
+            onReplayClick = onReplayTripClick
         )
         Box(
             modifier = Modifier
@@ -67,6 +73,11 @@ fun DeviceManagementPanel(
                 .background(Color.White),
         ) {
             ManagementGrid(
+                onDeviceSettingsClick = onDeviceSettingsClick,
+                onReplayTripClick = onReplayTripClick,
+                onCommandsClick = onCommandsClick,
+                onReportsClick = onReportsClick,
+                onAlertsSettingsClick = onAlertsSettingsClick,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 24.dp),
@@ -80,7 +91,8 @@ private fun DeviceManagementHeader(
     device: Device,
     position: Position?,
     todayDistanceText: String,
-    onEditClick: () -> Unit,
+    onSpecsClick: () -> Unit,
+    onReplayClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -121,7 +133,7 @@ private fun DeviceManagementHeader(
             // Left side (second in RTL)
             HeaderButton(
                 text = "مشخصات دستگاه",
-                onClick = onEditClick
+                onClick = onSpecsClick
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -145,7 +157,7 @@ private fun DeviceManagementHeader(
                 modifier = Modifier.padding(start = 8.dp),
             )
             // Left side (second in RTL)
-            HeaderButton(text = "بازپخش مسیر", white = true, width = 139)
+            HeaderButton(text = "بازپخش مسیر", white = true, width = 139, onClick = onReplayClick)
         }
     }
 }
@@ -194,20 +206,27 @@ private fun HeaderButton(
 }
 
 @Composable
-private fun ManagementGrid(modifier: Modifier = Modifier) {
+private fun ManagementGrid(
+    onDeviceSettingsClick: () -> Unit,
+    onReplayTripClick: () -> Unit,
+    onCommandsClick: () -> Unit,
+    onReportsClick: () -> Unit,
+    onAlertsSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.width(343.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66)) { MapFrameIcon(it) }
-            ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535)) { PlayIcon(it) }
-            ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106)) { SettingsIcon(it) }
+            ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535), onClick = onReplayTripClick) { PlayIcon(it) }
+            ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872)) { DocumentsIcon(it) }
-            ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606)) { AlarmTileIcon(it) }
-            ManagementTile("دستورات", Color(0xFFEDECFE), Color(0xFF0D0679)) { FlashIcon(it) }
+            ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872), onClick = onReportsClick) { DocumentsIcon(it) }
+            ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
+            ManagementTile("دستورات", Color(0xFFEDECFE), Color(0xFF0D0679), onClick = onCommandsClick) { FlashIcon(it) }
         }
     }
 }
@@ -217,13 +236,16 @@ private fun ManagementTile(
     label: String,
     background: Color,
     foreground: Color,
+    onClick: () -> Unit = {},
     icon: @Composable (Color) -> Unit,
 ) {
     Box(
         modifier = Modifier
             .width(103.67f.dp)
             .height(78.dp)
-            .background(background, RoundedCornerShape(12.dp)),
+            .clip(RoundedCornerShape(12.dp))
+            .background(background)
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -36,8 +36,12 @@ fun HomeMapRoute(
     onSignedOut: () -> Unit,
     onEventsClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onEditDeviceClick: (Long) -> Unit,
+    onDeviceSpecsClick: (Long) -> Unit,
+    onDeviceSettingsClick: (Long) -> Unit,
+    onReplayTripClick: (Long) -> Unit,
+    onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
+    onAlertsSettingsClick: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
@@ -61,8 +65,12 @@ fun HomeMapRoute(
         onEventsClick = onEventsClick,
         onLogoutClick = viewModel::logout,
         onAddDeviceClick = onAddDeviceClick,
-        onEditDeviceClick = onEditDeviceClick,
+        onDeviceSpecsClick = onDeviceSpecsClick,
+        onDeviceSettingsClick = onDeviceSettingsClick,
+        onReplayTripClick = onReplayTripClick,
+        onCommandsClick = onCommandsClick,
         onReportsClick = onReportsClick,
+        onAlertsSettingsClick = onAlertsSettingsClick,
         onDebugLogsClick = onDebugLogsClick,
     )
 }
@@ -80,8 +88,12 @@ fun HomeMapScreen(
     onEventsClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onEditDeviceClick: (Long) -> Unit,
+    onDeviceSpecsClick: (Long) -> Unit,
+    onDeviceSettingsClick: (Long) -> Unit,
+    onReplayTripClick: (Long) -> Unit,
+    onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
+    onAlertsSettingsClick: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -162,6 +174,7 @@ fun HomeMapScreen(
                         onLogoutClick = onLogoutClick,
                         onAddDeviceClick = onAddDeviceClick,
                         onReportsClick = onReportsClick,
+                        onAlertsSettingsClick = onAlertsSettingsClick,
                         onDebugLogsClick = onDebugLogsClick,
                     )
                 }
@@ -171,7 +184,12 @@ fun HomeMapScreen(
                             device = selectedDevice,
                             position = selectedPosition,
                             todayDistanceText = state.todayDistanceText,
-                            onEditDeviceClick = { onEditDeviceClick(selectedDevice.id) },
+                            onDeviceSpecsClick = { onDeviceSpecsClick(selectedDevice.id) },
+                            onDeviceSettingsClick = { onDeviceSettingsClick(selectedDevice.id) },
+                            onReplayTripClick = { onReplayTripClick(selectedDevice.id) },
+                            onCommandsClick = { onCommandsClick(selectedDevice.id) },
+                            onReportsClick = onReportsClick,
+                            onAlertsSettingsClick = onAlertsSettingsClick,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .navigationBarsPadding(),

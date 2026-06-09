@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.biometric.BiometricHelper
+import com.example.uzradyab.presentation.alerts.AlertsSettingsRoute
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
 import com.example.uzradyab.presentation.debug.DebugLogScreen
@@ -20,6 +21,8 @@ import com.example.uzradyab.presentation.map.HomeMapRoute
 import com.example.uzradyab.presentation.onboarding.OnboardingScreen
 import com.example.uzradyab.presentation.reports.ReportsRoute
 import com.example.uzradyab.presentation.startup.StartupRoute
+import com.example.uzradyab.presentation.replay.ReplayTripRoute
+import com.example.uzradyab.presentation.command.CommandCenterRoute
 
 @Composable
 fun UzradyabApp(
@@ -114,13 +117,33 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onEditDeviceClick = { deviceId ->
-                    navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId") {
+                onDeviceSpecsClick = { deviceId ->
+                    navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId&isReadOnly=true") {
+                        launchSingleTop = true
+                    }
+                },
+                onDeviceSettingsClick = { deviceId ->
+                    navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId&isReadOnly=false") {
+                        launchSingleTop = true
+                    }
+                },
+                onReplayTripClick = { deviceId ->
+                    navController.navigate("${AppRoute.ReplayTrip.path}?deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                },
+                onCommandsClick = { deviceId ->
+                    navController.navigate("${AppRoute.CommandCenter.path}?deviceId=$deviceId") {
                         launchSingleTop = true
                     }
                 },
                 onReportsClick = {
                     navController.navigate(AppRoute.Reports.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onAlertsSettingsClick = {
+                    navController.navigate("alerts_settings") {
                         launchSingleTop = true
                     }
                 },
@@ -157,12 +180,16 @@ fun UzradyabApp(
             )
         }
         composable(
-            route = "${AppRoute.AddDevice.path}?deviceId={deviceId}",
+            route = "${AppRoute.AddDevice.path}?deviceId={deviceId}&isReadOnly={isReadOnly}",
             arguments = listOf(
                 navArgument("deviceId") {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
+                },
+                navArgument("isReadOnly") {
+                    type = NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) {
@@ -178,12 +205,45 @@ fun UzradyabApp(
                 }
             )
         }
+        composable(
+            route = "${AppRoute.ReplayTrip.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            ReplayTripRoute(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "${AppRoute.CommandCenter.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            CommandCenterRoute(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
         if (BuildConfig.DEBUG) {
             composable(AppRoute.DebugLog.path) {
                 DebugLogScreen(
                     onBackClick = { navController.popBackStack() }
                 )
             }
+        }
+        composable("alerts_settings") {
+            AlertsSettingsRoute(
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }
@@ -197,5 +257,7 @@ private enum class AppRoute(val path: String) {
     Events("/events"),
     AddDevice("/add-device"),
     Reports("/reports"),
+    ReplayTrip("/replay-trip"),
+    CommandCenter("/command-center"),
     DebugLog("/debug-logs"),
 }

@@ -47,6 +47,7 @@ fun AppMenuDialog(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onReportsClick: () -> Unit = {},
+    onAlertsSettingsClick: () -> Unit = {},
     onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -125,6 +126,14 @@ fun AppMenuDialog(
                     label = "محدوده‌های جغرافیایی",
                     icon = Icons.Default.Layers,
                     onClick = onDismiss
+                )
+                MenuCardItem(
+                    label = "تنظیمات هشدارها",
+                    icon = Icons.Default.Assignment,
+                    onClick = {
+                        onAlertsSettingsClick()
+                        onDismiss()
+                    }
                 )
             }
 

@@ -12,6 +12,7 @@ import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.MapCacheRepository
+import com.example.uzradyab.domain.repository.NotificationRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.RegistrationRepository
 import com.example.uzradyab.domain.repository.ReportRepository
@@ -43,7 +44,15 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindTrackingRepository(impl: TrackingRepositoryImpl): TrackingRepository
+    abstract fun bindTrackingRepository(
+        trackingRepositoryImpl: TrackingRepositoryImpl
+    ): TrackingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        notificationRepositoryImpl: com.example.uzradyab.data.repository.NotificationRepositoryImpl
+    ): NotificationRepository
 
     @Binds
     @Singleton

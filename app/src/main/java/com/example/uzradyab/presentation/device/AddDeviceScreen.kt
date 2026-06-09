@@ -106,6 +106,7 @@ fun AddDeviceRoute(
         onBackClick = onBackClick,
         onLogoutClick = viewModel::logout,
         isEditMode = viewModel.isEditMode,
+        isReadOnly = viewModel.isReadOnly,
         creditText = viewModel.creditText,
         endCreditText = viewModel.endCreditText
     )
@@ -127,6 +128,7 @@ fun AddDeviceScreen(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     isEditMode: Boolean,
+    isReadOnly: Boolean,
     creditText: String,
     endCreditText: String,
 ) {
@@ -144,7 +146,7 @@ fun AddDeviceScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = if (isEditMode) "مشخصات دستگاه" else "افزودن دستگاه",
+                                text = if (isReadOnly) "مشخصات دستگاه" else if (isEditMode) "تنظیمات دستگاه" else "افزودن دستگاه",
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -164,11 +166,14 @@ fun AddDeviceScreen(
                 )
             },
             bottomBar = {
-                AddDeviceBottomBar(
-                    isLoading = isLoading,
-                    isFormValid = isFormValid,
-                    onSaveClick = onSaveClick
-                )
+                if (!isReadOnly) {
+                    AddDeviceBottomBar(
+                        isLoading = isLoading,
+                        isFormValid = isFormValid,
+                        isEditMode = isEditMode,
+                        onSaveClick = onSaveClick
+                    )
+                }
             },
             containerColor = figmaBackground,
         ) { innerPadding ->
@@ -189,7 +194,8 @@ fun AddDeviceScreen(
                         placeholder = "مثلا: پژو پارس",
                         helperText = "عنوان دستگاه برای شناسایی راحت‌تر آن در میان بقیه دستگاه‌های ثبت شده است.",
                         forceLtr = false,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        enabled = !isReadOnly
                     )
 
                     // Input 2: شماره سریال دستگاه
@@ -201,7 +207,7 @@ fun AddDeviceScreen(
                         helperText = "شماره سریال دستگاه با عنوان IEMI بر روی جعبه دستگاه ردیاب درج شده است.",
                         forceLtr = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        enabled = !isEditMode
+                        enabled = !isEditMode && !isReadOnly
                     )
 
                     // Exir credit banner under uniqueId in Edit mode
@@ -238,7 +244,8 @@ fun AddDeviceScreen(
                         placeholder = "مثلا: 09151094755",
                         helperText = "شماره سیم‌کارت موجود در دستگاه.",
                         forceLtr = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        enabled = !isReadOnly
                     )
 
                     // Input 4: کیلومتر فعلی دستگاه
@@ -249,7 +256,8 @@ fun AddDeviceScreen(
                         placeholder = "مثلا: 100",
                         helperText = "اختیاری",
                         forceLtr = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        enabled = !isReadOnly
                     )
                 }
 
@@ -269,6 +277,7 @@ fun AddDeviceScreen(
 private fun AddDeviceBottomBar(
     isLoading: Boolean,
     isFormValid: Boolean,
+    isEditMode: Boolean,
     onSaveClick: () -> Unit,
 ) {
     Box(
@@ -306,7 +315,7 @@ private fun AddDeviceBottomBar(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "ذخیــــــره دستگاه",
+                        text = if (isEditMode) "بروزرسانی دستگاه" else "ذخیــــــره دستگاه",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                     )

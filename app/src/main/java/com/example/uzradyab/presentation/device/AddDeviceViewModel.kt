@@ -21,6 +21,9 @@ class AddDeviceViewModel @Inject constructor(
 
     private val deviceId: Long? = savedStateHandle.get<String>("deviceId")?.toLongOrNull()
 
+    var isReadOnly by mutableStateOf(savedStateHandle.get<Boolean>("isReadOnly") ?: false)
+        private set
+
     var isEditMode by mutableStateOf(false)
         private set
 

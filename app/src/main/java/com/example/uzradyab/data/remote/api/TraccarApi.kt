@@ -63,4 +63,9 @@ interface TraccarApi {
         @Query("to") to: String,
         @Query("deviceId") deviceIds: List<Long>,
     ): List<CombinedReportDto>
+
+    @POST("api/commands/send")
+    suspend fun sendCommand(
+        @Body request: com.example.uzradyab.data.remote.dto.CommandRequestDto
+    ): com.example.uzradyab.data.remote.dto.CommandResponseDto
 }
