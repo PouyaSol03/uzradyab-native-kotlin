@@ -4,17 +4,19 @@ import com.example.uzradyab.data.local.dao.DailyDistanceDao
 import com.example.uzradyab.data.mapper.toDomain
 import com.example.uzradyab.data.mapper.toEntity
 import com.example.uzradyab.data.remote.api.TraccarApi
-import com.example.uzradyab.domain.model.DailyDistance
-import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.model.CombinedReportItem
-import javax.inject.Inject
+import com.example.uzradyab.domain.model.DailyDistance
+import com.example.uzradyab.domain.model.SummaryReport
+import com.example.uzradyab.domain.repository.ReportRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 class ReportRepositoryImpl @Inject constructor(
     private val api: TraccarApi,
     private val dailyDistanceDao: DailyDistanceDao,
 ) : ReportRepository {
+
     override fun observeDailyDistance(deviceId: Long, date: String): Flow<DailyDistance?> {
         return dailyDistanceDao.observeDailyDistance(deviceId, date)
             .map { row -> row?.toDomain() }
@@ -32,6 +34,7 @@ class ReportRepositoryImpl @Inject constructor(
             daily = false,
             deviceId = deviceId,
         ).firstOrNull()
+
         dailyDistanceDao.upsert(
             DailyDistance(
                 deviceId = deviceId,
@@ -53,5 +56,17 @@ class ReportRepositoryImpl @Inject constructor(
             deviceIds = deviceIds
         ).map { it.toDomain() }
     }
-}
 
+    override suspend fun getSummaryReport(
+        deviceId: Long,
+        from: String,
+        to: String
+    ): Result<List<SummaryReport>> = runCatching {
+        api.getSummaryReport(
+            deviceId = deviceId,
+            from = from,
+            to = to,
+            daily = false
+        ).map { it.toDomain() } // <-- تبدیل DTO به Domain
+    }
+}

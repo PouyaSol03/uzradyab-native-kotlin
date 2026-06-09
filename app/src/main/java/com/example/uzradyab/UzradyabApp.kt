@@ -176,6 +176,36 @@ fun UzradyabApp(
                     navController.navigate(AppRoute.AddDevice.path) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToDeviceStatus = {
+                    // این Lambda باید به ReportsRoute در ReportsScreen.kt اضافه شود
+                    navController.navigate(AppRoute.DeviceStatus.path) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(AppRoute.DeviceStatus.path) {
+            com.example.uzradyab.presentation.reports.DeviceStatusRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onLogoutClick = {
+                    navController.navigate(AppRoute.SignIn.path) {
+                        popUpTo(AppRoute.Home.path) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onAddDeviceClick = {
+                    navController.navigate(AppRoute.AddDevice.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onTraveledPathsClick = {
+                    // وقتی کاربر روی دکمه آبی در صفحه وضعیت کلیک می‌کند
+                    // فعلا فرض می‌کنیم به صفحه گزارشات ترکیبی یا یک صفحه مسیرها می‌رود.
+                    // در اینجا می‌توانید مسیر دلخواه را قرار دهید:
+                    navController.popBackStack() // موقتا برمی‌گردد به صفحه قبل
                 }
             )
         }
@@ -257,6 +287,7 @@ private enum class AppRoute(val path: String) {
     Events("/events"),
     AddDevice("/add-device"),
     Reports("/reports"),
+    DeviceStatus("/device-status"),
     ReplayTrip("/replay-trip"),
     CommandCenter("/command-center"),
     DebugLog("/debug-logs"),

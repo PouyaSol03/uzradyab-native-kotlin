@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.repository.DeviceRepository
-import com.example.uzradyab.domain.repository.GeocoderRepository // <--- ایمپورت Geocoder
+import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,26 +21,30 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 
-data class ReportsUiState(
+data class DeviceStatusUiState(
     val isLoading: Boolean = false,
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val deviceStatusText: String = "نامشخص",
+    val startAddress: String = "در حال دریافت...",
     val currentAddress: String = "در حال دریافت...",
-    val distanceKm: String = "۰",
-    val fuelLiters: String = "۰",
-    val averageSpeed: String = "۰"
+    val firstIgnitionTime: String = "- : -",
+    val ignitionDuration: String = "- ساعت و - دقیقه",
+    val averageSpeed: String = "۰",
+    val spentFuel: String = "۰",
+    val startOdometer: String = "۰",
+    val endOdometer: String = "۰"
 )
 
 @HiltViewModel
-class ReportsViewModel @Inject constructor(
+class DeviceStatusViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val reportRepository: ReportRepository,
-    private val geocoderRepository: GeocoderRepository // <--- تزریق GeocoderRepository
+    private val geocoderRepository: GeocoderRepository // تزریق سیستم Geocoder (تبدیل مختصات به آدرس)
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ReportsUiState())
-    val uiState: StateFlow<ReportsUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(DeviceStatusUiState())
+    val uiState: StateFlow<DeviceStatusUiState> = _uiState.asStateFlow()
 
     init {
         observeDevices()
@@ -54,7 +58,7 @@ class ReportsViewModel @Inject constructor(
                     val selectedId = state.selectedDeviceId ?: sortedList.firstOrNull()?.id
 
                     if (state.selectedDeviceId == null && selectedId != null) {
-                        fetchDeviceData(selectedId)
+                        fetchDeviceStatusData(selectedId)
                     }
 
                     state.copy(
@@ -70,27 +74,27 @@ class ReportsViewModel @Inject constructor(
         if (_uiState.value.selectedDeviceId == deviceId) return
 
         _uiState.update { it.copy(selectedDeviceId = deviceId) }
-        fetchDeviceData(deviceId)
+        fetchDeviceStatusData(deviceId)
     }
 
-    private fun fetchDeviceData(deviceId: Long) {
+    private fun fetchDeviceStatusData(deviceId: Long) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, currentAddress = "در حال دریافت آدرس...") }
+            _uiState.update { it.copy(isLoading = true) }
 
             // ۱. دریافت موقعیت جاری دستگاه
-            val selectedPosition: Position? = getLatestPositionForDevice(deviceId)
+            val currentPosition: Position? = getLatestPositionForDevice(deviceId)
 
-            // ۲. وضعیت احتراق
-            val statusText = calculateDeviceStatus(selectedPosition)
+            // TODO: برای موقعیت مبدأ باید اولین پوزیشن امروز یا پوزیشن شروع حرکت را دریافت کنید
+            val startPosition: Position? = currentPosition
 
-            // ۳. دریافت آدرس واقعی از Map.ir (با استفاده از کش ۳ دقیقه‌ای)
-            val addressText = if (selectedPosition != null) {
-                geocoderRepository.getAddress(selectedPosition.latitude, selectedPosition.longitude)
-            } else {
-                "موقعیت نامشخص"
-            }
+            // ۲. وضعیت فعلی دستگاه (روشن/خاموش)
+            val statusText = calculateDeviceStatus(currentPosition)
 
-            // ۴. دریافت خلاصه گزارش
+            // ۳. دریافت آدرس‌ها (استفاده از کش و API نقشه)
+            val currentAddressText = currentPosition?.let { getAddressFromCoordinates(it.latitude, it.longitude) } ?: "موقعیت نامشخص"
+            val startAddressText = startPosition?.let { getAddressFromCoordinates(it.latitude, it.longitude) } ?: "موقعیت نامشخص"
+
+            // ۴. فراخوانی API خلاصه گزارش برای آمارها
             val (fromIso, toIso) = getTodayIsoRange()
             val summaryResult = reportRepository.getSummaryReport(
                 deviceId = deviceId,
@@ -98,7 +102,7 @@ class ReportsViewModel @Inject constructor(
                 to = toIso
             )
 
-            // ۵. آپدیت UI
+            // ۵. پردازش و آپدیت UI
             summaryResult.onSuccess { summaryList ->
                 val summary = summaryList.firstOrNull()
 
@@ -106,10 +110,18 @@ class ReportsViewModel @Inject constructor(
                     state.copy(
                         isLoading = false,
                         deviceStatusText = statusText,
-                        currentAddress = addressText, // <--- آدرس واقعی اینجا به UI تزریق می‌شود
-                        distanceKm = formatMetric(summary?.distance, divider = 1000.0),
-                        fuelLiters = formatMetric(summary?.spentFuel),
-                        averageSpeed = formatMetric(summary?.averageSpeed, multiplier = 1.852)
+                        currentAddress = currentAddressText,
+                        startAddress = startAddressText,
+                        // تبدیل کیلومترشمار از متر به کیلومتر (معمولاً Traccar به متر برمی‌گرداند)
+                        startOdometer = formatMetric(summary?.startOdometer, divider = 1000.0),
+                        endOdometer = formatMetric(summary?.endOdometer, divider = 1000.0),
+                        spentFuel = formatMetric(summary?.spentFuel),
+                        averageSpeed = formatMetric(summary?.averageSpeed, multiplier = 1.852), // نات به کیلومتر بر ساعت
+
+                        // TODO: برای محاسبه دقیق "اولین زمان روشن شدن" و "مدت روشن بودن"
+                        // باید از API /reports/trips یا /reports/stops ترکار استفاده کنید.
+                        firstIgnitionTime = "۱۰:۲۲".toPersianDigits(),
+                        ignitionDuration = "۳ ساعت و ۳۰ دقیقه".toPersianDigits()
                     )
                 }
             }.onFailure {
@@ -117,10 +129,8 @@ class ReportsViewModel @Inject constructor(
                     state.copy(
                         isLoading = false,
                         deviceStatusText = statusText,
-                        currentAddress = addressText, // <--- حتی در صورت خطا در آمار، آدرس نمایش داده می‌شود
-                        distanceKm = "۰",
-                        fuelLiters = "۰",
-                        averageSpeed = "۰"
+                        currentAddress = currentAddressText,
+                        startAddress = startAddressText
                     )
                 }
             }
@@ -142,6 +152,11 @@ class ReportsViewModel @Inject constructor(
         } catch (e: Exception) {
             "نامشخص"
         }
+    }
+
+    private suspend fun getAddressFromCoordinates(lat: Double, lon: Double): String {
+        // اتصال کامل به لایه Repository که داده را از Map.ir گرفته و کش می‌کند
+        return geocoderRepository.getAddress(lat, lon)
     }
 
     private fun getTodayIsoRange(): Pair<String, String> {

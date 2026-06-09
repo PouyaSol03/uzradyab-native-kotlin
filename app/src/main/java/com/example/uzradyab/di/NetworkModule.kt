@@ -5,7 +5,10 @@ import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.debug.NetworkLogInterceptor
 import com.example.uzradyab.core.network.PersistentCookieJar
 import com.example.uzradyab.data.remote.api.AuthHelperApi
+import com.example.uzradyab.data.remote.api.MapIrApi
 import com.example.uzradyab.data.remote.api.TraccarApi
+import com.example.uzradyab.data.repository.GeocoderRepositoryImpl
+import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -108,5 +111,22 @@ object NetworkModule {
     @Singleton
     fun provideNotificationApi(@Named(NOTIFICATION_RETROFIT) retrofit: Retrofit): com.example.uzradyab.data.remote.api.NotificationApi {
         return retrofit.create(com.example.uzradyab.data.remote.api.NotificationApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMapIrApi(client: OkHttpClient): MapIrApi {
+        return Retrofit.Builder()
+            .baseUrl("https://map.ir/")
+            .client(client) // <-- Now calls to Map.ir will be logged
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MapIrApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeocoderRepository(api: MapIrApi): GeocoderRepository {
+        return GeocoderRepositoryImpl(api)
     }
 }
