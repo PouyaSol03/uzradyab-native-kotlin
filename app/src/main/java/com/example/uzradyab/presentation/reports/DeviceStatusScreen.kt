@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.uzradyab.core.designsystem.SkeletonBox
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
@@ -38,17 +39,16 @@ fun DeviceStatusRoute(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onTraveledPathsClick: () -> Unit,
-    viewModel: DeviceStatusViewModel = hiltViewModel() // تزریق ویومدل واقعی
+    viewModel: DeviceStatusViewModel = hiltViewModel()
 ) {
-    // دریافت لحظه‌ای وضعیت از ویومدل
     val uiState by viewModel.uiState.collectAsState()
 
     DeviceStatusScreen(
-        state = uiState, // ارسال state واقعی به UI
+        state = uiState,
         onBackClick = onBackClick,
         onLogoutClick = onLogoutClick,
         onAddDeviceClick = onAddDeviceClick,
-        onDeviceSelect = viewModel::selectDevice, // متصل شد به منطق واقعی
+        onDeviceSelect = viewModel::selectDevice,
         onTraveledPathsClick = onTraveledPathsClick,
         onExportClick = { /* TODO: Export logic */ }
     )
@@ -56,7 +56,7 @@ fun DeviceStatusRoute(
 
 @Composable
 fun DeviceStatusScreen(
-    state: DeviceStatusUiState, // استفاده از کلاس صحیح State
+    state: DeviceStatusUiState,
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
@@ -106,9 +106,6 @@ fun DeviceStatusScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
-                    // ===============================================
-                    // بخش ثابت (Sticky) - دکمه انتخاب دستگاه
-                    // ===============================================
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -123,9 +120,6 @@ fun DeviceStatusScreen(
                         )
                     }
 
-                    // ===============================================
-                    // بخش محتوای اسکرول‌شونده
-                    // ===============================================
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -134,7 +128,6 @@ fun DeviceStatusScreen(
                             .padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // هدر وضعیت
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -168,21 +161,20 @@ fun DeviceStatusScreen(
                             }
                         }
 
-                        // کارت موقعیت مبدا
                         LocationCard(
                             title = "موقعیت مبدا",
                             address = state.startAddress,
-                            icon = Icons.Outlined.LocationOn
+                            icon = Icons.Outlined.LocationOn,
+                            isLoading = state.isLoading && state.startAddress == "در حال دریافت..."
                         )
 
-                        // کارت موقعیت جاری دستگاه
                         LocationCard(
                             title = "موقعیت جاری دستگاه",
                             address = state.currentAddress,
-                            icon = Icons.Default.GpsFixed
+                            icon = Icons.Default.GpsFixed,
+                            isLoading = state.isLoading && state.currentAddress == "در حال دریافت..."
                         )
 
-                        // ردیف اول آمارها
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -192,18 +184,19 @@ fun DeviceStatusScreen(
                                 title = "اولین زمان روشن شدن",
                                 value = state.firstIgnitionTime,
                                 unit = "",
-                                icon = Icons.Default.FlashOn
+                                icon = Icons.Default.FlashOn,
+                                isLoading = state.isLoading && state.firstIgnitionTime == "- : -"
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "مدت روشن بودن دستگاه",
                                 value = state.ignitionDuration,
                                 unit = "",
-                                icon = Icons.Default.AccessTime
+                                icon = Icons.Default.AccessTime,
+                                isLoading = state.isLoading && state.ignitionDuration.contains("- ساعت")
                             )
                         }
 
-                        // ردیف دوم آمارها
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -213,18 +206,19 @@ fun DeviceStatusScreen(
                                 title = "میانگین سرعت",
                                 value = state.averageSpeed,
                                 unit = "کیلومتر",
-                                icon = Icons.Default.Speed
+                                icon = Icons.Default.Speed,
+                                isLoading = state.isLoading && state.averageSpeed == "۰"
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "مصرف سوخت",
                                 value = state.spentFuel,
                                 unit = "لیتر",
-                                icon = Icons.Default.LocalGasStation
+                                icon = Icons.Default.LocalGasStation,
+                                isLoading = state.isLoading && state.spentFuel == "۰"
                             )
                         }
 
-                        // ردیف سوم آمارها
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -234,23 +228,22 @@ fun DeviceStatusScreen(
                                 title = "شروع کیلومترشمار",
                                 value = state.startOdometer,
                                 unit = "کیلومتر",
-                                icon = Icons.Outlined.Timer
+                                icon = Icons.Outlined.Timer,
+                                isLoading = state.isLoading && state.startOdometer == "۰"
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "پایان کیلومترشمار",
                                 value = state.endOdometer,
                                 unit = "کیلومتر",
-                                icon = Icons.Outlined.Timer
+                                icon = Icons.Outlined.Timer,
+                                isLoading = state.isLoading && state.endOdometer == "۰"
                             )
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    // ===============================================
-                    // بخش ثابت پایین (دکمه‌های اقدام)
-                    // ===============================================
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -258,7 +251,6 @@ fun DeviceStatusScreen(
                             .padding(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // دکمه خروجی (عرض کمتر)
                         OutlinedButton(
                             onClick = onExportClick,
                             modifier = Modifier
@@ -271,7 +263,6 @@ fun DeviceStatusScreen(
                             Text("خروجی", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
 
-                        // دکمه مسیرهای پیموده شده (عرض بیشتر)
                         Button(
                             onClick = onTraveledPathsClick,
                             modifier = Modifier
@@ -285,7 +276,6 @@ fun DeviceStatusScreen(
                     }
                 }
 
-                // دیالوگ منوی اصلی
                 if (menuOpen) {
                     AppMenuDialog(
                         onDismiss = { menuOpen = false },
@@ -294,7 +284,6 @@ fun DeviceStatusScreen(
                     )
                 }
 
-                // دیالوگ انتخاب دستگاه
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
                         devices = state.devices,
@@ -311,12 +300,8 @@ fun DeviceStatusScreen(
     }
 }
 
-// ==========================================
-// کامپوننت‌های کمکی
-// ==========================================
-
 @Composable
-private fun LocationCard(title: String, address: String, icon: ImageVector) {
+private fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: Boolean = false) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -344,12 +329,16 @@ private fun LocationCard(title: String, address: String, icon: ImageVector) {
                     fontSize = 12.sp
                 )
             }
-            Text(
-                text = address,
-                color = Color(0xFF333638),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
-            )
+            if (isLoading) {
+                SkeletonBox(modifier = Modifier.fillMaxWidth().height(18.dp))
+            } else {
+                Text(
+                    text = address,
+                    color = Color(0xFF333638),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }
@@ -360,7 +349,8 @@ private fun DetailStatCard(
     title: String,
     value: String,
     unit: String,
-    icon: ImageVector
+    icon: ImageVector,
+    isLoading: Boolean = false
 ) {
     Card(
         modifier = modifier,
@@ -394,15 +384,19 @@ private fun DetailStatCard(
                 )
             }
 
-            val displayText = if (unit.isNotEmpty()) "$value $unit" else value
-            Text(
-                text = displayText,
-                color = Color(0xFF333638),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Right,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (isLoading) {
+                SkeletonBox(modifier = Modifier.width(60.dp).height(16.dp).align(Alignment.End))
+            } else {
+                val displayText = if (unit.isNotEmpty()) "$value $unit" else value
+                Text(
+                    text = displayText,
+                    color = Color(0xFF333638),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

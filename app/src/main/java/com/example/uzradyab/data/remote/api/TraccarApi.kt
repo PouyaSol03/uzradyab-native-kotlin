@@ -7,6 +7,7 @@ import com.example.uzradyab.data.remote.dto.PositionDto
 import com.example.uzradyab.data.remote.dto.SessionDto
 import com.example.uzradyab.data.remote.dto.SummaryReportDto
 import com.example.uzradyab.data.remote.dto.CombinedReportDto
+import com.example.uzradyab.data.remote.dto.EventDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
@@ -63,6 +64,13 @@ interface TraccarApi {
         @Query("to") to: String,
         @Query("deviceId") deviceIds: List<Long>,
     ): List<CombinedReportDto>
+
+    @GET("api/reports/events")
+    suspend fun getEventsReport(
+        @Query("from") from: String,
+        @Query("to") to: String,
+        @Query("deviceId") deviceId: Long,
+    ): List<EventDto>
 
     @POST("api/commands/send")
     suspend fun sendCommand(

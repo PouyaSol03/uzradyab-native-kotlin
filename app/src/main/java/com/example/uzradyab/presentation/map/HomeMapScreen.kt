@@ -189,6 +189,7 @@ fun HomeMapScreen(
                             onReplayTripClick = { onReplayTripClick(selectedDevice.id) },
                             onCommandsClick = { onCommandsClick(selectedDevice.id) },
                             onReportsClick = onReportsClick,
+                            onEventsClick = onEventsClick,
                             onAlertsSettingsClick = onAlertsSettingsClick,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)

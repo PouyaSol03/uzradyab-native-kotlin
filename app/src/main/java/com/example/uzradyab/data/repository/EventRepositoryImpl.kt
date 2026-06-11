@@ -1,7 +1,10 @@
 package com.example.uzradyab.data.repository
 
+import com.example.uzradyab.core.debug.AppLogger
+import com.example.uzradyab.core.debug.LogLevel
 import com.example.uzradyab.data.local.dao.EventDao
 import com.example.uzradyab.data.mapper.toDomain
+import com.example.uzradyab.data.remote.api.TraccarApi
 import com.example.uzradyab.domain.model.Event
 import com.example.uzradyab.domain.model.LatestNotificationEvent
 import com.example.uzradyab.domain.repository.EventRepository
@@ -23,6 +26,7 @@ private const val NOTIFICATION_BASE_URL = "https://notification.uzradyab.ir/"
 
 class EventRepositoryImpl @Inject constructor(
     private val eventDao: EventDao,
+    private val traccarApi: TraccarApi,
     private val client: OkHttpClient,
     private val gson: Gson,
 ) : EventRepository {
@@ -44,6 +48,23 @@ class EventRepositoryImpl @Inject constructor(
                 parseNotificationBody(response.body?.string().orEmpty()).take(1)
             }
         }
+    }
+
+    override suspend fun getEventsReport(
+        deviceId: Long,
+        from: String,
+        to: String
+    ): Result<List<Event>> = runCatching {
+        AppLogger.log(LogLevel.REQUEST, "EventReport", "Fetching events for $deviceId from $from to $to")
+        val result = traccarApi.getEventsReport(
+            deviceId = deviceId,
+            from = from,
+            to = to
+        ).map { it.toDomain() }
+        AppLogger.log(LogLevel.RESPONSE, "EventReport", "Received ${result.size} events")
+        result
+    }.onFailure { e ->
+        AppLogger.log(LogLevel.ERROR, "EventReport", "Failed to fetch events: ${e.message}")
     }
 
     private fun parseNotificationBody(body: String): List<LatestNotificationEvent> {

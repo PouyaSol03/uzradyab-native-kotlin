@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PlayCircleOutline
@@ -49,6 +51,7 @@ fun DeviceManagementPanel(
     onReplayTripClick: () -> Unit,
     onCommandsClick: () -> Unit,
     onReportsClick: () -> Unit,
+    onEventsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -56,7 +59,7 @@ fun DeviceManagementPanel(
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = 375.dp)
-            .height(446.dp)
+            .height(436.dp) // Adjusted height
             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
     ) {
         DeviceManagementHeader(
@@ -77,6 +80,7 @@ fun DeviceManagementPanel(
                 onReplayTripClick = onReplayTripClick,
                 onCommandsClick = onCommandsClick,
                 onReportsClick = onReportsClick,
+                onEventsClick = onEventsClick,
                 onAlertsSettingsClick = onAlertsSettingsClick,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -106,7 +110,6 @@ private fun DeviceManagementHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Right side (first in RTL)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MovingCarBadge()
                 Spacer(modifier = Modifier.width(8.dp))
@@ -130,7 +133,6 @@ private fun DeviceManagementHeader(
                     )
                 }
             }
-            // Left side (second in RTL)
             HeaderButton(
                 text = "مشخصات دستگاه",
                 onClick = onSpecsClick
@@ -146,7 +148,6 @@ private fun DeviceManagementHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Right side (first in RTL)
             Text(
                 text = "پیمایش امروز: $todayDistanceText",
                 color = Color.White,
@@ -156,7 +157,6 @@ private fun DeviceManagementHeader(
                 maxLines = 1,
                 modifier = Modifier.padding(start = 8.dp),
             )
-            // Left side (second in RTL)
             HeaderButton(text = "بازپخش مسیر", white = true, width = 139, onClick = onReplayClick)
         }
     }
@@ -211,6 +211,7 @@ private fun ManagementGrid(
     onReplayTripClick: () -> Unit,
     onCommandsClick: () -> Unit,
     onReportsClick: () -> Unit,
+    onEventsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -226,7 +227,7 @@ private fun ManagementGrid(
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872), onClick = onReportsClick) { DocumentsIcon(it) }
             ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
-            ManagementTile("دستورات", Color(0xFFEDECFE), Color(0xFF0D0679), onClick = onCommandsClick) { FlashIcon(it) }
+            ManagementTile("دستورات", Color(0xFFF4F6F8), Color(0xFF384C5C), onClick = onCommandsClick) { FlashIcon(it) }
         }
     }
 }
@@ -256,7 +257,7 @@ private fun ManagementTile(
                 color = foreground,
                 fontSize = 10.sp,
                 lineHeight = 22.sp,
-                fontWeight = if (label == "تنظیمات دستگاه") FontWeight.Medium else FontWeight.Normal,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
             )
         }
@@ -273,8 +274,6 @@ private fun MovingCarBadge() {
         }
     }
 }
-
-
 
 @Composable
 private fun MiniChevronIcon() {
@@ -341,6 +340,16 @@ private fun DocumentsIcon(color: Color) {
     Icon(
         imageVector = Icons.Default.Description,
         contentDescription = "Reports",
+        tint = color,
+        modifier = Modifier.size(24.dp)
+    )
+}
+
+@Composable
+private fun EventsTileIcon(color: Color) {
+    Icon(
+        imageVector = Icons.Default.EventNote,
+        contentDescription = "Events",
         tint = color,
         modifier = Modifier.size(24.dp)
     )

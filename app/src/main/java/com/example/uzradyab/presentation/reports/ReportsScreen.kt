@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.uzradyab.core.designsystem.SkeletonBox
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
@@ -42,7 +43,7 @@ fun ReportsRoute(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onNavigateToDeviceStatus: () -> Unit, // <--- اضافه شد
+    onNavigateToDeviceStatus: () -> Unit,
     viewModel: ReportsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,7 +54,7 @@ fun ReportsRoute(
         onLogoutClick = onLogoutClick,
         onAddDeviceClick = onAddDeviceClick,
         onDeviceSelect = viewModel::selectDevice,
-        onNavigateToDeviceStatus = onNavigateToDeviceStatus, // <--- اضافه شد
+        onNavigateToDeviceStatus = onNavigateToDeviceStatus,
         onReportItemClick = { reportType ->
             android.util.Log.d("ReportsRoute", "Clicked on: $reportType")
         }
@@ -67,7 +68,7 @@ fun ReportsScreen(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onDeviceSelect: (Long) -> Unit,
-    onNavigateToDeviceStatus: () -> Unit, // <--- اضافه شد
+    onNavigateToDeviceStatus: () -> Unit,
     onReportItemClick: (String) -> Unit
 ) {
     val figmaBackground = Color(0xFFF3F4F6)
@@ -107,20 +108,15 @@ fun ReportsScreen(
             containerColor = figmaBackground,
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize()) {
-
-                // ستون اصلی که شامل بخش ثابت بالا و بخش اسکرول‌شونده پایین است
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
-                    // ===============================================
-                    // ۱. بخش ثابت (Fixed) - انتخاب‌گر دستگاه
-                    // ===============================================
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(figmaBackground) // بک‌گراند برای پوشاندن محتوای اسکرول شده زیر آن
+                            .background(figmaBackground)
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
                         val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
@@ -131,25 +127,20 @@ fun ReportsScreen(
                         )
                     }
 
-                    // ===============================================
-                    // ۲. بخش قابل اسکرول (Scrollable) - محتوای گزارش
-                    // ===============================================
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f) // استفاده از باقی‌مانده فضا
+                            .weight(1f)
                             .padding(horizontal = 16.dp)
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        // کارت وضعیت جاری دستگاه
                         CurrentDeviceStatusSection(
                             state = state,
-                            onNavigateToDeviceStatus = onNavigateToDeviceStatus // <--- اضافه شد
+                            onNavigateToDeviceStatus = onNavigateToDeviceStatus
                         )
 
-                        // لیست سایر گزارش‌ها
-                        OtherReportsSection(onItemClick = { reportType -> // <--- متصل شد
+                        OtherReportsSection(onItemClick = { reportType ->
                             if (reportType == "وضعیت دستگاه") {
                                 onNavigateToDeviceStatus()
                             } else {
@@ -161,7 +152,6 @@ fun ReportsScreen(
                     }
                 }
 
-                // دیالوگ منوی اصلی
                 if (menuOpen) {
                     AppMenuDialog(
                         onDismiss = { menuOpen = false },
@@ -170,7 +160,6 @@ fun ReportsScreen(
                     )
                 }
 
-                // دیالوگ انتخاب دستگاه
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
                         devices = state.devices,
@@ -190,11 +179,9 @@ fun ReportsScreen(
 @Composable
 private fun CurrentDeviceStatusSection(
     state: ReportsUiState,
-    onNavigateToDeviceStatus: () -> Unit // <--- اضافه شد
+    onNavigateToDeviceStatus: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
-        // هدر وضعیت جاری
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -229,7 +216,6 @@ private fun CurrentDeviceStatusSection(
             }
         }
 
-        // کارت موقعیت مکانی
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -253,17 +239,20 @@ private fun CurrentDeviceStatusSection(
                         color = Color(0xFF8F99A3),
                         fontSize = 12.sp
                     )
-                    Text(
-                        text = state.currentAddress,
-                        color = Color(0xFF333638),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    if (state.isLoading && state.currentAddress == "در حال دریافت...") {
+                        SkeletonBox(modifier = Modifier.width(180.dp).height(18.dp))
+                    } else {
+                        Text(
+                            text = state.currentAddress,
+                            color = Color(0xFF333638),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }
 
-        // ردیف آمارهای سه‌گانه
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -273,27 +262,29 @@ private fun CurrentDeviceStatusSection(
                 title = "مسافت پیموده",
                 value = state.distanceKm,
                 unit = "کیلومتر",
-                icon = Icons.Default.Route
+                icon = Icons.Default.Route,
+                isLoading = state.isLoading
             )
             StatCard(
                 modifier = Modifier.weight(1f),
                 title = "مصرف سوخت",
                 value = state.fuelLiters,
                 unit = "لیتر",
-                icon = Icons.Default.LocalGasStation
+                icon = Icons.Default.LocalGasStation,
+                isLoading = state.isLoading
             )
             StatCard(
                 modifier = Modifier.weight(1f),
                 title = "میانگین سرعت",
                 value = state.averageSpeed,
                 unit = "کیلومتر",
-                icon = Icons.Default.Speed
+                icon = Icons.Default.Speed,
+                isLoading = state.isLoading
             )
         }
 
-        // دکمه جزئیات بیشتر
         OutlinedButton(
-            onClick = onNavigateToDeviceStatus, // <--- متصل شد
+            onClick = onNavigateToDeviceStatus,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -311,10 +302,6 @@ private fun CurrentDeviceStatusSection(
         }
     }
 }
-
-// ==========================================
-// کامپوننت‌های کمکی (Helper Composables)
-// ==========================================
 
 @Composable
 private fun DeviceSelectTrigger(
@@ -366,7 +353,8 @@ private fun StatCard(
     title: String,
     value: String,
     unit: String,
-    icon: ImageVector
+    icon: ImageVector,
+    isLoading: Boolean = false
 ) {
     Card(
         modifier = modifier,
@@ -397,13 +385,17 @@ private fun StatCard(
                 )
             }
 
-            Text(
-                text = "$value $unit",
-                color = Color(0xFF333638),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
+            if (isLoading && value == "۰") {
+                SkeletonBox(modifier = Modifier.width(50.dp).height(16.dp))
+            } else {
+                Text(
+                    text = "$value $unit",
+                    color = Color(0xFF333638),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

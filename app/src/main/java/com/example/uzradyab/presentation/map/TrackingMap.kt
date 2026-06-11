@@ -30,6 +30,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.uzradyab.R
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
 private const val OSMDROID_PREFS = "osmdroid"
@@ -204,7 +205,8 @@ private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapD
     val text = if (speedKmh <= 0) "متوقف" else "${speedKmh.toString().toPersianDigits()} km"
     paint.color = AndroidColor.WHITE
     paint.textAlign = Paint.Align.CENTER
-    paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    val customTypeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.vazirmatn_regular)
+    paint.typeface = customTypeface ?: Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
     paint.textSize = if (speedKmh <= 0) 11f else 10f
     canvas.drawText(text, centerX, 17.8f, paint)
 
