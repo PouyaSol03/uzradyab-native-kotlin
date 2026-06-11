@@ -1,5 +1,11 @@
 package com.example.uzradyab.presentation.map
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -139,7 +145,7 @@ fun HomeMapScreen(
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
                     mapBottomPadding = mapBottomPadding,
-                    onMapClick = {
+                    onMapInteraction = {
                         if (state.deviceManagementOpen) {
                             onCloseDeviceManagement()
                         }
@@ -179,58 +185,119 @@ fun HomeMapScreen(
                     )
                 }
                 if (selectedDevice != null) {
-                    if (state.deviceManagementOpen) {
-                        DeviceManagementPanel(
-                            device = selectedDevice,
-                            position = selectedPosition,
-                            todayDistanceText = state.todayDistanceText,
-                            onDeviceSpecsClick = { onDeviceSpecsClick(selectedDevice.id) },
-                            onDeviceSettingsClick = { onDeviceSettingsClick(selectedDevice.id) },
-                            onReplayTripClick = { onReplayTripClick(selectedDevice.id) },
-                            onCommandsClick = { onCommandsClick(selectedDevice.id) },
-                            onReportsClick = onReportsClick,
-                            onEventsClick = onEventsClick,
-                            onAlertsSettingsClick = onAlertsSettingsClick,
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .navigationBarsPadding(),
-                        )
-                        
-                        // Bottom Navigation
-                        AppBottomNavigation(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .navigationBarsPadding()
-                                .padding(bottom = 8.dp),
-                            onItemSelected = { item ->
-                                when (item) {
-                                    BottomNavItem.ALARM -> onEventsClick()
-                                    BottomNavItem.MANAGEMENT -> {} // Currently here
-                                    BottomNavItem.MAP -> {
-                                        if (state.deviceManagementOpen) {
-                                            onCloseDeviceManagement()
-                                        }
-                                    }
-                                    BottomNavItem.ACCOUNT -> {} // TODO
-                                }
-                            }
-                        )
-                    } else {
-                        SelectedDeviceStatusCard(
-                            device = selectedDevice,
-                            position = selectedPosition,
-                            todayDistanceText = state.todayDistanceText,
-                            expanded = state.deviceCardExpanded,
-                            onToggleExpanded = onToggleDeviceCard,
-                            onManageClick = onManageDeviceClick,
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .navigationBarsPadding()
-                                .padding(bottom = 16.dp),
-                        )
-                    }
+                    BottomPanels(
+                        state = state,
+                        selectedDevice = selectedDevice,
+                        selectedPosition = selectedPosition,
+                        onDeviceSpecsClick = onDeviceSpecsClick,
+                        onDeviceSettingsClick = onDeviceSettingsClick,
+                        onReplayTripClick = onReplayTripClick,
+                        onCommandsClick = onCommandsClick,
+                        onReportsClick = onReportsClick,
+                        onEventsClick = onEventsClick,
+                        onAlertsSettingsClick = onAlertsSettingsClick,
+                        onCloseDeviceManagement = onCloseDeviceManagement,
+                        onToggleDeviceCard = onToggleDeviceCard,
+                        onManageDeviceClick = onManageDeviceClick,
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
+    state: HomeMapUiState,
+    selectedDevice: com.example.uzradyab.domain.model.Device,
+    selectedPosition: com.example.uzradyab.domain.model.Position?,
+    onDeviceSpecsClick: (Long) -> Unit,
+    onDeviceSettingsClick: (Long) -> Unit,
+    onReplayTripClick: (Long) -> Unit,
+    onCommandsClick: (Long) -> Unit,
+    onReportsClick: () -> Unit,
+    onEventsClick: () -> Unit,
+    onAlertsSettingsClick: () -> Unit,
+    onCloseDeviceManagement: () -> Unit,
+    onToggleDeviceCard: () -> Unit,
+    onManageDeviceClick: () -> Unit,
+) {
+    AnimatedVisibility(
+        visible = state.deviceManagementOpen,
+        enter = slideInVertically(
+            animationSpec = tween(durationMillis = 300),
+            initialOffsetY = { it }
+        ) + fadeIn(animationSpec = tween(300)),
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = 300),
+            targetOffsetY = { it }
+        ) + fadeOut(animationSpec = tween(300)),
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+    ) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
+            DeviceManagementPanel(
+                device = selectedDevice,
+                position = selectedPosition,
+                todayDistanceText = state.todayDistanceText,
+                onDeviceSpecsClick = { onDeviceSpecsClick(selectedDevice.id) },
+                onDeviceSettingsClick = { onDeviceSettingsClick(selectedDevice.id) },
+                onReplayTripClick = { onReplayTripClick(selectedDevice.id) },
+                onCommandsClick = { onCommandsClick(selectedDevice.id) },
+                onReportsClick = onReportsClick,
+                onEventsClick = onEventsClick,
+                onAlertsSettingsClick = onAlertsSettingsClick,
+                modifier = Modifier
+                    .navigationBarsPadding()
+            )
+            
+            AppBottomNavigation(
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(bottom = 8.dp),
+                onItemSelected = { item ->
+                    when (item) {
+                        BottomNavItem.ALARM -> onEventsClick()
+                        BottomNavItem.MANAGEMENT -> {} // Currently here
+                        BottomNavItem.MAP -> {
+                            if (state.deviceManagementOpen) {
+                                onCloseDeviceManagement()
+                            }
+                        }
+                        BottomNavItem.ACCOUNT -> {} // TODO
+                    }
+                }
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = !state.deviceManagementOpen,
+        enter = slideInVertically(
+            animationSpec = tween(durationMillis = 300),
+            initialOffsetY = { it }
+        ) + fadeIn(animationSpec = tween(300)),
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = 300),
+            targetOffsetY = { it }
+        ) + fadeOut(animationSpec = tween(300)),
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+    ) {
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
+            SelectedDeviceStatusCard(
+                device = selectedDevice,
+                position = selectedPosition,
+                todayDistanceText = state.todayDistanceText,
+                expanded = state.deviceCardExpanded,
+                onToggleExpanded = onToggleDeviceCard,
+                onManageClick = onManageDeviceClick,
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(bottom = 16.dp),
+            )
         }
     }
 }

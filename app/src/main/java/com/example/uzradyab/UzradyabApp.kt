@@ -20,7 +20,6 @@ import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
 import com.example.uzradyab.presentation.debug.DebugLogScreen
 import com.example.uzradyab.presentation.device.AddDeviceRoute
-import com.example.uzradyab.presentation.events.EventsDevicesRoute
 import com.example.uzradyab.presentation.map.HomeMapRoute
 import com.example.uzradyab.presentation.onboarding.OnboardingScreen
 import com.example.uzradyab.presentation.reports.ReportsRoute
@@ -175,7 +174,7 @@ fun UzradyabApp(
             )
         }
         composable(AppRoute.Events.path) {
-            EventsDevicesRoute(
+            com.example.uzradyab.presentation.events.EventsReportRoute(
                 onBackClick = {
                     navController.popBackStack()
                 },

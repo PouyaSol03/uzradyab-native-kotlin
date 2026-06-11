@@ -9,4 +9,5 @@ interface PositionRepository {
     suspend fun getLatestPosition(deviceId: Long): Position?
     suspend fun refreshLatestPositions(): Result<Unit>
     suspend fun pruneHistory(maxRowsPerDevice: Int): Result<Unit>
+    suspend fun getPositionsHistory(deviceId: Long, from: String, to: String): Result<List<Position>>
 }

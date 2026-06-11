@@ -1,4 +1,4 @@
-package com.example.uzradyab.presentation.map
+package com.example.uzradyab.presentation.replay
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.map.tile.ExirFirmTileSource
 import org.osmdroid.config.Configuration
@@ -25,40 +24,30 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Polyline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.getValue
-import android.view.MotionEvent
+import org.osmdroid.util.BoundingBox
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val OSMDROID_PREFS = "osmdroid"
-private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
+private const val OSMDROID_PREFS = "osmdroid_replay"
+private const val REPLAY_MARKER = "replay-marker"
 
 @Composable
-fun TrackingMap(
-    devices: List<Device>,
-    latestPositions: Map<Long, Position>,
-    selectedDeviceId: Long?,
+fun ReplayMap(
+    positions: List<Position>,
+    currentIndex: Int,
     mapBottomPadding: Dp = 0.dp,
-    onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
     
-    val selectedPosition = latestPositions[selectedDeviceId]
-    val center = selectedPosition?.toGeoPoint()
-        ?: latestPositions.values.firstOrNull()?.toGeoPoint()
-        ?: Tehran
-    val centerKey = "${selectedDeviceId}:${center.latitude}:${center.longitude}"
-
-    val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
+    val currentPosition = positions.getOrNull(currentIndex)
+    val center = currentPosition?.toGeoPoint() ?: Tehran
 
     Box(
         modifier = modifier
@@ -80,59 +69,65 @@ fun TrackingMap(
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setMinZoomLevel(3.0)
                     setMaxZoomLevel(23.0)
-                    controller.setZoom(18.0)
-                    controller.setCenter(center)
-                    tag = centerKey
-
-                    setOnTouchListener { _, event ->
-                        if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
-                            currentOnMapInteraction()
-                        }
-                        false
-                    }
                 }
             },
             update = { mapView ->
-                if (mapView.tag != centerKey) {
-                    mapView.controller.setZoom(18.0)
-                    mapView.controller.setCenter(center)
-                    mapView.tag = centerKey
-                }
-                
-                // Offset map center so the device marker stays vertically centered above panels
+                // Adjust for bottom panel padding
                 mapView.setMapCenterOffset(0, -bottomPaddingPx / 2)
 
-                // Handle map clicks
-                mapView.overlays.removeAll { overlay ->
-                    (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER) ||
-                    overlay is MapEventsOverlay
-                }
-                
-                val eventsReceiver = object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
-                    }
-                    override fun longPressHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
-                    }
-                }
-                mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
-                selectedPosition?.let { position ->
-                    mapView.overlays.add(
-                        Marker(mapView).apply {
-                            this.position = position.toGeoPoint()
-                            icon = createDeviceMarkerDrawable(
-                                context = mapView.context,
-                                speedKmh = (position.speed * 1.852).toInt(),
-                            )
-                            setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                            relatedObject = SELECTED_DEVICE_MARKER
-                            infoWindow = null
-                        },
+                // First time zooming to bounds or tracking
+                val isFirstLoad = mapView.tag == null
+                if (isFirstLoad && positions.isNotEmpty()) {
+                    mapView.tag = "loaded"
+                    // Bound to route
+                    val lats = positions.map { it.latitude }
+                    val lons = positions.map { it.longitude }
+                    val boundingBox = BoundingBox(
+                        lats.maxOrNull() ?: 0.0,
+                        lons.maxOrNull() ?: 0.0,
+                        lats.minOrNull() ?: 0.0,
+                        lons.minOrNull() ?: 0.0
                     )
+                    // Post to let MapView layout first
+                    mapView.post {
+                        mapView.zoomToBoundingBox(boundingBox, true, 100)
+                    }
+                } else if (positions.isNotEmpty() && !isFirstLoad) {
+                    // Smoothly animate to current position when playing
+                    mapView.controller.animateTo(center)
                 }
+
+                mapView.overlays.clear()
+
+                if (positions.isNotEmpty()) {
+                    // Draw Polyline
+                    val routePolyline = Polyline(mapView).apply {
+                        setPoints(positions.map { it.toGeoPoint() })
+                        color = AndroidColor.parseColor("#A12887")
+                        width = with(density) { 4.dp.toPx() } // thickness
+                        isGeodesic = true
+                    }
+                    mapView.overlays.add(routePolyline)
+
+                    // Draw current car marker
+                    currentPosition?.let { pos ->
+                        mapView.overlays.add(
+                            Marker(mapView).apply {
+                                this.position = pos.toGeoPoint()
+                                icon = createDeviceMarkerDrawable(
+                                    context = mapView.context,
+                                    speedKmh = (pos.speed * 1.852).toInt()
+                                )
+                                setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
+                                relatedObject = REPLAY_MARKER
+                                infoWindow = null
+                                // Optional: set rotation based on course
+                                rotation = pos.course.toFloat()
+                            }
+                        )
+                    }
+                }
+
                 mapView.invalidate()
             },
         )

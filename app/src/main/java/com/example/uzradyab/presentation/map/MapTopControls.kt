@@ -371,7 +371,7 @@ fun DeviceSelectDialog(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .height(60.dp)
                     .border(2.dp, AppBlue, RoundedCornerShape(8.dp)),
             )
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -389,7 +389,7 @@ fun DeviceSelectDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(72.dp)
+                            .height(60.dp)
                             .background(Color.White, RoundedCornerShape(8.dp))
                             .border(1.dp, Color(0xFFE3E8EE), RoundedCornerShape(8.dp)),
                         contentAlignment = Alignment.Center,
@@ -415,7 +415,7 @@ private fun DeviceSelectRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
+            .height(60.dp)
             .background(Color.White, RoundedCornerShape(8.dp))
             .border(2.dp, if (selected) AppBlue else Color(0xFFE3E8EE), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
@@ -423,27 +423,10 @@ private fun DeviceSelectRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = device.uniqueId,
-            color = Color(0xFF68737D),
-            fontSize = 14.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text(
-                text = device.name,
-                color = AppBlue,
-                fontSize = 14.sp,
-                lineHeight = 22.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
             Box(
                 modifier = Modifier
                     .size(28.dp)
@@ -456,7 +439,25 @@ private fun DeviceSelectRow(
                         .background(Color.White, androidx.compose.foundation.shape.CircleShape),
                 )
             }
+            Text(
+                text = device.name,
+                color = AppBlue,
+                fontSize = 14.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
+        Text(
+            text = device.phone ?: "نامشخص",
+            color = Color(0xFF68737D),
+            fontSize = 14.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Left,
+            modifier = Modifier.weight(1f).padding(start = 16.dp),
+        )
     }
 }
 

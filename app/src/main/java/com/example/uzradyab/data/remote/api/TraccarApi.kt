@@ -50,6 +50,13 @@ interface TraccarApi {
     @GET("api/positions")
     suspend fun getPositions(): List<PositionDto>
 
+    @GET("api/positions")
+    suspend fun getPositionsHistory(
+        @Query("deviceId") deviceId: Long,
+        @Query("from") from: String,
+        @Query("to") to: String
+    ): List<PositionDto>
+
     @GET("api/reports/summary")
     suspend fun getSummaryReport(
         @Query("from") from: String,

@@ -38,4 +38,12 @@ class PositionRepositoryImpl @Inject constructor(
             positionDao.pruneDeviceHistory(deviceId = deviceId, maxRows = maxRowsPerDevice)
         }
     }
+
+    override suspend fun getPositionsHistory(
+        deviceId: Long,
+        from: String,
+        to: String
+    ): Result<List<Position>> = runCatching {
+        api.getPositionsHistory(deviceId, from, to).map { it.toDomain() }
+    }
 }

@@ -59,6 +59,7 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(NetworkLogInterceptor())
+            builder.addInterceptor(com.example.uzradyab.core.debug.MockTraccarInterceptor())
         }
         return builder.build()
     }
