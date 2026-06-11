@@ -15,6 +15,9 @@ interface PositionDao {
     @Query("SELECT * FROM positions WHERE deviceId = :deviceId ORDER BY serverTime DESC LIMIT :limit")
     fun observeHistory(deviceId: Long, limit: Int): Flow<List<PositionEntity>>
 
+    @Query("SELECT * FROM positions WHERE deviceId = :deviceId AND isLatest = 1 LIMIT 1")
+    suspend fun getLatestPosition(deviceId: Long): PositionEntity?
+
     @Query("UPDATE positions SET isLatest = 0 WHERE deviceId IN (:deviceIds)")
     suspend fun clearLatestFlags(deviceIds: List<Long>)
 

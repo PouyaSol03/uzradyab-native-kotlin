@@ -2,10 +2,13 @@ package com.example.uzradyab.presentation.reports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uzradyab.core.debug.AppLogger
+import com.example.uzradyab.core.debug.LogLevel
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.repository.DeviceRepository
-import com.example.uzradyab.domain.repository.GeocoderRepository // <--- ایمپورت Geocoder
+import com.example.uzradyab.domain.repository.GeocoderRepository
+import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +39,8 @@ data class ReportsUiState(
 class ReportsViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val reportRepository: ReportRepository,
-    private val geocoderRepository: GeocoderRepository // <--- تزریق GeocoderRepository
+    private val geocoderRepository: GeocoderRepository,
+    private val positionRepository: PositionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReportsUiState())
@@ -78,20 +82,24 @@ class ReportsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, currentAddress = "در حال دریافت آدرس...") }
 
             // ۱. دریافت موقعیت جاری دستگاه
-            val selectedPosition: Position? = getLatestPositionForDevice(deviceId)
+            val selectedPosition: Position? = positionRepository.getLatestPosition(deviceId)
 
             // ۲. وضعیت احتراق
             val statusText = calculateDeviceStatus(selectedPosition)
 
-            // ۳. دریافت آدرس واقعی از Map.ir (با استفاده از کش ۳ دقیقه‌ای)
+            // ۳. دریافت آدرس واقعی از Map.ir
             val addressText = if (selectedPosition != null) {
-                geocoderRepository.getAddress(selectedPosition.latitude, selectedPosition.longitude)
+                AppLogger.log(LogLevel.REQUEST, "Geocoder", "Fetching address for ${selectedPosition.latitude}, ${selectedPosition.longitude}")
+                val address = geocoderRepository.getAddress(selectedPosition.latitude, selectedPosition.longitude)
+                AppLogger.log(LogLevel.RESPONSE, "Geocoder", "Address received: $address")
+                address
             } else {
                 "موقعیت نامشخص"
             }
 
             // ۴. دریافت خلاصه گزارش
             val (fromIso, toIso) = getTodayIsoRange()
+            AppLogger.log(LogLevel.REQUEST, "Report", "Fetching summary for device $deviceId from $fromIso to $toIso")
             val summaryResult = reportRepository.getSummaryReport(
                 deviceId = deviceId,
                 from = fromIso,
@@ -101,23 +109,25 @@ class ReportsViewModel @Inject constructor(
             // ۵. آپدیت UI
             summaryResult.onSuccess { summaryList ->
                 val summary = summaryList.firstOrNull()
+                AppLogger.log(LogLevel.RESPONSE, "Report", "Summary received successfully")
 
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
                         deviceStatusText = statusText,
-                        currentAddress = addressText, // <--- آدرس واقعی اینجا به UI تزریق می‌شود
+                        currentAddress = addressText,
                         distanceKm = formatMetric(summary?.distance, divider = 1000.0),
                         fuelLiters = formatMetric(summary?.spentFuel),
                         averageSpeed = formatMetric(summary?.averageSpeed, multiplier = 1.852)
                     )
                 }
-            }.onFailure {
+            }.onFailure { e ->
+                AppLogger.log(LogLevel.ERROR, "Report", "Failed to fetch summary: ${e.message}")
                 _uiState.update { state ->
                     state.copy(
                         isLoading = false,
                         deviceStatusText = statusText,
-                        currentAddress = addressText, // <--- حتی در صورت خطا در آمار، آدرس نمایش داده می‌شود
+                        currentAddress = addressText,
                         distanceKm = "۰",
                         fuelLiters = "۰",
                         averageSpeed = "۰"
@@ -168,10 +178,6 @@ class ReportsViewModel @Inject constructor(
         if (value == null) return "۰"
         val finalValue = (value * multiplier) / divider
         return String.format(Locale.US, "%.1f", finalValue).toPersianDigits()
-    }
-
-    private suspend fun getLatestPositionForDevice(deviceId: Long): Position? {
-        return null // در آینده به کش پوزیشن‌ها متصل می‌شود
     }
 
     private fun String.toPersianDigits(): String {

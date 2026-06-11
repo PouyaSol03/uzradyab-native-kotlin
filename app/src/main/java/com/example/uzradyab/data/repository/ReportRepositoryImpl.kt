@@ -1,5 +1,7 @@
 package com.example.uzradyab.data.repository
 
+import com.example.uzradyab.core.debug.AppLogger
+import com.example.uzradyab.core.debug.LogLevel
 import com.example.uzradyab.data.local.dao.DailyDistanceDao
 import com.example.uzradyab.data.mapper.toDomain
 import com.example.uzradyab.data.mapper.toEntity
@@ -28,12 +30,14 @@ class ReportRepositoryImpl @Inject constructor(
         from: String,
         to: String,
     ): Result<Unit> = runCatching {
+        AppLogger.log(LogLevel.REQUEST, "Report", "refreshDailyDistance for $deviceId: $from to $to")
         val summary = api.getSummaryReport(
             from = from,
             to = to,
             daily = false,
             deviceId = deviceId,
         ).firstOrNull()
+        AppLogger.log(LogLevel.RESPONSE, "Report", "refreshDailyDistance success")
 
         dailyDistanceDao.upsert(
             DailyDistance(
@@ -43,6 +47,8 @@ class ReportRepositoryImpl @Inject constructor(
                 updatedAt = System.currentTimeMillis(),
             ).toEntity(),
         )
+    }.onFailure {
+        AppLogger.log(LogLevel.ERROR, "Report", "refreshDailyDistance failed: ${it.message}")
     }
 
     override suspend fun getCombinedReport(
@@ -50,11 +56,16 @@ class ReportRepositoryImpl @Inject constructor(
         from: String,
         to: String,
     ): Result<List<CombinedReportItem>> = runCatching {
-        api.getCombinedReport(
+        AppLogger.log(LogLevel.REQUEST, "Report", "getCombinedReport for ${deviceIds.size} devices")
+        val result = api.getCombinedReport(
             from = from,
             to = to,
             deviceIds = deviceIds
         ).map { it.toDomain() }
+        AppLogger.log(LogLevel.RESPONSE, "Report", "getCombinedReport received ${result.size} items")
+        result
+    }.onFailure {
+        AppLogger.log(LogLevel.ERROR, "Report", "getCombinedReport failed: ${it.message}")
     }
 
     override suspend fun getSummaryReport(
@@ -62,11 +73,16 @@ class ReportRepositoryImpl @Inject constructor(
         from: String,
         to: String
     ): Result<List<SummaryReport>> = runCatching {
-        api.getSummaryReport(
+        AppLogger.log(LogLevel.REQUEST, "Report", "getSummaryReport for $deviceId: $from to $to")
+        val result = api.getSummaryReport(
             deviceId = deviceId,
             from = from,
             to = to,
             daily = false
-        ).map { it.toDomain() } // <-- تبدیل DTO به Domain
+        ).map { it.toDomain() }
+        AppLogger.log(LogLevel.RESPONSE, "Report", "getSummaryReport received ${result.size} items")
+        result
+    }.onFailure {
+        AppLogger.log(LogLevel.ERROR, "Report", "getSummaryReport failed: ${it.message}")
     }
 }

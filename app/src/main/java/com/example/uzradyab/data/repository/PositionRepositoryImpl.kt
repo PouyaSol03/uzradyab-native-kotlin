@@ -24,6 +24,10 @@ class PositionRepositoryImpl @Inject constructor(
             .map { rows -> rows.map { it.toDomain() } }
     }
 
+    override suspend fun getLatestPosition(deviceId: Long): Position? {
+        return positionDao.getLatestPosition(deviceId)?.toDomain()
+    }
+
     override suspend fun refreshLatestPositions(): Result<Unit> = runCatching {
         positionDao.upsertLatest(api.getPositions().map { it.toEntity(isLatest = true) })
         pruneHistory(maxRowsPerDevice = 1_000).getOrThrow()

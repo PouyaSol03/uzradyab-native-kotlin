@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.debug.NetworkLogInterceptor
 import com.example.uzradyab.core.network.PersistentCookieJar
+import com.example.uzradyab.core.network.SessionEventBus
+import com.example.uzradyab.core.network.UnauthorizedInterceptor
 import com.example.uzradyab.data.remote.api.AuthHelperApi
 import com.example.uzradyab.data.remote.api.MapIrApi
 import com.example.uzradyab.data.remote.api.TraccarApi
@@ -40,9 +42,19 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(cookieJar: PersistentCookieJar): OkHttpClient {
+    fun provideUnauthorizedInterceptor(sessionEventBus: SessionEventBus): UnauthorizedInterceptor {
+        return UnauthorizedInterceptor(sessionEventBus)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        cookieJar: PersistentCookieJar,
+        unauthorizedInterceptor: UnauthorizedInterceptor
+    ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .cookieJar(cookieJar)
+            .addInterceptor(unauthorizedInterceptor)
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
         if (BuildConfig.DEBUG) {
@@ -118,7 +130,7 @@ object NetworkModule {
     fun provideMapIrApi(client: OkHttpClient): MapIrApi {
         return Retrofit.Builder()
             .baseUrl("https://map.ir/")
-            .client(client) // <-- Now calls to Map.ir will be logged
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(MapIrApi::class.java)

@@ -1,6 +1,7 @@
 package com.example.uzradyab
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,9 +9,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.biometric.BiometricHelper
+import com.example.uzradyab.core.network.SessionEventBus
+import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.presentation.alerts.AlertsSettingsRoute
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
@@ -23,15 +27,31 @@ import com.example.uzradyab.presentation.reports.ReportsRoute
 import com.example.uzradyab.presentation.startup.StartupRoute
 import com.example.uzradyab.presentation.replay.ReplayTripRoute
 import com.example.uzradyab.presentation.command.CommandCenterRoute
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun UzradyabApp(
     biometricHelper: BiometricHelper? = null,
+    sessionEventBus: SessionEventBus? = null,
+    authRepository: AuthRepository? = null,
     navController: NavHostController = rememberNavController(),
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val actualBiometricHelper = remember(biometricHelper) {
         biometricHelper ?: BiometricHelper(context.applicationContext)
+    }
+
+    // Listen for 401 Unauthorized events globally
+    LaunchedEffect(sessionEventBus, authRepository) {
+        sessionEventBus?.unauthorizedEvent?.collectLatest {
+            authRepository?.logout()
+            navController.navigate(AppRoute.SignIn.path) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
     }
 
     NavHost(
@@ -178,7 +198,6 @@ fun UzradyabApp(
                     }
                 },
                 onNavigateToDeviceStatus = {
-                    // این Lambda باید به ReportsRoute در ReportsScreen.kt اضافه شود
                     navController.navigate(AppRoute.DeviceStatus.path) {
                         launchSingleTop = true
                     }
@@ -202,10 +221,7 @@ fun UzradyabApp(
                     }
                 },
                 onTraveledPathsClick = {
-                    // وقتی کاربر روی دکمه آبی در صفحه وضعیت کلیک می‌کند
-                    // فعلا فرض می‌کنیم به صفحه گزارشات ترکیبی یا یک صفحه مسیرها می‌رود.
-                    // در اینجا می‌توانید مسیر دلخواه را قرار دهید:
-                    navController.popBackStack() // موقتا برمی‌گردد به صفحه قبل
+                    navController.popBackStack()
                 }
             )
         }
