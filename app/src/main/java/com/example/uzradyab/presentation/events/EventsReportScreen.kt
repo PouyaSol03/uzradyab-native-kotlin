@@ -308,26 +308,33 @@ private fun eventToItem(event: Event): EventDeviceItem {
 
 private fun eventTitle(type: String): String {
     return when (type) {
-        "ignitionOn" -> "روشن شدن موتور"
-        "ignitionOff" -> "خاموش شدن موتور"
-        "geofenceExit" -> "خروج از محدوده جغرافیایی"
-        "geofenceEnter" -> "ورود به محدوده جغرافیایی"
-        "deviceOverspeed" -> "سرعت غیر مجاز"
-        "alarm" -> "هشدار دستگاه"
+        "all" -> "همه رویدادها"
+        "deviceOnline" -> "وضعیت آنلاین"
+        "deviceUnknown" -> "وضعیت نامعلوم"
+        "deviceOffline" -> "وضعیت آفلاین"
+        "deviceInactive" -> "دستگاه غیرفعال"
+        "queuedCommandSent" -> "Queued command sent"
+        "deviceMoving" -> "حرکت دستگاه"
+        "deviceStopped" -> "دستگاه متوقف شد"
+        "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
+        "deviceFuelDrop" -> "افت سوخت"
+        "deviceFuelIncrease" -> "افزایش سوخت"
+        "commandResult" -> "نتیجه ارسال دستور"
+        "geofenceEnter" -> "ورود محدوده جغرافیایی"
+        "geofenceExit" -> "خروج محدوده جغرافیایی"
+        "alarm" -> "هشدار"
+        "ignitionOn" -> "سویچ روشن"
+        "ignitionOff" -> "سوئیچ خاموش"
+        "maintenance" -> "نیاز به تعمیر"
+        "textMessage" -> "پیامک دریافت شد"
+        "driverChanged" -> "تعویض راننده"
+        "media" -> "مدیا"
         else -> if (type.isBlank()) "رویداد جدید" else type
     }
 }
 
 private fun eventDescription(type: String): String {
-    return when (type) {
-        "ignitionOn" -> "دستگاه روشن شده است."
-        "ignitionOff" -> "دستگاه خاموش شده است."
-        "geofenceExit" -> "دستگاه از محدوده جغرافیایی خارج شده است."
-        "geofenceEnter" -> "دستگاه وارد محدوده جغرافیایی شده است."
-        "deviceOverspeed" -> "سرعت دستگاه از میزان تنظیم شده عبور کرده است."
-        "alarm" -> "هشدار جدید برای دستگاه ثبت شده است."
-        else -> "رویداد دستگاه ثبت شده است."
-    }
+    return eventTitle(type)
 }
 
 private fun formatTime(value: String): String {

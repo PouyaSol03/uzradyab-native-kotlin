@@ -315,7 +315,7 @@ private fun AddDeviceBottomBar(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = if (isEditMode) "بروزرسانی دستگاه" else "ذخیــــــره دستگاه",
+                        text = if (isEditMode) "ذخیره تغییرات" else "ذخیــــــره دستگاه",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                     )

@@ -26,10 +26,10 @@ data class EventsReportUiState(
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val events: List<Event> = emptyList(),
-    val dateFilter: EventDateFilter = EventDateFilter.Yesterday,
+    val dateFilter: EventDateFilter = EventDateFilter.Today,
     val customFromDate: Long? = null,
     val customToDate: Long? = null,
-    val filterText: String = "دیروز | ۱۲ دی ۱۴۰۳" // Dummy for now, will calculate
+    val filterText: String = ""
 )
 
 @HiltViewModel
@@ -91,7 +91,7 @@ class EventsReportViewModel @Inject constructor(
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
-        val cal = Calendar.getInstance()
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))
         val to = sdf.format(cal.time)
 
         when (filter) {
@@ -130,7 +130,6 @@ class EventsReportViewModel @Inject constructor(
     }
 
     private fun formatFilterText(filter: EventDateFilter, fromIso: String): String {
-        // Simple mock of Jalali date formatting for now
         val label = when(filter) {
             EventDateFilter.Today -> "امروز"
             EventDateFilter.Yesterday -> "دیروز"
@@ -138,6 +137,7 @@ class EventsReportViewModel @Inject constructor(
             EventDateFilter.CurrentMonth -> "ماه جاری"
             EventDateFilter.Custom -> "بازه انتخابی"
         }
-        return "$label | ۱۲ دی ۱۴۰۳" // In real app, use a Jalali lib
+        val jDateStr = com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString().substringAfter("| ").trim()
+        return "$label | $jDateStr"
     }
 }

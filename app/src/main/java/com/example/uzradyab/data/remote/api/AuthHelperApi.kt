@@ -10,4 +10,10 @@ interface AuthHelperApi {
 
     @POST("otp/verify-otp/")
     suspend fun verifyOtp(@Body request: OtpRequestDto)
+
+    @retrofit2.http.GET("accountChargeList/")
+    suspend fun getAccountChargeList(): List<com.example.uzradyab.data.remote.dto.AccountChargeDto>
+
+    @POST("pay/")
+    suspend fun pay(@Body request: com.example.uzradyab.data.remote.dto.PaymentRequestDto): com.example.uzradyab.data.remote.dto.PaymentResponseDto
 }

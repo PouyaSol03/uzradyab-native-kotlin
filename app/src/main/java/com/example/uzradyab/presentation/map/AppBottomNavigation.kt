@@ -31,12 +31,12 @@ import androidx.compose.ui.unit.sp
 import com.example.uzradyab.ui.theme.AppBlue
 
 enum class BottomNavItem {
-    ALARM, MANAGEMENT, MAP, ACCOUNT
+    ALARM, DEVICES, MAP, ACCOUNT
 }
 
 @Composable
 fun AppBottomNavigation(
-    selectedItem: BottomNavItem = BottomNavItem.MANAGEMENT,
+    selectedItem: BottomNavItem = BottomNavItem.MAP,
     onItemSelected: (BottomNavItem) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -63,11 +63,11 @@ fun AppBottomNavigation(
             onClick = { onItemSelected(BottomNavItem.MAP) }
         )
         BottomNavItemView(
-            label = "مدیریت",
+            label = "دستگاه‌ها",
             icon = Icons.Default.DirectionsCar,
-            isSelected = selectedItem == BottomNavItem.MANAGEMENT,
+            isSelected = selectedItem == BottomNavItem.DEVICES,
             showDot = true,
-            onClick = { onItemSelected(BottomNavItem.MANAGEMENT) }
+            onClick = { onItemSelected(BottomNavItem.DEVICES) }
         )
         BottomNavItemView(
             label = "رویدادها",

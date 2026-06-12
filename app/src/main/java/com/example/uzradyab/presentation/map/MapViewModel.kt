@@ -258,6 +258,25 @@ private fun formatEventText(event: Event): String {
     }
 }
 
+fun daysUntilExpiration(value: String?): Int? {
+    if (value == null) return null
+    val parsed = listOf(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+        "yyyy-MM-dd'T'HH:mm:ssX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    ).firstNotNullOfOrNull { pattern ->
+        runCatching {
+            SimpleDateFormat(pattern, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.parse(value)
+        }.getOrNull()
+    } ?: return null
+
+    val diff = parsed.time - System.currentTimeMillis()
+    return (diff / (1000 * 60 * 60 * 24)).toInt()
+}
+
 private fun formatEventTime(value: String?): String? {
     if (value.isNullOrBlank()) return null
     val parsed = listOf(

@@ -32,6 +32,12 @@ interface TraccarApi {
     @POST("api/users")
     suspend fun createUser(@Body request: CreateUserRequestDto): SessionDto
 
+    @PUT("api/users/{id}")
+    suspend fun updateUser(
+        @Path("id") id: Long,
+        @Body request: SessionDto
+    ): SessionDto
+
     @DELETE("api/session")
     suspend fun logout()
 
@@ -57,6 +63,7 @@ interface TraccarApi {
         @Query("to") to: String
     ): List<PositionDto>
 
+    @retrofit2.http.Headers("Accept: application/json")
     @GET("api/reports/summary")
     suspend fun getSummaryReport(
         @Query("from") from: String,
@@ -65,6 +72,7 @@ interface TraccarApi {
         @Query("deviceId") deviceId: Long,
     ): List<SummaryReportDto>
 
+    @retrofit2.http.Headers("Accept: application/json")
     @GET("api/reports/combined")
     suspend fun getCombinedReport(
         @Query("from") from: String,
@@ -72,6 +80,7 @@ interface TraccarApi {
         @Query("deviceId") deviceIds: List<Long>,
     ): List<CombinedReportDto>
 
+    @retrofit2.http.Headers("Accept: application/json")
     @GET("api/reports/events")
     suspend fun getEventsReport(
         @Query("from") from: String,

@@ -41,6 +41,8 @@ import com.example.uzradyab.ui.theme.AppBackground
 fun HomeMapRoute(
     onSignedOut: () -> Unit,
     onEventsClick: () -> Unit,
+    onDevicesClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onDeviceSpecsClick: (Long) -> Unit,
     onDeviceSettingsClick: (Long) -> Unit,
@@ -69,6 +71,8 @@ fun HomeMapRoute(
         onManageDeviceClick = viewModel::openDeviceManagement,
         onCloseDeviceManagement = viewModel::closeDeviceManagement,
         onEventsClick = onEventsClick,
+        onDevicesClick = onDevicesClick,
+        onProfileClick = onProfileClick,
         onLogoutClick = viewModel::logout,
         onAddDeviceClick = onAddDeviceClick,
         onDeviceSpecsClick = onDeviceSpecsClick,
@@ -92,6 +96,8 @@ fun HomeMapScreen(
     onManageDeviceClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onEventsClick: () -> Unit,
+    onDevicesClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onDeviceSpecsClick: (Long) -> Unit,
@@ -195,6 +201,8 @@ fun HomeMapScreen(
                         onCommandsClick = onCommandsClick,
                         onReportsClick = onReportsClick,
                         onEventsClick = onEventsClick,
+                        onDevicesClick = onDevicesClick,
+                        onProfileClick = onProfileClick,
                         onAlertsSettingsClick = onAlertsSettingsClick,
                         onCloseDeviceManagement = onCloseDeviceManagement,
                         onToggleDeviceCard = onToggleDeviceCard,
@@ -217,6 +225,8 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onEventsClick: () -> Unit,
+    onDevicesClick: () -> Unit,
+    onProfileClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onToggleDeviceCard: () -> Unit,
@@ -259,13 +269,13 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                 onItemSelected = { item ->
                     when (item) {
                         BottomNavItem.ALARM -> onEventsClick()
-                        BottomNavItem.MANAGEMENT -> {} // Currently here
+                        BottomNavItem.DEVICES -> onDevicesClick()
+                        BottomNavItem.ACCOUNT -> onProfileClick()
                         BottomNavItem.MAP -> {
                             if (state.deviceManagementOpen) {
                                 onCloseDeviceManagement()
                             }
                         }
-                        BottomNavItem.ACCOUNT -> {} // TODO
                     }
                 }
             )
@@ -294,6 +304,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                 expanded = state.deviceCardExpanded,
                 onToggleExpanded = onToggleDeviceCard,
                 onManageClick = onManageDeviceClick,
+                onReplayClick = { onReplayTripClick(selectedDevice.id) },
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(bottom = 16.dp),

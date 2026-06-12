@@ -39,6 +39,7 @@ private const val REPLAY_MARKER = "replay-marker"
 fun ReplayMap(
     positions: List<Position>,
     currentIndex: Int,
+    onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
 ) {
@@ -106,8 +107,27 @@ fun ReplayMap(
                         color = AndroidColor.parseColor("#A12887")
                         width = with(density) { 4.dp.toPx() } // thickness
                         isGeodesic = true
+                        infoWindow = null // Disable native infoWindow on click
                     }
                     mapView.overlays.add(routePolyline)
+
+                    // Draw a dot for each position (Commented out to prevent lag on huge routes)
+                    /* 
+                    val dotDrawable = getCachedDotDrawable(mapView.context)
+                    positions.forEach { pos ->
+                        val nodeMarker = Marker(mapView).apply {
+                            position = pos.toGeoPoint()
+                            icon = dotDrawable
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                            infoWindow = null // Disable native infoWindow on click
+                            setOnMarkerClickListener { _, _ ->
+                                onNodeClick(pos)
+                                true
+                            }
+                        }
+                        mapView.overlays.add(nodeMarker)
+                    }
+                    */
 
                     // Draw current car marker
                     currentPosition?.let { pos ->
@@ -121,8 +141,6 @@ fun ReplayMap(
                                 setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
                                 relatedObject = REPLAY_MARKER
                                 infoWindow = null
-                                // Optional: set rotation based on course
-                                rotation = pos.course.toFloat()
                             }
                         )
                     }
@@ -132,6 +150,45 @@ fun ReplayMap(
             },
         )
     }
+}
+
+private var cachedDotDrawable: BitmapDrawable? = null
+
+private fun getCachedDotDrawable(context: Context): BitmapDrawable {
+    if (cachedDotDrawable == null) {
+        cachedDotDrawable = createImprovedDotDrawable(context, AndroidColor.parseColor("#A12887"))
+    }
+    return cachedDotDrawable!!
+}
+
+private fun createImprovedDotDrawable(context: Context, color: Int): BitmapDrawable {
+    val density = context.resources.displayMetrics.density
+    fun dp(value: Float): Float = value * density
+
+    val size = dp(16f) // Slightly larger for clickability
+    val bitmap = Bitmap.createBitmap(size.toInt(), size.toInt(), Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    
+    val center = size / 2f
+    
+    // Draw shadow and white border
+    paint.color = AndroidColor.WHITE
+    paint.style = Paint.Style.FILL
+    paint.setShadowLayer(dp(2f), 0f, dp(1f), AndroidColor.argb(60, 0, 0, 0))
+    canvas.drawCircle(center, center, dp(6f), paint)
+    
+    paint.clearShadowLayer()
+    
+    // Draw colored inner circle
+    paint.color = color
+    canvas.drawCircle(center, center, dp(4f), paint)
+    
+    // Draw tiny glossy center
+    paint.color = AndroidColor.WHITE
+    canvas.drawCircle(center, center, dp(1.5f), paint)
+
+    return BitmapDrawable(context.resources, bitmap)
 }
 
 private fun Position.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)

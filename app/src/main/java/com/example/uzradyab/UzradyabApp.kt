@@ -131,6 +131,16 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onDevicesClick = {
+                    navController.navigate(AppRoute.Devices.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppRoute.Profile.path) {
+                        launchSingleTop = true
+                    }
+                },
                 onAddDeviceClick = {
                     navController.navigate(AppRoute.AddDevice.path) {
                         launchSingleTop = true
@@ -178,6 +188,52 @@ fun UzradyabApp(
                 onBackClick = {
                     navController.popBackStack()
                 },
+            )
+        }
+        composable(AppRoute.Devices.path) {
+            com.example.uzradyab.presentation.device.DevicesRoute(
+                onAddDeviceClick = {
+                    navController.navigate(AppRoute.AddDevice.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onMenuClick = {
+                    navController.popBackStack() // Or handle drawer
+                },
+                onEditDeviceClick = { deviceId ->
+                    navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                },
+                onRenewCreditClick = { deviceId ->
+                    navController.navigate("${AppRoute.RenewCredit.path}?deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(AppRoute.Profile.path) {
+            com.example.uzradyab.presentation.profile.ProfileRoute(
+                onLogoutClick = {
+                    navController.navigate(AppRoute.SignIn.path) {
+                        popUpTo(AppRoute.Home.path) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable(
+            route = "${AppRoute.RenewCredit.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
+            com.example.uzradyab.presentation.device.RenewCreditRoute(
+                onBackClick = { navController.popBackStack() }
             )
         }
         composable(AppRoute.Reports.path) {
@@ -299,6 +355,9 @@ private enum class AppRoute(val path: String) {
     SignIn("/signin"),
     Register("/register"),
     Home("/home"),
+    Devices("/devices"),
+    Profile("/profile"),
+    RenewCredit("/renew-credit"),
     Events("/events"),
     AddDevice("/add-device"),
     Reports("/reports"),

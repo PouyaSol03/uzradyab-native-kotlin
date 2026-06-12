@@ -66,6 +66,7 @@ fun SelectedDeviceStatusCard(
     expanded: Boolean,
     onToggleExpanded: () -> Unit,
     onManageClick: () -> Unit,
+    onReplayClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val daysRemaining = daysUntilExpiration(device.expirationTime)
@@ -121,6 +122,7 @@ fun SelectedDeviceStatusCard(
                         DistanceRow(
                             todayDistanceText = todayDistanceText,
                             dark = false,
+                            onReplayClick = onReplayClick,
                             modifier = Modifier
                                 .offset(x = 16.dp, y = 79.dp)
                                 .width(311.dp),
@@ -202,6 +204,7 @@ private fun DeviceHeader(
 private fun DistanceRow(
     todayDistanceText: String,
     dark: Boolean,
+    onReplayClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -212,7 +215,12 @@ private fun DistanceRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SecondaryActionPill(text = "بازپخش مسیر", dark = dark, width = if (dark) 139.dp else 127.dp)
+        SecondaryActionPill(
+            text = "بازپخش مسیر", 
+            dark = dark, 
+            width = if (dark) 139.dp else 127.dp,
+            onClick = onReplayClick
+        )
         Text(
             text = "پیمایش امروز: $todayDistanceText",
             color = if (dark) Color.White else AppTextPrimary,
@@ -237,7 +245,13 @@ private fun ExpirationRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SecondaryActionPill(text = "تمدید اعتبار", dark = false, width = 92.dp, primaryText = true)
+        SecondaryActionPill(
+            text = "تمدید اعتبار", 
+            dark = false, 
+            width = 92.dp, 
+            primaryText = true,
+            onClick = { /* TODO */ }
+        )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = expirationText(daysRemaining),
@@ -258,6 +272,7 @@ private fun SecondaryActionPill(
     text: String,
     dark: Boolean,
     width: androidx.compose.ui.unit.Dp,
+    onClick: () -> Unit,
     primaryText: Boolean = false,
 ) {
     Row(
@@ -265,6 +280,7 @@ private fun SecondaryActionPill(
             .width(width)
             .height(32.dp)
             .background(if (dark) Color.Transparent else Color.White, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -445,10 +461,7 @@ private fun String.attributeInt(key: String): Int? {
     }.getOrNull()
 }
 
-private fun daysUntilExpiration(value: String?): Int? {
-    val expiration = parseServerDate(value) ?: return null
-    return ceil((expiration.time - Date().time) / 86_400_000.0).toInt()
-}
+
 
 private fun expirationText(daysRemaining: Int?): String {
     return when {

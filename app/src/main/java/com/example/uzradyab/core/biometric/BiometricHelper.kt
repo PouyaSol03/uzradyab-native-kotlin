@@ -20,6 +20,16 @@ class BiometricHelper @Inject constructor(
         return biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS
     }
 
+    fun isBiometricEnabled(): Boolean {
+        val prefs = context.getSharedPreferences("biometric_prefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("is_biometric_enabled", false)
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        val prefs = context.getSharedPreferences("biometric_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("is_biometric_enabled", enabled).apply()
+    }
+
     fun showBiometricPrompt(
         activity: FragmentActivity,
         title: String,
