@@ -110,7 +110,10 @@ private fun DeviceManagementHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.weight(1f).padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 MovingCarBadge()
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(horizontalAlignment = Alignment.Start) {
@@ -122,6 +125,7 @@ private fun DeviceManagementHeader(
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Right,
                         maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
                     Text(
                         text = if ((position?.speed ?: 0.0) > 0.0) "در حال حرکت..." else formatDeviceStatus(device.status),
@@ -130,6 +134,7 @@ private fun DeviceManagementHeader(
                         lineHeight = 22.sp,
                         textAlign = TextAlign.Right,
                         maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -155,9 +160,10 @@ private fun DeviceManagementHeader(
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,
                 maxLines = 1,
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier.padding(start = 8.dp).weight(1f),
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
-            HeaderButton(text = "بازپخش مسیر", white = true, width = 139, onClick = onReplayClick)
+            HeaderButton(text = "بازپخش مسیر", white = true, onClick = onReplayClick)
         }
     }
 }
@@ -166,15 +172,15 @@ private fun DeviceManagementHeader(
 private fun HeaderButton(
     text: String,
     white: Boolean = false,
-    width: Int = 137,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
     Box(
-        modifier = Modifier
-            .width(width.dp)
+        modifier = modifier
             .height(40.dp)
             .background(if (white) Color.Transparent else AppBlue, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -216,18 +222,18 @@ private fun ManagementGrid(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.width(343.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66)) { MapFrameIcon(it) }
-            ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535), onClick = onReplayTripClick) { PlayIcon(it) }
-            ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
+            ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f)) { MapFrameIcon(it) }
+            ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
+            ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872), onClick = onReportsClick) { DocumentsIcon(it) }
-            ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
-            ManagementTile("دستورات", Color(0xFFF4F6F8), Color(0xFF384C5C), onClick = onCommandsClick) { FlashIcon(it) }
+            ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872), modifier = Modifier.weight(1f), onClick = onReportsClick) { DocumentsIcon(it) }
+            ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606), modifier = Modifier.weight(1f), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
+            ManagementTile("دستورات", Color(0xFFF4F6F8), Color(0xFF384C5C), modifier = Modifier.weight(1f), onClick = onCommandsClick) { FlashIcon(it) }
         }
     }
 }
@@ -237,12 +243,12 @@ private fun ManagementTile(
     label: String,
     background: Color,
     foreground: Color,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     icon: @Composable (Color) -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .width(103.67f.dp)
+        modifier = modifier
             .height(78.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(background)

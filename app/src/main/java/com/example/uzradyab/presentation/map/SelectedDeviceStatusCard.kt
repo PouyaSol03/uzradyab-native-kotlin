@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -115,8 +116,9 @@ fun SelectedDeviceStatusCard(
                         position = position,
                         showWarningIcon = expanded && hasExpirationWarning,
                         modifier = Modifier
-                            .offset(x = 16.dp, y = 16.dp)
-                            .width(311.dp),
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .offset(y = 16.dp),
                     )
                     if (expanded) {
                         DistanceRow(
@@ -124,15 +126,17 @@ fun SelectedDeviceStatusCard(
                             dark = false,
                             onReplayClick = onReplayClick,
                             modifier = Modifier
-                                .offset(x = 16.dp, y = 79.dp)
-                                .width(311.dp),
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .offset(y = 79.dp),
                         )
                         if (hasExpirationWarning) {
                             ExpirationRow(
                                 daysRemaining = daysRemaining,
                                 modifier = Modifier
-                                    .offset(x = 16.dp, y = 135.dp)
-                                    .width(311.dp),
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                                    .offset(y = 135.dp),
                             )
                         }
                     }
@@ -140,8 +144,9 @@ fun SelectedDeviceStatusCard(
                         onManageClick = onManageClick,
                         expanded = expanded,
                         modifier = Modifier
-                            .offset(x = 16.dp, y = actionY)
-                            .width(311.dp),
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .offset(y = actionY),
                     )
                 }
             }
@@ -172,7 +177,10 @@ private fun DeviceHeader(
             SignalBlock(label = "GSM", active = gsmActive)
             SignalBlock(label = "GPS", active = gpsActive)
         }
-        Column(horizontalAlignment = Alignment.End) {
+        Column(
+            modifier = Modifier.weight(1f).padding(start = 16.dp),
+            horizontalAlignment = Alignment.End
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (showWarningIcon) {
                     WarningDotIcon()
@@ -180,12 +188,14 @@ private fun DeviceHeader(
                 }
                 Text(
                     text = device.name,
+                    modifier = Modifier.weight(1f, fill = false),
                     color = Color(0xFF333638),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Right,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
@@ -218,7 +228,6 @@ private fun DistanceRow(
         SecondaryActionPill(
             text = "بازپخش مسیر", 
             dark = dark, 
-            width = if (dark) 139.dp else 127.dp,
             onClick = onReplayClick
         )
         Text(
@@ -248,7 +257,6 @@ private fun ExpirationRow(
         SecondaryActionPill(
             text = "تمدید اعتبار", 
             dark = false, 
-            width = 92.dp, 
             primaryText = true,
             onClick = { /* TODO */ }
         )
@@ -271,17 +279,16 @@ private fun ExpirationRow(
 private fun SecondaryActionPill(
     text: String,
     dark: Boolean,
-    width: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     primaryText: Boolean = false,
 ) {
     Row(
-        modifier = Modifier
-            .width(width)
+        modifier = modifier
             .height(32.dp)
             .background(if (dark) Color.Transparent else Color.White, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -315,8 +322,9 @@ private fun ActionRow(
         PrimaryActionButton(
             text = "مدیریت دستگاه",
             onClick = onManageClick,
-            width = if (expanded) 189.dp else 199.dp,
+            modifier = Modifier.weight(1f),
         )
+        Spacer(modifier = Modifier.width(if (expanded) 21.dp else 16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(if (expanded) 21.dp else 16.dp)) {
             CircleIconButton { DirectionIcon() }
             CircleIconButton { ShareIcon() }
@@ -343,11 +351,10 @@ private fun ChevronHandle(
 private fun PrimaryActionButton(
     text: String,
     onClick: () -> Unit,
-    width: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
-            .width(width)
+        modifier = modifier
             .height(40.dp)
             .background(AppBlue, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
