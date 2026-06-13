@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -232,10 +234,12 @@ private fun NotificationButton(onClick: () -> Unit) {
 
 @Composable
 fun MapSettingsDialog(
+    currentStyle: String,
     onDismiss: () -> Unit,
+    onSaveStyle: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedStyle by rememberSaveable { mutableStateOf("osm") }
+    var selectedStyle by rememberSaveable { mutableStateOf(currentStyle) }
     val options = listOf(
         MapStyleOption("osm", "نقشه"),
         MapStyleOption("googleSatellite", "ماهواره‌ای گوگل"),
@@ -308,7 +312,7 @@ fun MapSettingsDialog(
                     DialogTextButton(
                         text = "ذخیره تغییرات",
                         primary = true,
-                        onClick = onDismiss,
+                        onClick = { onSaveStyle(selectedStyle) },
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -374,31 +378,36 @@ fun DeviceSelectDialog(
                     .height(60.dp)
                     .border(2.dp, AppBlue, RoundedCornerShape(8.dp)),
             )
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                filteredDevices.forEach { device ->
+            LazyColumn(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)
+            ) {
+                items(filteredDevices, key = { it.id }) { device ->
                     DeviceSelectRow(
                         device = device,
                         selected = device.id == selectedDeviceId,
                         onClick = {
                             onDeviceClick(device.id)
-                            onDismiss()
                         },
                     )
                 }
                 if (filteredDevices.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(60.dp)
-                            .background(Color.White, RoundedCornerShape(8.dp))
-                            .border(1.dp, Color(0xFFE3E8EE), RoundedCornerShape(8.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "هیچ دستگاهی پیدا نشد.",
-                            color = AppTextMuted,
-                            fontSize = 14.sp,
-                        )
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .background(Color.White, RoundedCornerShape(8.dp))
+                                .border(1.dp, Color(0xFFE3E8EE), RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "هیچ دستگاهی پیدا نشد.",
+                                color = AppTextMuted,
+                                fontSize = 14.sp,
+                            )
+                        }
                     }
                 }
             }

@@ -9,6 +9,7 @@ import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.EventRepository
+import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
 import com.example.uzradyab.domain.usecase.ObserveHomeSnapshotUseCase
@@ -44,6 +45,7 @@ data class HomeMapUiState(
     val todayDistanceText: String = "در حال دریافت",
     val latestEvent: MapLatestEventItem? = null,
     val mapSettingsOpen: Boolean = false,
+    val mapStyle: String = "osm",
 )
 
 data class MapLatestEventItem(
@@ -58,6 +60,7 @@ class MapViewModel @Inject constructor(
     private val eventRepository: EventRepository,
     private val reportRepository: ReportRepository,
     private val trackingRepository: TrackingRepository,
+    private val mapSettingsRepository: MapSettingsRepository,
 ) : ViewModel() {
     private val localState = MutableStateFlow(HomeMapUiState())
 
@@ -66,7 +69,8 @@ class MapViewModel @Inject constructor(
         trackingRepository.connectionState,
         localState,
         eventRepository.observeRecentEvents(limit = 8),
-    ) { snapshot, connection, local, recentEvents ->
+        mapSettingsRepository.observeMapStyle(),
+    ) { snapshot, connection, local, recentEvents, mapStyle ->
         val selected = local.selectedDeviceId ?: snapshot.devices.firstOrNull()?.id
         local.copy(
             devices = snapshot.devices,
@@ -74,6 +78,7 @@ class MapViewModel @Inject constructor(
             selectedDeviceId = selected,
             connectionState = connection,
             latestEvent = local.latestEvent ?: latestEventForDevice(recentEvents, selected),
+            mapStyle = mapStyle,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
 
@@ -103,6 +108,13 @@ class MapViewModel @Inject constructor(
 
     fun closeMapSettings() {
         localState.update { it.copy(mapSettingsOpen = false) }
+    }
+
+    fun setMapStyle(style: String) {
+        viewModelScope.launch {
+            mapSettingsRepository.setMapStyle(style)
+        }
+        closeMapSettings()
     }
 
     fun toggleDeviceCard() {

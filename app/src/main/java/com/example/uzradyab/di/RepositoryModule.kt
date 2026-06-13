@@ -12,6 +12,7 @@ import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.MapCacheRepository
+import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.NotificationRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.RegistrationRepository
@@ -57,6 +58,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMapCacheRepository(impl: MapCacheRepositoryImpl): MapCacheRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMapSettingsRepository(impl: com.example.uzradyab.data.repository.DefaultMapSettingsRepository): MapSettingsRepository
 
     @Binds
     @Singleton

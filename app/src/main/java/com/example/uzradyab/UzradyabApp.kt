@@ -126,9 +126,15 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onEventsClick = {
-                    navController.navigate(AppRoute.Events.path) {
-                        launchSingleTop = true
+                onEventsClick = { deviceId ->
+                    if (deviceId != null) {
+                        navController.navigate("${AppRoute.Events.path}?deviceId=$deviceId") {
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.navigate(AppRoute.Events.path) {
+                            launchSingleTop = true
+                        }
                     }
                 },
                 onDevicesClick = {
@@ -183,7 +189,16 @@ fun UzradyabApp(
                 }) else null,
             )
         }
-        composable(AppRoute.Events.path) {
+        composable(
+            route = "${AppRoute.Events.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
             com.example.uzradyab.presentation.events.EventsReportRoute(
                 onBackClick = {
                     navController.popBackStack()

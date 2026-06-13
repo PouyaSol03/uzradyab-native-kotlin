@@ -86,6 +86,7 @@ interface TraccarApi {
         @Query("from") from: String,
         @Query("to") to: String,
         @Query("deviceId") deviceId: Long,
+        @Query("type") type: String
     ): List<EventDto>
 
     @POST("api/commands/send")

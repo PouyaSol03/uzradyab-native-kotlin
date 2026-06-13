@@ -350,9 +350,18 @@ private fun formatTime(value: String): String {
             }.parse(value)
         }.getOrNull()
     } ?: return ""
-    return SimpleDateFormat("HH:mm", Locale.US).apply {
+    
+    val cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = parsed }
+    val gY = cal.get(java.util.Calendar.YEAR)
+    val gM = cal.get(java.util.Calendar.MONTH) + 1
+    val gD = cal.get(java.util.Calendar.DAY_OF_MONTH)
+    
+    val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
+    val timeStr = SimpleDateFormat("HH:mm", Locale.US).apply {
         timeZone = TimeZone.getTimeZone("Asia/Tehran")
-    }.format(parsed).toPersianDigits()
+    }.format(parsed)
+    
+    return "${jDate[0]}/${String.format(Locale.US, "%02d", jDate[1])}/${String.format(Locale.US, "%02d", jDate[2])} - $timeStr".toPersianDigits()
 }
 
 private fun String.toPersianDigits(): String {

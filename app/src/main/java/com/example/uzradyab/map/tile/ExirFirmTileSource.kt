@@ -6,18 +6,16 @@ import org.osmdroid.util.MapTileIndex
 
 private const val TILE_SIZE_PX = 256
 
-class ExirFirmTileSource(
-    private val baseUrl: String = BuildConfig.EXIR_TILE_BASE_URL,
-) : OnlineTileSourceBase(
+object ExirFirmTileSource : OnlineTileSourceBase(
     "ExirFirmOSM",
     3,
     19,
     TILE_SIZE_PX,
     ".png",
-    arrayOf(baseUrl),
+    arrayOf(BuildConfig.EXIR_TILE_BASE_URL),
 ) {
     override fun getTileURLString(pMapTileIndex: Long): String {
-        val normalizedBase = baseUrl.trimEnd('/') + "/"
+        val normalizedBase = BuildConfig.EXIR_TILE_BASE_URL.trimEnd('/') + "/"
         val zoom = MapTileIndex.getZoom(pMapTileIndex)
         val x = MapTileIndex.getX(pMapTileIndex)
         val y = MapTileIndex.getY(pMapTileIndex)

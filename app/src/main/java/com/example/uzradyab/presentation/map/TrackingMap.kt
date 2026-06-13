@@ -44,8 +44,10 @@ fun TrackingMap(
     devices: List<Device>,
     latestPositions: Map<Long, Position>,
     selectedDeviceId: Long?,
+    mapStyle: String = "osm",
     mapBottomPadding: Dp = 0.dp,
     onMapInteraction: () -> Unit = {},
+    onMapError: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -59,6 +61,39 @@ fun TrackingMap(
     val centerKey = "${selectedDeviceId}:${center.latitude}:${center.longitude}"
 
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
+    val currentOnMapError by rememberUpdatedState(onMapError)
+
+    androidx.compose.runtime.LaunchedEffect(mapStyle) {
+        val client = okhttp3.OkHttpClient.Builder()
+            .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+
+        while (true) {
+            kotlinx.coroutines.delay(15000)
+            val testUrl = when (mapStyle) {
+                "googleRoad" -> "https://mt1.google.com/vt/lyrs=m&x=1&y=1&z=1"
+                "googleSatellite" -> "https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=1"
+                "osm" -> "https://tile.openstreetmap.org/1/1/1.png"
+                else -> com.example.uzradyab.BuildConfig.EXIR_TILE_BASE_URL.trimEnd('/') + "/1/1/1.png"
+            }
+            try {
+                val request = okhttp3.Request.Builder()
+                    .url(testUrl)
+                    .header("User-Agent", context.packageName)
+                    .build()
+                val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    client.newCall(request).execute()
+                }
+                if (!response.isSuccessful) {
+                    currentOnMapError()
+                }
+                response.close()
+            } catch (e: Exception) {
+                currentOnMapError()
+            }
+        }
+    }
 
     Box(
         modifier = modifier
@@ -68,13 +103,15 @@ fun TrackingMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                Configuration.getInstance().load(
-                    it,
-                    it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE),
-                )
-                Configuration.getInstance().userAgentValue = context.packageName
+                Configuration.getInstance().apply {
+                    load(it, it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE))
+                    userAgentValue = context.packageName
+                    tileFileSystemCacheMaxBytes = 500L * 1024 * 1024 // 500 MB
+                    tileFileSystemCacheTrimBytes = 400L * 1024 * 1024 // 400 MB
+                    expirationExtendedDuration = 1000L * 60 * 60 * 24 * 30 // 30 days
+                }
                 MapView(it).apply {
-                    setTileSource(ExirFirmTileSource())
+                    setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
@@ -93,9 +130,18 @@ fun TrackingMap(
                 }
             },
             update = { mapView ->
+                val tileSource = when (mapStyle) {
+                    "googleRoad" -> com.example.uzradyab.map.tile.GoogleMapTileSource
+                    "googleSatellite" -> com.example.uzradyab.map.tile.GoogleSatelliteTileSource
+                    "osm" -> org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
+                    else -> com.example.uzradyab.map.tile.ExirFirmTileSource
+                }
+                if (mapView.tileProvider.tileSource != tileSource) {
+                    mapView.setTileSource(tileSource)
+                }
+
                 if (mapView.tag != centerKey) {
-                    mapView.controller.setZoom(18.0)
-                    mapView.controller.setCenter(center)
+                    mapView.controller.animateTo(center, 20.0, 1000L)
                     mapView.tag = centerKey
                 }
                 

@@ -39,6 +39,7 @@ private const val REPLAY_MARKER = "replay-marker"
 fun ReplayMap(
     positions: List<Position>,
     currentIndex: Int,
+    mapStyle: String = "osm",
     onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
@@ -58,13 +59,15 @@ fun ReplayMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                Configuration.getInstance().load(
-                    it,
-                    it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE),
-                )
-                Configuration.getInstance().userAgentValue = context.packageName
+                Configuration.getInstance().apply {
+                    load(it, it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE))
+                    userAgentValue = context.packageName
+                    tileFileSystemCacheMaxBytes = 500L * 1024 * 1024 // 500 MB
+                    tileFileSystemCacheTrimBytes = 400L * 1024 * 1024 // 400 MB
+                    expirationExtendedDuration = 1000L * 60 * 60 * 24 * 30 // 30 days
+                }
                 MapView(it).apply {
-                    setTileSource(ExirFirmTileSource())
+                    setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
@@ -73,6 +76,16 @@ fun ReplayMap(
                 }
             },
             update = { mapView ->
+                val tileSource = when (mapStyle) {
+                    "googleRoad" -> com.example.uzradyab.map.tile.GoogleMapTileSource
+                    "googleSatellite" -> com.example.uzradyab.map.tile.GoogleSatelliteTileSource
+                    "osm" -> org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
+                    else -> com.example.uzradyab.map.tile.ExirFirmTileSource
+                }
+                if (mapView.tileProvider.tileSource != tileSource) {
+                    mapView.setTileSource(tileSource)
+                }
+
                 // Adjust for bottom panel padding
                 mapView.setMapCenterOffset(0, -bottomPaddingPx / 2)
 

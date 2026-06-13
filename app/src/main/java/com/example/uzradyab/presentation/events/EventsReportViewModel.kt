@@ -6,6 +6,7 @@ import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Event
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
+import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,11 +36,14 @@ data class EventsReportUiState(
 @HiltViewModel
 class EventsReportViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
-    private val eventRepository: EventRepository
+    private val eventRepository: EventRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EventsReportUiState())
     val uiState: StateFlow<EventsReportUiState> = _uiState.asStateFlow()
+
+    private val initialDeviceId = savedStateHandle.get<String>("deviceId")?.toLongOrNull()
 
     init {
         observeDevices()
@@ -49,7 +53,7 @@ class EventsReportViewModel @Inject constructor(
         viewModelScope.launch {
             deviceRepository.observeDevices().collectLatest { list ->
                 _uiState.update { state ->
-                    val selectedId = state.selectedDeviceId ?: list.firstOrNull()?.id
+                    val selectedId = state.selectedDeviceId ?: initialDeviceId ?: list.firstOrNull()?.id
                     if (state.selectedDeviceId == null && selectedId != null) {
                         fetchEvents(selectedId, state.dateFilter)
                     }
@@ -88,7 +92,7 @@ class EventsReportViewModel @Inject constructor(
     }
 
     private fun getRange(filter: EventDateFilter): Pair<String, String> {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
         val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))

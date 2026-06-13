@@ -155,7 +155,7 @@ class ReportsViewModel @Inject constructor(
     }
 
     private fun getTodayIsoRange(): Pair<String, String> {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
         val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))

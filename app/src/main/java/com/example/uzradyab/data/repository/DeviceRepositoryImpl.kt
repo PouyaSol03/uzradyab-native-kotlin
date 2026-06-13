@@ -33,7 +33,7 @@ class DeviceRepositoryImpl @Inject constructor(
         val cal = java.util.Calendar.getInstance().apply {
             add(java.util.Calendar.DAY_OF_YEAR, 365)
         }
-        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply {
+        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }
         val expirationTime = sdf.format(cal.time).replace("Z", "+00:00")

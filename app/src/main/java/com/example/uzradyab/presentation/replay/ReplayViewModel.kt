@@ -28,13 +28,15 @@ data class ReplayUiState(
     val playSpeed: Int = 1, // 1x or 2x
     val error: String? = null,
     val totalDistanceText: String = "۰ کیلومتر",
-    val dateFilterText: String = ""
+    val dateFilterText: String = "",
+    val mapStyle: String = "osm",
 )
 
 @HiltViewModel
 class ReplayViewModel @Inject constructor(
     private val repository: PositionRepository,
     private val reportRepository: com.example.uzradyab.domain.repository.ReportRepository,
+    private val mapSettingsRepository: com.example.uzradyab.domain.repository.MapSettingsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -51,6 +53,12 @@ class ReplayViewModel @Inject constructor(
             fetchRoute()
         } else {
             _state.update { it.copy(error = "دستگاه نامعتبر است") }
+        }
+        
+        viewModelScope.launch {
+            mapSettingsRepository.observeMapStyle().collect { style ->
+                _state.update { it.copy(mapStyle = style) }
+            }
         }
     }
 

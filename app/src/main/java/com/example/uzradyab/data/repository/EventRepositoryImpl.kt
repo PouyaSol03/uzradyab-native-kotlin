@@ -59,7 +59,8 @@ class EventRepositoryImpl @Inject constructor(
         val result = traccarApi.getEventsReport(
             deviceId = deviceId,
             from = from,
-            to = to
+            to = to,
+            type = "allEvents"
         ).map { it.toDomain() }
         AppLogger.log(LogLevel.RESPONSE, "EventReport", "Received ${result.size} events")
         result
