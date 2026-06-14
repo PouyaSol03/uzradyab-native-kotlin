@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.osmdroid.android)
+    implementation("org.maplibre.gl:android-sdk:11.5.2")
     implementation(libs.androidx.biometric)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

@@ -8,36 +8,48 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import com.example.uzradyab.domain.model.Device
-import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.map.tile.ExirFirmTileSource
-import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.views.overlay.MapEventsOverlay
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.uzradyab.R
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.getValue
-import android.view.MotionEvent
+import com.example.uzradyab.domain.model.Device
+import com.example.uzradyab.domain.model.Position
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.Style
+import org.maplibre.android.offline.OfflineManager
+import org.maplibre.android.annotations.IconFactory
+import org.maplibre.android.annotations.MarkerOptions
 
-private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val OSMDROID_PREFS = "osmdroid"
-private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
+private val Tehran = LatLng(35.6892, 51.3890)
 
 @Composable
 fun TrackingMap(
@@ -51,47 +63,80 @@ fun TrackingMap(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val density = LocalDensity.current
     val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
-    
+
     val selectedPosition = latestPositions[selectedDeviceId]
-    val center = selectedPosition?.toGeoPoint()
-        ?: latestPositions.values.firstOrNull()?.toGeoPoint()
+    val center = selectedPosition?.toLatLng()
+        ?: latestPositions.values.firstOrNull()?.toLatLng()
         ?: Tehran
     val centerKey = "${selectedDeviceId}:${center.latitude}:${center.longitude}"
 
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
-    val currentOnMapError by rememberUpdatedState(onMapError)
 
-    androidx.compose.runtime.LaunchedEffect(mapStyle) {
-        val client = okhttp3.OkHttpClient.Builder()
-            .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
-            .readTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
-            .build()
+    var isMapReady by remember { mutableStateOf(false) }
+    var mapStyleJson by remember { mutableStateOf<String?>(null) }
 
-        while (true) {
-            kotlinx.coroutines.delay(15000)
-            val testUrl = when (mapStyle) {
-                "googleRoad" -> "https://mt1.google.com/vt/lyrs=m&x=1&y=1&z=1"
-                "googleSatellite" -> "https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=1"
-                "osm" -> "https://tile.openstreetmap.org/1/1/1.png"
-                else -> com.example.uzradyab.BuildConfig.EXIR_TILE_BASE_URL.trimEnd('/') + "/1/1/1.png"
-            }
-            try {
-                val request = okhttp3.Request.Builder()
-                    .url(testUrl)
-                    .header("User-Agent", context.packageName)
-                    .build()
-                val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    client.newCall(request).execute()
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val dbFile = File(context.filesDir, "iran.mbtiles")
+            if (!dbFile.exists() || dbFile.length() == 0L) {
+                context.assets.open("iran.mbtiles").use { input ->
+                    FileOutputStream(dbFile).use { output ->
+                        input.copyTo(output)
+                    }
                 }
-                if (!response.isSuccessful) {
-                    currentOnMapError()
-                }
-                response.close()
-            } catch (e: Exception) {
-                currentOnMapError()
             }
+            
+            val styleStream = context.assets.open("style.json")
+            val originalStyle = styleStream.bufferedReader().use { it.readText() }
+            val absolutePath = dbFile.absolutePath.replace("\\", "/")
+            
+            mapStyleJson = originalStyle.replace(
+                "mbtiles://iran.mbtiles", 
+                "mbtiles://$absolutePath"
+            )
+        }
+        isMapReady = true
+    }
+
+    if (!isMapReady || mapStyleJson == null) {
+        Box(
+            modifier = modifier.fillMaxSize().background(Color(0xFFE8F0F6)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color(0xFFA22887))
+        }
+        return
+    }
+
+    val mapView = remember {
+        MapView(context).apply {
+            OfflineManager.getInstance(context).setMaximumAmbientCacheSize(
+                50L * 1024 * 1024,
+                object : OfflineManager.FileSourceCallback {
+                    override fun onSuccess() {}
+                    override fun onError(message: String) {}
+                }
+            )
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -103,91 +148,74 @@ fun TrackingMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                Configuration.getInstance().apply {
-                    load(it, it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE))
-                    userAgentValue = context.packageName
-                    tileFileSystemCacheMaxBytes = 500L * 1024 * 1024 // 500 MB
-                    tileFileSystemCacheTrimBytes = 400L * 1024 * 1024 // 400 MB
-                    expirationExtendedDuration = 1000L * 60 * 60 * 24 * 30 // 30 days
-                }
-                MapView(it).apply {
-                    setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
-                    setMultiTouchControls(true)
-                    setBuiltInZoomControls(false)
-                    zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-                    setMinZoomLevel(3.0)
-                    setMaxZoomLevel(23.0)
-                    controller.setZoom(18.0)
-                    controller.setCenter(center)
-                    tag = centerKey
-
-                    setOnTouchListener { _, event ->
-                        if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
-                            currentOnMapInteraction()
+                mapView.apply {
+                    getMapAsync { mapLibreMap ->
+                        Log.d("TrackingMap", "getMapAsync: attempting to load dynamic style from DB")
+                        mapLibreMap.setStyle(Style.Builder().fromJson(mapStyleJson!!)) { style ->
+                            Log.d("TrackingMap", "SUCCESS: map style loaded successfully!")
                         }
-                        false
+                        mapLibreMap.cameraPosition = CameraPosition.Builder()
+                            .target(Tehran)
+                            .zoom(11.0)
+                            .build()
+                        mapLibreMap.uiSettings.isAttributionEnabled = false
+                        mapLibreMap.uiSettings.isLogoEnabled = false
+                        mapLibreMap.uiSettings.isCompassEnabled = false
+
+                        mapLibreMap.addOnMoveListener(object : org.maplibre.android.maps.MapLibreMap.OnMoveListener {
+                            override fun onMoveBegin(detector: org.maplibre.android.gestures.MoveGestureDetector) {
+                                currentOnMapInteraction()
+                            }
+                            override fun onMove(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
+                            override fun onMoveEnd(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
+                        })
+                        
+                        mapLibreMap.addOnMapClickListener {
+                            currentOnMapInteraction()
+                            true
+                        }
+                        
+                        mapLibreMap.addOnMapLongClickListener {
+                            currentOnMapInteraction()
+                            true
+                        }
                     }
                 }
             },
-            update = { mapView ->
-                val tileSource = when (mapStyle) {
-                    "googleRoad" -> com.example.uzradyab.map.tile.GoogleMapTileSource
-                    "googleSatellite" -> com.example.uzradyab.map.tile.GoogleSatelliteTileSource
-                    "osm" -> org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
-                    else -> com.example.uzradyab.map.tile.ExirFirmTileSource
-                }
-                if (mapView.tileProvider.tileSource != tileSource) {
-                    mapView.setTileSource(tileSource)
-                }
+            update = { view ->
+                view.getMapAsync { mapLibreMap ->
+                    // Offset center if needed
+                    mapLibreMap.setPadding(0, 0, 0, bottomPaddingPx)
 
-                if (mapView.tag != centerKey) {
-                    mapView.controller.animateTo(center, 20.0, 1000L)
-                    mapView.tag = centerKey
-                }
-                
-                // Offset map center so the device marker stays vertically centered above panels
-                mapView.setMapCenterOffset(0, -bottomPaddingPx / 2)
-
-                // Handle map clicks
-                mapView.overlays.removeAll { overlay ->
-                    (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER) ||
-                    overlay is MapEventsOverlay
-                }
-                
-                val eventsReceiver = object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
+                    // Check if center changed
+                    val currentTarget = mapLibreMap.cameraPosition.target
+                    if (currentTarget == null || currentTarget.latitude != center.latitude || currentTarget.longitude != center.longitude) {
+                        mapLibreMap.animateCamera(CameraUpdateFactory.newLatLng(center), 1000)
                     }
-                    override fun longPressHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
+
+                    // Update markers
+                    mapLibreMap.clear()
+                    selectedPosition?.let { position ->
+                        val bitmap = createDeviceMarkerBitmap(
+                            context = view.context,
+                            speedKmh = (position.speed * 1.852).toInt()
+                        )
+                        val icon = IconFactory.getInstance(view.context).fromBitmap(bitmap)
+                        mapLibreMap.addMarker(
+                            MarkerOptions()
+                                .position(position.toLatLng())
+                                .icon(icon)
+                        )
                     }
                 }
-                mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
-                selectedPosition?.let { position ->
-                    mapView.overlays.add(
-                        Marker(mapView).apply {
-                            this.position = position.toGeoPoint()
-                            icon = createDeviceMarkerDrawable(
-                                context = mapView.context,
-                                speedKmh = (position.speed * 1.852).toInt(),
-                            )
-                            setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                            relatedObject = SELECTED_DEVICE_MARKER
-                            infoWindow = null
-                        },
-                    )
-                }
-                mapView.invalidate()
-            },
+            }
         )
     }
 }
 
-private fun Position.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
+private fun Position.toLatLng(): LatLng = LatLng(latitude, longitude)
 
-private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapDrawable {
+private fun createDeviceMarkerBitmap(context: Context, speedKmh: Int): Bitmap {
     val density = context.resources.displayMetrics.density
     fun dp(value: Float): Float = value * density
 
@@ -271,7 +299,7 @@ private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapD
     paint.textSize = if (speedKmh <= 0) 11f else 10f
     canvas.drawText(text, centerX, 17.8f, paint)
 
-    return BitmapDrawable(context.resources, bitmap)
+    return bitmap
 }
 
 private fun String.toPersianDigits(): String {
