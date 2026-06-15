@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import com.example.uzradyab.ui.theme.UzradyabTheme
 import androidx.fragment.app.FragmentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.core.network.SessionEventBus
 import com.example.uzradyab.domain.repository.AuthRepository
@@ -37,6 +38,7 @@ class MainActivity : FragmentActivity() {
     lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
