@@ -36,16 +36,33 @@ class EventRepositoryImpl @Inject constructor(
 
     override suspend fun fetchLatestDeviceEvents(deviceId: Long): Result<List<LatestNotificationEvent>> = withContext(Dispatchers.IO) {
         runCatching {
-            val encodedId = URLEncoder.encode(deviceId.toString(), StandardCharsets.UTF_8.name())
-            val request = Request.Builder()
-                .url("${NOTIFICATION_BASE_URL}handle_events/latest/$encodedId/")
-                .header("Accept", "application/json")
-                .build()
+            val format = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
+                timeZone = java.util.TimeZone.getTimeZone("UTC")
+            }
+            val cal = java.util.Calendar.getInstance()
+            val to = format.format(cal.time)
+            cal.add(java.util.Calendar.DAY_OF_YEAR, -7)
+            val from = format.format(cal.time)
 
-            client.newCall(request).execute().use { response ->
-                if (response.code == 404) return@runCatching emptyList()
-                check(response.isSuccessful) { response.body?.string().orEmpty() }
-                parseNotificationBody(response.body?.string().orEmpty()).take(1)
+            val events = traccarApi.getEventsReport(
+                deviceId = deviceId,
+                from = from,
+                to = to,
+                type = "allEvents"
+            )
+
+            val latest = events.maxByOrNull { it.eventTime ?: "" }
+
+            if (latest != null) {
+                listOf(
+                    LatestNotificationEvent(
+                        id = latest.id.toString(),
+                        text = formatEventType(latest.type ?: ""),
+                        time = latest.eventTime
+                    )
+                )
+            } else {
+                emptyList()
             }
         }
     }
@@ -124,16 +141,28 @@ class EventRepositoryImpl @Inject constructor(
 
     private fun formatEventType(type: String): String {
         return when (type) {
-            "deviceOnline" -> "دستگاه آنلاین شد"
-            "deviceOffline" -> "دستگاه آفلاین شد"
-            "deviceUnknown" -> "وضعیت دستگاه نامشخص شد"
-            "ignitionOn" -> "روشن شدن موتور"
-            "ignitionOff" -> "خاموش شدن موتور"
-            "geofenceEnter" -> "ورود به محدوده جغرافیایی"
-            "geofenceExit" -> "خروج از محدوده جغرافیایی"
-            "deviceOverspeed" -> "سرعت غیر مجاز"
-            "alarm" -> "هشدار دستگاه"
-            else -> type
+            "all" -> "همه رویدادها"
+            "deviceOnline" -> "وضعیت آنلاین"
+            "deviceUnknown" -> "وضعیت نامعلوم"
+            "deviceOffline" -> "وضعیت آفلاین"
+            "deviceInactive" -> "دستگاه غیرفعال"
+            "queuedCommandSent" -> "Queued command sent"
+            "deviceMoving" -> "حرکت دستگاه"
+            "deviceStopped" -> "دستگاه متوقف شد"
+            "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
+            "deviceFuelDrop" -> "افت سوخت"
+            "deviceFuelIncrease" -> "افزایش سوخت"
+            "commandResult" -> "نتیجه ارسال دستور"
+            "geofenceEnter" -> "ورود محدوده جغرافیایی"
+            "geofenceExit" -> "خروج محدوده جغرافیایی"
+            "alarm" -> "هشدار"
+            "ignitionOn" -> "سویچ روشن"
+            "ignitionOff" -> "سوئیچ خاموش"
+            "maintenance" -> "نیاز به تعمیر"
+            "textMessage" -> "پیامک دریافت شد"
+            "driverChanged" -> "تعویض راننده"
+            "media" -> "مدیا"
+            else -> if (type.isBlank()) "رویداد جدید" else type
         }
     }
 }

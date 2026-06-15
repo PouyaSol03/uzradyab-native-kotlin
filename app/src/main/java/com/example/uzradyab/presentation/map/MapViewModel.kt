@@ -74,9 +74,14 @@ class MapViewModel @Inject constructor(
         trackingRepository.connectionState,
         localState,
         eventRepository.observeRecentEvents(limit = 8),
-        mapSettingsRepository.observeMapStyle(),
-    ) { snapshot, connection, local, recentEvents, mapStyle ->
-        val selected = local.selectedDeviceId ?: snapshot.devices.firstOrNull()?.id
+        combine(
+            mapSettingsRepository.observeMapStyle(),
+            mapSettingsRepository.observeLastSelectedDeviceId()
+        ) { style, lastId -> style to lastId }
+    ) { snapshot, connection, local, recentEvents, (mapStyle, lastDeviceId) ->
+        val selected = local.selectedDeviceId 
+            ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
+            ?: snapshot.devices.firstOrNull()?.id
         local.copy(
             devices = snapshot.devices,
             latestPositions = snapshot.latestPositions,
@@ -95,6 +100,9 @@ class MapViewModel @Inject constructor(
     }
 
     fun selectDevice(deviceId: Long) {
+        viewModelScope.launch {
+            mapSettingsRepository.setLastSelectedDeviceId(deviceId)
+        }
         localState.update {
             it.copy(
                 selectedDeviceId = deviceId,
@@ -280,31 +288,47 @@ private fun formatDistance(distanceMeters: Double): String {
 private fun latestEventForDevice(events: List<Event>, deviceId: Long?): MapLatestEventItem? {
     val event = events.firstOrNull { it.deviceId == deviceId } ?: events.firstOrNull()
     return event?.let {
+        val formattedTime = formatEventTime(it.eventTime)
+        val text = formatEventText(it)
         MapLatestEventItem(
-            text = formatEventText(it),
-            timeText = formatEventTime(it.eventTime),
+            text = if (formattedTime != null) "$text - $formattedTime" else text,
+            timeText = null,
         )
     }
 }
 
-private fun LatestNotificationEvent.toTickerItem(): MapLatestEventItem {
+private fun com.example.uzradyab.domain.model.LatestNotificationEvent.toTickerItem(): MapLatestEventItem {
+    val formattedTime = formatEventTime(time)
     return MapLatestEventItem(
-        text = text,
-        timeText = formatEventTime(time),
+        text = if (formattedTime != null) "$text - $formattedTime" else text,
+        timeText = null,
     )
 }
 
 private fun formatEventText(event: Event): String {
     return when (event.type) {
-        "deviceOnline" -> "دستگاه آنلاین شد"
-        "deviceOffline" -> "دستگاه آفلاین شد"
-        "deviceUnknown" -> "وضعیت دستگاه نامشخص شد"
-        "ignitionOn" -> "روشن شدن خودرو"
-        "ignitionOff" -> "خاموش شدن خودرو"
-        "geofenceEnter" -> "ورود به محدوده"
-        "geofenceExit" -> "خروج از محدوده"
-        "alarm" -> "هشدار دستگاه"
-        else -> if (event.type.isBlank()) "رویداد جدید" else "رویداد ${event.type}"
+        "all" -> "همه رویدادها"
+        "deviceOnline" -> "وضعیت آنلاین"
+        "deviceUnknown" -> "وضعیت نامعلوم"
+        "deviceOffline" -> "وضعیت آفلاین"
+        "deviceInactive" -> "دستگاه غیرفعال"
+        "queuedCommandSent" -> "Queued command sent"
+        "deviceMoving" -> "حرکت دستگاه"
+        "deviceStopped" -> "دستگاه متوقف شد"
+        "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
+        "deviceFuelDrop" -> "افت سوخت"
+        "deviceFuelIncrease" -> "افزایش سوخت"
+        "commandResult" -> "نتیجه ارسال دستور"
+        "geofenceEnter" -> "ورود محدوده جغرافیایی"
+        "geofenceExit" -> "خروج محدوده جغرافیایی"
+        "alarm" -> "هشدار"
+        "ignitionOn" -> "سویچ روشن"
+        "ignitionOff" -> "سوئیچ خاموش"
+        "maintenance" -> "نیاز به تعمیر"
+        "textMessage" -> "پیامک دریافت شد"
+        "driverChanged" -> "تعویض راننده"
+        "media" -> "مدیا"
+        else -> if (event.type.isBlank()) "رویداد جدید" else event.type
     }
 }
 
@@ -342,9 +366,17 @@ private fun formatEventTime(value: String?): String? {
         }.getOrNull()
     } ?: return null
 
-    return SimpleDateFormat("yyyy/MM/dd - HH:mm", Locale.US).apply {
+    val cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = parsed }
+    val gY = cal.get(java.util.Calendar.YEAR)
+    val gM = cal.get(java.util.Calendar.MONTH) + 1
+    val gD = cal.get(java.util.Calendar.DAY_OF_MONTH)
+
+    val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
+    val timeStr = SimpleDateFormat("HH:mm", Locale.US).apply {
         timeZone = TimeZone.getTimeZone("Asia/Tehran")
-    }.format(parsed).toPersianDigits()
+    }.format(parsed)
+
+    return "${jDate[0]}/${String.format(Locale.US, "%02d", jDate[1])}/${String.format(Locale.US, "%02d", jDate[2])} - $timeStr".toPersianDigits()
 }
 
 private fun String.toPersianDigits(): String {

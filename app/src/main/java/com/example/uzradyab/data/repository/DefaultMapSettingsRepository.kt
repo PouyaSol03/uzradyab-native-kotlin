@@ -34,8 +34,29 @@ class DefaultMapSettingsRepository @Inject constructor(
         prefs.edit().putString(KEY_MAP_STYLE, style).apply()
     }
 
+    override fun observeLastSelectedDeviceId(): Flow<Long?> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == KEY_LAST_DEVICE_ID) {
+                val value = sharedPreferences.getLong(KEY_LAST_DEVICE_ID, -1L)
+                trySend(if (value != -1L) value else null)
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }.onStart {
+        val value = prefs.getLong(KEY_LAST_DEVICE_ID, -1L)
+        emit(if (value != -1L) value else null)
+    }.conflate()
+
+    override suspend fun setLastSelectedDeviceId(deviceId: Long) {
+        prefs.edit().putLong(KEY_LAST_DEVICE_ID, deviceId).apply()
+    }
+
     companion object {
         private const val KEY_MAP_STYLE = "map_style"
+        private const val KEY_LAST_DEVICE_ID = "last_selected_device_id"
         private const val DEFAULT_STYLE = "osm" // Can be osm, googleRoad, googleSatellite, carto
     }
 }
