@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uzradyab.data.remote.api.TraccarApi
 import com.example.uzradyab.data.remote.dto.SessionDto
+import com.example.uzradyab.domain.manager.FcmTokenManager
 import com.example.uzradyab.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +26,8 @@ data class ProfileUiState(
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val api: TraccarApi,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val fcmTokenManager: FcmTokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -70,11 +72,20 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(saveSuccess = false) }
     }
 
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
+    }
+
     fun logout() {
         viewModelScope.launch {
             try {
+                fcmTokenManager.removeCurrentToken()
+            } catch (e: Exception) {
+                // Ignore failure to remove token on logout
+            }
+            runCatching {
                 authRepository.logout()
-            } finally {
+            }.onSuccess {
                 _uiState.update { it.copy(signedOut = true) }
             }
         }

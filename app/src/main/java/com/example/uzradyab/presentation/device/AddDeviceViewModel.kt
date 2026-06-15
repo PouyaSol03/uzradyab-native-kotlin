@@ -54,6 +54,11 @@ class AddDeviceViewModel @Inject constructor(
     var isSuccess by mutableStateOf(false)
         private set
 
+    fun clearMessages() {
+        errorMessage = null
+        isSuccess = false
+    }
+
     init {
         deviceId?.let { id ->
             isEditMode = true

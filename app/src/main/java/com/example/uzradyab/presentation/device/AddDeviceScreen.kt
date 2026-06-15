@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
@@ -70,18 +71,21 @@ fun AddDeviceRoute(
     viewModel: AddDeviceViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val snackbarController = LocalSnackbarController.current
 
     LaunchedEffect(viewModel.isSuccess) {
         if (viewModel.isSuccess) {
             val message = if (viewModel.isEditMode) "دستگاه با موفقیت ویرایش شد" else "دستگاه با موفقیت ثبت شد"
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            snackbarController.showSuccess(message)
+            viewModel.clearMessages()
             onBackClick()
         }
     }
 
     LaunchedEffect(viewModel.errorMessage) {
         viewModel.errorMessage?.let { error ->
-            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            snackbarController.showError(error)
+            viewModel.clearMessages()
         }
     }
 

@@ -51,6 +51,7 @@ import com.example.uzradyab.ui.theme.AppTextPrimary
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 
@@ -62,10 +63,25 @@ fun RegisterRoute(
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarController = LocalSnackbarController.current
 
     LaunchedEffect(state.isSignedIn) {
         if (state.isSignedIn) {
             onSignedIn()
+        }
+    }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let {
+            snackbarController.showError(it)
+            viewModel.clearMessages()
+        }
+    }
+
+    LaunchedEffect(state.infoMessage) {
+        state.infoMessage?.let {
+            snackbarController.showInfo(it)
+            viewModel.clearMessages()
         }
     }
 
@@ -179,12 +195,7 @@ private fun RegisterDetailsStep(
         )
         Spacer(modifier = Modifier.height(16.dp))
         AuthLanguageField()
-        RegisterMessage(state = state)
-        Spacer(
-            modifier = Modifier.height(
-                if (state.errorMessage == null && state.infoMessage == null) 48.dp else 18.dp,
-            ),
-        )
+        Spacer(modifier = Modifier.height(48.dp))
         AuthPrimaryButton(
             text = if (state.isSubmitting) "در حال ارسال..." else "دریافت کد تایید",
             onClick = onRequestOtpClick,
@@ -305,8 +316,7 @@ private fun RegisterOtpStep(
                 )
             }
         }
-        RegisterMessage(state = state)
-        Spacer(modifier = Modifier.height(if (state.errorMessage == null) 32.dp else 16.dp))
+        Spacer(modifier = Modifier.height(48.dp))
         AuthPrimaryButton(
             text = if (state.isSubmitting) "در حال تایید..." else "تایید",
             onClick = onVerifyOtpClick,
@@ -374,8 +384,7 @@ private fun RegisterPasswordStep(
             },
             rightIcon = { PasswordKeyIcon() },
         )
-        RegisterMessage(state = state)
-        Spacer(modifier = Modifier.height(16.dp))        
+        Spacer(modifier = Modifier.height(48.dp))        
         AuthPrimaryButton(
             text = if (state.isSubmitting) "در حال تکمیل..." else "تکمیل عضویت",
             onClick = onCompleteRegistrationClick,
@@ -467,33 +476,7 @@ private fun PasswordRule(text: String, isMet: Boolean) {
     }
 }
 
-@Composable
-private fun RegisterMessage(state: AuthUiState) {
-    state.errorMessage?.let {
-        Text(
-            text = it,
-            color = MaterialTheme.colorScheme.error,
-            fontSize = 12.sp,
-            lineHeight = 18.sp,
-            textAlign = TextAlign.Right,
-            modifier = Modifier
-                .width(AuthControlWidth)
-                .padding(top = 8.dp),
-        )
-    }
-    state.infoMessage?.let {
-        Text(
-            text = it,
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 12.sp,
-            lineHeight = 18.sp,
-            textAlign = TextAlign.Right,
-            modifier = Modifier
-                .width(AuthControlWidth)
-                .padding(top = 8.dp),
-        )
-    }
-}
+
 
 @Composable
 private fun RegisterFooter(onLoginClick: () -> Unit) {

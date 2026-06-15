@@ -49,6 +49,10 @@ class RenewCreditViewModel @Inject constructor(
     var paymentUrl by mutableStateOf<String?>(null)
         private set
 
+    fun clearError() {
+        errorMessage = null
+    }
+
     init {
         fetchData()
     }

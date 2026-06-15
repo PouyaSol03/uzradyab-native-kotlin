@@ -1,8 +1,5 @@
 package com.example.uzradyab.presentation.device
 
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.R
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 
@@ -38,16 +36,18 @@ fun RenewCreditRoute(
     viewModel: RenewCreditViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val snackbarController = LocalSnackbarController.current
 
     LaunchedEffect(viewModel.errorMessage) {
         viewModel.errorMessage?.let {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            snackbarController.showError(it)
+            viewModel.clearError()
         }
     }
 
     LaunchedEffect(viewModel.paymentUrl) {
         viewModel.paymentUrl?.let { url ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
             context.startActivity(intent)
             viewModel.onPaymentUrlHandled()
         }

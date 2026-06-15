@@ -2,7 +2,6 @@ package com.example.uzradyab.presentation.command
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,6 +50,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 
@@ -73,17 +73,20 @@ fun CommandCenterRoute(
     viewModel: CommandCenterViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val snackbarController = LocalSnackbarController.current
 
     LaunchedEffect(viewModel.isSuccess) {
         if (viewModel.isSuccess) {
-            Toast.makeText(context, "دستور با موفقیت ارسال شد", Toast.LENGTH_SHORT).show()
+            snackbarController.showSuccess("دستور با موفقیت ارسال شد")
+            viewModel.clearMessages()
             onBackClick()
         }
     }
 
     LaunchedEffect(viewModel.errorMessage) {
         viewModel.errorMessage?.let { error ->
-            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+            snackbarController.showError(error)
+            viewModel.clearMessages()
         }
     }
 

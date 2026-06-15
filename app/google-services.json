@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "861933132786",
+    "project_id": "uzrdayab2",
+    "storage_bucket": "uzrdayab2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861933132786:android:668b200ec09512b5fa696b",
+        "android_client_info": {
+          "package_name": "com.exir.uzradyab"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD32ujfZ1C3mvFJgG8YzRv7beFgr8BvujA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

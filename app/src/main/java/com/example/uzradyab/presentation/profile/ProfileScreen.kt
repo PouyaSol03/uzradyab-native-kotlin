@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -51,6 +52,7 @@ fun ProfileRoute(
         onLogoutClick = viewModel::logout,
         onSaveClick = viewModel::updateProfile,
         onResetSaveSuccess = viewModel::resetSaveSuccess,
+        onClearError = viewModel::clearError,
         onBackClick = onBackClick,
         onMenuClick = onMenuClick
     )
@@ -63,10 +65,12 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit,
     onSaveClick: (com.example.uzradyab.data.remote.dto.SessionDto) -> Unit,
     onResetSaveSuccess: () -> Unit,
+    onClearError: () -> Unit,
     onBackClick: () -> Unit,
     onMenuClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val snackbarController = LocalSnackbarController.current
     val biometricHelper = remember { BiometricHelper(context) }
     
     var name by remember(state.sessionDto) { mutableStateOf(state.sessionDto?.name ?: "") }
@@ -93,15 +97,15 @@ fun ProfileScreen(
 
     LaunchedEffect(state.saveSuccess) {
         if (state.saveSuccess) {
-            // Show toast or snackbar
-            android.widget.Toast.makeText(context, "تغییرات با موفقیت ذخیره شد", android.widget.Toast.LENGTH_SHORT).show()
+            snackbarController.showSuccess("تغییرات با موفقیت ذخیره شد")
             onResetSaveSuccess()
         }
     }
 
     LaunchedEffect(state.error) {
         if (state.error != null) {
-            android.widget.Toast.makeText(context, state.error, android.widget.Toast.LENGTH_LONG).show()
+            snackbarController.showError(state.error)
+            onClearError()
         }
     }
 

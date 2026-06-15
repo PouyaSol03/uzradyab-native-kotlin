@@ -10,6 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 
@@ -73,8 +79,7 @@ val NOTIFICATION_SECTIONS = listOf(
         title = "اتصالات",
         icon = Icons.Default.Sensors,
         options = listOf(
-            NotificationOption("دریافت پیامک", "sms_received"),
-            NotificationOption("وضعیت آنلاین", "online_status")
+            NotificationOption("دریافت پیامک", "sms_received")
         )
     )
 )
@@ -89,6 +94,7 @@ fun AlertsSettingsRoute(
         errorMessage = viewModel.errorMessage,
         notificationStates = viewModel.notificationStates,
         onTogglePreference = viewModel::togglePreference,
+        onClearError = viewModel::clearError,
         onBackClick = onBackClick
     )
 }
@@ -98,10 +104,21 @@ fun AlertsSettingsRoute(
 fun AlertsSettingsScreen(
     isLoading: Boolean,
     errorMessage: String?,
-    notificationStates: Map<String, Boolean>,
+    notificationStates: androidx.compose.runtime.snapshots.SnapshotStateMap<String, Boolean>,
     onTogglePreference: (String) -> Unit,
+    onClearError: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val snackbarController = LocalSnackbarController.current
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            snackbarController.showError(errorMessage)
+            onClearError()
+        }
+    }
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
             topBar = {
@@ -129,7 +146,11 @@ fun AlertsSettingsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = onBackClick,
+                        onClick = {
+                            coroutineScope.launch {
+                                snackbarController.showSuccess("تغییرات با موفقیت ذخیره شد")
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
@@ -156,14 +177,6 @@ fun AlertsSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
-                    if (errorMessage != null) {
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -195,7 +208,7 @@ fun AlertsSettingsScreen(
 @Composable
 fun SectionCard(
     section: NotificationSection,
-    notificationStates: Map<String, Boolean>,
+    notificationStates: androidx.compose.runtime.snapshots.SnapshotStateMap<String, Boolean>,
     onTogglePreference: (String) -> Unit
 ) {
     Card(
@@ -218,31 +231,44 @@ fun SectionCard(
             }
             Spacer(modifier = Modifier.height(16.dp))
             section.options.forEachIndexed { index, option ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = option.label,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Light,
-                        color = Color.Black
-                    )
-                    Switch(
-                        checked = notificationStates[option.key] ?: true,
-                        onCheckedChange = { onTogglePreference(option.key) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFF307EF3), // Primary500
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color(0xFFD1D5DB) // Gray300
-                        )
-                    )
-                }
+                NotificationRow(
+                    option = option,
+                    isChecked = notificationStates[option.key] ?: true,
+                    onTogglePreference = onTogglePreference
+                )
             }
         }
+    }
+}
+
+@Composable
+fun NotificationRow(
+    option: NotificationOption,
+    isChecked: Boolean,
+    onTogglePreference: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = option.label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Light,
+            color = Color.Black
+        )
+        Switch(
+            checked = isChecked,
+            onCheckedChange = { onTogglePreference(option.key) },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = Color(0xFF307EF3), // Primary500
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = Color(0xFFD1D5DB) // Gray300
+            )
+        )
     }
 }

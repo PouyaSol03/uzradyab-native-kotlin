@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -34,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.R
 import com.example.uzradyab.core.designsystem.AuthBackground
+
+import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.ui.theme.AppTextBody
 
 @Composable
@@ -43,10 +46,25 @@ fun LoginRoute(
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarController = LocalSnackbarController.current
 
     LaunchedEffect(state.isSignedIn) {
         if (state.isSignedIn) {
             onSignedIn()
+        }
+    }
+
+    LaunchedEffect(state.errorMessage) {
+        state.errorMessage?.let {
+            snackbarController.showError(it)
+            viewModel.clearMessages()
+        }
+    }
+
+    LaunchedEffect(state.infoMessage) {
+        state.infoMessage?.let {
+            snackbarController.showInfo(it)
+            viewModel.clearMessages()
         }
     }
 
@@ -120,18 +138,7 @@ fun LoginScreen(
                         modifier = Modifier.align(Alignment.Start),
                         fontSize = 12,
                     )
-                    state.errorMessage?.let {
-                        Text(
-                            text = it,
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp,
-                            textAlign = TextAlign.Right,
-                            modifier = Modifier
-                                .padding(top = 4.dp),
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(if (state.errorMessage == null) 48.dp else 18.dp))
+                    Spacer(modifier = Modifier.height(48.dp))
                     AuthPrimaryButton(
                         text = if (state.isSubmitting) "در حال ورود..." else "ورود",
                         onClick = onLoginClick,

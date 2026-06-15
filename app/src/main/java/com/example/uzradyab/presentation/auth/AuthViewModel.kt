@@ -2,6 +2,7 @@ package com.example.uzradyab.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uzradyab.domain.manager.FcmTokenManager
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.PositionRepository
@@ -46,6 +47,7 @@ data class AuthUiState(
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val registrationRepository: RegistrationRepository,
+    private val fcmTokenManager: FcmTokenManager,
     private val deviceRepository: DeviceRepository,
     private val positionRepository: PositionRepository,
 ) : ViewModel() {
@@ -57,6 +59,10 @@ class AuthViewModel @Inject constructor(
         if (value.length <= 11 && value.all(Char::isDigit)) {
             _uiState.update { it.copy(phoneNumber = value, errorMessage = null, infoMessage = null) }
         }
+    }
+
+    fun clearMessages() {
+        _uiState.update { it.copy(errorMessage = null, infoMessage = null) }
     }
 
     fun onPrivacyPolicyAcceptChange(isAccepted: Boolean) {
@@ -99,6 +105,7 @@ class AuthViewModel @Inject constructor(
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
+                    fcmTokenManager.syncCurrentToken()
                     deviceRepository.refreshDevices()
                     positionRepository.refreshLatestPositions()
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
@@ -258,6 +265,7 @@ class AuthViewModel @Inject constructor(
                         phoneNumber = state.phoneNumber,
                         password = state.password,
                     ).onSuccess {
+                        fcmTokenManager.syncCurrentToken()
                         deviceRepository.refreshDevices()
                         positionRepository.refreshLatestPositions()
                         _uiState.update { current ->

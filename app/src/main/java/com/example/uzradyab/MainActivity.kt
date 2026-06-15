@@ -23,6 +23,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.core.network.SessionEventBus
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -40,6 +41,16 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                android.util.Log.d("FCM_TOKEN", "MainActivity OnCreate FCM Token: $token")
+            } else {
+                android.util.Log.e("FCM_TOKEN", "MainActivity OnCreate FCM Token fetch failed", task.exception)
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             UzradyabAppRoot(

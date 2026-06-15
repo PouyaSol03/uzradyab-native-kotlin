@@ -25,6 +25,10 @@ class AlertsSettingsViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
+    fun clearError() {
+        errorMessage = null
+    }
+
     private var currentUserId: Long? = null
 
     // We'll hold the state of each preference here.
