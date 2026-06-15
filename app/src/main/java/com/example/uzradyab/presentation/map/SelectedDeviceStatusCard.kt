@@ -1,6 +1,7 @@
 package com.example.uzradyab.presentation.map
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.Share
@@ -37,6 +39,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -93,6 +97,11 @@ fun SelectedDeviceStatusCard(
         animationSpec = tween(durationMillis = 260),
         label = "selectedDeviceCardActionY",
     )
+    val extraRowsAlpha by animateFloatAsState(
+        targetValue = if (expanded) 1f else 0f,
+        animationSpec = tween(durationMillis = 200),
+        label = "extraRowsAlpha",
+    )
 
     Box(
         modifier = modifier
@@ -120,29 +129,30 @@ fun SelectedDeviceStatusCard(
                             .padding(horizontal = 16.dp)
                             .offset(y = 16.dp),
                     )
-                    if (expanded) {
-                        DistanceRow(
-                            todayDistanceText = todayDistanceText,
-                            dark = false,
-                            onReplayClick = onReplayClick,
+                    
+                    DistanceRow(
+                        todayDistanceText = todayDistanceText,
+                        dark = false,
+                        onReplayClick = onReplayClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .offset(y = 79.dp)
+                            .alpha(extraRowsAlpha),
+                    )
+                    if (hasExpirationWarning) {
+                        ExpirationRow(
+                            daysRemaining = daysRemaining,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
-                                .offset(y = 79.dp),
+                                .offset(y = 135.dp)
+                                .alpha(extraRowsAlpha),
                         )
-                        if (hasExpirationWarning) {
-                            ExpirationRow(
-                                daysRemaining = daysRemaining,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                    .offset(y = 135.dp),
-                            )
-                        }
                     }
+                    
                     ActionRow(
                         onManageClick = onManageClick,
-                        expanded = expanded,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
@@ -152,6 +162,7 @@ fun SelectedDeviceStatusCard(
             }
         }
         ChevronHandle(
+            expanded = expanded,
             onClick = onToggleExpanded,
             modifier = Modifier.align(Alignment.TopCenter),
         )
@@ -311,7 +322,6 @@ private fun SecondaryActionPill(
 @Composable
 private fun ActionRow(
     onManageClick: () -> Unit,
-    expanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -324,8 +334,8 @@ private fun ActionRow(
             onClick = onManageClick,
             modifier = Modifier.weight(1f),
         )
-        Spacer(modifier = Modifier.width(if (expanded) 21.dp else 16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(if (expanded) 21.dp else 16.dp)) {
+        Spacer(modifier = Modifier.width(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             CircleIconButton { DirectionIcon() }
             CircleIconButton { ShareIcon() }
         }
@@ -334,17 +344,33 @@ private fun ActionRow(
 
 @Composable
 private fun ChevronHandle(
+    expanded: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Image(
-        painter = painterResource(id = R.drawable.selected_device_card_handle),
-        contentDescription = null,
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(durationMillis = 260),
+        label = "chevronRotation"
+    )
+    Box(
         modifier = modifier
             .width(107.dp)
             .height(30.dp)
             .clickable(onClick = onClick),
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.selected_device_card_handle),
+            contentDescription = null,
+        )
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowUp,
+            contentDescription = null,
+            tint = AppBlue,
+            modifier = Modifier.rotate(rotation).offset(y = (-3).dp).size(22.dp)
+        )
+    }
 }
 
 @Composable

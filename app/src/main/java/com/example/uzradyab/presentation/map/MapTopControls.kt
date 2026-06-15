@@ -1,5 +1,8 @@
 package com.example.uzradyab.presentation.map
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -63,9 +68,12 @@ fun MapTopControls(
     devices: List<Device>,
     selectedDeviceId: Long?,
     latestEvent: MapLatestEventItem?,
+    isMapLocked: Boolean,
+    showLockWarning: Boolean,
     onDeviceSelectorClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onEventsClick: () -> Unit,
+    onLockToggleClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = devices.firstOrNull { it.id == selectedDeviceId }
@@ -106,6 +114,18 @@ fun MapTopControls(
                 modifier = Modifier.weight(1f),
             )
             NotificationButton(onClick = onEventsClick)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 343.dp),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            LockButton(
+                isLocked = isMapLocked,
+                showWarning = showLockWarning,
+                onClick = onLockToggleClick
+            )
         }
     }
 }
@@ -229,6 +249,45 @@ private fun NotificationButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         NotificationBellIcon()
+    }
+}
+
+@Composable
+private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .height(40.dp)
+            .widthIn(min = 40.dp)
+            .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
+            .background(if (isLocked) AppBlue else Color.White, RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .animateContentSize(animationSpec = tween(durationMillis = 300)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = if (showWarning) 12.dp else 0.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            AnimatedVisibility(visible = showWarning) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "نقشه قفل است",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
+            Icon(
+                imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                contentDescription = "Lock Map",
+                tint = if (isLocked) Color.White else AppBlue,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 

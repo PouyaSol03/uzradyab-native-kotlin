@@ -50,6 +50,7 @@ data class HomeMapUiState(
     val mapStyle: String = "osm",
     val tileHealth: TileHealthState = TileHealthState.Unknown,
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
+    val isMapLocked: Boolean = true,
 )
 
 data class MapLatestEventItem(
@@ -157,6 +158,16 @@ class MapViewModel @Inject constructor(
             trackingRepository.stop()
             authRepository.logout()
             localState.update { it.copy(signedOut = true) }
+        }
+    }
+
+    fun toggleMapLock() {
+        localState.update { it.copy(isMapLocked = !it.isMapLocked) }
+    }
+
+    fun unlockMap() {
+        if (localState.value.isMapLocked) {
+            localState.update { it.copy(isMapLocked = false) }
         }
     }
 

@@ -86,6 +86,7 @@ fun HomeMapRoute(
         onReportsClick = onReportsClick,
         onAlertsSettingsClick = onAlertsSettingsClick,
         onDebugLogsClick = onDebugLogsClick,
+        onToggleMapLock = viewModel::toggleMapLock,
     )
 }
 
@@ -111,6 +112,7 @@ fun HomeMapScreen(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onToggleMapLock: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -119,6 +121,14 @@ fun HomeMapScreen(
     var menuOpen by remember { mutableStateOf(false) }
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    
+    var showLockWarning by remember { mutableStateOf(false) }
+    LaunchedEffect(showLockWarning) {
+        if (showLockWarning) {
+            kotlinx.coroutines.delay(2000)
+            showLockWarning = false
+        }
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -170,10 +180,14 @@ fun HomeMapScreen(
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
                     activeTileSource = state.activeTileSource,
+                    isMapLocked = state.isMapLocked,
                     mapBottomPadding = mapBottomPadding,
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {
                             onCloseDeviceManagement()
+                        }
+                        if (state.isMapLocked) {
+                            showLockWarning = true
                         }
                     },
                     modifier = Modifier.fillMaxSize(),
@@ -182,9 +196,12 @@ fun HomeMapScreen(
                     devices = state.devices,
                     selectedDeviceId = state.selectedDeviceId,
                     latestEvent = state.latestEvent,
+                    isMapLocked = state.isMapLocked,
+                    showLockWarning = showLockWarning,
                     onDeviceSelectorClick = onToggleDevices,
                     onSettingsClick = onOpenMapSettings,
                     onEventsClick = onEventsClick,
+                    onLockToggleClick = onToggleMapLock,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
