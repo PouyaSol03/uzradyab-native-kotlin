@@ -49,3 +49,28 @@
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn javax.annotation.**
+
+# ==========================================
+# Room Database Rules
+# ==========================================
+# حفظ موجودیت‌های دیتابیس برای جلوگیری از کرش کردن Room در نسخه نهایی
+-keep class com.example.uzradyab.data.local.entity.** { *; }
+-keep class * extends androidx.room.RoomDatabase
+
+# ==========================================
+# Security & Logging Rules
+# ==========================================
+# حذف کامل لاگ‌های سیستمی از نسخه Release (الزام امنیتی گوگل پلی)
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int i(...);
+    public static int w(...);
+    public static int d(...);
+    public static int e(...);
+}
+
+# حذف لاگر اختصاصی اپلیکیشن برای جلوگیری از نشت اطلاعات حساس
+-assumenosideeffects class com.example.uzradyab.core.debug.AppLogger {
+    public static *** *(...);
+}
