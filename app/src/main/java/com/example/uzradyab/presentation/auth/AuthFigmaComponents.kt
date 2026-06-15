@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uzradyab.core.designsystem.EyeIcon
 import com.example.uzradyab.core.designsystem.EyeOffIcon
 import com.example.uzradyab.core.designsystem.KeyIcon
 import com.example.uzradyab.core.designsystem.PhoneIcon
@@ -102,14 +103,14 @@ internal fun AuthPanel(
             )
             
             // SVG punch-out mask
-            val scale = size.width / 387f
+            val scale = size.width / 336f
             val matrix = android.graphics.Matrix()
             matrix.setScale(scale, scale)
             val androidPath = holePath.asAndroidPath()
             val scaledAndroidPath = android.graphics.Path()
             androidPath.transform(matrix, scaledAndroidPath)
             
-            translate(left = -180f, top = -40f) {
+            translate(left = -198f, top = -44f) {
                 drawPath(
                     path = scaledAndroidPath.asComposePath(),
                     color = Color.Black,
@@ -331,8 +332,14 @@ internal fun PasswordKeyIcon() {
 }
 
 @Composable
-internal fun PasswordEyeIcon() {
-    EyeOffIcon(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+internal fun PasswordEyeIcon(isVisible: Boolean, onClick: () -> Unit) {
+    androidx.compose.material3.IconButton(onClick = onClick) {
+        if (isVisible) {
+            EyeIcon(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+        } else {
+            EyeOffIcon(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+        }
+    }
 }
 
 

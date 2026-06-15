@@ -37,6 +37,7 @@ data class AuthUiState(
     val passwordRules: PasswordRuleState = PasswordRuleState(),
     val isSubmitting: Boolean = false,
     val isSignedIn: Boolean = false,
+    val isPrivacyPolicyAccepted: Boolean = false,
     val errorMessage: String? = null,
     val infoMessage: String? = null,
 )
@@ -56,6 +57,10 @@ class AuthViewModel @Inject constructor(
         if (value.length <= 11 && value.all(Char::isDigit)) {
             _uiState.update { it.copy(phoneNumber = value, errorMessage = null, infoMessage = null) }
         }
+    }
+
+    fun onPrivacyPolicyAcceptChange(isAccepted: Boolean) {
+        _uiState.update { it.copy(isPrivacyPolicyAccepted = isAccepted, errorMessage = null, infoMessage = null) }
     }
 
     fun onPasswordChange(value: String) {
@@ -236,6 +241,9 @@ class AuthViewModel @Inject constructor(
     fun completeRegistration() {
         val state = _uiState.value
         when {
+            !state.isPrivacyPolicyAccepted -> {
+                _uiState.update { it.copy(errorMessage = "لطفا قوانین و مقررات را تایید کنید") }
+            }
             !state.passwordRules.isValid -> {
                 _uiState.update { it.copy(errorMessage = "رمز عبور باید شرایط امنیتی را داشته باشد") }
             }

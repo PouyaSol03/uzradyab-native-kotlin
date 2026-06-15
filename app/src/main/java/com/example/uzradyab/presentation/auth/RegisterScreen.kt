@@ -1,5 +1,13 @@
 package com.example.uzradyab.presentation.auth
 
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,23 +24,36 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.designsystem.AuthBackground
 import com.example.uzradyab.ui.theme.AppTextBody
+import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.google.android.gms.auth.api.phone.SmsRetriever
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+
 
 @Composable
 fun RegisterRoute(
@@ -59,6 +80,7 @@ fun RegisterRoute(
         onChangePhoneClick = viewModel::changeRegisterPhone,
         onPasswordChange = viewModel::onPasswordChange,
         onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
+        onPrivacyPolicyAcceptChange = viewModel::onPrivacyPolicyAcceptChange,
         onCompleteRegistrationClick = viewModel::completeRegistration,
         onLoginClick = onLoginClick,
     )
@@ -76,6 +98,7 @@ fun RegisterScreen(
     onChangePhoneClick: () -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
+    onPrivacyPolicyAcceptChange: (Boolean) -> Unit,
     onCompleteRegistrationClick: () -> Unit,
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -110,6 +133,7 @@ fun RegisterScreen(
                         state = state,
                         onPasswordChange = onPasswordChange,
                         onConfirmPasswordChange = onConfirmPasswordChange,
+                        onPrivacyPolicyAcceptChange = onPrivacyPolicyAcceptChange,
                         onCompleteRegistrationClick = onCompleteRegistrationClick,
                         onLoginClick = onLoginClick,
                     )
@@ -180,6 +204,53 @@ private fun RegisterOtpStep(
     onChangePhoneClick: () -> Unit,
     onLoginClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val message = result.data?.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
+            message?.let {
+                val otpPattern = "\\d{6}".toRegex()
+                val match = otpPattern.find(it)
+                if (match != null) {
+                    onOtpChange(match.value)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val client = SmsRetriever.getClient(context)
+        client.startSmsUserConsent(null) // Listen for any sender
+    }
+
+    DisposableEffect(context) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (SmsRetriever.SMS_RETRIEVED_ACTION == intent.action) {
+                    val extras = intent.extras
+                    val status = extras?.get(SmsRetriever.EXTRA_STATUS) as? Status
+                    if (status?.statusCode == CommonStatusCodes.SUCCESS) {
+                        val consentIntent = extras.getParcelable<Intent>(SmsRetriever.EXTRA_CONSENT_INTENT)
+                        consentIntent?.let {
+                            launcher.launch(it)
+                        }
+                    }
+                }
+            }
+        }
+        val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            intentFilter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
+
+        onDispose {
+            context.unregisterReceiver(receiver)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -247,13 +318,18 @@ private fun RegisterOtpStep(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun RegisterPasswordStep(
     state: AuthUiState,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
+    onPrivacyPolicyAcceptChange: (Boolean) -> Unit,
     onCompleteRegistrationClick: () -> Unit,
     onLoginClick: () -> Unit,
 ) {
+    var showPrivacyPolicy by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var passwordVisible by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var confirmPasswordVisible by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -269,9 +345,14 @@ private fun RegisterPasswordStep(
             label = "رمز عبور",
             placeholder = "رمز عبور را وارد کنید",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             inputTextDirection = TextDirection.Ltr,
-            leftIcon = { PasswordEyeIcon() },
+            leftIcon = { 
+                PasswordEyeIcon(
+                    isVisible = passwordVisible,
+                    onClick = { passwordVisible = !passwordVisible }
+                ) 
+            },
             rightIcon = { PasswordKeyIcon() },
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -283,13 +364,18 @@ private fun RegisterPasswordStep(
             label = "تایید رمز عبور",
             placeholder = "رمز عبور را دوباره وارد کنید",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             inputTextDirection = TextDirection.Ltr,
-            leftIcon = { PasswordEyeIcon() },
+            leftIcon = { 
+                PasswordEyeIcon(
+                    isVisible = confirmPasswordVisible,
+                    onClick = { confirmPasswordVisible = !confirmPasswordVisible }
+                ) 
+            },
             rightIcon = { PasswordKeyIcon() },
         )
         RegisterMessage(state = state)
-        Spacer(modifier = Modifier.height(if (state.errorMessage == null) 48.dp else 18.dp))
+        Spacer(modifier = Modifier.height(16.dp))        
         AuthPrimaryButton(
             text = if (state.isSubmitting) "در حال تکمیل..." else "تکمیل عضویت",
             onClick = onCompleteRegistrationClick,
@@ -298,6 +384,46 @@ private fun RegisterPasswordStep(
         Spacer(modifier = Modifier.height(24.dp))
         RegisterFooter(onLoginClick = onLoginClick)
     }
+
+    if (showPrivacyPolicy) {
+        val sheetState = androidx.compose.material3.rememberModalBottomSheetState()
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { showPrivacyPolicy = false },
+            sheetState = sheetState,
+            containerColor = androidx.compose.ui.graphics.Color.White,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "حریم خصوصی و مقررات",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AppTextPrimary,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "کاربر گرامی، با ثبت نام در اپلیکیشن اکسیر ردیاب، شما موافقت خود را با شرایط و مقررات استفاده از خدمات و همچنین سیاست حریم خصوصی ما اعلام می‌دارید. اطلاعات شخصی شما نزد ما محفوظ بوده و تنها برای ارائه خدمات بهتر استفاده خواهد شد.",
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp,
+                    color = AppTextBody,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                AuthPrimaryButton(
+                    text = "متوجه شدم",
+                    onClick = { showPrivacyPolicy = false }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
 }
 
 @Composable
@@ -305,7 +431,7 @@ private fun PasswordRules(rules: PasswordRuleState) {
     Column(
         modifier = Modifier.width(AuthControlWidth),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.End,
+        horizontalAlignment = Alignment.Start,
     ) {
         PasswordRule(text = "حداقل 8 کاراکتر", isMet = rules.hasMinimumLength)
         PasswordRule(text = "شامل حداقل 1 عدد", isMet = rules.hasDigit)
@@ -319,9 +445,18 @@ private fun PasswordRule(text: String, isMet: Boolean) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
+        horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Canvas(modifier = Modifier.size(10.dp)) {
+            drawCircle(
+
+                color = color,
+                radius = 4.dp.toPx(),
+                style = if (isMet) Fill else Stroke(width = 1.dp.toPx()),
+            )
+        }
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = text,
             color = color,
@@ -329,14 +464,6 @@ private fun PasswordRule(text: String, isMet: Boolean) {
             lineHeight = 18.sp,
             textAlign = TextAlign.Right,
         )
-        Spacer(modifier = Modifier.width(6.dp))
-        Canvas(modifier = Modifier.size(10.dp)) {
-            drawCircle(
-                color = color,
-                radius = 4.dp.toPx(),
-                style = if (isMet) Fill else Stroke(width = 1.dp.toPx()),
-            )
-        }
     }
 }
 

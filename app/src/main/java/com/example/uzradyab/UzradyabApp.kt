@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -90,7 +92,11 @@ fun UzradyabApp(
                 }
             )
         }
-        composable(AppRoute.SignIn.path) {
+        composable(
+            route = AppRoute.SignIn.path,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
             LoginRoute(
                 onSignedIn = {
                     navController.navigate(AppRoute.Home.path) {
@@ -105,7 +111,11 @@ fun UzradyabApp(
                 },
             )
         }
-        composable(AppRoute.Register.path) {
+        composable(
+            route = AppRoute.Register.path,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
             RegisterRoute(
                 onSignedIn = {
                     navController.navigate(AppRoute.Home.path) {

@@ -3,6 +3,7 @@ package com.example.uzradyab.core.designsystem
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Icon
@@ -45,6 +46,19 @@ fun EyeOffIcon(
     Icon(
         imageVector = Icons.Default.VisibilityOff,
         contentDescription = "Hide Password",
+        tint = color,
+        modifier = modifier.size(30.dp)
+    )
+}
+
+@Composable
+fun EyeIcon(
+    modifier: Modifier = Modifier,
+    color: Color,
+) {
+    Icon(
+        imageVector = Icons.Default.Visibility,
+        contentDescription = "Show Password",
         tint = color,
         modifier = modifier.size(30.dp)
     )

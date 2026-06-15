@@ -2,5 +2,7 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">app.uzradyab.ir</domain>
+        <domain includeSubdomains="true">pay.uzradyab.ir</domain>
+        <domain includeSubdomains="true">notification.uzradyab.ir</domain>
     </domain-config>
 </network-security-config>
