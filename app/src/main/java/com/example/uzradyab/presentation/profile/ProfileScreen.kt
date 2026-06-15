@@ -27,10 +27,15 @@ import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.ui.theme.AppBackground
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.presentation.map.AppTopToolbar
+import com.example.uzradyab.presentation.map.BackButton
+import com.example.uzradyab.presentation.map.MenuGridButton
 
 @Composable
 fun ProfileRoute(
     onLogoutClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     val viewModel: ProfileViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
@@ -45,7 +50,9 @@ fun ProfileRoute(
         state = state,
         onLogoutClick = viewModel::logout,
         onSaveClick = viewModel::updateProfile,
-        onResetSaveSuccess = viewModel::resetSaveSuccess
+        onResetSaveSuccess = viewModel::resetSaveSuccess,
+        onBackClick = onBackClick,
+        onMenuClick = onMenuClick
     )
 }
 
@@ -56,6 +63,8 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit,
     onSaveClick: (com.example.uzradyab.data.remote.dto.SessionDto) -> Unit,
     onResetSaveSuccess: () -> Unit,
+    onBackClick: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val biometricHelper = remember { BiometricHelper(context) }
@@ -64,8 +73,21 @@ fun ProfileScreen(
     var email by remember(state.sessionDto) { mutableStateOf(state.sessionDto?.email ?: "") }
     var password by remember { mutableStateOf("") }
     var phone by remember(state.sessionDto) { mutableStateOf(state.sessionDto?.phone ?: "") }
-    var expirationTime by remember(state.sessionDto) { mutableStateOf(state.sessionDto?.expirationTime?.take(10) ?: "2099-12-31") }
-
+    var expirationTime by remember(state.sessionDto) { 
+        mutableStateOf(state.sessionDto?.expirationTime?.take(10)?.let { gregorianDate ->
+            val parts = gregorianDate.split("-")
+            if (parts.size == 3) {
+                val gY = parts[0].toIntOrNull() ?: 2099
+                val gM = parts[1].toIntOrNull() ?: 12
+                val gD = parts[2].toIntOrNull() ?: 31
+                val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
+                val monthName = com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jDate[1])
+                com.example.uzradyab.core.utils.JalaliUtils.run { "${jDate[2]} $monthName ${jDate[0]}".toPersianDigits() }
+            } else {
+                gregorianDate
+            }
+        } ?: "نامشخص") 
+    }
     
     var isBiometricEnabled by remember { mutableStateOf(biometricHelper.isBiometricEnabled()) }
 
@@ -84,35 +106,39 @@ fun ProfileScreen(
     }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(AppBackground)
-                .statusBarsPadding()
-        ) {
-            // Top Bar
-            CenterAlignedTopAppBar(
-                title = { 
-                    Text(
-                        text = "حساب کاربری", 
-                        fontSize = 16.sp, 
-                        fontWeight = FontWeight.Bold,
-                        color = AppTextPrimary
-                    ) 
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent
+        Scaffold(
+            topBar = {
+                AppTopToolbar(
+                    startContent = {
+                        BackButton(onClick = onBackClick)
+                    },
+                    centerContent = {
+                        Text(
+                            text = "حساب کاربری", 
+                            fontSize = 16.sp, 
+                            fontWeight = FontWeight.Bold,
+                            color = AppTextPrimary
+                        ) 
+                    },
+                    endContent = {
+                        MenuGridButton(onClick = onMenuClick)
+                    },
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .height(64.dp)
                 )
-            )
-
+            },
+            containerColor = AppBackground,
+        ) { innerPadding ->
             if (state.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = AppBlue)
                 }
             } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
@@ -300,10 +326,10 @@ fun ProfileScreen(
                             onClick = { 
                                 state.sessionDto?.let { session ->
                                     val updatedSession = session.copy(
-                                        name = name,
-                                        email = email,
-                                        phone = phone,
-                                        password = password.takeIf { it.isNotEmpty() }
+                                        name = name.takeIf { it.isNotBlank() },
+                                        email = email.takeIf { it.isNotBlank() },
+                                        phone = phone.takeIf { it.isNotBlank() },
+                                        password = password.takeIf { it.isNotBlank() }
                                     )
                                     onSaveClick(updatedSession)
                                 }
@@ -323,7 +349,7 @@ fun ProfileScreen(
                         }
                     }
                     
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

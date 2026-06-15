@@ -70,8 +70,8 @@ class StartupViewModel @Inject constructor(
                 return@launch
             }
 
-            // 4. Check biometric availability
-            if (biometricHelper.isBiometricAvailable()) {
+            // 4. Check biometric availability and user preference
+            if (biometricHelper.isBiometricAvailable() && biometricHelper.isBiometricEnabled()) {
                 _uiState.value = StartupUiState.BiometricRequired
             } else {
                 // Device does not support or have biometrics set up, bypass and go straight to Home

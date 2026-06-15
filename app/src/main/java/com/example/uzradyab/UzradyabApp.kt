@@ -244,6 +244,13 @@ fun UzradyabApp(
                         popUpTo(AppRoute.Home.path) { inclusive = true }
                         launchSingleTop = true
                     }
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onMenuClick = {
+                    // Usually opens drawer, for now pop back stack as in Devices
+                    navController.popBackStack()
                 }
             )
         }
