@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.map.tile.ExirFirmTileSource
-import org.osmdroid.config.Configuration
+import com.example.uzradyab.map.OsmdroidConfig
+import com.example.uzradyab.map.tile.TileSourceRegistry
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -32,7 +32,6 @@ import com.example.uzradyab.R
 import org.osmdroid.util.BoundingBox
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val OSMDROID_PREFS = "osmdroid_replay"
 private const val REPLAY_MARKER = "replay-marker"
 
 @Composable
@@ -40,6 +39,7 @@ fun ReplayMap(
     positions: List<Position>,
     currentIndex: Int,
     mapStyle: String = "osm",
+    activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
@@ -59,31 +59,26 @@ fun ReplayMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                Configuration.getInstance().apply {
-                    load(it, it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE))
-                    userAgentValue = context.packageName
-                    tileFileSystemCacheMaxBytes = 500L * 1024 * 1024 // 500 MB
-                    tileFileSystemCacheTrimBytes = 400L * 1024 * 1024 // 400 MB
-                    expirationExtendedDuration = 1000L * 60 * 60 * 24 * 30 // 30 days
-                }
+                // Use centralised configuration instead of inline duplication
+                OsmdroidConfig.configure(it.applicationContext)
+
                 MapView(it).apply {
-                    setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+                    val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
+                    setTileSource(resolvedSource)
                     setMultiTouchControls(true)
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setMinZoomLevel(3.0)
-                    setMaxZoomLevel(23.0)
+                    // Respect tile source's declared max zoom instead of hardcoded 23
+                    setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
                 }
             },
             update = { mapView ->
-                val tileSource = when (mapStyle) {
-                    "googleRoad" -> com.example.uzradyab.map.tile.GoogleMapTileSource
-                    "googleSatellite" -> com.example.uzradyab.map.tile.GoogleSatelliteTileSource
-                    "osm" -> org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
-                    else -> com.example.uzradyab.map.tile.ExirFirmTileSource
-                }
+                val tileSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                 if (mapView.tileProvider.tileSource != tileSource) {
                     mapView.setTileSource(tileSource)
+                    // Update max zoom to match the new source's limit
+                    mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
                 }
 
                 // Adjust for bottom panel padding

@@ -19,8 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.map.tile.ExirFirmTileSource
-import org.osmdroid.config.Configuration
+import com.example.uzradyab.map.OsmdroidConfig
+import com.example.uzradyab.map.tile.TileSourceRegistry
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import android.view.MotionEvent
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val OSMDROID_PREFS = "osmdroid"
 private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
 
 @Composable
@@ -45,9 +44,9 @@ fun TrackingMap(
     latestPositions: Map<Long, Position>,
     selectedDeviceId: Long?,
     mapStyle: String = "osm",
+    activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     mapBottomPadding: Dp = 0.dp,
     onMapInteraction: () -> Unit = {},
-    onMapError: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -61,39 +60,6 @@ fun TrackingMap(
     val centerKey = "${selectedDeviceId}:${center.latitude}:${center.longitude}"
 
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
-    val currentOnMapError by rememberUpdatedState(onMapError)
-
-    androidx.compose.runtime.LaunchedEffect(mapStyle) {
-        val client = okhttp3.OkHttpClient.Builder()
-            .connectTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
-            .readTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
-            .build()
-
-        while (true) {
-            kotlinx.coroutines.delay(15000)
-            val testUrl = when (mapStyle) {
-                "googleRoad" -> "https://mt1.google.com/vt/lyrs=m&x=1&y=1&z=1"
-                "googleSatellite" -> "https://mt1.google.com/vt/lyrs=s&x=1&y=1&z=1"
-                "osm" -> "https://tile.openstreetmap.org/1/1/1.png"
-                else -> com.example.uzradyab.BuildConfig.EXIR_TILE_BASE_URL.trimEnd('/') + "/1/1/1.png"
-            }
-            try {
-                val request = okhttp3.Request.Builder()
-                    .url(testUrl)
-                    .header("User-Agent", context.packageName)
-                    .build()
-                val response = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    client.newCall(request).execute()
-                }
-                if (!response.isSuccessful) {
-                    currentOnMapError()
-                }
-                response.close()
-            } catch (e: Exception) {
-                currentOnMapError()
-            }
-        }
-    }
 
     Box(
         modifier = modifier
@@ -103,20 +69,18 @@ fun TrackingMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                Configuration.getInstance().apply {
-                    load(it, it.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE))
-                    userAgentValue = context.packageName
-                    tileFileSystemCacheMaxBytes = 500L * 1024 * 1024 // 500 MB
-                    tileFileSystemCacheTrimBytes = 400L * 1024 * 1024 // 400 MB
-                    expirationExtendedDuration = 1000L * 60 * 60 * 24 * 30 // 30 days
-                }
+                // Use centralised configuration instead of inline duplication
+                OsmdroidConfig.configure(it.applicationContext)
+
                 MapView(it).apply {
-                    setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+                    val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
+                    setTileSource(resolvedSource)
                     setMultiTouchControls(true)
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setMinZoomLevel(3.0)
-                    setMaxZoomLevel(23.0)
+                    // Respect tile source's declared max zoom instead of hardcoded 23
+                    setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
                     controller.setZoom(18.0)
                     controller.setCenter(center)
                     tag = centerKey
@@ -130,14 +94,11 @@ fun TrackingMap(
                 }
             },
             update = { mapView ->
-                val tileSource = when (mapStyle) {
-                    "googleRoad" -> com.example.uzradyab.map.tile.GoogleMapTileSource
-                    "googleSatellite" -> com.example.uzradyab.map.tile.GoogleSatelliteTileSource
-                    "osm" -> org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
-                    else -> com.example.uzradyab.map.tile.ExirFirmTileSource
-                }
+                val tileSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                 if (mapView.tileProvider.tileSource != tileSource) {
                     mapView.setTileSource(tileSource)
+                    // Update max zoom to match the new source's limit
+                    mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
                 }
 
                 if (mapView.tag != centerKey) {

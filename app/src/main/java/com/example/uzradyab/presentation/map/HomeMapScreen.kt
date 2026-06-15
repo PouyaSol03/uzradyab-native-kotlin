@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.ui.theme.AppBackground
+import com.example.uzradyab.map.tile.TileHealthState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -152,21 +153,24 @@ fun HomeMapScreen(
                     label = "mapBottomPadding",
                 )
 
+                // Show snackbar when tile health monitor reports unreachable
+                LaunchedEffect(state.tileHealth) {
+                    if (state.tileHealth == TileHealthState.Unreachable) {
+                        snackbarHostState.showSnackbar(
+                            message = "دریافت نقشه با مشکل مواجه شد. لطفا شبکه یا منبع نقشه را بررسی کنید.",
+                            duration = androidx.compose.material3.SnackbarDuration.Long,
+                            actionLabel = "باشه"
+                        )
+                    }
+                }
+
                 TrackingMap(
                     devices = state.devices,
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
+                    activeTileSource = state.activeTileSource,
                     mapBottomPadding = mapBottomPadding,
-                    onMapError = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "دریافت نقشه با مشکل مواجه شد. لطفا شبکه یا منبع نقشه را بررسی کنید.",
-                                duration = androidx.compose.material3.SnackbarDuration.Long,
-                                actionLabel = "باشه"
-                            )
-                        }
-                    },
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {
                             onCloseDeviceManagement()

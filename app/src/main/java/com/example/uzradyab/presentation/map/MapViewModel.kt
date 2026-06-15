@@ -13,6 +13,8 @@ import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
 import com.example.uzradyab.domain.usecase.ObserveHomeSnapshotUseCase
+import com.example.uzradyab.map.tile.TileHealthMonitor
+import com.example.uzradyab.map.tile.TileHealthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -46,6 +48,8 @@ data class HomeMapUiState(
     val latestEvent: MapLatestEventItem? = null,
     val mapSettingsOpen: Boolean = false,
     val mapStyle: String = "osm",
+    val tileHealth: TileHealthState = TileHealthState.Unknown,
+    val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
 )
 
 data class MapLatestEventItem(
@@ -61,6 +65,7 @@ class MapViewModel @Inject constructor(
     private val reportRepository: ReportRepository,
     private val trackingRepository: TrackingRepository,
     private val mapSettingsRepository: MapSettingsRepository,
+    private val tileHealthMonitor: TileHealthMonitor,
 ) : ViewModel() {
     private val localState = MutableStateFlow(HomeMapUiState())
 
@@ -86,6 +91,7 @@ class MapViewModel @Inject constructor(
         trackingRepository.start()
         observeSelectedDeviceDistance()
         observeSelectedDeviceLatestEvent()
+        observeTileHealth()
     }
 
     fun selectDevice(deviceId: Long) {
@@ -114,6 +120,9 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             mapSettingsRepository.setMapStyle(style)
         }
+        // Clear previous fallback and restart tile health monitoring for the new source
+        localState.update { it.copy(activeTileSource = null) }
+        tileHealthMonitor.startMonitoring(style)
         closeMapSettings()
     }
 
@@ -210,6 +219,35 @@ class MapViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    private fun observeTileHealth() {
+        viewModelScope.launch {
+            // Start monitoring whenever the map style changes
+            uiState
+                .map { it.mapStyle }
+                .distinctUntilChanged()
+                .collectLatest { style ->
+                    tileHealthMonitor.startMonitoring(style)
+                }
+        }
+        viewModelScope.launch {
+            tileHealthMonitor.state.collect { health ->
+                localState.update { it.copy(tileHealth = health) }
+            }
+        }
+        viewModelScope.launch {
+            tileHealthMonitor.suggestedFallback.collect { fallback ->
+                if (fallback != null) {
+                    localState.update { it.copy(activeTileSource = fallback) }
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        tileHealthMonitor.stopMonitoring()
     }
 }
 

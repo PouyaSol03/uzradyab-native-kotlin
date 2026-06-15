@@ -23,6 +23,11 @@ android {
             "EXIR_TILE_BASE_URL",
             "\"https://map.exirfirm.com/tile/\""
         )
+        buildConfigField(
+            "String",
+            "MAP_IR_API_KEY",
+            "\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImNjYTg5MGViMzJlNzA4N2Q0ZDI3MjI5ZDBjMmZkYjFkOTRlNWQyOTUyNDc3NzhjN2M1Y2YxYmFkNzhiMjFkMGQ5NDNkMzg2ZTc3MDBhNGE1In0.eyJhdWQiOiI0MDAzMyIsImp0aSI6ImNjYTg5MGViMzJlNzA4N2Q0ZDI3MjI5ZDBjMmZkYjFkOTRlNWQyOTUyNDc3NzhjN2M1Y2YxYmFkNzhiMjFkMGQ5NDNkMzg2ZTc3MDBhNGE1IiwiaWF0IjoxNzc3Nzk3Nzg2LCJuYmYiOjE3Nzc3OTc3ODYsImV4cCI6MTc4MDM4OTc4Niwic3ViIjoiIiwic2NvcGVzIjpbImJhc2ljIl19.WsvBtor5Xp1MPC1hF2I8kea6iAzOCyc_skxeTmSNDzUeLdlMe5nhqCMdG7lGbIKEQTGKnZMUVPBoiZ0rsLtDBwmTMAUVtrvkucqBBccQBXIFH5vZslpVVbwyDHjSm9farffrORQX7Rn-MnhSOPAfUqap2gSYPyehtQFSm8Lqb3Zlst1pr6_z_0ki41Ln-wMaWChHA66w38mVYCB0o8kzDBb5zvl1ZQKBvQjLH7CWNeT4l5BlsnYOM8Rn96xX-yjT6bfC77jl0-s5mxtkRoJHiR26hOFM3t_ZhY9cFQpPINc7oWbKe-l0a-rPg2ipBjukqJpdouJVjuVunDP0amCuhg\""
+        )
     }
 
     buildTypes {

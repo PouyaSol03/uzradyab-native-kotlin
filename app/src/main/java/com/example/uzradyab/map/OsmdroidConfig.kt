@@ -1,0 +1,55 @@
+package com.example.uzradyab.map
+
+import android.content.Context
+import org.osmdroid.config.Configuration
+
+/**
+ * Centralised osmdroid configuration.
+ * Call [configure] once from the composable factory lambda instead of
+ * repeating the same block in every map screen.
+ */
+object OsmdroidConfig {
+
+    private const val OSMDROID_PREFS = "osmdroid"
+
+    /** Max on-disk tile cache in bytes (500 MB). */
+    private const val CACHE_MAX_BYTES = 500L * 1024 * 1024
+
+    /** Trim target when cache exceeds max (400 MB). */
+    private const val CACHE_TRIM_BYTES = 400L * 1024 * 1024
+
+    /** Keep cached tiles valid for 30 days before re-fetching. */
+    private const val EXPIRATION_EXTENSION_MS = 1000L * 60 * 60 * 24 * 30
+
+    /** Parallel tile-download threads (default is 2). */
+    private const val TILE_DOWNLOAD_THREADS = 4
+
+    /** Max queued tiles awaiting download (default is 40). */
+    private const val TILE_DOWNLOAD_MAX_QUEUE = 80
+
+    /** Max queued tiles awaiting filesystem I/O (default is 40). */
+    private const val TILE_FS_MAX_QUEUE = 80
+
+    /**
+     * Apply all configuration values.
+     * Safe to call multiple times — idempotent.
+     */
+    fun configure(context: Context) {
+        val prefs = context.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE)
+        Configuration.getInstance().apply {
+            load(context, prefs)
+            userAgentValue = context.packageName
+            tileFileSystemCacheMaxBytes = CACHE_MAX_BYTES
+            tileFileSystemCacheTrimBytes = CACHE_TRIM_BYTES
+            expirationExtendedDuration = EXPIRATION_EXTENSION_MS
+            tileDownloadThreads = TILE_DOWNLOAD_THREADS.toShort()
+            tileDownloadMaxQueueSize = TILE_DOWNLOAD_MAX_QUEUE.toShort()
+            tileFileSystemMaxQueueSize = TILE_FS_MAX_QUEUE.toShort()
+
+            // Global HTTP headers applied to every tile request
+            additionalHttpRequestProperties["User-Agent"] = context.packageName
+            additionalHttpRequestProperties["Accept"] = "image/png,image/*;q=0.9,*/*;q=0.8"
+            additionalHttpRequestProperties["Connection"] = "keep-alive"
+        }
+    }
+}
