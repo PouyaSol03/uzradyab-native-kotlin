@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,16 +71,6 @@ fun LoginScreen(
                 .padding(horizontal = 24.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.exir_final_logo_blue),
-                contentDescription = "اکسیر ردیاب",
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(top = 16.dp)
-                    .size(width = 67.dp, height = 24.dp),
-            )
             AuthPanel(height = 625.dp) {
                 Column(
                     modifier = Modifier

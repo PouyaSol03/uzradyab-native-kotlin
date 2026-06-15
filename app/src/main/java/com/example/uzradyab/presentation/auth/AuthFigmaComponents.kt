@@ -39,11 +39,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -71,37 +77,45 @@ internal fun AuthPanel(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val primaryColor = MaterialTheme.colorScheme.primary
+    val pathStr = "M19.9606 5.49218C10.527 5.5413 2.71552 13.4528 2.513 23.163L0.000897793 143.605C-0.0553706 146.303 2.02327 148.478 4.64369 148.465C7.26414 148.451 9.43402 146.253 9.49026 143.556L12.0024 23.1136C12.0924 18.7979 15.5642 15.2817 19.7568 15.2599L52.5186 15.0893C56.7113 15.0675 60.0371 18.5483 59.9471 22.864L58.9498 70.6789C58.7461 80.4468 66.4002 88.22 75.7772 88.1712C85.1542 88.1224 93.1342 80.2679 93.3379 70.4998L93.8 48.3457C93.8901 44.03 97.3619 40.5138 101.555 40.492L103.372 40.4825C107.565 40.4607 110.89 43.9415 110.8 48.2571L110.308 71.8506C110.122 80.7659 116.993 87.9566 125.654 87.9115C134.316 87.8664 141.488 80.6026 141.674 71.6873L142.203 46.2861C142.273 42.9689 144.941 40.2661 148.164 40.2493C151.387 40.2325 153.943 42.9081 153.874 46.2254L153.374 70.1873C153.172 79.8975 160.655 87.7293 170.088 87.6802L172.224 87.6691C181.657 87.62 189.469 79.7085 189.671 69.9983L190.176 45.7908C190.243 42.6092 192.802 40.0169 195.893 40.0008C198.984 39.9848 201.436 42.5509 201.37 45.7325L200.865 69.94C200.662 79.6502 208.145 87.4821 217.579 87.433L367.914 86.6503C377.347 86.6012 385.159 78.6897 385.361 68.9795L385.823 46.8254C386.026 37.1152 378.543 29.2833 369.109 29.3324L256.003 29.9213C251.81 29.9431 248.485 26.4623 248.575 22.1466L248.655 18.2747C248.745 13.9591 252.217 10.4428 256.41 10.421L381.852 9.76794C384.472 9.7543 386.642 7.55666 386.699 4.85939C386.755 2.16211 384.676 -0.0133985 382.056 0.000250032L256.614 0.653304C247.18 0.702414 239.369 8.61392 239.166 18.3241L239.085 22.196C238.883 31.9062 246.366 39.7381 255.799 39.689L368.905 39.1001C373.098 39.0783 376.424 42.5591 376.334 46.8748L375.872 69.029C375.782 73.3446 372.31 76.8608 368.117 76.8826L217.783 77.6653C213.59 77.6871 210.264 74.2063 210.354 69.8907L210.859 45.6831C211.038 37.1069 204.429 30.1898 196.097 30.2332C187.765 30.2765 180.866 37.2641 180.687 45.8402L180.182 70.0477C180.092 74.3634 176.62 77.8796 172.428 77.9014L170.292 77.9125C166.099 77.9343 162.774 74.4535 162.864 70.1379L163.363 46.176C163.545 37.4642 156.831 30.4376 148.368 30.4816C139.904 30.5257 132.896 37.6237 132.714 46.3355L132.184 71.7367C132.111 75.2575 129.278 78.126 125.858 78.1438C122.438 78.1616 119.724 75.3219 119.798 71.8012L120.29 48.2077C120.492 38.4975 113.009 30.6657 103.576 30.7148L101.758 30.7243C92.3247 30.7734 84.5132 38.6849 84.3107 48.395L83.8486 70.5492C83.7598 74.8071 80.2301 78.3814 75.9809 78.4035C71.7317 78.4256 68.3504 74.8873 68.4392 70.6295L69.4365 22.8146C69.639 13.1044 62.1559 5.27251 52.7223 5.32163L19.9606 5.49218Z"
+
+    val holePath = remember {
+        PathParser().parsePathString(pathStr).toPath()
+    }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .widthIn(max = AuthPanelWidth)
             .height(height)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White),
     ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 18.dp.toPx()
-            val path = Path().apply {
-                moveTo(0f, 51.dp.toPx())
-                cubicTo(18.dp.toPx(), 51.dp.toPx(), 15.dp.toPx(), 25.dp.toPx(), 31.dp.toPx(), 25.dp.toPx())
-                cubicTo(48.dp.toPx(), 25.dp.toPx(), 43.dp.toPx(), 51.dp.toPx(), 60.dp.toPx(), 51.dp.toPx())
-                cubicTo(78.dp.toPx(), 51.dp.toPx(), 72.dp.toPx(), 25.dp.toPx(), 88.dp.toPx(), 25.dp.toPx())
-                cubicTo(106.dp.toPx(), 25.dp.toPx(), 100.dp.toPx(), 51.dp.toPx(), 116.dp.toPx(), 51.dp.toPx())
-                lineTo(size.width - 25.dp.toPx(), 51.dp.toPx())
-                quadraticBezierTo(size.width - 13.dp.toPx(), 51.dp.toPx(), size.width - 13.dp.toPx(), 39.dp.toPx())
-                lineTo(size.width - 13.dp.toPx(), 22.dp.toPx())
-            }
-            drawPath(
-                path = path,
-                color = primaryColor,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round),
-            )
-            drawPath(
-                path = path,
+        androidx.compose.foundation.Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = 0.99f }
+        ) {
+            // Solid white background
+            drawRoundRect(
                 color = Color.White,
-                style = Stroke(width = 9.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+                size = size,
+                cornerRadius = CornerRadius(8.dp.toPx())
             )
+            
+            // SVG punch-out mask
+            val scale = size.width / 387f
+            val matrix = android.graphics.Matrix()
+            matrix.setScale(scale, scale)
+            val androidPath = holePath.asAndroidPath()
+            val scaledAndroidPath = android.graphics.Path()
+            androidPath.transform(matrix, scaledAndroidPath)
+            
+            translate(left = -180f, top = -40f) {
+                drawPath(
+                    path = scaledAndroidPath.asComposePath(),
+                    color = Color.Black,
+                    blendMode = BlendMode.Clear
+                )
+            }
         }
         content()
     }

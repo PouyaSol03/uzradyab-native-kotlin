@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +35,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.rememberCoroutineScope
@@ -206,23 +209,39 @@ fun OnboardingPageContent(
     ) {
         Spacer(modifier = Modifier.weight(0.15f))
 
-        // Visual Illustration box
+        // Visual Illustration box (takes up ~50% of the screen height)
         Box(
             modifier = Modifier
-                .size(280.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFEFF3F5)),
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f),
             contentAlignment = Alignment.Center
         ) {
-            // Draw custom premium vector illustration based on page type
             when (pageData.pageType) {
-                OnboardingPageType.GPS -> GPSIllustration()
-                OnboardingPageType.ALERTS -> AlertsIllustration()
-                OnboardingPageType.REPORTS -> ReportsIllustration()
+                OnboardingPageType.GPS -> {
+                    Image(
+                        painter = painterResource(id = com.example.uzradyab.R.drawable.ic_onboarding_illustration),
+                        contentDescription = "Illustration",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                OnboardingPageType.ALERTS -> {
+                    Image(
+                        painter = painterResource(id = com.example.uzradyab.R.drawable.ic_onboarding_illustration_2),
+                        contentDescription = "Alerts Illustration",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                OnboardingPageType.REPORTS -> {
+                    Image(
+                        painter = painterResource(id = com.example.uzradyab.R.drawable.ic_onboarding_illustration_3),
+                        contentDescription = "Reports Illustration",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.weight(0.12f))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Text Content
         Text(
@@ -248,201 +267,8 @@ fun OnboardingPageContent(
                 .padding(horizontal = 8.dp)
         )
 
-        Spacer(modifier = Modifier.weight(0.35f))
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
-@Composable
-fun GPSIllustration() {
-    Canvas(modifier = Modifier.size(160.dp)) {
-        val centerOffset = Offset(size.width / 2, size.height / 2)
-        
-        // Draw concentric radar/pulsing circles (Figma primary light/blue colors)
-        drawCircle(
-            color = Color(0xFFCEE1FD),
-            radius = 70.dp.toPx()
-        )
-        drawCircle(
-            color = Color(0xFF6BA3F6),
-            radius = 50.dp.toPx(),
-            style = Stroke(width = 2.dp.toPx())
-        )
-        drawCircle(
-            color = Color(0xFF307EF3),
-            radius = 30.dp.toPx(),
-            style = Stroke(width = 1.5.dp.toPx())
-        )
 
-        // Draw Location Pin
-        val pinPath = Path().apply {
-            val pinWidth = 28.dp.toPx()
-            val pinHeight = 42.dp.toPx()
-            val topCenter = Offset(centerOffset.x, centerOffset.y - pinHeight / 2)
-            
-            moveTo(topCenter.x, topCenter.y)
-            cubicTo(
-                topCenter.x + pinWidth / 2, topCenter.y,
-                topCenter.x + pinWidth / 2, topCenter.y + pinHeight * 0.5f,
-                topCenter.x, topCenter.y + pinHeight
-            )
-            cubicTo(
-                topCenter.x - pinWidth / 2, topCenter.y + pinHeight * 0.5f,
-                topCenter.x - pinWidth / 2, topCenter.y,
-                topCenter.x, topCenter.y
-            )
-            close()
-        }
-        drawPath(
-            path = pinPath,
-            color = Color(0xFFA12887)
-        )
-
-        // Draw pin center hole
-        drawCircle(
-            color = Color.White,
-            radius = 6.dp.toPx(),
-            center = Offset(centerOffset.x, centerOffset.y - 8.dp.toPx())
-        )
-    }
-}
-
-@Composable
-fun AlertsIllustration() {
-    Canvas(modifier = Modifier.size(160.dp)) {
-        val centerOffset = Offset(size.width / 2, size.height / 2)
-        
-        // Background decorative shapes
-        drawCircle(
-            color = Color(0xFFCEE1FD),
-            radius = 70.dp.toPx()
-        )
-        
-        // Ringing Shield/Bell concept (Figma secondary/accent colors)
-        val shieldPath = Path().apply {
-            val w = 50.dp.toPx()
-            val h = 60.dp.toPx()
-            moveTo(centerOffset.x, centerOffset.y - h / 2)
-            quadraticBezierTo(
-                centerOffset.x + w / 2, centerOffset.y - h / 2,
-                centerOffset.x + w / 2, centerOffset.y
-            )
-            quadraticBezierTo(
-                centerOffset.x + w / 2, centerOffset.y + h / 2,
-                centerOffset.x, centerOffset.y + h / 2
-            )
-            quadraticBezierTo(
-                centerOffset.x - w / 2, centerOffset.y + h / 2,
-                centerOffset.x - w / 2, centerOffset.y
-            )
-            quadraticBezierTo(
-                centerOffset.x - w / 2, centerOffset.y - h / 2,
-                centerOffset.x, centerOffset.y - h / 2
-            )
-            close()
-        }
-        drawPath(
-            path = shieldPath,
-            color = Color(0xFF6BA3F6)
-        )
-
-        // Exclamation Mark inside shield
-        val lineStroke = Stroke(width = 5.dp.toPx(), cap = StrokeCap.Round)
-        drawLine(
-            color = Color.White,
-            start = Offset(centerOffset.x, centerOffset.y - 15.dp.toPx()),
-            end = Offset(centerOffset.x, centerOffset.y + 5.dp.toPx()),
-            strokeWidth = lineStroke.width,
-            cap = lineStroke.cap
-        )
-        drawCircle(
-            color = Color.White,
-            radius = 3.5.dp.toPx(),
-            center = Offset(centerOffset.x, centerOffset.y + 15.dp.toPx())
-        )
-
-        // Alarm waves on the sides
-        val leftWave = Path().apply {
-            moveTo(centerOffset.x - 40.dp.toPx(), centerOffset.y - 20.dp.toPx())
-            quadraticBezierTo(
-                centerOffset.x - 55.dp.toPx(), centerOffset.y,
-                centerOffset.x - 40.dp.toPx(), centerOffset.y + 20.dp.toPx()
-            )
-        }
-        val rightWave = Path().apply {
-            moveTo(centerOffset.x + 40.dp.toPx(), centerOffset.y - 20.dp.toPx())
-            quadraticBezierTo(
-                centerOffset.x + 55.dp.toPx(), centerOffset.y,
-                centerOffset.x + 40.dp.toPx(), centerOffset.y + 20.dp.toPx()
-            )
-        }
-        
-        drawPath(
-            path = leftWave,
-            color = Color(0xFFA12887),
-            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-        )
-        drawPath(
-            path = rightWave,
-            color = Color(0xFFA12887),
-            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-        )
-    }
-}
-
-@Composable
-fun ReportsIllustration() {
-    Canvas(modifier = Modifier.size(160.dp)) {
-        val centerOffset = Offset(size.width / 2, size.height / 2)
-        
-        // Concentric background
-        drawCircle(
-            color = Color(0xFFCEE1FD),
-            radius = 70.dp.toPx()
-        )
-
-        // Document background
-        val docW = 60.dp.toPx()
-        val docH = 80.dp.toPx()
-        drawRoundRect(
-            color = Color.White,
-            topLeft = Offset(centerOffset.x - docW / 2, centerOffset.y - docH / 2),
-            size = Size(docW, docH),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx())
-        )
-
-        // Document border (purple/pink)
-        drawRoundRect(
-            color = Color(0xFFA12887),
-            topLeft = Offset(centerOffset.x - docW / 2, centerOffset.y - docH / 2),
-            size = Size(docW, docH),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx()),
-            style = Stroke(width = 2.dp.toPx())
-        )
-
-        // Chart line inside document
-        val chartPath = Path().apply {
-            moveTo(centerOffset.x - 20.dp.toPx(), centerOffset.y + 20.dp.toPx())
-            lineTo(centerOffset.x - 10.dp.toPx(), centerOffset.y)
-            lineTo(centerOffset.x, centerOffset.y + 10.dp.toPx())
-            lineTo(centerOffset.x + 10.dp.toPx(), centerOffset.y - 15.dp.toPx())
-            lineTo(centerOffset.x + 20.dp.toPx(), centerOffset.y - 5.dp.toPx())
-        }
-        drawPath(
-            path = chartPath,
-            color = Color(0xFF307EF3),
-            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-        )
-
-        // Highlight dots on the chart peaks
-        drawCircle(
-            color = Color(0xFF384C5C),
-            radius = 3.5.dp.toPx(),
-            center = Offset(centerOffset.x - 10.dp.toPx(), centerOffset.y)
-        )
-        drawCircle(
-            color = Color(0xFF384C5C),
-            radius = 3.5.dp.toPx(),
-            center = Offset(centerOffset.x + 10.dp.toPx(), centerOffset.y - 15.dp.toPx())
-        )
-    }
-}
