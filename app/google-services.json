@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "861933132786",
-    "project_id": "uzrdayab2",
-    "storage_bucket": "uzrdayab2.firebasestorage.app"
+    "project_number": "13639353647",
+    "project_id": "traccar-test-3e923",
+    "storage_bucket": "traccar-test-3e923.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:861933132786:android:668b200ec09512b5fa696b",
+        "mobilesdk_app_id": "1:13639353647:android:b1c041b607f26e50918dda",
         "android_client_info": {
           "package_name": "com.exir.uzradyab"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD32ujfZ1C3mvFJgG8YzRv7beFgr8BvujA"
+          "current_key": "AIzaSyD_Q994qIMVl4onU2wGmibflJxmB2XLz2w"
         }
       ],
       "services": {

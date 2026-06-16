@@ -50,7 +50,7 @@ data class HomeMapUiState(
     val mapStyle: String = "osm",
     val tileHealth: TileHealthState = TileHealthState.Unknown,
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
-    val isMapLocked: Boolean = true,
+    val isMapLocked: Boolean = false,
 )
 
 data class MapLatestEventItem(

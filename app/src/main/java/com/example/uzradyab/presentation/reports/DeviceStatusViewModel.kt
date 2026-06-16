@@ -10,6 +10,7 @@ import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.ReportRepository
+import com.example.uzradyab.domain.repository.MapSettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +45,8 @@ class DeviceStatusViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val reportRepository: ReportRepository,
     private val geocoderRepository: GeocoderRepository,
-    private val positionRepository: PositionRepository
+    private val positionRepository: PositionRepository,
+    private val mapSettingsRepository: MapSettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeviceStatusUiState())
@@ -56,10 +58,15 @@ class DeviceStatusViewModel @Inject constructor(
 
     private fun observeDevices() {
         viewModelScope.launch {
-            deviceRepository.observeDevices().collectLatest { list ->
+            kotlinx.coroutines.flow.combine(
+                deviceRepository.observeDevices(),
+                mapSettingsRepository.observeLastSelectedDeviceId()
+            ) { list, lastSelectedId ->
+                list to lastSelectedId
+            }.collectLatest { (list, lastSelectedId) ->
                 val sortedList = list.sortedBy { it.name }
                 _uiState.update { state ->
-                    val selectedId = state.selectedDeviceId ?: sortedList.firstOrNull()?.id
+                    val selectedId = state.selectedDeviceId ?: lastSelectedId ?: sortedList.firstOrNull()?.id
 
                     if (state.selectedDeviceId == null && selectedId != null) {
                         fetchDeviceStatusData(selectedId)
@@ -78,6 +85,9 @@ class DeviceStatusViewModel @Inject constructor(
         if (_uiState.value.selectedDeviceId == deviceId) return
 
         _uiState.update { it.copy(selectedDeviceId = deviceId) }
+        viewModelScope.launch {
+            mapSettingsRepository.setLastSelectedDeviceId(deviceId)
+        }
         fetchDeviceStatusData(deviceId)
     }
 

@@ -6,6 +6,7 @@ import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Event
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
+import com.example.uzradyab.domain.repository.MapSettingsRepository
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,7 @@ data class EventsReportUiState(
 class EventsReportViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val eventRepository: EventRepository,
+    private val mapSettingsRepository: MapSettingsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -51,9 +53,14 @@ class EventsReportViewModel @Inject constructor(
 
     private fun observeDevices() {
         viewModelScope.launch {
-            deviceRepository.observeDevices().collectLatest { list ->
+            kotlinx.coroutines.flow.combine(
+                deviceRepository.observeDevices(),
+                mapSettingsRepository.observeLastSelectedDeviceId()
+            ) { list, lastSelectedId ->
+                list to lastSelectedId
+            }.collectLatest { (list, lastSelectedId) ->
                 _uiState.update { state ->
-                    val selectedId = state.selectedDeviceId ?: initialDeviceId ?: list.firstOrNull()?.id
+                    val selectedId = state.selectedDeviceId ?: lastSelectedId ?: initialDeviceId ?: list.firstOrNull()?.id
                     if (state.selectedDeviceId == null && selectedId != null) {
                         fetchEvents(selectedId, state.dateFilter)
                     }
@@ -69,6 +76,9 @@ class EventsReportViewModel @Inject constructor(
     fun selectDevice(deviceId: Long) {
         if (_uiState.value.selectedDeviceId == deviceId) return
         _uiState.update { it.copy(selectedDeviceId = deviceId) }
+        viewModelScope.launch {
+            mapSettingsRepository.setLastSelectedDeviceId(deviceId)
+        }
         fetchEvents(deviceId, _uiState.value.dateFilter)
     }
 

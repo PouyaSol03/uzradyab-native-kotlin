@@ -260,16 +260,19 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
             .widthIn(min = 40.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
             .background(if (isLocked) AppBlue else Color.White, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .animateContentSize(animationSpec = tween(durationMillis = 300)),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = if (showWarning) 12.dp else 0.dp),
+            modifier = Modifier.padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            AnimatedVisibility(visible = showWarning) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showWarning,
+                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandHorizontally(),
+                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkHorizontally()
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "نقشه قفل است",

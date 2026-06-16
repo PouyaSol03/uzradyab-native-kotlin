@@ -94,12 +94,17 @@ fun TrackingMap(
                     setOnTouchListener { _, event ->
                         if (event.action == MotionEvent.ACTION_DOWN) {
                             currentOnMapInteraction()
-                        } else if (event.action == MotionEvent.ACTION_MOVE) {
-                            if (event.pointerCount == 1) {
+                        }
+                        
+                        if (currentIsMapLocked) {
+                            // Block any panning (ACTION_MOVE) or zooming (multi-touch)
+                            if (event.action == MotionEvent.ACTION_MOVE || event.pointerCount > 1) {
                                 currentOnMapInteraction()
-                                if (currentIsMapLocked) {
-                                    return@setOnTouchListener true
-                                }
+                                return@setOnTouchListener true
+                            }
+                        } else {
+                            if (event.action == MotionEvent.ACTION_MOVE) {
+                                currentOnMapInteraction()
                             }
                         }
                         false
@@ -116,10 +121,12 @@ fun TrackingMap(
 
                 val justLocked = isMapLocked && !wasLocked
                 if (isMapLocked) {
-                    if (mapView.tag != centerKey || justLocked) {
-                        mapView.controller.animateTo(center, 20.0, 1000L)
-                        mapView.tag = centerKey
-                    }
+                    mapView.setMultiTouchControls(false)
+                    // When locked, immediately strictly center the map
+                    mapView.controller.animateTo(center, 20.0, 500L)
+                    mapView.tag = centerKey
+                } else {
+                    mapView.setMultiTouchControls(true)
                 }
                 wasLocked = isMapLocked
                 
