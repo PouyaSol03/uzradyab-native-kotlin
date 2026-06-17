@@ -38,10 +38,25 @@ object OsmdroidConfig {
         val prefs = context.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE)
         Configuration.getInstance().apply {
             load(context, prefs)
+            
+            // Fix caching on modern Android (Android 10+) by explicitly setting cache paths to internal storage
+            val basePath = java.io.File(context.cacheDir, "osmdroid").apply { mkdirs() }
+            val tileCache = java.io.File(basePath, "tiles").apply { mkdirs() }
+            osmdroidBasePath = basePath
+            osmdroidTileCache = tileCache
+            
+            // Enable debug logging to see tile fetch delay in Logcat (tag: OsmDroid)
+            isDebugMode = false
+            isDebugMapTileDownloader = true
+            isDebugTileProviders = false
+
             userAgentValue = context.packageName
             tileFileSystemCacheMaxBytes = CACHE_MAX_BYTES
             tileFileSystemCacheTrimBytes = CACHE_TRIM_BYTES
+            
+            // expirationExtendedDuration extends the server's cache headers.
             expirationExtendedDuration = EXPIRATION_EXTENSION_MS
+            
             tileDownloadThreads = TILE_DOWNLOAD_THREADS.toShort()
             tileDownloadMaxQueueSize = TILE_DOWNLOAD_MAX_QUEUE.toShort()
             tileFileSystemMaxQueueSize = TILE_FS_MAX_QUEUE.toShort()

@@ -8,6 +8,8 @@ import com.example.uzradyab.data.remote.dto.SessionDto
 import com.example.uzradyab.data.remote.dto.SummaryReportDto
 import com.example.uzradyab.data.remote.dto.CombinedReportDto
 import com.example.uzradyab.data.remote.dto.EventDto
+import com.example.uzradyab.data.remote.dto.GeofenceDto
+import com.example.uzradyab.data.remote.dto.PermissionDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
@@ -93,4 +95,22 @@ interface TraccarApi {
     suspend fun sendCommand(
         @Body request: com.example.uzradyab.data.remote.dto.CommandRequestDto
     ): com.example.uzradyab.data.remote.dto.CommandResponseDto
+
+    @GET("api/geofences")
+    suspend fun getGeofences(@Query("deviceId") deviceId: Long? = null): List<GeofenceDto>
+
+    @POST("api/geofences")
+    suspend fun createGeofence(@Body geofence: GeofenceDto): GeofenceDto
+
+    @PUT("api/geofences/{id}")
+    suspend fun updateGeofence(@Path("id") id: Long, @Body geofence: GeofenceDto): GeofenceDto
+
+    @DELETE("api/geofences/{id}")
+    suspend fun deleteGeofence(@Path("id") id: Long)
+
+    @POST("api/permissions")
+    suspend fun linkPermission(@Body permission: PermissionDto)
+
+    @retrofit2.http.HTTP(method = "DELETE", path = "api/permissions", hasBody = true)
+    suspend fun unlinkPermission(@Body permission: PermissionDto)
 }

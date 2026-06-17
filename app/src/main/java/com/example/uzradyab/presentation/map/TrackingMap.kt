@@ -46,7 +46,7 @@ fun TrackingMap(
     devices: List<Device>,
     latestPositions: Map<Long, Position>,
     selectedDeviceId: Long?,
-    mapStyle: String = "osm",
+    mapStyle: String = "carto",
     activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     isMapLocked: Boolean,
     mapBottomPadding: Dp = 0.dp,
@@ -66,6 +66,7 @@ fun TrackingMap(
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
     val currentIsMapLocked by rememberUpdatedState(isMapLocked)
     var wasLocked by remember { mutableStateOf(isMapLocked) }
+    val tracker = remember { object { var lastDeviceId: Long? = selectedDeviceId } }
 
     Box(
         modifier = modifier
@@ -130,6 +131,13 @@ fun TrackingMap(
                 }
                 wasLocked = isMapLocked
                 
+                if (tracker.lastDeviceId != selectedDeviceId) {
+                    if (selectedDeviceId != null) {
+                        mapView.controller.animateTo(center, 18.0, 1000L)
+                    }
+                    tracker.lastDeviceId = selectedDeviceId
+                }
+
                 // Offset map center feature removed by user request
 
                 // Handle map clicks

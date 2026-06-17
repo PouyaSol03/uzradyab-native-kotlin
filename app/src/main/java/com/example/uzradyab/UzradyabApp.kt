@@ -40,13 +40,37 @@ import com.example.uzradyab.presentation.reports.ReportsRoute
 import com.example.uzradyab.presentation.startup.StartupRoute
 import com.example.uzradyab.presentation.replay.ReplayTripRoute
 import com.example.uzradyab.presentation.command.CommandCenterRoute
+import com.example.uzradyab.presentation.geofence.GeofenceRoute
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import com.example.uzradyab.ui.theme.AppBlue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UzradyabApp(
     biometricHelper: BiometricHelper? = null,
     sessionEventBus: SessionEventBus? = null,
+    networkEventBus: com.example.uzradyab.core.network.NetworkEventBus? = null,
     authRepository: AuthRepository? = null,
     navController: NavHostController = rememberNavController(),
 ) {
@@ -64,6 +88,14 @@ fun UzradyabApp(
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
+        }
+    }
+
+    var showNetworkErrorSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(networkEventBus) {
+        networkEventBus?.networkErrorEvent?.collectLatest {
+            showNetworkErrorSheet = true
         }
     }
 
@@ -211,11 +243,31 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onGeofenceClick = { deviceId ->
+                    navController.navigate("${AppRoute.Geofence.path}?deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                },
                 onDebugLogsClick = if (BuildConfig.DEBUG) ({
                     navController.navigate(AppRoute.DebugLog.path) {
                         launchSingleTop = true
                     }
                 }) else null,
+            )
+        }
+        composable(
+            route = "${AppRoute.Geofence.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) {
+            GeofenceRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(
@@ -406,6 +458,74 @@ fun UzradyabApp(
                     .navigationBarsPadding()
                     .padding(bottom = 16.dp)
             )
+
+            if (showNetworkErrorSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showNetworkErrorSheet = false },
+                    containerColor = androidx.compose.ui.graphics.Color.White
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
+                            .navigationBarsPadding(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Warning Icon in a circular badge
+                        Box(
+                            modifier = Modifier
+                                .size(72.dp)
+                                .background(androidx.compose.ui.graphics.Color(0xFFFFF4E5), androidx.compose.foundation.shape.CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = androidx.compose.ui.graphics.Color(0xFFE5B850),
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        // Centered Title
+                        Text(
+                            text = "خطا در اتصال به شبکه",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = com.example.uzradyab.ui.theme.AppTextPrimary,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // Centered and slightly larger description
+                        Text(
+                            text = "ارتباط با سرور برقرار نشد.\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید.",
+                            fontSize = 15.sp,
+                            color = com.example.uzradyab.ui.theme.AppTextPrimary.copy(alpha = 0.7f),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            lineHeight = 24.sp
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // Modern Button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .background(AppBlue, androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                                .clickable { showNetworkErrorSheet = false },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "متوجه شدم",
+                                color = androidx.compose.ui.graphics.Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -426,4 +546,5 @@ private enum class AppRoute(val path: String) {
     ReplayTrip("/replay-trip"),
     CommandCenter("/command-center"),
     DebugLog("/debug-logs"),
+    Geofence("/geofences"),
 }

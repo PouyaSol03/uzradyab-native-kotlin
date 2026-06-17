@@ -36,6 +36,9 @@ class MainActivity : FragmentActivity() {
     lateinit var sessionEventBus: SessionEventBus
 
     @Inject
+    lateinit var networkEventBus: com.example.uzradyab.core.network.NetworkEventBus
+
+    @Inject
     lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +59,7 @@ class MainActivity : FragmentActivity() {
             UzradyabAppRoot(
                 biometricHelper = biometricHelper,
                 sessionEventBus = sessionEventBus,
+                networkEventBus = networkEventBus,
                 authRepository = authRepository
             )
         }
@@ -73,6 +77,7 @@ fun AppPreview() {
 private fun UzradyabAppRoot(
     biometricHelper: BiometricHelper? = null,
     sessionEventBus: SessionEventBus? = null,
+    networkEventBus: com.example.uzradyab.core.network.NetworkEventBus? = null,
     authRepository: AuthRepository? = null
 ) {
     UzradyabTheme {
@@ -84,6 +89,7 @@ private fun UzradyabAppRoot(
             UzradyabApp(
                 biometricHelper = biometricHelper,
                 sessionEventBus = sessionEventBus,
+                networkEventBus = networkEventBus,
                 authRepository = authRepository
             )
         }

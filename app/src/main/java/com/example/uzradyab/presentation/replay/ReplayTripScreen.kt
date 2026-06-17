@@ -423,7 +423,7 @@ fun DefaultControls(onTogglePlayback: () -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "بازپخش مسیر",
+                    text = "پخش",
                     color = Color(0xFF307EF3),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium

@@ -53,6 +53,7 @@ fun DeviceManagementPanel(
     onReportsClick: () -> Unit,
     onEventsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onGeofenceClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -82,6 +83,7 @@ fun DeviceManagementPanel(
                 onReportsClick = onReportsClick,
                 onEventsClick = onEventsClick,
                 onAlertsSettingsClick = onAlertsSettingsClick,
+                onGeofenceClick = onGeofenceClick,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 24.dp),
@@ -219,6 +221,7 @@ private fun ManagementGrid(
     onReportsClick: () -> Unit,
     onEventsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onGeofenceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -226,7 +229,7 @@ private fun ManagementGrid(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f)) { MapFrameIcon(it) }
+            ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f), onClick = onGeofenceClick) { MapFrameIcon(it) }
             ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
             ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
         }

@@ -75,4 +75,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindTokenRepository(impl: com.example.uzradyab.data.repository.TokenRepositoryImpl): TokenRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGeofenceRepository(impl: com.example.uzradyab.data.repository.GeofenceRepositoryImpl): com.example.uzradyab.domain.repository.GeofenceRepository
 }

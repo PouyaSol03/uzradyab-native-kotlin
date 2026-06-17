@@ -57,6 +57,6 @@ class DefaultMapSettingsRepository @Inject constructor(
     companion object {
         private const val KEY_MAP_STYLE = "map_style"
         private const val KEY_LAST_DEVICE_ID = "last_selected_device_id"
-        private const val DEFAULT_STYLE = "osm" // Can be osm, googleRoad, googleSatellite, carto
+        private const val DEFAULT_STYLE = "carto" // Can be osm, googleRoad, googleSatellite, carto
     }
 }

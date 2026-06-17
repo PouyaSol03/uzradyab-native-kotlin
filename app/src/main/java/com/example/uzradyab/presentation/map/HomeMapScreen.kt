@@ -57,6 +57,7 @@ fun HomeMapRoute(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onGeofenceClick: (Long) -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
@@ -102,7 +103,7 @@ fun HomeMapRoute(
         onCommandsClick = onCommandsClick,
         onReportsClick = onReportsClick,
         onAlertsSettingsClick = onAlertsSettingsClick,
-        onDebugLogsClick = onDebugLogsClick,
+        onGeofenceClick = onGeofenceClick,
         onToggleMapLock = viewModel::toggleMapLock,
     )
 }
@@ -129,6 +130,7 @@ fun HomeMapScreen(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onGeofenceClick: (Long) -> Unit,
     onToggleMapLock: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
@@ -262,6 +264,7 @@ fun HomeMapScreen(
                         onDevicesClick = onDevicesClick,
                         onProfileClick = onProfileClick,
                         onAlertsSettingsClick = onAlertsSettingsClick,
+                        onGeofenceClick = onGeofenceClick,
                         onCloseDeviceManagement = onCloseDeviceManagement,
                         onToggleDeviceCard = onToggleDeviceCard,
                         onManageDeviceClick = onManageDeviceClick,
@@ -304,6 +307,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     onDevicesClick: () -> Unit,
     onProfileClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onGeofenceClick: (Long) -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
@@ -334,6 +338,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                 onReportsClick = onReportsClick,
                 onEventsClick = onEventsClick,
                 onAlertsSettingsClick = onAlertsSettingsClick,
+                onGeofenceClick = { onGeofenceClick(selectedDevice.id) },
                 modifier = Modifier
                     .navigationBarsPadding()
             )

@@ -47,7 +47,7 @@ data class HomeMapUiState(
     val todayDistanceText: String = "در حال دریافت",
     val latestEvent: MapLatestEventItem? = null,
     val mapSettingsOpen: Boolean = false,
-    val mapStyle: String = "osm",
+    val mapStyle: String = "carto",
     val tileHealth: TileHealthState = TileHealthState.Unknown,
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     val isMapLocked: Boolean = false,

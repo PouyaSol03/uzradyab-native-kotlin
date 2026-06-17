@@ -57,7 +57,6 @@ class MockTraccarInterceptor : Interceptor {
               "latitude": 35.6892,
               "longitude": 51.3890,
               "zoom": 12,
-              "twelveHourFormat": false,
               "attributes": {}
             }
         """

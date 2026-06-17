@@ -11,7 +11,6 @@ data class SessionDto(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val zoom: Int? = null,
-    val twelveHourFormat: Boolean = false,
     val coordinateFormat: String? = null,
     val disabled: Boolean = false,
     val expirationTime: String? = null,

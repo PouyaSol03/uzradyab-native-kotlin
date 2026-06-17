@@ -48,12 +48,20 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideNetworkErrorInterceptor(networkEventBus: com.example.uzradyab.core.network.NetworkEventBus): com.example.uzradyab.core.network.NetworkErrorInterceptor {
+        return com.example.uzradyab.core.network.NetworkErrorInterceptor(networkEventBus)
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
         cookieJar: PersistentCookieJar,
-        unauthorizedInterceptor: UnauthorizedInterceptor
+        unauthorizedInterceptor: UnauthorizedInterceptor,
+        networkErrorInterceptor: com.example.uzradyab.core.network.NetworkErrorInterceptor
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .cookieJar(cookieJar)
+            .addInterceptor(networkErrorInterceptor)
             .addInterceptor(unauthorizedInterceptor)
             .connectTimeout(20, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

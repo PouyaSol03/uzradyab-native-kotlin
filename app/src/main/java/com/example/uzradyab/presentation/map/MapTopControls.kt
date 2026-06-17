@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +45,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -320,9 +322,11 @@ fun MapSettingsDialog(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.End,
+                horizontalAlignment = Alignment.Start,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    SettingsGearIcon(size = 22, color = AppTextMuted)
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "تنظیمات نقشه",
                         color = AppTextPrimary,
@@ -330,8 +334,6 @@ fun MapSettingsDialog(
                         lineHeight = 28.sp,
                         fontWeight = FontWeight.Bold,
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    SettingsGearIcon(size = 22, color = AppTextMuted)
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
@@ -620,9 +622,16 @@ private fun MapStyleCard(
                 .height(36.dp)
                 .background(Color.White, RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                 .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            RadioButton(
+                selected = selected,
+                onClick = onClick,
+                colors = RadioButtonDefaults.colors(selectedColor = AppBlue),
+                modifier = Modifier.size(28.dp),
+            )
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = option.title,
                 color = AppTextPrimary,
@@ -630,41 +639,28 @@ private fun MapStyleCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            RadioButton(
-                selected = selected,
-                onClick = onClick,
-                colors = RadioButtonDefaults.colors(selectedColor = AppBlue),
-                modifier = Modifier.size(28.dp),
-            )
         }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .background(mapPreviewColor(option.id), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
+                .background(Color(0xFFE3E8EE), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
+                .clip(RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
         ) {
-            Canvas(modifier = Modifier.matchParentSize()) {
-                val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-                repeat(4) { index ->
-                    val y = (18 + index * 16).dp.toPx()
-                    drawLine(
-                        Color.White.copy(alpha = 0.55f),
-                        Offset(0f, y),
-                        Offset(size.width, y + 18.dp.toPx()),
-                        strokeWidth = stroke.width,
-                        cap = StrokeCap.Round,
-                    )
-                }
-                repeat(3) { index ->
-                    val x = (24 + index * 38).dp.toPx()
-                    drawLine(
-                        Color.White.copy(alpha = 0.42f),
-                        Offset(x, 0f),
-                        Offset(x - 18.dp.toPx(), size.height),
-                        strokeWidth = stroke.width,
-                        cap = StrokeCap.Round,
-                    )
-                }
+            val imageRes = when (option.id) {
+                "osm" -> com.example.uzradyab.R.drawable.preview_osm
+                "googleSatellite" -> com.example.uzradyab.R.drawable.preview_satellite
+                "googleRoad" -> com.example.uzradyab.R.drawable.preview_road
+                "carto" -> com.example.uzradyab.R.drawable.preview_exir
+                else -> null
+            }
+            if (imageRes != null) {
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = imageRes),
+                    contentDescription = option.title,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
