@@ -17,6 +17,7 @@ import com.example.uzradyab.domain.repository.NotificationRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import com.example.uzradyab.domain.repository.RegistrationRepository
 import com.example.uzradyab.domain.repository.ReportRepository
+import com.example.uzradyab.domain.repository.TokenRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
 import dagger.Binds
 import dagger.Module
@@ -70,4 +71,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindRegistrationRepository(impl: RegistrationRepositoryImpl): RegistrationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTokenRepository(impl: com.example.uzradyab.data.repository.TokenRepositoryImpl): TokenRepository
 }
