@@ -64,6 +64,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -462,7 +466,7 @@ fun UzradyabApp(
             if (showNetworkErrorSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { showNetworkErrorSheet = false },
-                    containerColor = androidx.compose.ui.graphics.Color.White
+                    containerColor = Color.White
                 ) {
                     Column(
                         modifier = Modifier
@@ -475,13 +479,13 @@ fun UzradyabApp(
                         Box(
                             modifier = Modifier
                                 .size(72.dp)
-                                .background(androidx.compose.ui.graphics.Color(0xFFFFF4E5), androidx.compose.foundation.shape.CircleShape),
+                                .background(Color(0xFFFFF4E5), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = null,
-                                tint = androidx.compose.ui.graphics.Color(0xFFE5B850),
+                                tint = Color(0xFFE5B850),
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -493,7 +497,7 @@ fun UzradyabApp(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = com.example.uzradyab.ui.theme.AppTextPrimary,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         
@@ -502,7 +506,7 @@ fun UzradyabApp(
                             text = "ارتباط با سرور برقرار نشد.\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید.",
                             fontSize = 15.sp,
                             color = com.example.uzradyab.ui.theme.AppTextPrimary.copy(alpha = 0.7f),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            textAlign = TextAlign.Center,
                             lineHeight = 24.sp
                         )
                         Spacer(modifier = Modifier.height(32.dp))
@@ -512,13 +516,13 @@ fun UzradyabApp(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(52.dp)
-                                .background(AppBlue, androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                                .background(AppBlue, RoundedCornerShape(12.dp))
                                 .clickable { showNetworkErrorSheet = false },
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 text = "متوجه شدم",
-                                color = androidx.compose.ui.graphics.Color.White,
+                                color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                             )
