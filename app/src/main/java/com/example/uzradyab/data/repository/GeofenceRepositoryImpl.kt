@@ -14,9 +14,9 @@ class GeofenceRepositoryImpl @Inject constructor(
     private val api: TraccarApi
 ) : GeofenceRepository {
 
-    override suspend fun getGeofences(deviceId: Long?): Result<List<Geofence>> {
+    override suspend fun getGeofences(): Result<List<Geofence>> { // Removed deviceId
         return try {
-            val dtos = api.getGeofences(deviceId)
+            val dtos = api.getGeofences() // Calls API without query param
             Result.success(dtos.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -55,24 +55,6 @@ class GeofenceRepositoryImpl @Inject constructor(
     override suspend fun deleteGeofence(id: Long): Result<Unit> {
         return try {
             api.deleteGeofence(id)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun linkGeofenceToDevice(deviceId: Long, geofenceId: Long): Result<Unit> {
-        return try {
-            api.linkPermission(PermissionDto(deviceId = deviceId, geofenceId = geofenceId))
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    override suspend fun unlinkGeofenceFromDevice(deviceId: Long, geofenceId: Long): Result<Unit> {
-        return try {
-            api.unlinkPermission(PermissionDto(deviceId = deviceId, geofenceId = geofenceId))
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

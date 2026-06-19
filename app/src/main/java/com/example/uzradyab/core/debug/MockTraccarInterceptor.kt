@@ -32,7 +32,7 @@ class MockTraccarInterceptor : Interceptor {
         }
 
         // Add a slight delay to simulate network
-        Thread.sleep(500)
+        // Thread.sleep(500)
 
         return Response.Builder()
             .code(200)

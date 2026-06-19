@@ -1,6 +1,7 @@
 package com.example.uzradyab.presentation.geofence
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.rounded.Add
@@ -96,26 +96,49 @@ fun GeofenceScreen(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                             .background(Color.White)
-                            .padding(16.dp)
+                            .border(
+                                width = 1.dp,
+                                color = Color(0xFFE0E0E0),
+                                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                            )
+                            .clickable(enabled = false) { }
+                            .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
                             .navigationBarsPadding()
                     ) {
-                        if (state.addingMode) {
-                            AddGeofencePanel(
-                                state = state,
-                                onNameChange = { viewModel.updateNewGeofence(it, state.newGeofenceRadius) },
-                                onRadiusChange = { viewModel.updateNewGeofence(state.newGeofenceName, it) },
-                                onCancel = { viewModel.toggleAddingMode() },
-                                onSave = { viewModel.saveNewGeofence() },
-                                onModeSelect = { viewModel.setDrawMode(it) },
-                                onUndo = { viewModel.undoLastDrawingPoint() },
-                                onClear = { viewModel.clearDrawingPoints() }
+                        Column {
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(5.dp)
+                                    .clip(RoundedCornerShape(2.5.dp))
+                                    .background(Color(0xFFE0E0E0))
+                                    .align(Alignment.CenterHorizontally)
                             )
-                        } else {
-                            GeofenceListPanel(
-                                state = state,
-                                onAddClick = { viewModel.toggleAddingMode() },
-                                onDeleteClick = { viewModel.deleteGeofence(it) }
-                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            if (state.addingMode) {
+                                AddGeofencePanel(
+                                    name = state.newGeofenceName,
+                                    radius = state.newGeofenceRadius,
+                                    drawMode = state.drawMode,
+                                    pointsCount = state.activeDrawingPoints.size,
+                                    onNameChange = { viewModel.updateNewGeofenceName(it) },
+                                    onRadiusChange = { viewModel.updateNewGeofenceRadius(it) },
+                                    onCancel = { viewModel.toggleAddingMode() },
+                                    onSave = { viewModel.saveNewGeofence() },
+                                    onModeSelect = { viewModel.setDrawMode(it) },
+                                    onUndo = { viewModel.undoLastDrawingPoint() },
+                                    onClear = { viewModel.clearDrawingPoints() }
+                                )
+                            } else {
+                                GeofenceListPanel(
+                                    geofences = state.geofences,
+                                    onAddClick = { viewModel.toggleAddingMode() },
+                                    onDeleteClick = { viewModel.deleteGeofence(it) },
+                                    onItemClick = { viewModel.selectGeofence(it) }
+                                )
+                            }
                         }
                     }
                 } else {
@@ -138,7 +161,10 @@ fun GeofenceScreen(
 
 @Composable
 fun AddGeofencePanel(
-    state: GeofenceState,
+    name: String,
+    radius: Double,
+    drawMode: DrawMode,
+    pointsCount: Int,
     onNameChange: (String) -> Unit,
     onRadiusChange: (Double) -> Unit,
     onCancel: () -> Unit,
@@ -150,46 +176,46 @@ fun AddGeofencePanel(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("افزودن محدوده جدید", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
-                selected = state.drawMode == DrawMode.CIRCLE,
+                selected = drawMode == DrawMode.CIRCLE,
                 onClick = { onModeSelect(DrawMode.CIRCLE) },
                 label = { Text("دایره") }
             )
             FilterChip(
-                selected = state.drawMode == DrawMode.POLYGON,
+                selected = drawMode == DrawMode.POLYGON,
                 onClick = { onModeSelect(DrawMode.POLYGON) },
                 label = { Text("چند ضلعی") }
             )
             FilterChip(
-                selected = state.drawMode == DrawMode.LINESTRING,
+                selected = drawMode == DrawMode.LINESTRING,
                 onClick = { onModeSelect(DrawMode.LINESTRING) },
                 label = { Text("مسیر (خط)") }
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        val instructionText = when (state.drawMode) {
+        val instructionText = when (drawMode) {
             DrawMode.CIRCLE -> "روی نقشه ضربه بزنید تا مرکز دایره مشخص شود."
             DrawMode.POLYGON -> "برای رسم چند ضلعی، حداقل ۳ نقطه روی نقشه انتخاب کنید."
             DrawMode.LINESTRING -> "برای رسم مسیر، نقاط را روی نقشه انتخاب کنید."
         }
         Text(instructionText, fontSize = 12.sp, color = Color.Gray)
-        
+
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = state.newGeofenceName,
+            value = name,
             onValueChange = onNameChange,
             label = { Text("نام محدوده") },
             modifier = Modifier.fillMaxWidth()
         )
-        
-        if (state.drawMode == DrawMode.CIRCLE) {
+
+        if (drawMode == DrawMode.CIRCLE) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text("شعاع: ${state.newGeofenceRadius.toInt()} متر", fontSize = 14.sp)
+            Text("شعاع: ${radius.toInt()} متر", fontSize = 14.sp)
             Slider(
-                value = state.newGeofenceRadius.toFloat(),
+                value = radius.toFloat(),
                 onValueChange = { onRadiusChange(it.toDouble()) },
                 valueRange = 50f..5000f,
                 modifier = Modifier.fillMaxWidth()
@@ -199,7 +225,7 @@ fun AddGeofencePanel(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedButton(
                     onClick = onUndo,
-                    enabled = state.activeDrawingPoints.isNotEmpty(),
+                    enabled = pointsCount > 0,
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Undo, contentDescription = "Undo")
@@ -208,7 +234,7 @@ fun AddGeofencePanel(
                 }
                 OutlinedButton(
                     onClick = onClear,
-                    enabled = state.activeDrawingPoints.isNotEmpty(),
+                    enabled = pointsCount > 0,
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
@@ -217,7 +243,7 @@ fun AddGeofencePanel(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(
@@ -227,13 +253,13 @@ fun AddGeofencePanel(
             ) {
                 Text("انصراف", color = Color.Black)
             }
-            
-            val isValid = when (state.drawMode) {
-                DrawMode.CIRCLE -> state.activeDrawingPoints.isNotEmpty()
-                DrawMode.POLYGON -> state.activeDrawingPoints.size >= 3
-                DrawMode.LINESTRING -> state.activeDrawingPoints.size >= 2
+
+            val isValid = when (drawMode) {
+                DrawMode.CIRCLE -> pointsCount > 0
+                DrawMode.POLYGON -> pointsCount >= 3
+                DrawMode.LINESTRING -> pointsCount >= 2
             }
-            
+
             Button(
                 onClick = onSave,
                 colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
@@ -248,9 +274,10 @@ fun AddGeofencePanel(
 
 @Composable
 fun GeofenceListPanel(
-    state: GeofenceState,
+    geofences: List<Geofence>,
     onAddClick: () -> Unit,
-    onDeleteClick: (Long) -> Unit
+    onDeleteClick: (Long) -> Unit,
+    onItemClick: (Long) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 400.dp)) {
         Row(
@@ -263,41 +290,59 @@ fun GeofenceListPanel(
                 Icon(Icons.Default.Add, contentDescription = "Add Geofence", tint = AppBlue)
             }
         }
-        
-        if (state.geofences.isEmpty()) {
+
+        if (geofences.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 Text("هیچ محدوده‌ای ثبت نشده است.", color = Color.Gray)
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                items(state.geofences) { geofence ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                            .background(Color(0xFFF7F9FA), RoundedCornerShape(8.dp))
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.Layers, contentDescription = null, tint = AppBlue)
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(geofence.name, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                            if (geofence.isCircle) {
-                                Text("شعاع: ${geofence.radius?.toInt()} متر", fontSize = 12.sp, color = Color.Gray)
-                            } else {
-                                Text("چند ضلعی", fontSize = 12.sp, color = Color.Gray)
-                            }
-                        }
-                        IconButton(onClick = { /* TODO: Implement Edit */ }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.Gray)
-                        }
-                        IconButton(onClick = { onDeleteClick(geofence.id) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
-                        }
-                    }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentPadding = PaddingValues(bottom = 8.dp)
+            ) {
+                items(
+                    items = geofences,
+                    key = { geofence -> geofence.id }
+                ) { geofence ->
+                    GeofenceItem(
+                        geofence = geofence,
+                        onClick = { onItemClick(geofence.id) },
+                        onDeleteClick = { onDeleteClick(geofence.id) }
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun GeofenceItem(
+    geofence: Geofence,
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF7F9FA))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Default.Layers, contentDescription = null, tint = AppBlue)
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(geofence.name, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+            if (geofence.isCircle) {
+                Text("شعاع: ${geofence.radius?.toInt()} متر", fontSize = 12.sp, color = Color.Gray)
+            } else {
+                Text("چند ضلعی", fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+        IconButton(onClick = onDeleteClick) {
+            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
         }
     }
 }

@@ -36,7 +36,18 @@ class TrackingRepositoryImpl @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var socketJob: Job? = null
     private var fallbackJob: Job? = null
+    private var watchdogJob: Job? = null
     private var stopped = false
+
+    /** Timestamp of the last received WebSocket message, for the watchdog. */
+    @Volatile
+    private var lastMessageTimeMs: Long = 0L
+
+    /** If no message arrives within this window, treat socket as dead. */
+    private companion object {
+        const val WATCHDOG_INTERVAL_MS = 30_000L
+        const val STALE_THRESHOLD_MS = 90_000L
+    }
 
     override fun start() {
         if (socketJob?.isActive == true) return
@@ -53,10 +64,15 @@ class TrackingRepositoryImpl @Inject constructor(
                         when (event) {
                             SocketEvent.Opened -> {
                                 backoffMs = 2_000L
+                                lastMessageTimeMs = System.currentTimeMillis()
                                 _connectionState.value = TrackingConnectionState.Connected
                                 stopFallbackPolling()
+                                startWatchdog()
                             }
-                            is SocketEvent.Message -> persistSocketMessage(event)
+                            is SocketEvent.Message -> {
+                                lastMessageTimeMs = System.currentTimeMillis()
+                                persistSocketMessage(event)
+                            }
                             is SocketEvent.Closed -> {
                                 if (event.code != 4000) handleSocketDisconnected()
                             }
@@ -75,6 +91,7 @@ class TrackingRepositoryImpl @Inject constructor(
         stopped = true
         socketJob?.cancel()
         fallbackJob?.cancel()
+        watchdogJob?.cancel()
         _connectionState.value = TrackingConnectionState.Idle
     }
 
@@ -110,7 +127,30 @@ class TrackingRepositoryImpl @Inject constructor(
 
     private fun handleSocketDisconnected() {
         if (stopped) return
+        watchdogJob?.cancel()
         _connectionState.value = TrackingConnectionState.Disconnected
         startFallbackPolling()
+    }
+
+    /**
+     * Watchdog coroutine: every [WATCHDOG_INTERVAL_MS] checks if the last
+     * WebSocket message is older than [STALE_THRESHOLD_MS]. If so, treats
+     * the connection as dead and triggers reconnection — much faster than
+     * waiting for TCP keepalive timeout (2+ hours).
+     */
+    private fun startWatchdog() {
+        watchdogJob?.cancel()
+        watchdogJob = scope.launch {
+            while (!stopped && _connectionState.value == TrackingConnectionState.Connected) {
+                delay(WATCHDOG_INTERVAL_MS)
+                val elapsed = System.currentTimeMillis() - lastMessageTimeMs
+                if (elapsed > STALE_THRESHOLD_MS) {
+                    android.util.Log.w("TrackingRepo", "WebSocket stale (${elapsed}ms), reconnecting")
+                    socketJob?.cancel()
+                    handleSocketDisconnected()
+                    break
+                }
+            }
+        }
     }
 }

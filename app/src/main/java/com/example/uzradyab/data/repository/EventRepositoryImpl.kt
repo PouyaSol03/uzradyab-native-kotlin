@@ -12,22 +12,15 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-
-private const val NOTIFICATION_BASE_URL = "https://notification.uzradyab.ir/"
 
 class EventRepositoryImpl @Inject constructor(
     private val eventDao: EventDao,
     private val traccarApi: TraccarApi,
-    private val client: OkHttpClient,
     private val gson: Gson,
 ) : EventRepository {
     override fun observeRecentEvents(limit: Int): Flow<List<Event>> {

@@ -48,11 +48,16 @@ class GeofenceViewModel @Inject constructor(
     init {
         val deviceIdStr = savedStateHandle.get<String>("deviceId")
         val deviceId = deviceIdStr?.toLongOrNull()
+
         if (deviceId != null) {
             _state.update { it.copy(deviceId = deviceId) }
+            // Even if we don't strictly need deviceId for geofences,
+            // we pass it here to get the initial map position.
             loadData(deviceId)
         } else {
             _state.update { it.copy(error = "Device ID missing") }
+            // You can still load geofences even if the device ID is missing
+            loadData(null)
         }
 
         viewModelScope.launch {
@@ -62,22 +67,24 @@ class GeofenceViewModel @Inject constructor(
         }
     }
 
-    private fun loadData(deviceId: Long) {
+    private fun loadData(deviceId: Long?) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            
-            // Load geofences
-            val result = geofenceRepository.getGeofences(deviceId)
+
+            // 1. Load ALL geofences for the user account (No deviceId required)
+            val result = geofenceRepository.getGeofences()
             result.onSuccess { geofences ->
                 _state.update { it.copy(geofences = geofences) }
             }.onFailure { e ->
                 _state.update { it.copy(error = e.message) }
             }
 
-            // Load device position for map center
-            val devicePos = positionRepository.getLatestPosition(deviceId)
-            if (devicePos != null) {
-                _state.update { it.copy(devicePosition = devicePos) }
+            // 2. Load device position for map center (If a deviceId exists)
+            if (deviceId != null) {
+                val devicePos = positionRepository.getLatestPosition(deviceId)
+                if (devicePos != null) {
+                    _state.update { it.copy(devicePosition = devicePos) }
+                }
             }
 
             _state.update { it.copy(isLoading = false) }
@@ -85,21 +92,25 @@ class GeofenceViewModel @Inject constructor(
     }
 
     fun toggleAddingMode() {
-        _state.update { 
+        _state.update {
             val initialPoints = it.devicePosition?.let { pos -> listOf(Pair(pos.latitude, pos.longitude)) } ?: emptyList()
             it.copy(
-                addingMode = !it.addingMode, 
+                addingMode = !it.addingMode,
                 drawMode = DrawMode.CIRCLE,
                 newGeofenceName = "",
                 activeDrawingPoints = initialPoints,
                 newGeofenceRadius = 500.0,
                 selectedGeofenceId = null
-            ) 
+            )
         }
     }
 
-    fun updateNewGeofence(name: String, radius: Double) {
-        _state.update { it.copy(newGeofenceName = name, newGeofenceRadius = radius) }
+    fun updateNewGeofenceName(name: String) {
+        _state.update { it.copy(newGeofenceName = name) }
+    }
+
+    fun updateNewGeofenceRadius(radius: Double) {
+        _state.update { it.copy(newGeofenceRadius = radius) }
     }
 
     fun setDrawMode(mode: DrawMode) {
@@ -107,24 +118,25 @@ class GeofenceViewModel @Inject constructor(
     }
 
     fun addDrawingPoint(lat: Double, lon: Double) {
-        _state.update { 
+        _state.update {
+            if (!it.addingMode) return@update it
             val newPoints = if (it.drawMode == DrawMode.CIRCLE) {
                 listOf(Pair(lat, lon))
             } else {
                 it.activeDrawingPoints + Pair(lat, lon)
             }
-            it.copy(activeDrawingPoints = newPoints) 
+            it.copy(activeDrawingPoints = newPoints)
         }
     }
 
     fun undoLastDrawingPoint() {
-        _state.update { 
+        _state.update {
             val newPoints = if (it.activeDrawingPoints.isNotEmpty()) {
                 it.activeDrawingPoints.dropLast(1)
             } else {
                 it.activeDrawingPoints
             }
-            it.copy(activeDrawingPoints = newPoints) 
+            it.copy(activeDrawingPoints = newPoints)
         }
     }
 
@@ -137,13 +149,12 @@ class GeofenceViewModel @Inject constructor(
     }
 
     fun deleteGeofence(id: Long) {
-        val deviceId = _state.value.deviceId ?: return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             val deleteResult = geofenceRepository.deleteGeofence(id)
             if (deleteResult.isSuccess) {
-                // Reload list
-                val listResult = geofenceRepository.getGeofences(deviceId)
+                // Reload the account's full list of geofences (No deviceId needed)
+                val listResult = geofenceRepository.getGeofences()
                 listResult.onSuccess { geofences ->
                     _state.update { it.copy(isLoading = false, geofences = geofences, selectedGeofenceId = null) }
                 }
@@ -155,10 +166,9 @@ class GeofenceViewModel @Inject constructor(
 
     fun saveNewGeofence() {
         val st = _state.value
-        val deviceId = st.deviceId ?: return
         val points = st.activeDrawingPoints
+
         if (points.isEmpty()) return
-        
         if (st.drawMode == DrawMode.POLYGON && points.size < 3) return
         if (st.drawMode == DrawMode.LINESTRING && points.size < 2) return
 
@@ -171,17 +181,15 @@ class GeofenceViewModel @Inject constructor(
                 DrawMode.POLYGON -> Geofence.buildPolygonArea(points)
                 DrawMode.LINESTRING -> Geofence.buildLineStringArea(points)
             }
+
+            // Create the geofence on the server
             val createResult = geofenceRepository.createGeofence(name, areaString)
-            
-            createResult.onSuccess { newGeofence ->
-                val linkResult = geofenceRepository.linkGeofenceToDevice(deviceId, newGeofence.id)
-                if (linkResult.isSuccess) {
-                    val listResult = geofenceRepository.getGeofences(deviceId)
-                    listResult.onSuccess { geofences ->
-                        _state.update { it.copy(isLoading = false, addingMode = false, geofences = geofences) }
-                    }
-                } else {
-                    _state.update { it.copy(isLoading = false, error = "Failed to link geofence") }
+
+            createResult.onSuccess {
+                // Skip the device linking! Just refresh the account geofences.
+                val listResult = geofenceRepository.getGeofences()
+                listResult.onSuccess { geofences ->
+                    _state.update { it.copy(isLoading = false, addingMode = false, geofences = geofences) }
                 }
             }.onFailure { e ->
                 _state.update { it.copy(isLoading = false, error = e.message) }

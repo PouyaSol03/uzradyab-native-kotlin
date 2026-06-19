@@ -23,11 +23,23 @@ class TraccarSocketClient @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val gson: Gson,
 ) {
+    /**
+     * WebSocket-specific client with a 25-second ping interval.
+     * Keeps connection alive across mobile NAT timeouts (30-60 s)
+     * and detects dead sockets within seconds instead of waiting
+     * for TCP keepalive timeout (2+ hours).
+     */
+    private val wsClient: OkHttpClient by lazy {
+        okHttpClient.newBuilder()
+            .pingInterval(25, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+    }
+
     fun connect(): Flow<SocketEvent> = callbackFlow {
         val request = Request.Builder()
             .url("wss://app.uzradyab.ir/api/socket")
             .build()
-        val socket = okHttpClient.newWebSocket(
+        val socket = wsClient.newWebSocket(
             request,
             object : WebSocketListener() {
                 override fun onOpen(webSocket: WebSocket, response: Response) {

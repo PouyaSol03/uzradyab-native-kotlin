@@ -65,7 +65,8 @@ class NetworkLogInterceptor : Interceptor {
         // ── Log response ──────────────────────────────────────────────────────
         val respBodySnippet = runCatching {
             val source = response.body?.source() ?: return@runCatching null
-            source.request(Long.MAX_VALUE)
+            // Component 6: فقط ۱ کیلوبایت اول خوانده می‌شود تا رم گوشی اشغال نشود
+            source.request(1024) 
             val buffer = source.buffer.clone()
             buffer.readString(Charset.forName("UTF-8")).take(500)
         }.getOrNull()

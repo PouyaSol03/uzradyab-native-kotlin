@@ -68,8 +68,8 @@ class TileHealthMonitor @Inject constructor() {
 
     private val probeClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(8, TimeUnit.SECONDS)
-            .readTimeout(8, TimeUnit.SECONDS)
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(4, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .build()
     }

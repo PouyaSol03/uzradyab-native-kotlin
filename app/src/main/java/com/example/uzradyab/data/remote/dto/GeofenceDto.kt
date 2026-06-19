@@ -10,8 +10,8 @@ data class GeofenceDto(
 )
 
 data class PermissionDto(
-    val deviceId: Long = 0,
-    val geofenceId: Long = 0,
-    val groupId: Long = 0,
-    val userId: Long = 0
+    val deviceId: Long? = null,
+    val geofenceId: Long? = null,
+    val groupId: Long? = null,
+    val userId: Long? = null
 )

@@ -2,7 +2,8 @@ package com.example.uzradyab.data.repository
 
 import com.example.uzradyab.data.remote.api.MapIrApi
 import com.example.uzradyab.domain.repository.GeocoderRepository
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
+import java.util.LinkedHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,8 +15,18 @@ class GeocoderRepositoryImpl @Inject constructor(
     // ساختار کش شامل آدرس و زمان ثبت آن
     private data class CacheEntry(val address: String, val timestamp: Long)
 
-    // استفاده از ConcurrentHashMap برای Thread-Safety
-    private val cache = ConcurrentHashMap<String, CacheEntry>()
+    // سقف تعداد آیتم‌ها برای جلوگیری از پر شدن حافظه رم (OOM)
+    private val MAX_CACHE_SIZE = 200
+
+    // استفاده از LinkedHashMap با مکانیزم LRU و هماهنگ‌سازی (Thread-Safety)
+    private val cache = Collections.synchronizedMap(
+        object : LinkedHashMap<String, CacheEntry>(MAX_CACHE_SIZE, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CacheEntry>?): Boolean {
+                // هرگاه تعداد آیتم‌ها از ۲۰۰ فراتر رفت، قدیمی‌ترین آیتم را حذف کن
+                return size > MAX_CACHE_SIZE
+            }
+        }
+    )
 
     private val CACHE_DURATION_MS = 3 * 60 * 1000L // 3 دقیقه
     private val API_KEY = com.example.uzradyab.BuildConfig.MAP_IR_API_KEY
