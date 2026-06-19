@@ -92,6 +92,7 @@ fun HomeMapRoute(
         onToggleDeviceCard = viewModel::toggleDeviceCard,
         onManageDeviceClick = viewModel::openDeviceManagement,
         onCloseDeviceManagement = viewModel::closeDeviceManagement,
+        onTileHealthErrorConsumed = viewModel::consumeTileHealthError,
         onEventsClick = { onEventsClick(state.selectedDeviceId) },
         onDevicesClick = onDevicesClick,
         onProfileClick = onProfileClick,
@@ -119,6 +120,7 @@ fun HomeMapScreen(
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
+    onTileHealthErrorConsumed: () -> Unit,
     onEventsClick: () -> Unit,
     onDevicesClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -171,10 +173,12 @@ fun HomeMapScreen(
                     .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                     .background(MaterialTheme.colorScheme.background),
             ) {
-                val targetMapPadding = when {
-                    state.deviceManagementOpen -> 446.dp
-                    selectedDevice != null -> if (state.deviceCardExpanded) 240.dp else 163.dp
-                    else -> 0.dp
+                val targetMapPadding = remember(state.deviceManagementOpen, state.deviceCardExpanded, selectedDevice) {
+                    when {
+                        state.deviceManagementOpen -> 446.dp
+                        selectedDevice != null -> if (state.deviceCardExpanded) 240.dp else 163.dp
+                        else -> 0.dp
+                    }
                 }
                 val mapBottomPadding by androidx.compose.animation.core.animateDpAsState(
                     targetValue = targetMapPadding,
@@ -186,10 +190,13 @@ fun HomeMapScreen(
                 LaunchedEffect(state.tileHealth) {
                     if (state.tileHealth == TileHealthState.Unreachable) {
                         snackbarHostState.showSnackbar(
-                            message = "دریافت نقشه با مشکل مواجه شد. لطفا شبکه یا منبع نقشه را بررسی کنید.",
+                            message = "دریافت نقشه با مشکل مواجه شد. لطفا اینترنت یا منبع نقشه را بررسی کنید.",
                             duration = androidx.compose.material3.SnackbarDuration.Long,
                             actionLabel = "باشه"
                         )
+                        // بعد از نمایش پیام، باید وضعیت رو به حالت نرمال برگردونیم
+                        // تا اگر کاربر اینترنت رو وصل کرد یا منبع نقشه درست شد، پیام دوباره تکرار نشه
+                        onTileHealthErrorConsumed()
                     }
                 }
 
@@ -252,7 +259,9 @@ fun HomeMapScreen(
                 }
                 if (selectedDevice != null) {
                     BottomPanels(
-                        state = state,
+                        deviceManagementOpen = state.deviceManagementOpen,
+                        deviceCardExpanded = state.deviceCardExpanded,
+                        todayDistanceText = state.todayDistanceText,
                         selectedDevice = selectedDevice,
                         selectedPosition = selectedPosition,
                         onDeviceSpecsClick = onDeviceSpecsClick,
@@ -295,7 +304,10 @@ fun HomeMapScreen(
 
 @Composable
 private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
-    state: HomeMapUiState,
+    // به جای دریافت کل state، فقط ۳ فیلد مورد نیاز را می‌گیریم:
+    deviceManagementOpen: Boolean,
+    deviceCardExpanded: Boolean,
+    todayDistanceText: String,
     selectedDevice: com.example.uzradyab.domain.model.Device,
     selectedPosition: com.example.uzradyab.domain.model.Position?,
     onDeviceSpecsClick: (Long) -> Unit,
@@ -313,7 +325,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     onManageDeviceClick: () -> Unit,
 ) {
     AnimatedVisibility(
-        visible = state.deviceManagementOpen,
+        visible = deviceManagementOpen,
         enter = slideInVertically(
             animationSpec = tween(durationMillis = 300),
             initialOffsetY = { it }
@@ -330,7 +342,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
             DeviceManagementPanel(
                 device = selectedDevice,
                 position = selectedPosition,
-                todayDistanceText = state.todayDistanceText,
+                todayDistanceText = todayDistanceText,
                 onDeviceSpecsClick = { onDeviceSpecsClick(selectedDevice.id) },
                 onDeviceSettingsClick = { onDeviceSettingsClick(selectedDevice.id) },
                 onReplayTripClick = { onReplayTripClick(selectedDevice.id) },
@@ -353,7 +365,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                         BottomNavItem.DEVICES -> onDevicesClick()
                         BottomNavItem.ACCOUNT -> onProfileClick()
                         BottomNavItem.MAP -> {
-                            if (state.deviceManagementOpen) {
+                            if (deviceManagementOpen) {
                                 onCloseDeviceManagement()
                             }
                         }
@@ -364,7 +376,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     }
 
     AnimatedVisibility(
-        visible = !state.deviceManagementOpen,
+        visible = !deviceManagementOpen,
         enter = slideInVertically(
             animationSpec = tween(durationMillis = 300),
             initialOffsetY = { it }
@@ -381,8 +393,8 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
             SelectedDeviceStatusCard(
                 device = selectedDevice,
                 position = selectedPosition,
-                todayDistanceText = state.todayDistanceText,
-                expanded = state.deviceCardExpanded,
+                todayDistanceText = todayDistanceText,
+                expanded = deviceCardExpanded,
                 onToggleExpanded = onToggleDeviceCard,
                 onManageClick = onManageDeviceClick,
                 onReplayClick = { onReplayTripClick(selectedDevice.id) },

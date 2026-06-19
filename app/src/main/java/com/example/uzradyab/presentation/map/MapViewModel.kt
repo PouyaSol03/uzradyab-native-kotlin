@@ -171,6 +171,14 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    fun consumeTileHealthError() {
+        localState.update { currentState ->
+            currentState.copy(
+                tileHealth = TileHealthState.Healthy
+            )
+        }
+    }
+
     private fun observeSelectedDeviceDistance() {
         viewModelScope.launch {
             uiState
