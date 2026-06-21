@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,6 +54,8 @@ import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.domain.model.StopReport
+import com.example.uzradyab.ui.theme.AppBlue
+import com.example.uzradyab.ui.theme.AppTextPrimary
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -71,7 +77,8 @@ fun StopReportsRoute(
         onDeviceSelected = viewModel::onDeviceSelected,
         onDateFilterSelected = viewModel::onDateFilterSelected,
         onCustomDateSelected = viewModel::onCustomDateSelected,
-        onDismissCustomDatePicker = viewModel::dismissCustomDatePicker
+        onDismissCustomDatePicker = viewModel::dismissCustomDatePicker,
+        onResolveAddress = viewModel::resolveAddress
     )
 }
 
@@ -84,7 +91,8 @@ fun StopReportsScreen(
     onDeviceSelected: (Long) -> Unit,
     onDateFilterSelected: (String) -> Unit,
     onCustomDateSelected: (String, String) -> Unit,
-    onDismissCustomDatePicker: () -> Unit
+    onDismissCustomDatePicker: () -> Unit,
+    onResolveAddress: suspend (Double, Double) -> String
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
@@ -153,11 +161,17 @@ fun StopReportsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.reports) { report ->
-                        StopReportCard(report)
+                    items(
+                        items = state.reports,
+                        key = { report -> report.startTime }
+                    ) { report ->
+                        StopReportCard(report = report, onResolveAddress = onResolveAddress)
+                    }
+                    item {
+                        Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
                     }
                 }
             }
@@ -186,7 +200,19 @@ fun StopReportsScreen(
 }
 
 @Composable
-fun StopReportCard(report: StopReport) {
+fun StopReportCard(
+    report: StopReport,
+    onResolveAddress: suspend (Double, Double) -> String
+) {
+    var addressText by remember(report) { mutableStateOf(report.address) }
+
+    androidx.compose.runtime.LaunchedEffect(report) {
+        if (addressText.isNullOrEmpty() || addressText == "نامشخص") {
+            addressText = "در حال دریافت..."
+            addressText = onResolveAddress(report.latitude, report.longitude)
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -251,7 +277,7 @@ fun StopReportCard(report: StopReport) {
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = report.address ?: "آدرس نامشخص",
+                    text = addressText ?: "آدرس نامشخص",
                     color = Color.DarkGray,
                     fontSize = 12.sp,
                     lineHeight = 18.sp
@@ -347,26 +373,25 @@ private fun FilterChip(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected) Color(0xFF307EF3) else Color.White
-    val textColor = if (isSelected) Color.White else Color.Gray
-
     Box(
         modifier = Modifier
-            .background(bgColor, RoundedCornerShape(16.dp))
+            .height(32.dp)
+            .background(if (isSelected) AppBlue else Color.White, RoundedCornerShape(8.dp))
             .border(
                 1.dp, 
-                if (isSelected) Color.Transparent else Color(0xFFE3E8EE), 
-                RoundedCornerShape(16.dp)
+                if (isSelected) AppBlue else Color(0xFFE3E8EE), 
+                RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = textColor,
+            color = if (isSelected) Color.White else AppTextPrimary,
             fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            maxLines = 1
         )
     }
 }

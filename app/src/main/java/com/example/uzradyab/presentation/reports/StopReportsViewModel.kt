@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
+import com.example.uzradyab.domain.repository.MapSettingsRepository
+import com.example.uzradyab.domain.repository.GeocoderRepository
 import javax.inject.Inject
 
 data class StopReportsUiState(
@@ -30,7 +33,9 @@ data class StopReportsUiState(
 @HiltViewModel
 class StopReportsViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
-    private val reportRepository: ReportRepository
+    private val reportRepository: ReportRepository,
+    private val mapSettingsRepository: MapSettingsRepository,
+    private val geocoderRepository: GeocoderRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopReportsUiState())
@@ -41,9 +46,10 @@ class StopReportsViewModel @Inject constructor(
         _uiState.update { it.copy(fromDateIso = initialFrom, toDateIso = initialTo) }
         
         viewModelScope.launch {
+            val lastId = mapSettingsRepository.observeLastSelectedDeviceId().firstOrNull()
             deviceRepository.observeDevices().collect { devicesList ->
                 _uiState.update { current ->
-                    val newSelectedId = current.selectedDeviceId ?: devicesList.firstOrNull()?.id
+                    val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
                         devices = devicesList,
                         selectedDeviceId = newSelectedId
@@ -57,8 +63,15 @@ class StopReportsViewModel @Inject constructor(
     }
 
     fun onDeviceSelected(deviceId: Long) {
+        viewModelScope.launch {
+            mapSettingsRepository.setLastSelectedDeviceId(deviceId)
+        }
         _uiState.update { it.copy(selectedDeviceId = deviceId) }
         fetchReports()
+    }
+
+    suspend fun resolveAddress(lat: Double, lon: Double): String {
+        return geocoderRepository.getAddress(lat, lon)
     }
 
     fun onDateFilterSelected(filter: String) {
