@@ -66,7 +66,10 @@ fun TrackingMap(
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
     val currentIsMapLocked by rememberUpdatedState(isMapLocked)
     var wasLocked by remember { mutableStateOf(isMapLocked) }
-    val tracker = remember { object { var lastDeviceId: Long? = selectedDeviceId } }
+    val tracker = remember { object { 
+        var lastDeviceId: Long? = selectedDeviceId
+        var hasInitialCentered: Boolean = false
+    } }
 
     Box(
         modifier = modifier
@@ -132,10 +135,13 @@ fun TrackingMap(
                 wasLocked = isMapLocked
                 
                 if (tracker.lastDeviceId != selectedDeviceId) {
-                    if (selectedDeviceId != null) {
-                        mapView.controller.animateTo(center, 18.0, 1000L)
-                    }
                     tracker.lastDeviceId = selectedDeviceId
+                    tracker.hasInitialCentered = false
+                }
+                
+                if (selectedPosition != null && !tracker.hasInitialCentered) {
+                    mapView.controller.animateTo(center, 18.0, 1000L)
+                    tracker.hasInitialCentered = true
                 }
 
                 // Offset map center feature removed by user request
