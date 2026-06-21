@@ -79,7 +79,7 @@ fun DeviceStatusScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "گزارش وضعیت جاری",
+                                text = "گزارشات",
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -162,14 +162,7 @@ fun DeviceStatusScreen(
                         }
 
                         LocationCard(
-                            title = "موقعیت مبدا",
-                            address = state.startAddress,
-                            icon = Icons.Outlined.LocationOn,
-                            isLoading = state.isLoading && state.startAddress == "در حال دریافت..."
-                        )
-
-                        LocationCard(
-                            title = "موقعیت جاری دستگاه",
+                            title = "موقعیت",
                             address = state.currentAddress,
                             icon = Icons.Default.GpsFixed,
                             isLoading = state.isLoading && state.currentAddress == "در حال دریافت..."
@@ -244,36 +237,36 @@ fun DeviceStatusScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(figmaBackground)
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onExportClick,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(52.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
-                            border = BorderStroke(1.dp, Color(0xFF307EF3))
-                        ) {
-                            Text("خروجی", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
+                    // Row(
+                    //     modifier = Modifier
+                    //         .fillMaxWidth()
+                    //         .background(figmaBackground)
+                    //         .padding(16.dp),
+                    //     horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    // ) {
+                    //     OutlinedButton(
+                    //         onClick = onExportClick,
+                    //         modifier = Modifier
+                    //             .weight(1f)
+                    //             .height(52.dp),
+                    //         shape = RoundedCornerShape(12.dp),
+                    //         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
+                    //         border = BorderStroke(1.dp, Color(0xFF307EF3))
+                    //     ) {
+                    //         Text("خروجی", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    //     }
 
-                        Button(
-                            onClick = onTraveledPathsClick,
-                            modifier = Modifier
-                                .weight(2f)
-                                .height(52.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
-                        ) {
-                            Text("مسیرهای پیموده شده", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
+                    //     Button(
+                    //         onClick = onTraveledPathsClick,
+                    //         modifier = Modifier
+                    //             .weight(2f)
+                    //             .height(52.dp),
+                    //         shape = RoundedCornerShape(12.dp),
+                    //         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                    //     ) {
+                    //         Text("مسیرهای پیموده شده", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    //     }
+                    // }
                 }
 
                 if (menuOpen) {

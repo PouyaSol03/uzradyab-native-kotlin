@@ -15,3 +15,19 @@ fun SummaryReportDto.toDomain(): SummaryReport {
         endOdometer = this.endOdometer
     )
 }
+
+fun com.example.uzradyab.data.remote.dto.StopReportDto.toDomain(): com.example.uzradyab.domain.model.StopReport {
+    return com.example.uzradyab.domain.model.StopReport(
+        deviceId = this.deviceId,
+        deviceName = this.deviceName,
+        positionId = this.positionId,
+        latitude = this.latitude,
+        longitude = this.longitude,
+        startTime = this.startTime,
+        endTime = this.endTime,
+        address = this.address,
+        duration = this.duration,
+        engineHours = this.engineHours,
+        spentFuel = this.spentFuel
+    )
+}

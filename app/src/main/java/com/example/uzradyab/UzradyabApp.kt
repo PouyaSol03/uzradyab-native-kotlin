@@ -41,6 +41,7 @@ import com.example.uzradyab.presentation.startup.StartupRoute
 import com.example.uzradyab.presentation.replay.ReplayTripRoute
 import com.example.uzradyab.presentation.command.CommandCenterRoute
 import com.example.uzradyab.presentation.geofence.GeofenceRoute
+import com.example.uzradyab.presentation.reports.StopReportsRoute
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateOf
@@ -363,6 +364,11 @@ fun UzradyabApp(
                     navController.navigate(AppRoute.DeviceStatus.path) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToStopReports = {
+                    navController.navigate(AppRoute.StopReports.path) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -384,6 +390,24 @@ fun UzradyabApp(
                 },
                 onTraveledPathsClick = {
                     navController.popBackStack()
+                }
+            )
+        }
+        composable(AppRoute.StopReports.path) {
+            StopReportsRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onLogoutClick = {
+                    navController.navigate(AppRoute.SignIn.path) {
+                        popUpTo(AppRoute.Home.path) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onAddDeviceClick = {
+                    navController.navigate(AppRoute.AddDevice.path) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -547,6 +571,7 @@ private enum class AppRoute(val path: String) {
     AddDevice("/add-device"),
     Reports("/reports"),
     DeviceStatus("/device-status"),
+    StopReports("/stop-reports"),
     ReplayTrip("/replay-trip"),
     CommandCenter("/command-center"),
     DebugLog("/debug-logs"),

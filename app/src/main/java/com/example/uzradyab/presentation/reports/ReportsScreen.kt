@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.GpsFixed
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.designsystem.SkeletonBox
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
@@ -44,20 +46,19 @@ fun ReportsRoute(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
-    viewModel: ReportsViewModel = hiltViewModel(),
+    onNavigateToStopReports: () -> Unit,
+    viewModel: ReportsViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     ReportsScreen(
-        state = uiState,
+        state = state,
         onBackClick = onBackClick,
         onLogoutClick = onLogoutClick,
         onAddDeviceClick = onAddDeviceClick,
-        onDeviceSelect = viewModel::selectDevice,
+        onDeviceSelected = viewModel::selectDevice,
         onNavigateToDeviceStatus = onNavigateToDeviceStatus,
-        onReportItemClick = { reportType ->
-            android.util.Log.d("ReportsRoute", "Clicked on: $reportType")
-        }
+        onNavigateToStopReports = onNavigateToStopReports
     )
 }
 
@@ -67,9 +68,9 @@ fun ReportsScreen(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onDeviceSelect: (Long) -> Unit,
+    onDeviceSelected: (Long) -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
-    onReportItemClick: (String) -> Unit
+    onNavigateToStopReports: () -> Unit
 ) {
     val figmaBackground = Color(0xFFF3F4F6)
     var menuOpen by remember { mutableStateOf(false) }
@@ -143,8 +144,10 @@ fun ReportsScreen(
                         OtherReportsSection(onItemClick = { reportType ->
                             if (reportType == "وضعیت دستگاه") {
                                 onNavigateToDeviceStatus()
+                            } else if (reportType == "توقف‌ها") {
+                                onNavigateToStopReports()
                             } else {
-                                onReportItemClick(reportType)
+                                android.util.Log.d("ReportsRoute", "Clicked on: $reportType")
                             }
                         })
 
@@ -165,7 +168,7 @@ fun ReportsScreen(
                         devices = state.devices,
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = { deviceId ->
-                            onDeviceSelect(deviceId)
+                            onDeviceSelected(deviceId)
                             deviceSelectorOpen = false
                         },
                         onDismiss = { deviceSelectorOpen = false }
@@ -459,7 +462,7 @@ private fun ReportMenuItem(title: String, onClick: () -> Unit) {
             fontWeight = FontWeight.Medium
         )
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Navigate",
             tint = Color(0xFF307EF3),
             modifier = Modifier.size(20.dp)

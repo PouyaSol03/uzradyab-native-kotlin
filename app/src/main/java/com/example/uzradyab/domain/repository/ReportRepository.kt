@@ -27,5 +27,11 @@ interface ReportRepository {
         from: String,
         to: String,
     ): Result<List<SummaryReport>>
+
+    suspend fun getStopsReport(
+        deviceId: Long,
+        from: String,
+        to: String,
+    ): Result<List<com.example.uzradyab.domain.model.StopReport>>
 }
 
