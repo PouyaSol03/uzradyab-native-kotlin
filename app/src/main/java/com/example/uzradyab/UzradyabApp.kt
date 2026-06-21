@@ -375,8 +375,9 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToReplayTrip = {
-                    navController.navigate(AppRoute.ReplayTrip.path) {
+                onNavigateToReplayTrip = { deviceId ->
+                    val path = if (deviceId != null) "${AppRoute.ReplayTrip.path}?deviceId=$deviceId" else AppRoute.ReplayTrip.path
+                    navController.navigate(path) {
                         launchSingleTop = true
                     }
                 },

@@ -48,7 +48,7 @@ fun ReportsRoute(
     onNavigateToDeviceStatus: () -> Unit,
     onNavigateToDailyReport: () -> Unit,
     onNavigateToStopReports: () -> Unit,
-    onNavigateToReplayTrip: () -> Unit,
+    onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToTripReports: () -> Unit,
     viewModel: ReportsViewModel = hiltViewModel()
@@ -80,7 +80,7 @@ fun ReportsScreen(
     onNavigateToDeviceStatus: () -> Unit,
     onNavigateToDailyReport: () -> Unit,
     onNavigateToStopReports: () -> Unit,
-    onNavigateToReplayTrip: () -> Unit,
+    onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToTripReports: () -> Unit
 ) {
@@ -161,7 +161,7 @@ fun ReportsScreen(
                             } else if (reportType == "توقف‌ها") {
                                 onNavigateToStopReports()
                             } else if (reportType == "بازپخش مسیر") {
-                                onNavigateToReplayTrip()
+                                onNavigateToReplayTrip(state.selectedDeviceId)
                             } else if (reportType == "رویدادها") {
                                 onNavigateToEvents()
                             } else if (reportType == "مسافت‌ها") {

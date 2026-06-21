@@ -162,29 +162,6 @@ class AddDeviceViewModel @Inject constructor(
     var signedOut by mutableStateOf(false)
         private set
 
-    // Jalali Date Helper
-    private fun gregorianToJalali(gy: Int, gm: Int, gd: Int): IntArray {
-        val gDaysInMonth = intArrayOf(0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 335)
-        val gy2 = if (gm > 2) gy + 1 else gy
-        var gDays = 355666 + (365 * gy) + ((gy2 + 3) / 4) - ((gy2 + 99) / 100) + ((gy2 + 399) / 400) + gDaysInMonth[gm - 1] + gd
-        var jy = -1595 + 33 * (gDays / 12053)
-        gDays %= 12053
-        jy += 4 * (gDays / 1461)
-        gDays %= 1461
-        if (gDays > 365) {
-            jy += ((gDays - 1) / 365)
-            gDays = (gDays - 1) % 365
-        }
-        val jm = if (gDays < 186) 1 + (gDays / 31) else 7 + ((gDays - 186) / 30)
-        val jd = 1 + (if (gDays < 186) gDays % 31 else (gDays - 186) % 30)
-        return intArrayOf(jy, jm, jd)
-    }
-
-    private val jalaliMonths = listOf(
-        "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-        "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-    )
-
     private fun formatGregorianToJalali(dateStr: String): String {
         return try {
             val parts = dateStr.take(10).split("-")
@@ -193,13 +170,22 @@ class AddDeviceViewModel @Inject constructor(
                 val month = parts[1].toIntOrNull()
                 val day = parts[2].toIntOrNull()
                 if (year != null && month != null && day != null) {
-                    val jalali = gregorianToJalali(year, month, day)
-                    val monthName = jalaliMonths.getOrNull(jalali[1] - 1) ?: ""
-                    "${jalali[2]} $monthName ${jalali[0]}"
+                    val jalali = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(year, month, day)
+                    val monthName = com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jalali[1])
+                    "${jalali[2]} $monthName ${jalali[0]}".toPersianDigits()
                 } else ""
             } else ""
         } catch (e: Exception) {
             ""
+        }
+    }
+    
+    private fun String.toPersianDigits(): String {
+        val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
+        return buildString(length) {
+            this@toPersianDigits.forEach { char ->
+                append(if (char in '0'..'9') persianDigits[char - '0'] else char)
+            }
         }
     }
 }

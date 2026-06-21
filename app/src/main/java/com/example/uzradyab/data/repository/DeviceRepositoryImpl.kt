@@ -68,7 +68,7 @@ class DeviceRepositoryImpl @Inject constructor(
         currentKilometers: Double?
     ): Result<Unit> = runCatching {
         val existingDevice = deviceDao.getDeviceById(id)
-        val expirationTime = existingDevice?.expirationTime.orEmpty()
+        val category = existingDevice?.category ?: "default"
 
         val attributes = JsonObject().apply {
             if (currentKilometers != null) {
@@ -77,10 +77,12 @@ class DeviceRepositoryImpl @Inject constructor(
         }
 
         val request = AddDeviceRequestDto(
+            id = id,
             name = name,
             uniqueId = uniqueId,
             phone = phone,
-            expirationTime = expirationTime,
+            category = category,
+            expirationTime = null,
             attributes = attributes
         )
 
