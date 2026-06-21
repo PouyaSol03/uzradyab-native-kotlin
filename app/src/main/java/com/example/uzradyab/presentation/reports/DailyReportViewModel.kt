@@ -2,9 +2,8 @@ package com.example.uzradyab.presentation.reports
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uzradyab.core.utils.JalaliUtils
 import com.example.uzradyab.domain.model.Device
-import com.example.uzradyab.domain.model.StopReport
+import com.example.uzradyab.domain.model.SummaryReport
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,39 +18,30 @@ import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.presentation.components.JalaliDateTime
 import javax.inject.Inject
 
-data class StopReportsUiState(
+data class DailyReportUiState(
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
-    val reports: List<StopReport> = emptyList(),
+    val summaryReport: SummaryReport? = null,
     val error: String? = null,
     val fromDateIso: String = "",
     val toDateIso: String = "",
     val selectedDateFilter: String = "امروز",
     val showCustomDatePicker: Boolean = false,
-    val showColumnSelector: Boolean = false,
-    val selectedColumns: Set<String> = setOf("startTime", "endTime", "address") // Default columns based on React
-)
-
-val STOP_REPORT_COLUMNS = listOf(
-    ColumnOption(id = "startTime", name = "زمان شروع", isRequired = true),
-    ColumnOption(id = "endTime", name = "زمان پایان", isRequired = true),
-    ColumnOption(id = "address", name = "آدرس", isRequired = true),
-    ColumnOption(id = "duration", name = "مدت زمان", isRequired = false),
-    ColumnOption(id = "engineHours", name = "ساعات کارکرد موتور", isRequired = false),
-    ColumnOption(id = "spentFuel", name = "سوخت مصرفی", isRequired = false)
+    val startAddressResolved: String = "—",
+    val endAddressResolved: String = "—"
 )
 
 @HiltViewModel
-class StopReportsViewModel @Inject constructor(
+class DailyReportViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val reportRepository: ReportRepository,
     private val mapSettingsRepository: MapSettingsRepository,
     private val geocoderRepository: GeocoderRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(StopReportsUiState())
-    val uiState: StateFlow<StopReportsUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(DailyReportUiState())
+    val uiState: StateFlow<DailyReportUiState> = _uiState.asStateFlow()
 
     init {
         val (initialFrom, initialTo) = getIsoRangeForFilter("امروز")
@@ -67,7 +57,7 @@ class StopReportsViewModel @Inject constructor(
                         selectedDeviceId = newSelectedId
                     )
                 }
-                if (_uiState.value.selectedDeviceId != null && _uiState.value.reports.isEmpty()) {
+                if (_uiState.value.selectedDeviceId != null && _uiState.value.summaryReport == null) {
                     fetchReports()
                 }
             }
@@ -80,10 +70,6 @@ class StopReportsViewModel @Inject constructor(
         }
         _uiState.update { it.copy(selectedDeviceId = deviceId) }
         fetchReports()
-    }
-
-    suspend fun resolveAddress(lat: Double, lon: Double): String {
-        return geocoderRepository.getAddress(lat, lon)
     }
 
     fun onDateFilterSelected(filter: String) {
@@ -138,39 +124,22 @@ class StopReportsViewModel @Inject constructor(
         _uiState.update { it.copy(showCustomDatePicker = false) }
     }
 
-    fun openColumnSelector() {
-        _uiState.update { it.copy(showColumnSelector = true) }
-    }
-
-    fun dismissColumnSelector() {
-        _uiState.update { it.copy(showColumnSelector = false) }
-    }
-
-    fun toggleColumn(columnId: String) {
-        _uiState.update { state ->
-            val current = state.selectedColumns
-            val newColumns = if (current.contains(columnId)) {
-                current - columnId
-            } else {
-                current + columnId
-            }
-            state.copy(selectedColumns = newColumns)
-        }
-    }
-
     fun fetchReports() {
         val currentState = _uiState.value
         val deviceId = currentState.selectedDeviceId ?: return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = true, error = null, startAddressResolved = "—", endAddressResolved = "—", summaryReport = null) }
 
-            reportRepository.getStopsReport(
+            reportRepository.getSummaryReport(
                 deviceId = deviceId,
                 from = currentState.fromDateIso,
                 to = currentState.toDateIso
             ).onSuccess { data ->
-                _uiState.update { it.copy(isLoading = false, reports = data) }
+                val summary = data.firstOrNull()
+                val startAddr = summary?.startAddress ?: "—"
+                val endAddr = summary?.endAddress ?: "—"
+                _uiState.update { it.copy(isLoading = false, summaryReport = summary, startAddressResolved = startAddr, endAddressResolved = endAddr) }
             }.onFailure { err ->
                 _uiState.update { it.copy(isLoading = false, error = err.message ?: "خطا در دریافت گزارش") }
             }

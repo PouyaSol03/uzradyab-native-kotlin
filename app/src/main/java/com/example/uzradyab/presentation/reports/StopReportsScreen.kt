@@ -26,12 +26,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.SettingsSuggest
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,12 +60,15 @@ import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.domain.model.StopReport
+import com.example.uzradyab.presentation.components.JalaliDateTime
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextPrimary
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopReportsRoute(
     onBackClick: () -> Unit,
@@ -74,25 +83,34 @@ fun StopReportsRoute(
         onBackClick = onBackClick,
         onLogoutClick = onLogoutClick,
         onAddDeviceClick = onAddDeviceClick,
-        onDeviceSelected = viewModel::onDeviceSelected,
+        onDeviceSelect = viewModel::onDeviceSelected,
         onDateFilterSelected = viewModel::onDateFilterSelected,
         onCustomDateSelected = viewModel::onCustomDateSelected,
-        onDismissCustomDatePicker = viewModel::dismissCustomDatePicker,
-        onResolveAddress = viewModel::resolveAddress
+        onApplyCustomDateRange = viewModel::applyCustomDateRange,
+        onCustomDateDismiss = viewModel::dismissCustomDatePicker,
+        onResolveAddress = viewModel::resolveAddress,
+        onOpenColumnSelector = viewModel::openColumnSelector,
+        onDismissColumnSelector = viewModel::dismissColumnSelector,
+        onToggleColumn = viewModel::toggleColumn
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopReportsScreen(
     state: StopReportsUiState,
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onDeviceSelected: (Long) -> Unit,
+    onDeviceSelect: (Long) -> Unit,
     onDateFilterSelected: (String) -> Unit,
     onCustomDateSelected: (String, String) -> Unit,
-    onDismissCustomDatePicker: () -> Unit,
-    onResolveAddress: suspend (Double, Double) -> String
+    onApplyCustomDateRange: (JalaliDateTime?, JalaliDateTime?) -> Unit,
+    onCustomDateDismiss: () -> Unit,
+    onResolveAddress: suspend (Double, Double) -> String,
+    onOpenColumnSelector: () -> Unit,
+    onDismissColumnSelector: () -> Unit,
+    onToggleColumn: (String) -> Unit
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
@@ -132,18 +150,32 @@ fun StopReportsScreen(
                 )
             }
 
-            // Date Filters
+            // Date Filters and Column Selector
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                listOf("امروز", "دیروز", "تاریخ سفارشی").forEach { filter ->
-                    FilterChip(
-                        text = filter,
-                        isSelected = state.selectedDateFilter == filter,
-                        onClick = { onDateFilterSelected(filter) }
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("امروز", "دیروز", "تاریخ سفارشی").forEach { filter ->
+                        FilterChip(
+                            text = filter,
+                            isSelected = state.selectedDateFilter == filter,
+                            onClick = { onDateFilterSelected(filter) }
+                        )
+                    }
+                }
+                
+                IconButton(onClick = onOpenColumnSelector) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = "انتخاب ستون‌ها",
+                        tint = Color(0xFF676C70)
                     )
                 }
             }
@@ -168,7 +200,11 @@ fun StopReportsScreen(
                         items = state.reports,
                         key = { report -> report.startTime }
                     ) { report ->
-                        StopReportCard(report = report, onResolveAddress = onResolveAddress)
+                        StopReportCard(
+                            report = report,
+                            selectedColumns = state.selectedColumns,
+                            onResolveAddress = onResolveAddress
+                        )
                     }
                     item {
                         Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
@@ -191,9 +227,25 @@ fun StopReportsScreen(
                 selectedDeviceId = state.selectedDeviceId,
                 onDeviceClick = { deviceId ->
                     deviceSelectorOpen = false
-                    onDeviceSelected(deviceId)
+                    onDeviceSelect(deviceId)
                 },
                 onDismiss = { deviceSelectorOpen = false }
+            )
+        }
+        
+        if (state.showCustomDatePicker) {
+            CustomDateBottomSheet(
+                onDismiss = onCustomDateDismiss,
+                onApplyCustomRange = onApplyCustomDateRange
+            )
+        }
+
+        if (state.showColumnSelector) {
+            ColumnsSelectionBottomSheet(
+                options = STOP_REPORT_COLUMNS,
+                selectedIds = state.selectedColumns,
+                onToggle = onToggleColumn,
+                onDismiss = onDismissColumnSelector
             )
         }
     }
@@ -202,6 +254,7 @@ fun StopReportsScreen(
 @Composable
 fun StopReportCard(
     report: StopReport,
+    selectedColumns: Set<String>,
     onResolveAddress: suspend (Double, Double) -> String
 ) {
     var addressText by remember(report) { mutableStateOf(report.address) }
@@ -220,68 +273,95 @@ fun StopReportCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Duration
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Timer,
-                    contentDescription = null,
-                    tint = Color(0xFFE5B850),
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "مدت توقف:",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = formatDuration(report.duration),
-                    color = Color.Black,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            if (selectedColumns.contains("duration")) {
+                // Header: Duration
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Timer,
+                        contentDescription = null,
+                        tint = Color(0xFFE5B850),
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "مدت توقف:",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = formatDuration(report.duration),
+                        color = Color.Black,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             // Times
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text(text = "شروع توقف", color = Color.Gray, fontSize = 10.sp)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = formatIsoTime(report.startTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                if (selectedColumns.contains("startTime")) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "شروع توقف", color = Color.Gray, fontSize = 10.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = formatIsoTime(report.startTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                        }
                     }
                 }
-                Column {
-                    Text(text = "پایان توقف", color = Color.Gray, fontSize = 10.sp)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = formatIsoTime(report.endTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                if (selectedColumns.contains("endTime")) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "پایان توقف", color = Color.Gray, fontSize = 10.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = formatIsoTime(report.endTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Address
-            Row(verticalAlignment = Alignment.Top) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(16.dp).padding(top = 2.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = addressText ?: "آدرس نامشخص",
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp
-                )
+            if (selectedColumns.contains("engineHours")) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.SettingsSuggest, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = "ساعات کارکرد موتور: ${formatDuration(report.engineHours)}", color = Color.DarkGray, fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            
+            if (selectedColumns.contains("spentFuel")) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = "سوخت مصرفی: ${String.format(Locale.US, "%.1f", report.spentFuel).toPersianDigits()} لیتر", color = Color.DarkGray, fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (selectedColumns.contains("address")) {
+                // Address
+                Row(verticalAlignment = Alignment.Top) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp).padding(top = 2.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = addressText ?: "آدرس نامشخص",
+                        color = Color.DarkGray,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp
+                    )
+                }
             }
         }
     }
@@ -304,11 +384,22 @@ private fun formatIsoTime(isoString: String): String {
         val formatIn = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
-        val date = formatIn.parse(isoString.substring(0, 19))
-        val formatOut = SimpleDateFormat("HH:mm | yyyy/MM/dd", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("Asia/Tehran")
-        }
-        formatOut.format(date!!).toPersianDigits()
+        val date = formatIn.parse(isoString.substring(0, 19)) ?: return isoString
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = date }
+        
+        val h = cal.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+        val min = cal.get(Calendar.MINUTE).toString().padStart(2, '0')
+        
+        val gY = cal.get(Calendar.YEAR)
+        val gM = cal.get(Calendar.MONTH) + 1
+        val gD = cal.get(Calendar.DAY_OF_MONTH)
+        val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
+        
+        val y = jDate[0]
+        val m = jDate[1].toString().padStart(2, '0')
+        val d = jDate[2].toString().padStart(2, '0')
+        
+        "$h:$min | $y/$m/$d".toPersianDigits()
     } catch (e: Exception) {
         isoString
     }
@@ -324,7 +415,7 @@ private fun String.toPersianDigits(): String {
 }
 
 @Composable
-private fun DeviceSelectTrigger(
+fun DeviceSelectTrigger(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -368,7 +459,7 @@ private fun DeviceSelectTrigger(
 }
 
 @Composable
-private fun FilterChip(
+fun FilterChip(
     text: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -393,5 +484,122 @@ private fun FilterChip(
             fontWeight = FontWeight.Medium,
             maxLines = 1
         )
+    }
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun CustomDateBottomSheet(
+    onDismiss: () -> Unit,
+    onApplyCustomRange: (com.example.uzradyab.presentation.components.JalaliDateTime?, com.example.uzradyab.presentation.components.JalaliDateTime?) -> Unit
+) {
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showStartPicker by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showEndPicker by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var customStart by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<com.example.uzradyab.presentation.components.JalaliDateTime?>(null) }
+    var customEnd by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<com.example.uzradyab.presentation.components.JalaliDateTime?>(null) }
+    
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFFF7F9FA)
+    ) {
+        androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl) {
+            if (showStartPicker) {
+                com.example.uzradyab.presentation.components.JalaliDateTimePicker(
+                    title = "انتخاب تاریخ و ساعت شروع",
+                    initialDateTime = customStart,
+                    onConfirm = { 
+                        customStart = it
+                        showStartPicker = false
+                    },
+                    onCancel = { showStartPicker = false }
+                )
+            } else if (showEndPicker) {
+                com.example.uzradyab.presentation.components.JalaliDateTimePicker(
+                    title = "انتخاب تاریخ و ساعت پایان",
+                    initialDateTime = customEnd,
+                    onConfirm = { 
+                        customEnd = it
+                        showEndPicker = false
+                    },
+                    onCancel = { showEndPicker = false }
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    androidx.compose.material3.Text(
+                        text = "بازه زمانی دلخواه",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF384C5C),
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                    
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                        androidx.compose.material3.Text("تاریخ و ساعت شروع", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = { showStartPicker = true },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                        ) {
+                            androidx.compose.material3.Text(
+                                if (customStart != null) "${customStart!!.year}/${customStart!!.month.toString().padStart(2, '0')}/${customStart!!.day.toString().padStart(2, '0')} ${customStart!!.hour.toString().padStart(2, '0')}:${customStart!!.minute.toString().padStart(2, '0')}".toPersianDigits() 
+                                else "انتخاب کنید"
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                        androidx.compose.material3.Text("تاریخ و ساعت پایان", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = { showEndPicker = true },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                        ) {
+                            androidx.compose.material3.Text(
+                                if (customEnd != null) "${customEnd!!.year}/${customEnd!!.month.toString().padStart(2, '0')}/${customEnd!!.day.toString().padStart(2, '0')} ${customEnd!!.hour.toString().padStart(2, '0')}:${customEnd!!.minute.toString().padStart(2, '0')}".toPersianDigits() 
+                                else "انتخاب کنید"
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        androidx.compose.material3.Button(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            androidx.compose.material3.Text("انصراف", fontSize = 16.sp)
+                        }
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                if (customStart != null && customEnd != null) {
+                                    onApplyCustomRange(customStart, customEnd)
+                                }
+                            },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AppBlue),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            androidx.compose.material3.Text("ثبت", fontSize = 16.sp)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

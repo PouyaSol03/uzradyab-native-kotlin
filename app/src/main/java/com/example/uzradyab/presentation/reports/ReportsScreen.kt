@@ -46,7 +46,11 @@ fun ReportsRoute(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
+    onNavigateToDailyReport: () -> Unit,
     onNavigateToStopReports: () -> Unit,
+    onNavigateToReplayTrip: () -> Unit,
+    onNavigateToEvents: () -> Unit,
+    onNavigateToTripReports: () -> Unit,
     viewModel: ReportsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,7 +62,11 @@ fun ReportsRoute(
         onAddDeviceClick = onAddDeviceClick,
         onDeviceSelected = viewModel::selectDevice,
         onNavigateToDeviceStatus = onNavigateToDeviceStatus,
-        onNavigateToStopReports = onNavigateToStopReports
+        onNavigateToDailyReport = onNavigateToDailyReport,
+        onNavigateToStopReports = onNavigateToStopReports,
+        onNavigateToReplayTrip = onNavigateToReplayTrip,
+        onNavigateToEvents = onNavigateToEvents,
+        onNavigateToTripReports = onNavigateToTripReports
     )
 }
 
@@ -70,7 +78,11 @@ fun ReportsScreen(
     onAddDeviceClick: () -> Unit,
     onDeviceSelected: (Long) -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
-    onNavigateToStopReports: () -> Unit
+    onNavigateToDailyReport: () -> Unit,
+    onNavigateToStopReports: () -> Unit,
+    onNavigateToReplayTrip: () -> Unit,
+    onNavigateToEvents: () -> Unit,
+    onNavigateToTripReports: () -> Unit
 ) {
     val figmaBackground = Color(0xFFF3F4F6)
     var menuOpen by remember { mutableStateOf(false) }
@@ -144,8 +156,16 @@ fun ReportsScreen(
                         OtherReportsSection(onItemClick = { reportType ->
                             if (reportType == "وضعیت دستگاه") {
                                 onNavigateToDeviceStatus()
+                            } else if (reportType == "وضعیت روزانه") {
+                                onNavigateToDailyReport()
                             } else if (reportType == "توقف‌ها") {
                                 onNavigateToStopReports()
+                            } else if (reportType == "بازپخش مسیر") {
+                                onNavigateToReplayTrip()
+                            } else if (reportType == "رویدادها") {
+                                onNavigateToEvents()
+                            } else if (reportType == "مسافت‌ها") {
+                                onNavigateToTripReports()
                             } else {
                                 android.util.Log.d("ReportsRoute", "Clicked on: $reportType")
                             }
@@ -306,49 +326,6 @@ private fun CurrentDeviceStatusSection(
     }
 }
 
-@Composable
-private fun DeviceSelectTrigger(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .height(44.dp)
-            .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Default.DirectionsCar,
-            contentDescription = "Car",
-            tint = Color.Black,
-            modifier = Modifier.size(width = 20.dp, height = 16.dp)
-        )
-        Text(
-            text = text,
-            color = Color.Black,
-            fontSize = 14.sp,
-            lineHeight = 22.sp,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Right,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-        )
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = "Chevron Down",
-            tint = Color(0xFF1C262E),
-            modifier = Modifier.size(24.dp)
-        )
-    }
-}
 
 @Composable
 private fun StatCard(

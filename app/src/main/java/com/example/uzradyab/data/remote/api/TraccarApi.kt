@@ -99,6 +99,14 @@ interface TraccarApi {
         @Query("deviceId") deviceId: Long
     ): List<com.example.uzradyab.data.remote.dto.StopReportDto>
 
+    @retrofit2.http.Headers("Accept: application/json")
+    @GET("api/reports/trips")
+    suspend fun getTripsReport(
+        @Query("from") from: String,
+        @Query("to") to: String,
+        @Query("deviceId") deviceId: Long
+    ): List<com.example.uzradyab.data.remote.dto.TripReportDto>
+
     @POST("api/commands/send")
     suspend fun sendCommand(
         @Body request: com.example.uzradyab.data.remote.dto.CommandRequestDto

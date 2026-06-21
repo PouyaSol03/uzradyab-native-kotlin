@@ -365,10 +365,26 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onNavigateToDailyReport = {
+                    navController.navigate(AppRoute.DailyReport.path) {
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToStopReports = {
                     navController.navigate(AppRoute.StopReports.path) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToReplayTrip = {
+                    navController.navigate(AppRoute.ReplayTrip.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToEvents = {
+                    navController.navigate(AppRoute.Events.path) { launchSingleTop = true }
+                },
+                onNavigateToTripReports = {
+                    navController.navigate(AppRoute.TripReports.path) { launchSingleTop = true }
                 }
             )
         }
@@ -390,6 +406,29 @@ fun UzradyabApp(
                 },
                 onTraveledPathsClick = {
                     navController.popBackStack()
+                }
+            )
+        }
+        composable(AppRoute.DailyReport.path) {
+            com.example.uzradyab.presentation.reports.DailyReportRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onLogoutClick = {
+                    navController.navigate(AppRoute.SignIn.path) {
+                        popUpTo(AppRoute.Home.path) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onAddDeviceClick = {
+                    navController.navigate(AppRoute.AddDevice.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onTraveledPathsClick = {
+                    navController.navigate(AppRoute.ReplayTrip.path) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -474,6 +513,28 @@ fun UzradyabApp(
         }
         composable("alerts_settings") {
             AlertsSettingsRoute(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(AppRoute.TripReports.path) {
+            com.example.uzradyab.presentation.reports.TripReportsRoute(
+                onBackClick = { navController.popBackStack() },
+                onLogoutClick = {
+                    scope.launch {
+                        authRepository?.logout()
+                    }
+                    navController.navigate(AppRoute.SignIn.path) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onAddDeviceClick = {
+                    navController.navigate(AppRoute.AddDevice.path) { launchSingleTop = true }
+                }
+            )
+        }
+        composable(AppRoute.Events.path) {
+            com.example.uzradyab.presentation.events.EventsReportRoute(
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -571,9 +632,11 @@ private enum class AppRoute(val path: String) {
     AddDevice("/add-device"),
     Reports("/reports"),
     DeviceStatus("/device-status"),
+    DailyReport("/daily-report"),
     StopReports("/stop-reports"),
     ReplayTrip("/replay-trip"),
     CommandCenter("/command-center"),
     DebugLog("/debug-logs"),
     Geofence("/geofences"),
+    TripReports("/trip-reports"),
 }

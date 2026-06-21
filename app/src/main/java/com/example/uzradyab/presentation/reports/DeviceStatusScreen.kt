@@ -294,7 +294,7 @@ fun DeviceStatusScreen(
 }
 
 @Composable
-private fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: Boolean = false) {
+fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: Boolean = false) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -337,7 +337,7 @@ private fun LocationCard(title: String, address: String, icon: ImageVector, isLo
 }
 
 @Composable
-private fun DetailStatCard(
+fun DetailStatCard(
     modifier: Modifier = Modifier,
     title: String,
     value: String,
@@ -394,46 +394,4 @@ private fun DetailStatCard(
     }
 }
 
-@Composable
-private fun DeviceSelectTrigger(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .height(44.dp)
-            .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.Default.DirectionsCar,
-            contentDescription = "Car",
-            tint = Color.Black,
-            modifier = Modifier.size(width = 20.dp, height = 16.dp)
-        )
-        Text(
-            text = text,
-            color = Color.Black,
-            fontSize = 14.sp,
-            lineHeight = 22.sp,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Right,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp),
-        )
-        Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
-            contentDescription = "Chevron Down",
-            tint = Color(0xFF1C262E),
-            modifier = Modifier.size(24.dp)
-        )
-    }
-}
+

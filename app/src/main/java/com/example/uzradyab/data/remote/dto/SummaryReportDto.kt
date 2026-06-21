@@ -8,4 +8,9 @@ data class SummaryReportDto(
     val spentFuel: Double = 0.0,
     val startOdometer: Double = 0.0,
     val endOdometer: Double = 0.0,
+    val engineHours: Long = 0,
+    val startTime: String? = null,
+    val endTime: String? = null,
+    val startAddress: String? = null,
+    val endAddress: String? = null
 )

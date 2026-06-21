@@ -102,4 +102,21 @@ class ReportRepositoryImpl @Inject constructor(
     }.onFailure {
         AppLogger.log(LogLevel.ERROR, "Report", "getStopsReport failed: ${it.message}")
     }
+
+    override suspend fun getTripsReport(
+        deviceId: Long,
+        from: String,
+        to: String
+    ): Result<List<com.example.uzradyab.domain.model.TripReport>> = runCatching {
+        AppLogger.log(LogLevel.REQUEST, "Report", "getTripsReport for $deviceId: $from to $to")
+        val result = api.getTripsReport(
+            deviceId = deviceId,
+            from = from,
+            to = to
+        ).map { it.toDomain() }
+        AppLogger.log(LogLevel.RESPONSE, "Report", "getTripsReport received ${result.size} items")
+        result
+    }.onFailure {
+        AppLogger.log(LogLevel.ERROR, "Report", "getTripsReport failed: ${it.message}")
+    }
 }

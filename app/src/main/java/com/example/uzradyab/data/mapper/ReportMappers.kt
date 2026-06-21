@@ -12,7 +12,12 @@ fun SummaryReportDto.toDomain(): SummaryReport {
         maxSpeed = this.maxSpeed,
         spentFuel = this.spentFuel,
         startOdometer = this.startOdometer,
-        endOdometer = this.endOdometer
+        endOdometer = this.endOdometer,
+        engineHours = this.engineHours,
+        startTime = this.startTime,
+        endTime = this.endTime,
+        startAddress = this.startAddress,
+        endAddress = this.endAddress
     )
 }
 
@@ -29,5 +34,31 @@ fun com.example.uzradyab.data.remote.dto.StopReportDto.toDomain(): com.example.u
         duration = this.duration,
         engineHours = this.engineHours,
         spentFuel = this.spentFuel
+    )
+}
+
+fun com.example.uzradyab.data.remote.dto.TripReportDto.toDomain(): com.example.uzradyab.domain.model.TripReport {
+    return com.example.uzradyab.domain.model.TripReport(
+        deviceId = this.deviceId,
+        deviceName = this.deviceName,
+        distance = this.distance,
+        averageSpeed = this.averageSpeed,
+        maxSpeed = this.maxSpeed,
+        spentFuel = this.spentFuel,
+        startOdometer = this.startOdometer,
+        endOdometer = this.endOdometer,
+        startTime = this.startTime,
+        endTime = this.endTime,
+        startPositionId = this.startPositionId,
+        endPositionId = this.endPositionId,
+        startLat = this.startLat,
+        startLon = this.startLon,
+        endLat = this.endLat,
+        endLon = this.endLon,
+        startAddress = this.startAddress,
+        endAddress = this.endAddress,
+        duration = this.duration,
+        driverUniqueId = this.driverUniqueId,
+        driverName = this.driverName
     )
 }
