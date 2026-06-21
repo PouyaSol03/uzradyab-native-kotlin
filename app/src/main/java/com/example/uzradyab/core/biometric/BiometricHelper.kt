@@ -30,6 +30,24 @@ class BiometricHelper @Inject constructor(
         prefs.edit().putBoolean("is_biometric_enabled", enabled).apply()
     }
 
+    fun saveCredentials(phone: String, pass: String) {
+        val prefs = context.getSharedPreferences("biometric_prefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString("saved_phone", phone)
+            .putString("saved_pass", pass)
+            .apply()
+    }
+
+    fun getSavedPhone(): String? {
+        val prefs = context.getSharedPreferences("biometric_prefs", Context.MODE_PRIVATE)
+        return prefs.getString("saved_phone", null)
+    }
+
+    fun getSavedPassword(): String? {
+        val prefs = context.getSharedPreferences("biometric_prefs", Context.MODE_PRIVATE)
+        return prefs.getString("saved_pass", null)
+    }
+
     fun showBiometricPrompt(
         activity: FragmentActivity,
         title: String,

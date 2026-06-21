@@ -72,7 +72,8 @@ class StartupViewModel @Inject constructor(
 
             // 4. Check biometric availability and user preference
             if (biometricHelper.isBiometricAvailable() && biometricHelper.isBiometricEnabled()) {
-                _uiState.value = StartupUiState.BiometricRequired
+                // Route to SignIn where the biometric OS modal can be triggered
+                _navigationTarget.value = StartupNavigationTarget.SignIn
             } else {
                 // Device does not support or have biometrics set up, bypass and go straight to Home
                 _navigationTarget.value = StartupNavigationTarget.Home

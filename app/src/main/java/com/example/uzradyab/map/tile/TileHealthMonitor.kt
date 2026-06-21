@@ -68,8 +68,8 @@ class TileHealthMonitor @Inject constructor() {
 
     private val probeClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(4, TimeUnit.SECONDS)
-            .readTimeout(4, TimeUnit.SECONDS)
+            .connectTimeout(8, TimeUnit.SECONDS)
+            .readTimeout(8, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .build()
     }
@@ -133,7 +133,8 @@ class TileHealthMonitor @Inject constructor() {
         return try {
             val request = Request.Builder()
                 .url(url)
-                .head() // HEAD request — only check reachability, don't download body
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                .get() // Use GET instead of HEAD, as some CDNs and Google reject HEAD requests on map tiles
                 .build()
             val response = probeClient.newCall(request).execute()
             val success = response.isSuccessful

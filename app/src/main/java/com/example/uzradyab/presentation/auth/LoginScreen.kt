@@ -35,14 +35,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.R
 import com.example.uzradyab.core.designsystem.AuthBackground
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fingerprint
 
 import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.ui.theme.AppTextBody
+import com.example.uzradyab.presentation.startup.findActivity
 
 @Composable
 fun LoginRoute(
     onSignedIn: () -> Unit,
     onRegisterClick: () -> Unit,
+    biometricHelper: com.example.uzradyab.core.biometric.BiometricHelper = androidx.compose.ui.platform.LocalContext.current.let { com.example.uzradyab.core.biometric.BiometricHelper(it.applicationContext) },
     viewModel: AuthViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,12 +72,45 @@ fun LoginRoute(
         }
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = remember(context) { context.findActivity() }
+
+    val triggerBiometric = {
+        if (activity != null) {
+            biometricHelper.showBiometricPrompt(
+                activity = activity,
+                title = "ورود به برنامه",
+                subtitle = "برای ورود اثر انگشت یا چهره خود را تایید کنید",
+                negativeButtonText = "انصراف",
+                onSuccess = { viewModel.onBiometricSuccess() },
+                onError = { code, err -> 
+                    val ignoredCodes = listOf(
+                        androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED,
+                        androidx.biometric.BiometricPrompt.ERROR_CANCELED,
+                        androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                    )
+                    if (code !in ignoredCodes) {
+                        snackbarController.showError(err.toString())
+                    }
+                },
+                onFailed = { snackbarController.showError("تایید هویت ناموفق بود") }
+            )
+        }
+    }
+
+    LaunchedEffect(state.shouldAutoTriggerBiometric) {
+        if (state.shouldAutoTriggerBiometric) {
+            triggerBiometric()
+        }
+    }
+
     LoginScreen(
         state = state,
         onPhoneNumberChange = viewModel::onPhoneNumberChange,
         onPasswordChange = viewModel::onPasswordChange,
         onLoginClick = viewModel::login,
         onRegisterClick = onRegisterClick,
+        onBiometricClick = { viewModel.onBiometricClicked(triggerPrompt = triggerBiometric) },
     )
 }
 
@@ -84,6 +121,7 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
+    onBiometricClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -131,14 +169,32 @@ fun LoginScreen(
                         },
                         rightIcon = { PasswordKeyIcon() },
                     )
-                    Spacer(modifier = Modifier.height(13.dp))
-                    AuthTextLink(
-                        text = "فراموشی رمز عبور",
-                        onClick = {},
-                        modifier = Modifier.align(Alignment.Start),
-                        fontSize = 12,
-                    )
-                    Spacer(modifier = Modifier.height(48.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AuthTextLink(
+                            text = "فراموشی رمز عبور",
+                            onClick = {},
+                            fontSize = 12,
+                        )
+                    }
+                    if (state.canUseBiometric) {
+                        androidx.compose.material3.IconButton(
+                            onClick = onBiometricClick,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            androidx.compose.material3.Icon(
+                                imageVector = Icons.Default.Fingerprint,
+                                contentDescription = "ورود با اثر انگشت",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
                     AuthPrimaryButton(
                         text = if (state.isSubmitting) "در حال ورود..." else "ورود",
                         onClick = onLoginClick,

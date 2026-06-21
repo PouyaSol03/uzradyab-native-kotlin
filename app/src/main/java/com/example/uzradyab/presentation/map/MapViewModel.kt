@@ -265,9 +265,10 @@ class MapViewModel @Inject constructor(
         }
         viewModelScope.launch {
             tileHealthMonitor.suggestedFallback.collect { fallback ->
-                if (fallback != null) {
-                    localState.update { it.copy(activeTileSource = fallback) }
-                }
+                // Disable automatic map source switching to prevent overriding user's selection
+                // if (fallback != null) {
+                //     localState.update { it.copy(activeTileSource = fallback) }
+                // }
             }
         }
     }

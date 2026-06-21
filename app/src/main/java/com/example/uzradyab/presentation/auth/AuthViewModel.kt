@@ -14,6 +14,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -41,6 +43,8 @@ data class AuthUiState(
     val isPrivacyPolicyAccepted: Boolean = false,
     val errorMessage: String? = null,
     val infoMessage: String? = null,
+    val canUseBiometric: Boolean = false,
+    val shouldAutoTriggerBiometric: Boolean = false,
 )
 
 @HiltViewModel
@@ -50,10 +54,30 @@ class AuthViewModel @Inject constructor(
     private val fcmTokenManager: FcmTokenManager,
     private val deviceRepository: DeviceRepository,
     private val positionRepository: PositionRepository,
+    private val biometricHelper: com.example.uzradyab.core.biometric.BiometricHelper,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
     private var otpTimerJob: Job? = null
+
+    private var hasActiveSession = false
+
+    init {
+        viewModelScope.launch {
+            val session = authRepository.currentSession.firstOrNull()
+            hasActiveSession = session != null
+            val biometricAvailable = biometricHelper.isBiometricAvailable()
+            val biometricEnabled = biometricHelper.isBiometricEnabled()
+            val hasSavedCredentials = biometricHelper.getSavedPhone() != null && biometricHelper.getSavedPassword() != null
+            
+            _uiState.update { 
+                it.copy(
+                    canUseBiometric = biometricAvailable,
+                    shouldAutoTriggerBiometric = hasSavedCredentials && biometricAvailable && biometricEnabled
+                ) 
+            }
+        }
+    }
 
     fun onPhoneNumberChange(value: String) {
         if (value.length <= 11 && value.all(Char::isDigit)) {
@@ -105,6 +129,7 @@ class AuthViewModel @Inject constructor(
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
+                    biometricHelper.saveCredentials(state.phoneNumber, state.password)
                     fcmTokenManager.syncCurrentToken()
                     deviceRepository.refreshDevices()
                     positionRepository.refreshLatestPositions()
@@ -118,6 +143,50 @@ class AuthViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    fun onBiometricClicked(triggerPrompt: () -> Unit) {
+        val hasSavedCredentials = biometricHelper.getSavedPhone() != null && biometricHelper.getSavedPassword() != null
+        if (!hasSavedCredentials) {
+            _uiState.update { it.copy(infoMessage = "برای ورود با اثر انگشت، ابتدا یکبار با رمز عبور وارد شوید.") }
+            return
+        }
+        if (!biometricHelper.isBiometricEnabled()) {
+            _uiState.update { it.copy(infoMessage = "لطفاً ابتدا اثر انگشت را در تنظیمات برنامه فعال کنید.") }
+            return
+        }
+        triggerPrompt()
+    }
+
+    fun onBiometricSuccess() {
+        if (hasActiveSession) {
+            _uiState.update { it.copy(isSignedIn = true) }
+        } else {
+            val phone = biometricHelper.getSavedPhone()
+            val pass = biometricHelper.getSavedPassword()
+            if (phone != null && pass != null) {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+                    authRepository.login(phone, pass)
+                        .onSuccess {
+                            fcmTokenManager.syncCurrentToken()
+                            deviceRepository.refreshDevices()
+                            positionRepository.refreshLatestPositions()
+                            _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
+                        }
+                        .onFailure {
+                            _uiState.update { current ->
+                                current.copy(
+                                    isSubmitting = false,
+                                    errorMessage = "ورود با اثر انگشت با خطا مواجه شد",
+                                )
+                            }
+                        }
+                }
+            } else {
+                _uiState.update { it.copy(errorMessage = "اطلاعات ورود یافت نشد. لطفا یکبار با رمز عبور وارد شوید.") }
+            }
         }
     }
 

@@ -78,15 +78,15 @@ fun TrackingMap(
             factory = {
                 // Use centralised configuration instead of inline duplication
                 OsmdroidConfig.configure(it.applicationContext)
+                val tileProvider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(it.applicationContext)
 
-                MapView(it).apply {
+                MapView(it, tileProvider).apply {
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)
                     setBuiltInZoomControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setMinZoomLevel(3.0)
-                    // Respect tile source's declared max zoom instead of hardcoded 23
                     setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
                     controller.setZoom(18.0)
                     controller.setCenter(center)
@@ -173,6 +173,11 @@ fun TrackingMap(
                 }
                 mapView.invalidate()
             },
+            onRelease = { mapView ->
+                // Clean up map resources to prevent memory leaks and database locks
+                mapView.tileProvider.detach()
+                mapView.onDetach()
+            }
         )
     }
 }

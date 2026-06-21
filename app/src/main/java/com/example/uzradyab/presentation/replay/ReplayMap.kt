@@ -61,8 +61,9 @@ fun ReplayMap(
             factory = {
                 // Use centralised configuration instead of inline duplication
                 OsmdroidConfig.configure(it.applicationContext)
+                val tileProvider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(it.applicationContext)
 
-                MapView(it).apply {
+                MapView(it, tileProvider).apply {
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)
@@ -156,6 +157,10 @@ fun ReplayMap(
 
                 mapView.invalidate()
             },
+            onRelease = { mapView ->
+                mapView.tileProvider.detach()
+                mapView.onDetach()
+            }
         )
     }
 }
