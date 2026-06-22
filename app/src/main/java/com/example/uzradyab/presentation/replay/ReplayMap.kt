@@ -77,6 +77,7 @@ fun ReplayMap(
             update = { mapView ->
                 val tileSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                 if (mapView.tileProvider.tileSource != tileSource) {
+                    mapView.tileProvider.clearTileCache()
                     mapView.setTileSource(tileSource)
                     // Update max zoom to match the new source's limit
                     mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())

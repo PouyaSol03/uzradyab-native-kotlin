@@ -193,6 +193,7 @@ fun GeofenceMap(
             // Keep Map Tile Source updates fast and simple here
             val tileSource = TileSourceRegistry.resolve(state.mapStyle)
             if (view.tileProvider.tileSource != tileSource) {
+                view.tileProvider.clearTileCache()
                 view.setTileSource(tileSource)
                 view.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
             }

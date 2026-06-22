@@ -18,8 +18,6 @@ object OsmdroidConfig {
     /** Trim target when cache exceeds max (400 MB). */
     private const val CACHE_TRIM_BYTES = 400L * 1024 * 1024
 
-    /** Keep cached tiles valid for 30 days before re-fetching. */
-    private const val EXPIRATION_EXTENSION_MS = 1000L * 60 * 60 * 24 * 30
 
     /** Parallel tile-download threads (default is 2). */
     private const val TILE_DOWNLOAD_THREADS = 4
@@ -54,8 +52,7 @@ object OsmdroidConfig {
             tileFileSystemCacheMaxBytes = CACHE_MAX_BYTES
             tileFileSystemCacheTrimBytes = CACHE_TRIM_BYTES
             
-            // expirationExtendedDuration extends the server's cache headers.
-            expirationExtendedDuration = EXPIRATION_EXTENSION_MS
+
             
             tileDownloadThreads = TILE_DOWNLOAD_THREADS.toShort()
             tileDownloadMaxQueueSize = TILE_DOWNLOAD_MAX_QUEUE.toShort()
