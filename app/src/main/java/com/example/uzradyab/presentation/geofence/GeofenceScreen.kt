@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.domain.model.Geofence
 import com.example.uzradyab.presentation.map.AppTopToolbar
@@ -279,25 +282,50 @@ fun GeofenceListPanel(
     onDeleteClick: (Long) -> Unit,
     onItemClick: (Long) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().heightIn(min = 200.dp, max = 400.dp)) {
+    val geofenceToDelete = remember { mutableStateOf<Geofence?>(null) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("محدوده‌های من", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
-            IconButton(onClick = onAddClick) {
-                Icon(Icons.Default.Add, contentDescription = "Add Geofence", tint = AppBlue)
+            Box(
+                modifier = Modifier
+                    .height(36.dp)
+                    .background(AppBlue, RoundedCornerShape(8.dp))
+                    .clickable(onClick = onAddClick)
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Geofence",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "افزودن محدوده",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
         }
 
         if (geofences.isEmpty()) {
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
                 Text("هیچ محدوده‌ای ثبت نشده است.", color = Color.Gray)
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false),
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
                 items(
@@ -307,11 +335,22 @@ fun GeofenceListPanel(
                     GeofenceItem(
                         geofence = geofence,
                         onClick = { onItemClick(geofence.id) },
-                        onDeleteClick = { onDeleteClick(geofence.id) }
+                        onDeleteClick = { geofenceToDelete.value = geofence }
                     )
                 }
             }
         }
+    }
+
+    if (geofenceToDelete.value != null) {
+        DeleteGeofenceDialog(
+            geofence = geofenceToDelete.value!!,
+            onDismiss = { geofenceToDelete.value = null },
+            onConfirm = {
+                onDeleteClick(geofenceToDelete.value!!.id)
+                geofenceToDelete.value = null
+            }
+        )
     }
 }
 
@@ -343,6 +382,90 @@ fun GeofenceItem(
         }
         IconButton(onClick = onDeleteClick) {
             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
+        }
+    }
+}
+
+@Composable
+fun DeleteGeofenceDialog(
+    geofence: Geofence,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.85f)
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title and Icon
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = Color(0xFFE55353)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "حذف محدوده جغرافیایی ${geofence.name}",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF384C5C)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Description
+                Text(
+                    text = "با حذف محدوده جغرافیایی امکان بازیابی مجدد آن وجود ندارد. آیا از حذف آن مطمئن هستید؟",
+                    fontSize = 13.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Right,
+                    lineHeight = 22.sp
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = onDismiss
+                    ) {
+                        Text("انصراف", color = AppBlue, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    }
+                    Spacer(modifier = Modifier.width(24.dp))
+                    Button(
+                        onClick = onConfirm,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE55353)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .height(44.dp)
+                            .widthIn(min = 120.dp)
+                    ) {
+                        Text("بله", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
         }
     }
 }

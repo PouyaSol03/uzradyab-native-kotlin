@@ -176,8 +176,10 @@ fun GeofenceMap(
 
             // If we found a valid point, animate the map to it
             targetPoint?.let { point ->
-                // Set a moderate zoom level (e.g. 15.0) to avoid "high zoom" issues
-                mapView.controller.setZoom(15.0)
+                // Mark map as loaded so device position initial centering doesn't override this
+                mapView.tag = "loaded"
+                // Set a better zoom in level
+                mapView.controller.setZoom(16.5)
                 mapView.controller.animateTo(point)
             }
         }

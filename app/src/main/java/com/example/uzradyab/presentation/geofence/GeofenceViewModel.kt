@@ -74,7 +74,8 @@ class GeofenceViewModel @Inject constructor(
             // 1. Load ALL geofences for the user account (No deviceId required)
             val result = geofenceRepository.getGeofences()
             result.onSuccess { geofences ->
-                _state.update { it.copy(geofences = geofences) }
+                val initialSelectedId = if (geofences.size == 1) geofences.first().id else null
+                _state.update { it.copy(geofences = geofences, selectedGeofenceId = initialSelectedId) }
             }.onFailure { e ->
                 _state.update { it.copy(error = e.message) }
             }
