@@ -7,6 +7,7 @@ import org.osmdroid.tileprovider.modules.MapTileAssetsProvider
 import org.osmdroid.tileprovider.modules.MapTileFileArchiveProvider
 import org.osmdroid.tileprovider.modules.MapTileSqlCacheProvider
 import org.osmdroid.tileprovider.modules.NetworkAvailabliltyCheck
+import org.osmdroid.tileprovider.modules.MapTileApproximater
 import org.osmdroid.tileprovider.tilesource.ITileSource
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver
@@ -51,6 +52,13 @@ class UzradyabMapTileProvider(
             networkAvailabilityCheck = networkAvailabilityCheck
         )
         mTileProviderList.add(okHttpProvider)
+        
+        // 5. Approximater (Stretches low-res tiles to instantly fill chess squares while disk/network loads)
+        val approximationProvider = MapTileApproximater()
+        mTileProviderList.add(approximationProvider)
+        approximationProvider.addProvider(assetsProvider)
+        approximationProvider.addProvider(sqlCacheProvider)
+        approximationProvider.addProvider(archiveProvider)
     }
 
     override fun detach() {
