@@ -46,6 +46,7 @@ data class HomeMapUiState(
     val signedOut: Boolean = false,
     val todayDistanceText: String = "در حال دریافت",
     val latestEvent: MapLatestEventItem? = null,
+    val latestEventsMap: Map<Long, MapLatestEventItem> = emptyMap(),
     val mapSettingsOpen: Boolean = false,
     val mapStyle: String = "carto",
     val tileHealth: TileHealthState = TileHealthState.Unknown,
@@ -88,7 +89,7 @@ class MapViewModel @Inject constructor(
             latestPositions = snapshot.latestPositions,
             selectedDeviceId = selected,
             connectionState = connection,
-            latestEvent = local.latestEvent ?: latestEventForDevice(recentEvents, selected),
+            latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
             mapStyle = mapStyle,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
@@ -231,15 +232,18 @@ class MapViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .collectLatest { deviceId ->
                     if (deviceId == null) {
-                        localState.update { it.copy(latestEvent = null) }
                         return@collectLatest
                     }
-                    localState.update { it.copy(latestEvent = null) }
                     while (true) {
                         eventRepository.fetchLatestDeviceEvents(deviceId)
                             .onSuccess { events ->
-                                localState.update { state ->
-                                    state.copy(latestEvent = events.firstOrNull()?.toTickerItem())
+                                val item = events.firstOrNull()?.toTickerItem()
+                                if (item != null) {
+                                    localState.update { state ->
+                                        val newMap = state.latestEventsMap.toMutableMap()
+                                        newMap[deviceId] = item
+                                        state.copy(latestEventsMap = newMap)
+                                    }
                                 }
                             }
                         delay(120_000L)
