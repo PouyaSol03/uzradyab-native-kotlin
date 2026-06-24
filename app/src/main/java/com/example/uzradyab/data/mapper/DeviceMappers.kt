@@ -17,15 +17,27 @@ fun DeviceDto.toEntity(): DeviceEntity = DeviceEntity(
     phone = phone,
 )
 
-fun DeviceEntity.toDomain(): Device = Device(
-    id = id,
-    name = name,
-    uniqueId = uniqueId,
-    status = status,
-    category = category,
-    disabled = disabled,
-    lastUpdate = lastUpdate,
-    expirationTime = expirationTime,
-    attributesJson = attributesJson,
-    phone = phone,
-)
+fun DeviceEntity.toDomain(): Device {
+    val km = try {
+        val obj = com.google.gson.JsonParser.parseString(attributesJson).asJsonObject
+        if (obj.has("currentKilometers")) obj.get("currentKilometers").asString else ""
+    } catch (e: com.google.gson.JsonSyntaxException) {
+        ""
+    } catch (e: IllegalStateException) {
+        ""
+    }
+
+    return Device(
+        id = id,
+        name = name,
+        uniqueId = uniqueId,
+        status = status,
+        category = category,
+        disabled = disabled,
+        lastUpdate = lastUpdate,
+        expirationTime = expirationTime,
+        attributesJson = attributesJson,
+        phone = phone,
+        currentKilometers = km
+    )
+}

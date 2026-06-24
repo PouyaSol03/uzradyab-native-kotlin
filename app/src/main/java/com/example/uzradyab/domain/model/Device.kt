@@ -11,5 +11,6 @@ data class Device(
     val expirationTime: String?,
     val attributesJson: String,
     val phone: String?,
+    val currentKilometers: String = ""
 )
 

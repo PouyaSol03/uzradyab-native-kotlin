@@ -70,15 +70,7 @@ class AddDeviceViewModel @Inject constructor(
                     uniqueId = it.uniqueId
                     phone = it.phone.orEmpty()
                     
-                    val currentKm = try {
-                        val obj = com.google.gson.JsonParser.parseString(it.attributesJson).asJsonObject
-                        if (obj.has("currentKilometers")) {
-                            obj.get("currentKilometers").asString
-                        } else ""
-                    } catch (e: Exception) {
-                        ""
-                    }
-                    currentKilometers = currentKm
+                    currentKilometers = it.currentKilometers
                     
                     it.expirationTime?.let { expTime ->
                         val persianDate = formatGregorianToJalali(expTime)
