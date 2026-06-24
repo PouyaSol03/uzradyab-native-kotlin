@@ -11,6 +11,7 @@ import androidx.navigation.NavType
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -97,10 +98,16 @@ fun UzradyabApp(
     }
 
     var showNetworkErrorSheet by remember { mutableStateOf(false) }
+    var lastNetworkErrorTime by rememberSaveable { mutableStateOf(0L) }
 
     LaunchedEffect(networkEventBus) {
         networkEventBus?.networkErrorEvent?.collectLatest {
-            showNetworkErrorSheet = true
+            val currentTime = System.currentTimeMillis()
+            val oneHourMs = 60L * 60L * 1000L
+            if (currentTime - lastNetworkErrorTime > oneHourMs) {
+                showNetworkErrorSheet = true
+                lastNetworkErrorTime = currentTime
+            }
         }
     }
 
