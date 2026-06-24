@@ -306,7 +306,8 @@ private fun formatDistance(distanceMeters: Double): String {
 }
 
 private fun latestEventForDevice(events: List<Event>, deviceId: Long?): MapLatestEventItem? {
-    val event = events.firstOrNull { it.deviceId == deviceId } ?: events.firstOrNull()
+    if (deviceId == null) return null
+    val event = events.firstOrNull { it.deviceId == deviceId }
     return event?.let {
         val formattedTime = formatEventTime(it.eventTime)
         val text = formatEventText(it)
