@@ -5,9 +5,45 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
-class PersistentCookieJar(context: Context) : CookieJar {
-    private val preferences = context.getSharedPreferences("uzradyab_cookies", Context.MODE_PRIVATE)
+class PersistentCookieJar(private val context: Context) : CookieJar {
+    private val preferences: SharedPreferences by lazy {
+        val encryptedPrefs = try {
+            getEncryptedSharedPreferences()
+        } catch (e: Exception) {
+            context.deleteSharedPreferences("uzradyab_cookies_secure")
+            getEncryptedSharedPreferences()
+        }
+
+        // Migration from old unencrypted prefs
+        val oldPrefs = context.getSharedPreferences("uzradyab_cookies", Context.MODE_PRIVATE)
+        if (oldPrefs.contains(KEY_COOKIES)) {
+            encryptedPrefs.edit()
+                .putStringSet(KEY_COOKIES, oldPrefs.getStringSet(KEY_COOKIES, emptySet()))
+                .apply()
+            
+            oldPrefs.edit().clear().apply()
+        }
+
+        encryptedPrefs
+    }
+
+    private fun getEncryptedSharedPreferences(): SharedPreferences {
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        return EncryptedSharedPreferences.create(
+            context,
+            "uzradyab_cookies_secure",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         if (cookies.isEmpty()) return
