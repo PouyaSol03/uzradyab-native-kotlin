@@ -84,11 +84,12 @@ class OkHttpTileModuleProvider(
                 // Buffer the entire stream so we can both save it to cache and create a Drawable
                 val bytes = response.body?.bytes() ?: return null
 
-                // 1. Save directly to osmdroid's SQLite cache
+                // 1. Save directly to osmdroid's SQLite cache with a 1-year expiration
                 if (filesystemCache != null) {
                     try {
                         val bais = java.io.ByteArrayInputStream(bytes)
-                        filesystemCache.saveFile(source, pMapTileIndex, bais, null)
+                        val expirationTime = System.currentTimeMillis() + 365L * 24 * 60 * 60 * 1000
+                        filesystemCache.saveFile(source, pMapTileIndex, bais, expirationTime)
                     } catch (e: Exception) {
                         Log.e("OkHttpTileModule", "Error saving tile to cache", e)
                     }

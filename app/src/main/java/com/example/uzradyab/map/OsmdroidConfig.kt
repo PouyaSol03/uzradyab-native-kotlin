@@ -12,11 +12,11 @@ object OsmdroidConfig {
 
     private const val OSMDROID_PREFS = "osmdroid"
 
-    /** Max on-disk tile cache in bytes (500 MB). */
-    private const val CACHE_MAX_BYTES = 500L * 1024 * 1024
+    /** Max on-disk tile cache in bytes (1 GB). */
+    private const val CACHE_MAX_BYTES = 1000L * 1024 * 1024
 
-    /** Trim target when cache exceeds max (400 MB). */
-    private const val CACHE_TRIM_BYTES = 400L * 1024 * 1024
+    /** Trim target when cache exceeds max (900 MB). */
+    private const val CACHE_TRIM_BYTES = 900L * 1024 * 1024
 
 
     /** Parallel tile-download threads (default is 2). */
@@ -52,8 +52,8 @@ object OsmdroidConfig {
             tileFileSystemCacheMaxBytes = CACHE_MAX_BYTES
             tileFileSystemCacheTrimBytes = CACHE_TRIM_BYTES
             
-
-            
+            cacheMapTileCount = 150.toShort()
+            cacheMapTileOvershoot = 30.toShort()
             tileDownloadThreads = TILE_DOWNLOAD_THREADS.toShort()
             tileDownloadMaxQueueSize = TILE_DOWNLOAD_MAX_QUEUE.toShort()
             tileFileSystemMaxQueueSize = TILE_FS_MAX_QUEUE.toShort()
