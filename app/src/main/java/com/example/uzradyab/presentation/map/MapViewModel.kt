@@ -57,6 +57,7 @@ data class HomeMapUiState(
     val tileHealth: TileHealthState = TileHealthState.Unknown,
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     val isMapLocked: Boolean = false,
+    val infoMessage: String? = null,
 )
 
 data class MapLatestEventItem(
@@ -118,13 +119,19 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             mapSettingsRepository.setLastSelectedDeviceId(deviceId)
         }
+        val hasPosition = localState.value.latestPositions[deviceId] != null
         localState.update {
             it.copy(
                 selectedDeviceId = deviceId,
                 devicesOpen = false,
                 deviceManagementOpen = false,
+                infoMessage = if (!hasPosition) "هنوز موقعیتی برای این دستگاه ثبت نشده است." else null
             )
         }
+    }
+
+    fun clearInfoMessage() {
+        localState.update { it.copy(infoMessage = null) }
     }
 
     fun toggleDevices() {

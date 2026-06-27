@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.DirectionsCar
@@ -88,6 +89,7 @@ fun TripReportsScreen(
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
+    /*
     androidx.compose.runtime.LaunchedEffect(state.error) {
         state.error?.let { msg ->
             snackbarHostState.showSnackbar(
@@ -97,6 +99,7 @@ fun TripReportsScreen(
             onClearError()
         }
     }
+    */
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
@@ -250,6 +253,7 @@ fun TripReportsScreen(
             }
 
             // Custom Error Snackbar
+            /*
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -268,7 +272,7 @@ fun TripReportsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.Warning,
+                                    imageVector = Icons.Default.Info,
                                     contentDescription = null,
                                     tint = Color(0xFFE55353)
                                 )
@@ -284,6 +288,7 @@ fun TripReportsScreen(
                     }
                 )
             }
+            */
             } // Close Box
         } // Close Scaffold
     } // Close CompositionLocalProvider

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -59,6 +60,7 @@ fun EventsReportScreen(
 ) {
     val snackbarHostState = androidx.compose.runtime.remember { SnackbarHostState() }
 
+    /*
     androidx.compose.runtime.LaunchedEffect(state.error) {
         state.error?.let { msg ->
             snackbarHostState.showSnackbar(
@@ -68,6 +70,7 @@ fun EventsReportScreen(
             onClearError()
         }
     }
+    */
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
@@ -180,6 +183,7 @@ fun EventsReportScreen(
             }
 
             // Custom Error Snackbar
+            /*
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -199,7 +203,7 @@ fun EventsReportScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.Warning,
+                                    imageVector = Icons.Default.Info,
                                     contentDescription = null,
                                     tint = Color(0xFFE55353)
                                 )
@@ -215,6 +219,7 @@ fun EventsReportScreen(
                     }
                 )
             }
+            */
         }
     }
 }

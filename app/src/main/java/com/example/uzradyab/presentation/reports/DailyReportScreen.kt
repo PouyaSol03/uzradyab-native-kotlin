@@ -78,6 +78,7 @@ fun DailyReportScreen(
     
     val snackbarHostState = remember { SnackbarHostState() }
 
+    /*
     LaunchedEffect(state.error) {
         state.error?.let { msg ->
             snackbarHostState.showSnackbar(
@@ -87,6 +88,7 @@ fun DailyReportScreen(
             onClearError()
         }
     }
+    */
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
@@ -354,6 +356,7 @@ fun DailyReportScreen(
                     )
                 }
 
+                /*
                 // Custom Error Snackbar
                 Box(
                     modifier = Modifier
@@ -389,9 +392,8 @@ fun DailyReportScreen(
                         }
                     )
                 }
+                */
             }
         }
     }
 }
-
-

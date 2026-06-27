@@ -68,6 +68,7 @@ fun ReplayTripScreen(
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
+    /*
     LaunchedEffect(state.error) {
         state.error?.let { msg ->
             snackbarHostState.showSnackbar(
@@ -77,6 +78,7 @@ fun ReplayTripScreen(
             viewModel.clearError()
         }
     }
+    */
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Column(
@@ -227,6 +229,7 @@ fun ReplayTripScreen(
                 }
 
                 // Custom Error Snackbar
+                /*
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -261,7 +264,7 @@ fun ReplayTripScreen(
                         }
                     )
                 }
-
+                */
                 // Bottom Panel
                 Box(
                     modifier = Modifier

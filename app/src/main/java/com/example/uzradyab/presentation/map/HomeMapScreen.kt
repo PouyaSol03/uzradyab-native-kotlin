@@ -208,6 +208,7 @@ fun HomeMapScreen(
                     }
                 }
 
+                /*
                 LaunchedEffect(state.infoMessage) {
                     state.infoMessage?.let { msg ->
                         snackbarHostState.showSnackbar(
@@ -217,6 +218,7 @@ fun HomeMapScreen(
                         onClearInfoMessage()
                     }
                 }
+                */
 
                 TrackingMap(
                     devices = state.devices,

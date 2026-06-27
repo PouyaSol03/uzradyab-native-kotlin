@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -117,6 +118,7 @@ fun StopReportsScreen(
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
+    /*
     androidx.compose.runtime.LaunchedEffect(state.error) {
         state.error?.let { msg ->
             snackbarHostState.showSnackbar(
@@ -126,6 +128,7 @@ fun StopReportsScreen(
             onClearError()
         }
     }
+    */
 
     Box(modifier = Modifier.fillMaxSize().background(figmaBackground)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -261,6 +264,7 @@ fun StopReportsScreen(
         }
 
         // Custom Error Snackbar
+        /*
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -279,7 +283,7 @@ fun StopReportsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Warning,
+                                imageVector = Icons.Default.Info,
                                 contentDescription = null,
                                 tint = Color(0xFFE55353)
                             )
@@ -295,6 +299,7 @@ fun StopReportsScreen(
                 }
             )
         }
+        */
     }
 }
 
