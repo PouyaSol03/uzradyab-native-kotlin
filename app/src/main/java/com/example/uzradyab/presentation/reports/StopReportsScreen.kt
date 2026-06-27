@@ -279,7 +279,7 @@ fun StopReportsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                imageVector = androidx.compose.material.icons.Icons.Default.Warning,
                                 contentDescription = null,
                                 tint = Color(0xFFE55353)
                             )

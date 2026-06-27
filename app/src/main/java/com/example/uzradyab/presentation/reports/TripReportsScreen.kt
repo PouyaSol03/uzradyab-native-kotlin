@@ -130,11 +130,12 @@ fun TripReportsScreen(
                 )
             }
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
                 // Device Selector
                 Box(
                     modifier = Modifier
@@ -267,7 +268,7 @@ fun TripReportsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Warning,
                                     contentDescription = null,
                                     tint = Color(0xFFE55353)
                                 )
@@ -283,9 +284,10 @@ fun TripReportsScreen(
                     }
                 )
             }
-        }
-    }
-}
+            } // Close Box
+        } // Close Scaffold
+    } // Close CompositionLocalProvider
+} // Close TripReportsScreen
 
 @Composable
 fun TripReportCard(

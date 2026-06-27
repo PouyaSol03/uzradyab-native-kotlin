@@ -93,6 +93,7 @@ fun HomeMapRoute(
         onManageDeviceClick = viewModel::openDeviceManagement,
         onCloseDeviceManagement = viewModel::closeDeviceManagement,
         onTileHealthErrorConsumed = viewModel::consumeTileHealthError,
+        onClearInfoMessage = viewModel::clearInfoMessage,
         onEventsClick = { onEventsClick(state.selectedDeviceId) },
         onDevicesClick = onDevicesClick,
         onProfileClick = onProfileClick,
@@ -121,6 +122,7 @@ fun HomeMapScreen(
     onManageDeviceClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onTileHealthErrorConsumed: () -> Unit,
+    onClearInfoMessage: () -> Unit,
     onEventsClick: () -> Unit,
     onDevicesClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -203,6 +205,16 @@ fun HomeMapScreen(
                         // بعد از نمایش پیام، باید وضعیت رو به حالت نرمال برگردونیم
                         // تا اگر کاربر اینترنت رو وصل کرد یا منبع نقشه درست شد، پیام دوباره تکرار نشه
                         onTileHealthErrorConsumed()
+                    }
+                }
+
+                LaunchedEffect(state.infoMessage) {
+                    state.infoMessage?.let { msg ->
+                        snackbarHostState.showSnackbar(
+                            message = msg,
+                            duration = androidx.compose.material3.SnackbarDuration.Short
+                        )
+                        onClearInfoMessage()
                     }
                 }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -198,7 +199,7 @@ fun EventsReportScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Warning,
                                     contentDescription = null,
                                     tint = Color(0xFFE55353)
                                 )
