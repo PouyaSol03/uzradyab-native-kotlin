@@ -44,6 +44,7 @@ fun EventsReportRoute(
         state = state,
         onBackClick = onBackClick,
         onFilterChange = viewModel::setDateFilter,
+        onClearError = viewModel::clearError
     )
 }
 
@@ -52,8 +53,21 @@ fun EventsReportScreen(
     state: EventsReportUiState,
     onBackClick: () -> Unit,
     onFilterChange: (EventDateFilter) -> Unit,
+    onClearError: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarHostState = androidx.compose.runtime.remember { SnackbarHostState() }
+
+    androidx.compose.runtime.LaunchedEffect(state.error) {
+        state.error?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = SnackbarDuration.Short
+            )
+            onClearError()
+        }
+    }
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
             topBar = {
@@ -162,6 +176,43 @@ fun EventsReportScreen(
         NotificationSettingsRow()
         
         Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Custom Error Snackbar
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            ) {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    snackbar = { data ->
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = Color(0xFFE55353)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = data.visuals.message,
+                                    color = Color(0xFFE55353),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                )
             }
         }
     }

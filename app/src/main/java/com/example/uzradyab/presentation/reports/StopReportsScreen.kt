@@ -88,7 +88,8 @@ fun StopReportsRoute(
         onResolveAddress = viewModel::resolveAddress,
         onOpenColumnSelector = viewModel::openColumnSelector,
         onDismissColumnSelector = viewModel::dismissColumnSelector,
-        onToggleColumn = viewModel::toggleColumn
+        onToggleColumn = viewModel::toggleColumn,
+        onClearError = viewModel::clearError
     )
 }
 
@@ -107,11 +108,24 @@ fun StopReportsScreen(
     onResolveAddress: suspend (Double, Double) -> String,
     onOpenColumnSelector: () -> Unit,
     onDismissColumnSelector: () -> Unit,
-    onToggleColumn: (String) -> Unit
+    onToggleColumn: (String) -> Unit,
+    onClearError: () -> Unit
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
     val figmaBackground = Color(0xFFF9F9F9)
+
+    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+
+    androidx.compose.runtime.LaunchedEffect(state.error) {
+        state.error?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = androidx.compose.material3.SnackbarDuration.Short
+            )
+            onClearError()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(figmaBackground)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -243,6 +257,42 @@ fun StopReportsScreen(
                 selectedIds = state.selectedColumns,
                 onToggle = onToggleColumn,
                 onDismiss = onDismissColumnSelector
+            )
+        }
+
+        // Custom Error Snackbar
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+        ) {
+            androidx.compose.material3.SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { data ->
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                contentDescription = null,
+                                tint = Color(0xFFE55353)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = data.visuals.message,
+                                color = Color(0xFFE55353),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
             )
         }
     }

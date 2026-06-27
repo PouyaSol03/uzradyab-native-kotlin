@@ -192,7 +192,8 @@ class TripReportsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        reports = uiModels
+                        reports = uiModels,
+                        error = if (uiModels.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null
                     )
                 }
             }.onFailure { err ->
@@ -204,6 +205,10 @@ class TripReportsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 
     suspend fun resolveAddress(lat: Double, lon: Double): String {

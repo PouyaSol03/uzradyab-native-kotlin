@@ -189,7 +189,7 @@ class StopReportsViewModel @Inject constructor(
                         )
                     }
                 }
-                _uiState.update { it.copy(isLoading = false, reports = uiModels) }
+                _uiState.update { it.copy(isLoading = false, reports = uiModels, error = if (uiModels.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null) }
             }.onFailure { err ->
                 _uiState.update { it.copy(isLoading = false, error = err.message ?: "خطا در دریافت گزارش") }
             }

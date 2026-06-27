@@ -166,7 +166,8 @@ class DailyReportViewModel @Inject constructor(
                         distance = FormatUtils.formatDoublePersian((summary?.distance ?: 0.0) / 1000.0),
                         spentFuel = FormatUtils.formatDoublePersian(summary?.spentFuel ?: 0.0),
                         startOdometer = FormatUtils.formatDoublePersian((summary?.startOdometer ?: 0.0) / 1000.0),
-                        endOdometer = FormatUtils.formatDoublePersian((summary?.endOdometer ?: 0.0) / 1000.0)
+                        endOdometer = FormatUtils.formatDoublePersian((summary?.endOdometer ?: 0.0) / 1000.0),
+                        error = if (data.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null
                     ) 
                 }
             }.onFailure { err ->

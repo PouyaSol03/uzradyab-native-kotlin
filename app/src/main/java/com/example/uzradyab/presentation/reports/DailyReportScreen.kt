@@ -54,7 +54,8 @@ fun DailyReportRoute(
         onDeviceSelected = viewModel::onDeviceSelected,
         onFilterSelected = viewModel::onDateFilterSelected,
         onCustomDateApply = viewModel::applyCustomDateRange,
-        onCustomDateDismiss = viewModel::dismissCustomDatePicker
+        onCustomDateDismiss = viewModel::dismissCustomDatePicker,
+        onClearError = viewModel::clearError
     )
 }
 
@@ -68,11 +69,24 @@ fun DailyReportScreen(
     onDeviceSelected: (Long) -> Unit,
     onFilterSelected: (String) -> Unit,
     onCustomDateApply: (com.example.uzradyab.presentation.components.JalaliDateTime?, com.example.uzradyab.presentation.components.JalaliDateTime?) -> Unit,
-    onCustomDateDismiss: () -> Unit
+    onCustomDateDismiss: () -> Unit,
+    onClearError: () -> Unit
 ) {
     val figmaBackground = Color(0xFFF3F4F6)
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.error) {
+        state.error?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = SnackbarDuration.Short
+            )
+            onClearError()
+        }
+    }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
@@ -143,14 +157,7 @@ fun DailyReportScreen(
                     ) {
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        if (state.error != null) {
-                            Text(
-                                text = state.error,
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Status card
                         val deviceStatusText = "روشن" // Defaulting to on, as summary is just daily aggregated data
@@ -344,6 +351,42 @@ fun DailyReportScreen(
                     CustomDateBottomSheet(
                         onDismiss = onCustomDateDismiss,
                         onApplyCustomRange = onCustomDateApply
+                    )
+                }
+
+                // Custom Error Snackbar
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        snackbar = { data ->
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = androidx.compose.material.icons.Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = Color(0xFFE55353)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = data.visuals.message,
+                                        color = Color(0xFFE55353),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
                     )
                 }
             }

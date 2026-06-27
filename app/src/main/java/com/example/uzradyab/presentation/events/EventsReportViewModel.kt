@@ -34,7 +34,8 @@ data class EventsReportUiState(
     val dateFilter: EventDateFilter = EventDateFilter.Today,
     val customFromDate: Long? = null,
     val customToDate: Long? = null,
-    val filterText: String = ""
+    val filterText: String = "",
+    val error: String? = null
 )
 
 @HiltViewModel
@@ -100,11 +101,15 @@ class EventsReportViewModel @Inject constructor(
                 val uiModels = withContext(Dispatchers.Default) {
                     events.sortedByDescending { it.eventTime }.map { eventToItem(it) }
                 }
-                _uiState.update { it.copy(isLoading = false, events = uiModels) }
-            }.onFailure {
-                _uiState.update { it.copy(isLoading = false, events = emptyList()) }
+                _uiState.update { it.copy(isLoading = false, events = uiModels, error = if (uiModels.isEmpty()) "هیچ رویدادی در این بازه زمانی یافت نشد." else null) }
+            }.onFailure { err ->
+                _uiState.update { it.copy(isLoading = false, events = emptyList(), error = err.message ?: "خطا در دریافت رویدادها") }
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 
     private fun eventToItem(event: Event): EventUiModel {
