@@ -71,6 +71,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 
+fun NavHostController.safePopBackStack() {
+    if (currentDestination?.route != AppRoute.Home.path && previousBackStackEntry != null) {
+        popBackStack()
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UzradyabApp(
@@ -87,12 +93,14 @@ fun UzradyabApp(
     }
 
     // Listen for 401 Unauthorized events globally
-    LaunchedEffect(sessionEventBus, authRepository) {
+    LaunchedEffect(sessionEventBus, authRepository, navController) {
         sessionEventBus?.unauthorizedEvent?.collectLatest {
             authRepository?.logout()
-            navController.navigate(AppRoute.SignIn.path) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
+            if (navController.currentDestination?.route != AppRoute.SignIn.path) {
+                navController.navigate(AppRoute.SignIn.path) {
+                    popUpTo(navController.graph.id) { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
@@ -187,7 +195,7 @@ fun UzradyabApp(
                     }
                 },
                 onLoginClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
             )
         }
@@ -278,7 +286,7 @@ fun UzradyabApp(
         ) {
             GeofenceRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }
@@ -294,7 +302,7 @@ fun UzradyabApp(
         ) {
             com.example.uzradyab.presentation.events.EventsReportRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
             )
         }
@@ -306,7 +314,7 @@ fun UzradyabApp(
                     }
                 },
                 onMenuClick = {
-                    navController.popBackStack() // Or handle drawer
+                    navController.safePopBackStack() // Or handle drawer
                 },
                 onEditDeviceClick = { deviceId ->
                     navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId") {
@@ -329,11 +337,11 @@ fun UzradyabApp(
                     }
                 },
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onMenuClick = {
                     // Usually opens drawer, for now pop back stack as in Devices
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }
@@ -348,13 +356,13 @@ fun UzradyabApp(
             )
         ) {
             com.example.uzradyab.presentation.device.RenewCreditRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(AppRoute.Reports.path) {
             ReportsRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onLogoutClick = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -399,7 +407,7 @@ fun UzradyabApp(
         composable(AppRoute.DeviceStatus.path) {
             com.example.uzradyab.presentation.reports.DeviceStatusRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onLogoutClick = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -413,14 +421,14 @@ fun UzradyabApp(
                     }
                 },
                 onTraveledPathsClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 }
             )
         }
         composable(AppRoute.DailyReport.path) {
             com.example.uzradyab.presentation.reports.DailyReportRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onLogoutClick = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -443,7 +451,7 @@ fun UzradyabApp(
         composable(AppRoute.StopReports.path) {
             StopReportsRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onLogoutClick = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -474,7 +482,7 @@ fun UzradyabApp(
         ) {
             AddDeviceRoute(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 },
                 onSignedOut = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -495,7 +503,7 @@ fun UzradyabApp(
             )
         ) {
             ReplayTripRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(
@@ -509,24 +517,24 @@ fun UzradyabApp(
             )
         ) {
             CommandCenterRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         if (BuildConfig.DEBUG) {
             composable(AppRoute.DebugLog.path) {
                 DebugLogScreen(
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.safePopBackStack() }
                 )
             }
         }
         composable("alerts_settings") {
             AlertsSettingsRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack() }
             )
         }
         composable(AppRoute.TripReports.path) {
             com.example.uzradyab.presentation.reports.TripReportsRoute(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack() },
                 onLogoutClick = {
                     scope.launch {
                         authRepository?.logout()
@@ -543,7 +551,7 @@ fun UzradyabApp(
         }
         composable(AppRoute.Events.path) {
             com.example.uzradyab.presentation.events.EventsReportRoute(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack() }
             )
         }
     }
@@ -622,6 +630,61 @@ fun UzradyabApp(
                         }
                     }
                 }
+            }
+
+            // Local Crash Reporter Dialog
+            var crashLogToShow by remember { mutableStateOf<String?>(null) }
+            LaunchedEffect(Unit) {
+                crashLogToShow = com.example.uzradyab.core.debug.LocalCrashReporter.getCrashLog(context)
+            }
+
+            if (crashLogToShow != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { },
+                    title = { Text("App Recovered from a Crash") },
+                    text = {
+                        Column {
+                            Text(
+                                text = "Please share this crash log with the developer so they can fix the issue.",
+                                fontSize = 14.sp
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f, fill = false)
+                                    .background(Color(0xFFF1F1F1))
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = crashLogToShow!!,
+                                    fontSize = 10.sp,
+                                    maxLines = 15,
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = {
+                            val sendIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                putExtra(android.content.Intent.EXTRA_TEXT, crashLogToShow!!)
+                                type = "text/plain"
+                            }
+                            context.startActivity(android.content.Intent.createChooser(sendIntent, "Share Crash Log"))
+                        }) {
+                            Text("Share Log")
+                        }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = {
+                            com.example.uzradyab.core.debug.LocalCrashReporter.clearCrashLog(context)
+                            crashLogToShow = null
+                        }) {
+                            Text("Clear & Continue")
+                        }
+                    }
+                )
             }
         }
     }

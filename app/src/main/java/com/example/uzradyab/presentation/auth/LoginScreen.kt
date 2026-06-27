@@ -197,7 +197,10 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     AuthPrimaryButton(
                         text = if (state.isSubmitting) "در حال ورود..." else "ورود",
-                        onClick = onLoginClick,
+                        onClick = {
+                            android.util.Log.d("LoginPerformance", "Login button clicked at ${System.currentTimeMillis()}")
+                            onLoginClick()
+                        },
                         enabled = !state.isSubmitting,
                     )
                     Spacer(modifier = Modifier.height(32.dp))

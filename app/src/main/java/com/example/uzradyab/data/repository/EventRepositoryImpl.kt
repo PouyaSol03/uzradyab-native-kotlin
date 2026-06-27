@@ -78,60 +78,6 @@ class EventRepositoryImpl @Inject constructor(
         AppLogger.log(LogLevel.ERROR, "EventReport", "Failed to fetch events: ${e.message}")
     }
 
-    private fun parseNotificationBody(body: String): List<LatestNotificationEvent> {
-        if (body.isBlank()) return emptyList()
-        return runCatching {
-            normalizeLatestEvents(JsonParser.parseString(body))
-        }.getOrElse {
-            listOf(LatestNotificationEvent(id = body, text = body, time = null))
-        }
-    }
-
-    private fun normalizeLatestEvents(element: JsonElement): List<LatestNotificationEvent> {
-        return when {
-            element.isJsonArray -> element.asJsonArray.mapNotNull(::latestEventFromJson)
-            element.isJsonObject -> {
-                val obj = element.asJsonObject
-                val list = listOf("results", "events", "items", "data", "latest")
-                    .firstNotNullOfOrNull { key -> obj.get(key)?.takeIf { it.isJsonArray } }
-                if (list != null) list.asJsonArray.mapNotNull(::latestEventFromJson) else listOfNotNull(latestEventFromJson(obj))
-            }
-            element.isJsonPrimitive -> listOf(
-                LatestNotificationEvent(
-                    id = element.asString,
-                    text = element.asString,
-                    time = null,
-                ),
-            )
-            else -> emptyList()
-        }
-    }
-
-    private fun latestEventFromJson(element: JsonElement): LatestNotificationEvent? {
-        if (element.isJsonPrimitive) {
-            return LatestNotificationEvent(id = element.asString, text = element.asString, time = null)
-        }
-        if (!element.isJsonObject) return null
-        val obj = element.asJsonObject
-        val text = obj.firstString("title", "message", "description", "text", "name")
-            ?: obj.firstString("type")?.let(::formatEventType)
-            ?: return null
-        val time = obj.firstString("eventTime", "time", "timestamp", "createdAt", "created_at")
-        return LatestNotificationEvent(
-            id = obj.firstString("id", "eventId") ?: "$text-${time.orEmpty()}",
-            text = text,
-            time = time,
-        )
-    }
-
-    private fun JsonObject.firstString(vararg keys: String): String? {
-        return keys.firstNotNullOfOrNull { key ->
-            get(key)?.takeIf { !it.isJsonNull }?.let { element ->
-                runCatching { gson.fromJson(element, String::class.java) }.getOrNull()
-            }
-        }?.takeIf { it.isNotBlank() }
-    }
-
     private fun formatEventType(type: String): String {
         return when (type) {
             "all" -> "همه رویدادها"

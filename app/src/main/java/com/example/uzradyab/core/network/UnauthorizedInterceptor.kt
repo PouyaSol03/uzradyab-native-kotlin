@@ -13,7 +13,10 @@ class UnauthorizedInterceptor @Inject constructor(
         val response = chain.proceed(chain.request())
         
         if (response.code == 401) {
-            sessionEventBus.emitUnauthorized()
+            val path = response.request.url.encodedPath
+            if (!path.endsWith("/api/session")) {
+                sessionEventBus.emitUnauthorized()
+            }
         }
         
         return response

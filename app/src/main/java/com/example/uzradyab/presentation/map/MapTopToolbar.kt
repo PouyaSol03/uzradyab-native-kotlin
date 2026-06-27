@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ fun AppTopToolbar(
         Box(
             modifier = modifier
                 .fillMaxWidth()
+                .pointerInput(Unit) { detectTapGestures { } }
                 .padding(horizontal = 16.dp)
         ) {
             if (startContent != null) {

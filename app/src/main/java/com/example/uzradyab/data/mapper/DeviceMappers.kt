@@ -19,11 +19,9 @@ fun DeviceDto.toEntity(): DeviceEntity = DeviceEntity(
 
 fun DeviceEntity.toDomain(): Device {
     val km = try {
-        val obj = com.google.gson.JsonParser.parseString(attributesJson).asJsonObject
-        if (obj.has("currentKilometers")) obj.get("currentKilometers").asString else ""
-    } catch (e: com.google.gson.JsonSyntaxException) {
-        ""
-    } catch (e: IllegalStateException) {
+        val regex = "\"currentKilometers\"\\s*:\\s*(\\d+(?:\\.\\d+)?)".toRegex()
+        regex.find(attributesJson)?.groupValues?.get(1) ?: ""
+    } catch (e: Exception) {
         ""
     }
 

@@ -130,10 +130,14 @@ class AuthViewModel @Inject constructor(
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
                     biometricHelper.saveCredentials(state.phoneNumber, state.password)
-                    fcmTokenManager.syncCurrentToken()
-                    deviceRepository.refreshDevices()
-                    positionRepository.refreshLatestPositions()
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
+                    
+                    // Run slow sync tasks in the background so they don't block navigation
+                    viewModelScope.launch {
+                        fcmTokenManager.syncCurrentToken()
+                        deviceRepository.refreshDevices()
+                        positionRepository.refreshLatestPositions()
+                    }
                 }
                 .onFailure {
                     _uiState.update { current ->
@@ -170,10 +174,13 @@ class AuthViewModel @Inject constructor(
                     _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
                     authRepository.login(phone, pass)
                         .onSuccess {
-                            fcmTokenManager.syncCurrentToken()
-                            deviceRepository.refreshDevices()
-                            positionRepository.refreshLatestPositions()
                             _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
+                            
+                            viewModelScope.launch {
+                                fcmTokenManager.syncCurrentToken()
+                                deviceRepository.refreshDevices()
+                                positionRepository.refreshLatestPositions()
+                            }
                         }
                         .onFailure {
                             _uiState.update { current ->
@@ -334,11 +341,14 @@ class AuthViewModel @Inject constructor(
                         phoneNumber = state.phoneNumber,
                         password = state.password,
                     ).onSuccess {
-                        fcmTokenManager.syncCurrentToken()
-                        deviceRepository.refreshDevices()
-                        positionRepository.refreshLatestPositions()
                         _uiState.update { current ->
                             current.copy(isSubmitting = false, isSignedIn = true)
+                        }
+                        
+                        viewModelScope.launch {
+                            fcmTokenManager.syncCurrentToken()
+                            deviceRepository.refreshDevices()
+                            positionRepository.refreshLatestPositions()
                         }
                     }.onFailure {
                         _uiState.update { current ->

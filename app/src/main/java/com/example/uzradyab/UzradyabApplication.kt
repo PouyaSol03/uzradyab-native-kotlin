@@ -14,4 +14,9 @@ class UzradyabApplication : Application(), Configuration.Provider {
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
+    override fun onCreate() {
+        super.onCreate()
+        com.example.uzradyab.core.debug.LocalCrashReporter.init(this)
+    }
 }

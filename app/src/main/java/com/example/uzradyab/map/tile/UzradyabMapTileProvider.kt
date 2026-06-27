@@ -62,7 +62,10 @@ class UzradyabMapTileProvider(
     }
 
     override fun detach() {
-        super.detach()
-        okHttpSqlWriter.onDetach()
+        // DO NOTHING! 
+        // In Jetpack Compose, navigating between screens can cause the old MapView to call onDetach()
+        // *after* the new MapView has already started. If we detach here, we close the global SQLite
+        // database and kill the tile threads, causing the new MapView to render a permanent white screen.
+        // We intentionally leave the tile provider and its SQLite connection alive for the app's lifetime.
     }
 }

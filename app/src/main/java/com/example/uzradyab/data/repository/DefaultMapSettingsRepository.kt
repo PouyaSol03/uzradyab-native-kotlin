@@ -54,6 +54,14 @@ class DefaultMapSettingsRepository @Inject constructor(
         prefs.edit().putLong(KEY_LAST_DEVICE_ID, deviceId).apply()
     }
 
+    override suspend fun getCachedLatestEvent(deviceId: Long): String? {
+        return prefs.getString("cached_event_$deviceId", null)
+    }
+
+    override suspend fun setCachedLatestEvent(deviceId: Long, eventJson: String) {
+        prefs.edit().putString("cached_event_$deviceId", eventJson).apply()
+    }
+
     companion object {
         private const val KEY_MAP_STYLE = "map_style"
         private const val KEY_LAST_DEVICE_ID = "last_selected_device_id"

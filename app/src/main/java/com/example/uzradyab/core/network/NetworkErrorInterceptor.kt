@@ -15,7 +15,8 @@ class NetworkErrorInterceptor @Inject constructor(
         try {
             return chain.proceed(chain.request())
         } catch (e: Exception) {
-            if (e is UnknownHostException || e is ConnectException || e is SocketTimeoutException || e is IOException) {
+            val isCanceled = e is IOException && e.message == "Canceled"
+            if (!isCanceled && (e is UnknownHostException || e is ConnectException || e is SocketTimeoutException || e is IOException)) {
                 networkEventBus.emitError()
             }
             throw e

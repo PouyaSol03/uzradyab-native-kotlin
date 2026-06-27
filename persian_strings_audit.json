@@ -1,0 +1,1197 @@
+[
+  {
+    "file": "com\\example\\uzradyab\\UzradyabApp.kt",
+    "line": 591,
+    "string": "خطا در اتصال به شبکه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\UzradyabApp.kt",
+    "line": 601,
+    "string": "ارتباط با سرور برقرار نشد.\\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید."
+  },
+  {
+    "file": "com\\example\\uzradyab\\UzradyabApp.kt",
+    "line": 619,
+    "string": "متوجه شدم"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\MockTraccarInterceptor.kt",
+    "line": 51,
+    "string": "کاربر تست"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\MockTraccarInterceptor.kt",
+    "line": 68,
+    "string": "دستگاه تستی ۱"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\MockTraccarInterceptor.kt",
+    "line": 99,
+    "string": "تهران، میدان ولیعصر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\MockTraccarInterceptor.kt",
+    "line": 142,
+    "string": "مسیر تستی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\MockTraccarInterceptor.kt",
+    "line": 160,
+    "string": "دستگاه تستی ۱"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\debug\\NetworkLogInterceptor.kt",
+    "line": 57,
+    "string": ",\n            )\n            throw e\n        }\n\n        val durationMs = (System.nanoTime() - startNs) / 1_000_000L\n        val code = response.code\n\n        // ── Log response ──────────────────────────────────────────────────────\n        val respBodySnippet = runCatching {\n            val source = response.body?.source() ?: return@runCatching null\n            // Component 6: فقط ۱ کیلوبایت اول خوانده می‌شود تا رم گوشی اشغال نشود\n            source.request(1024) \n            val buffer = source.buffer.clone()\n            buffer.readString(Charset.forName("
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\network\\PersistentCookieJar.kt",
+    "line": 73,
+    "string": " }.toSet())\n                .apply()\n        }\n\n        return valid.map { it.second }.filter { it.matches(url) }\n    }\n\n    fun clear() {\n        preferences.edit().remove(KEY_COOKIES).apply()\n    }\n\n    /**\n     * Load all stored cookies. Each entry is stored as `originUrl||cookieString`.\n     * Falls back to parsing against [DEFAULT_SERVER_URL] for legacy entries\n     * that don't contain the separator.\n     */\n    private fun loadAllCookies(): List<Pair<String, Cookie>> {\n        return preferences.getStringSet(KEY_COOKIES, emptySet()).orEmpty()\n            .mapNotNull { entry ->\n                val separatorIdx = entry.indexOf(SEPARATOR)\n                val (originUrl, cookieStr) = if (separatorIdx > 0) {\n                    entry.substring(0, separatorIdx) to entry.substring(separatorIdx + SEPARATOR.length)\n                } else {\n                    // Legacy format: no origin URL stored, fall back to default\n                    DEFAULT_SERVER_URL to entry\n                }\n                \n                // استفاده از تابع استاندارد و ایمنِ OkHttp برای پارس کردن URL\n                val httpUrl = originUrl.toHttpUrlOrNull() ?: DEFAULT_SERVER_URL.toHttpUrlOrNull() ?: return@mapNotNull null\n                Cookie.parse(httpUrl, cookieStr)?.let { originUrl to it }\n            }\n    }\n\n    private companion object {\n        const val KEY_COOKIES = "
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 41,
+    "string": "فروردین"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 41,
+    "string": "اردیبهشت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 41,
+    "string": "خرداد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 42,
+    "string": "تیر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 42,
+    "string": "مرداد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 42,
+    "string": "شهریور"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 43,
+    "string": "مهر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 43,
+    "string": "آبان"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 43,
+    "string": "آذر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 44,
+    "string": "دی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 44,
+    "string": "بهمن"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 44,
+    "string": "اسفند"
+  },
+  {
+    "file": "com\\example\\uzradyab\\core\\utils\\JalaliUtils.kt",
+    "line": 58,
+    "string": "امروز | $day $monthName $year"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 83,
+    "string": "همه رویدادها"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 84,
+    "string": "وضعیت آنلاین"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 85,
+    "string": "وضعیت نامعلوم"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 86,
+    "string": "وضعیت آفلاین"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 87,
+    "string": "دستگاه غیرفعال"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 89,
+    "string": "حرکت دستگاه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 90,
+    "string": "دستگاه متوقف شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 91,
+    "string": "سرعت از حد مجاز فراتر رفت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 92,
+    "string": "افت سوخت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 93,
+    "string": "افزایش سوخت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 94,
+    "string": "نتیجه ارسال دستور"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 95,
+    "string": "ورود محدوده جغرافیایی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 96,
+    "string": "خروج محدوده جغرافیایی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 97,
+    "string": "هشدار"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 98,
+    "string": "سویچ روشن"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 99,
+    "string": "سوئیچ خاموش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 100,
+    "string": "نیاز به تعمیر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 101,
+    "string": "پیامک دریافت شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 102,
+    "string": "تعویض راننده"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 103,
+    "string": "مدیا"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\EventRepositoryImpl.kt",
+    "line": 104,
+    "string": "رویداد جدید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\GeocoderRepositoryImpl.kt",
+    "line": 35,
+    "string": "\n        val cachedData = cache[cacheKey]\n        val currentTime = System.currentTimeMillis()\n\n        // بررسی اعتبار کش (آیا کمتر از ۳ دقیقه گذشته است؟)\n        if (cachedData != null && (currentTime - cachedData.timestamp) < CACHE_DURATION_MS) {\n            return cachedData.address\n        }\n\n        return try {\n            val response = api.getReverseGeocode(apiKey = API_KEY, lat = lat, lon = lon)\n\n            // اولویت با formatted_address است، در غیر این صورت address، در غیر این صورت پیام پیش‌فرض\n            val newAddress = response.formattedAddress ?: response.address ?: "
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\GeocoderRepositoryImpl.kt",
+    "line": 48,
+    "string": "\n\n            // ذخیره در کش\n            cache[cacheKey] = CacheEntry(address = newAddress, timestamp = currentTime)\n\n            newAddress\n        } catch (e: Exception) {\n            android.util.Log.e("
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\GeocoderRepositoryImpl.kt",
+    "line": 55,
+    "string": "خطا در دریافت آدرس"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\GeocoderRepositoryImpl.kt",
+    "line": 57,
+    "string": "آدرس در دسترس نیست"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\TokenRepositoryImpl.kt",
+    "line": 28,
+    "string": "✅ توکن با موفقیت در تلاش ${attempt + 1} ارسال شد."
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\TokenRepositoryImpl.kt",
+    "line": 33,
+    "string": "🌐 خطای شبکه/اینترنت در تلاش ${attempt + 1}: ${e.message}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\TokenRepositoryImpl.kt",
+    "line": 38,
+    "string": "❌ خطای سرور/بک‌اند در تلاش ${attempt + 1}: ${e.message}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\data\\repository\\TokenRepositoryImpl.kt",
+    "line": 47,
+    "string": "حداکثر تلاش برای ارسال توکن انجام شد اما شبکه پاسخ نداد."
+  },
+  {
+    "file": "com\\example\\uzradyab\\map\\tile\\TileSourceRegistry.kt",
+    "line": 37,
+    "string": "نقشه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\map\\tile\\TileSourceRegistry.kt",
+    "line": 44,
+    "string": "جاده گوگل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\map\\tile\\TileSourceRegistry.kt",
+    "line": 51,
+    "string": "ماهواره‌ای گوگل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\map\\tile\\TileSourceRegistry.kt",
+    "line": 58,
+    "string": "اکسیر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\alerts\\AlertsSettingsViewModel.kt",
+    "line": 68,
+    "string": "خطا در دریافت تنظیمات"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\alerts\\AlertsSettingsViewModel.kt",
+    "line": 88,
+    "string": "خطا در بروزرسانی تنظیمات"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 124,
+    "string": "شماره تلفن یا رمز عبور صحیح نیست"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 142,
+    "string": "ورود به برنامه با خطا مواجه شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 152,
+    "string": "برای ورود با اثر انگشت، ابتدا یکبار با رمز عبور وارد شوید."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 156,
+    "string": "لطفاً ابتدا اثر انگشت را در تنظیمات برنامه فعال کنید."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 186,
+    "string": "ورود با اثر انگشت با خطا مواجه شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 192,
+    "string": "اطلاعات ورود یافت نشد. لطفا یکبار با رمز عبور وارد شوید."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 203,
+    "string": "نام و نام خانوادگی را وارد کنید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 211,
+    "string": "شماره تلفن باید ۱۱ رقم باشد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 236,
+    "string": "ارسال کد تایید با خطا مواجه شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 248,
+    "string": "کد تایید باید ۶ رقم باشد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 271,
+    "string": "کد تایید نادرست است"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 300,
+    "string": "ارسال مجدد کد تایید با خطا مواجه شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 325,
+    "string": "لطفا قوانین و مقررات را تایید کنید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 328,
+    "string": "رمز عبور باید شرایط امنیتی را داشته باشد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 331,
+    "string": "رمز عبور و تایید آن یکسان نیست"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\AuthViewModel.kt",
+    "line": 351,
+    "string": "تکمیل عضویت با خطا مواجه شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\auth\\RegisterScreen.kt",
+    "line": 277,
+    "string": "کد تایید ارسال شده به شماره ${maskPhoneNumber(state.phoneNumber)} را وارد کنید."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\command\\CommandCenterScreen.kt",
+    "line": 248,
+    "string": "ارسال دستور \\\"${selectedCommand.title}\\\""
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\command\\CommandCenterViewModel.kt",
+    "line": 90,
+    "string": "خطایی در ارسال دستور رخ داد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\AddDeviceViewModel.kt",
+    "line": 78,
+    "string": "اعتبار 1 ساله اکسیر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\AddDeviceViewModel.kt",
+    "line": 79,
+    "string": "پایان: $persianDate"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\AddDeviceViewModel.kt",
+    "line": 140,
+    "string": "خطایی در ثبت دستگاه رخ داد."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\DevicesScreen.kt",
+    "line": 355,
+    "string": "${daysRemaining.toString().toPersianDigits()} روز باقیمانده"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\RenewCreditScreen.kt",
+    "line": 123,
+    "string": "پرداخت - ${selectedPlan.period} $amountFormatted"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\RenewCreditViewModel.kt",
+    "line": 62,
+    "string": "دستگاه مورد نظر یافت نشد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\RenewCreditViewModel.kt",
+    "line": 76,
+    "string": "خطا در دریافت اطلاعات"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\device\\RenewCreditViewModel.kt",
+    "line": 117,
+    "string": "خطا در برقراری ارتباط با درگاه پرداخت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\events\\EventsReportViewModel.kt",
+    "line": 148,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\events\\EventsReportViewModel.kt",
+    "line": 149,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\events\\EventsReportViewModel.kt",
+    "line": 150,
+    "string": "هفته جاری"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\events\\EventsReportViewModel.kt",
+    "line": 151,
+    "string": "ماه جاری"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\events\\EventsReportViewModel.kt",
+    "line": 152,
+    "string": "بازه انتخابی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\geofence\\GeofenceScreen.kt",
+    "line": 221,
+    "string": "شعاع: ${radius.toInt()} متر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\geofence\\GeofenceScreen.kt",
+    "line": 380,
+    "string": "شعاع: ${geofence.radius?.toInt()} متر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\geofence\\GeofenceScreen.kt",
+    "line": 427,
+    "string": "حذف محدوده جغرافیایی ${geofence.name}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\geofence\\GeofenceViewModel.kt",
+    "line": 176,
+    "string": "محدوده جدید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\DeviceManagementPanel.kt",
+    "line": 161,
+    "string": "پیمایش امروز: $todayDistanceText"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 47,
+    "string": "در حال دریافت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 190,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 195,
+    "string": "در حال دریافت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 205,
+    "string": "در حال دریافت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 206,
+    "string": "داده موجود نیست"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 219,
+    "string": "در حال دریافت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 332,
+    "string": "${distanceMeters.roundToInt()} متر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 334,
+    "string": "%.1f کیلومتر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 361,
+    "string": "همه رویدادها"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 362,
+    "string": "وضعیت آنلاین"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 363,
+    "string": "وضعیت نامعلوم"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 364,
+    "string": "وضعیت آفلاین"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 365,
+    "string": "دستگاه غیرفعال"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 367,
+    "string": "حرکت دستگاه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 368,
+    "string": "دستگاه متوقف شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 369,
+    "string": "سرعت از حد مجاز فراتر رفت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 370,
+    "string": "افت سوخت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 371,
+    "string": "افزایش سوخت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 372,
+    "string": "نتیجه ارسال دستور"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 373,
+    "string": "ورود محدوده جغرافیایی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 374,
+    "string": "خروج محدوده جغرافیایی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 375,
+    "string": "هشدار"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 376,
+    "string": "سویچ روشن"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 377,
+    "string": "سوئیچ خاموش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 378,
+    "string": "نیاز به تعمیر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 379,
+    "string": "پیامک دریافت شد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 380,
+    "string": "تعویض راننده"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 381,
+    "string": "مدیا"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\MapViewModel.kt",
+    "line": 382,
+    "string": "رویداد جدید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 214,
+    "string": "آخرین بروزرسانی: ${formatRelativeTime(position?.serverTime ?: device.lastUpdate)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 246,
+    "string": "پیمایش امروز: $todayDistanceText"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 503,
+    "string": "${daysRemaining.toString().toPersianDigits()} روز تا پایان اعتبار دستگاه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 515,
+    "string": "${seconds.toString().toPersianDigits()} ثانیه قبل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 516,
+    "string": "${minutes.toString().toPersianDigits()} دقیقه قبل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 517,
+    "string": "${hours.toString().toPersianDigits()} ساعت قبل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\map\\SelectedDeviceStatusCard.kt",
+    "line": 518,
+    "string": "${days.toString().toPersianDigits()} روز قبل"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\profile\\ProfileViewModel.kt",
+    "line": 48,
+    "string": "خطا در دریافت اطلاعات"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\profile\\ProfileViewModel.kt",
+    "line": 66,
+    "string": "خطا در ذخیره اطلاعات"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayTripScreen.kt",
+    "line": 640,
+    "string": "سرعت: ${speedKmh.toString().toPersianDigits()} کیلومتر بر ساعت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayTripScreen.kt",
+    "line": 646,
+    "string": "زمان: ${formatTimeOnly(position.fixTime)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayTripScreen.kt",
+    "line": 703,
+    "string": "UTCstringResource(R.string.ui_text_002)امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 30,
+    "string": "۰ کیلومتر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 55,
+    "string": "دستگاه نامعتبر است"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 97,
+    "string": " کیلومتر"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 183,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 183,
+    "string": "امروز | ${jDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jDate[1])} ${jDate[0]}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 184,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 188,
+    "string": "دیروز | ${yJDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(yJDate[1])} ${yJDate[0]}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 194,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 198,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 204,
+    "string": "هفته جاری"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 209,
+    "string": "ماه جاری"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\replay\\ReplayViewModel.kt",
+    "line": 241,
+    "string": " تا ${end.day} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(end.month)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 29,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 47,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 83,
+    "string": "تاریخ سفارشی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 87,
+    "string": "تاریخ سفارشی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 144,
+    "string": "خطا در دریافت گزارش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 160,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 161,
+    "string": "هفته گذشته"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 162,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DailyReportViewModel.kt",
+    "line": 166,
+    "string": "هفته گذشته"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 32,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 33,
+    "string": "در حال دریافت..."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 34,
+    "string": "در حال دریافت..."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 36,
+    "string": "- ساعت و - دقیقه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 37,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 38,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 39,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 40,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 111,
+    "string": "موقعیت نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 115,
+    "string": "موقعیت نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 119,
+    "string": ")\n            val summaryResult = reportRepository.getSummaryReport(\n                deviceId = deviceId,\n                from = fromIso,\n                to = toIso\n            )\n\n            // ۵. پردازش و آپدیت UI\n            summaryResult.onSuccess { summaryList ->\n                val summary = summaryList.firstOrNull()\n                AppLogger.log(LogLevel.RESPONSE, "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 141,
+    "string": "۱۰:۲۲"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 142,
+    "string": "۳ ساعت و ۳۰ دقیقه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 160,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 166,
+    "string": "خاموش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 167,
+    "string": "روشن | در حال حرکت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 168,
+    "string": "روشن | متوقف"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 169,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 172,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\DeviceStatusViewModel.kt",
+    "line": 204,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 32,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 33,
+    "string": "در حال دریافت..."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 34,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 35,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 36,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 92,
+    "string": "در حال دریافت آدرس..."
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 107,
+    "string": "موقعیت نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 112,
+    "string": ")\n            val summaryResult = reportRepository.getSummaryReport(\n                deviceId = deviceId,\n                from = fromIso,\n                to = toIso\n            )\n\n            // ۵. آپدیت UI\n            summaryResult.onSuccess { summaryList ->\n                val summary = summaryList.firstOrNull()\n                AppLogger.log(LogLevel.RESPONSE, "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 141,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 142,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 143,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 151,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 157,
+    "string": "خاموش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 158,
+    "string": "روشن | در حال حرکت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 159,
+    "string": "روشن | متوقف"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 160,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 163,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\ReportsViewModel.kt",
+    "line": 188,
+    "string": "۰"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsScreen.kt",
+    "line": 336,
+    "string": "ساعات کارکرد موتور: ${formatDuration(report.engineHours)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsScreen.kt",
+    "line": 345,
+    "string": "سوخت مصرفی: ${String.format(Locale.US, "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsScreen.kt",
+    "line": 377,
+    "string": "$hours ساعت "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsScreen.kt",
+    "line": 378,
+    "string": "$minutes دقیقه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 30,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 37,
+    "string": "زمان شروع"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 38,
+    "string": "زمان پایان"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 39,
+    "string": "آدرس"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 40,
+    "string": "مدت زمان"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 41,
+    "string": "ساعات کارکرد موتور"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 42,
+    "string": "سوخت مصرفی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 57,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 97,
+    "string": "تاریخ سفارشی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 101,
+    "string": "تاریخ سفارشی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 175,
+    "string": "خطا در دریافت گزارش"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 191,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 192,
+    "string": "هفته گذشته"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 193,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\StopReportsViewModel.kt",
+    "line": 197,
+    "string": "هفته گذشته"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 359,
+    "string": "مدت زمان سفر: ${formatDuration(report.duration)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 368,
+    "string": "سوخت مصرفی: ${String.format(Locale.US, "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 377,
+    "string": "مبدأ: ${startAddressText ?: stringResource(R.string.ui_text_150)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 386,
+    "string": "مقصد: ${endAddressText ?: stringResource(R.string.ui_text_150)}"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 398,
+    "string": "$hours ساعت "
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsScreen.kt",
+    "line": 399,
+    "string": "$minutes دقیقه"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 34,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 41,
+    "string": "زمان شروع"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 42,
+    "string": "زمان پایان"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 43,
+    "string": "مسافت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 44,
+    "string": "میانگین سرعت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 45,
+    "string": "حداکثر سرعت"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 46,
+    "string": "مدت زمان"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 47,
+    "string": "سوخت مصرفی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 48,
+    "string": "آدرس مبدأ"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 49,
+    "string": "آدرس مقصد"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 64,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 91,
+    "string": "تاریخ سفارشی"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 179,
+    "string": "خطا در دریافت گزارش مسافت‌ها"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 189,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 191,
+    "string": "نامشخص"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 198,
+    "string": "امروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\presentation\\reports\\TripReportsViewModel.kt",
+    "line": 201,
+    "string": "دیروز"
+  },
+  {
+    "file": "com\\example\\uzradyab\\service\\FcmService.kt",
+    "line": 45,
+    "string": "هشدار جدید"
+  },
+  {
+    "file": "com\\example\\uzradyab\\service\\FcmService.kt",
+    "line": 48,
+    "string": "هشدار جدید"
+  }
+]

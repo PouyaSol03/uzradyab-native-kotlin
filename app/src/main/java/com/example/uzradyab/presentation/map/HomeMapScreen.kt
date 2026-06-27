@@ -138,8 +138,14 @@ fun HomeMapScreen(
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
+    
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        android.util.Log.d("LoginPerformance", "HomeMapScreen launched at ${System.currentTimeMillis()}")
+    }
+    
     val selectedPosition = state.latestPositions[state.selectedDeviceId]
     var menuOpen by remember { mutableStateOf(false) }
+
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     val scope = rememberCoroutineScope()
     

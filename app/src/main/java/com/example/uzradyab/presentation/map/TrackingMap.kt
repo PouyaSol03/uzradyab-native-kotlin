@@ -22,6 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import android.util.Log
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.map.OsmdroidConfig
@@ -69,7 +74,26 @@ fun TrackingMap(
     val tracker = remember { object { 
         var lastDeviceId: Long? = selectedDeviceId
         var hasInitialCentered: Boolean = false
+        var lastPosition: Position? = null
+        var eventsReceiverAdded: Boolean = false
     } }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START || event == Lifecycle.Event.ON_RESUME) {
+                mapViewRef?.onResume()
+            } else if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                mapViewRef?.onPause()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -81,9 +105,10 @@ fun TrackingMap(
             factory = {
                 // Use centralised configuration instead of inline duplication
                 OsmdroidConfig.configure(it.applicationContext)
-                val tileProvider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(it.applicationContext)
+                val tileProvider = TileProviderManager.getProvider(it.applicationContext)
 
                 MapView(it, tileProvider).apply {
+                    mapViewRef = this
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)
@@ -94,6 +119,9 @@ fun TrackingMap(
                     controller.setZoom(18.0)
                     controller.setCenter(center)
                     tag = centerKey
+                    
+                    // Force start rendering immediately (fixes blank map during enter animations)
+                    onResume()
 
                     setOnTouchListener { _, event ->
                         if (event.action == MotionEvent.ACTION_DOWN) {
@@ -148,37 +176,43 @@ fun TrackingMap(
                 // Offset map center feature removed by user request
 
                 // Handle map clicks
-                mapView.overlays.removeAll { overlay ->
-                    (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER) ||
-                    overlay is MapEventsOverlay
-                }
-                
-                val eventsReceiver = object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
+                if (!tracker.eventsReceiverAdded) {
+                    val eventsReceiver = object : MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                            currentOnMapInteraction()
+                            return true
+                        }
+                        override fun longPressHelper(p: GeoPoint?): Boolean {
+                            currentOnMapInteraction()
+                            return true
+                        }
                     }
-                    override fun longPressHelper(p: GeoPoint?): Boolean {
-                        currentOnMapInteraction()
-                        return true
+                    mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
+                    tracker.eventsReceiverAdded = true
+                }
+
+                if (selectedPosition != tracker.lastPosition) {
+                    mapView.overlays.removeAll { overlay ->
+                        (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER)
                     }
+                    
+                    selectedPosition?.let { position ->
+                        mapView.overlays.add(
+                            Marker(mapView).apply {
+                                this.position = position.toGeoPoint()
+                                icon = createDeviceMarkerDrawable(
+                                    context = mapView.context,
+                                    speedKmh = (position.speed * 1.852).toInt(),
+                                )
+                                setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
+                                relatedObject = SELECTED_DEVICE_MARKER
+                                infoWindow = null
+                            },
+                        )
+                    }
+                    tracker.lastPosition = selectedPosition
+                    mapView.invalidate()
                 }
-                mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
-                selectedPosition?.let { position ->
-                    mapView.overlays.add(
-                        Marker(mapView).apply {
-                            this.position = position.toGeoPoint()
-                            icon = createDeviceMarkerDrawable(
-                                context = mapView.context,
-                                speedKmh = (position.speed * 1.852).toInt(),
-                            )
-                            setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                            relatedObject = SELECTED_DEVICE_MARKER
-                            infoWindow = null
-                        },
-                    )
-                }
-                mapView.invalidate()
             },
             onRelease = { mapView ->
                 // Clean up map resources to prevent memory leaks and database locks
@@ -284,5 +318,18 @@ private fun String.toPersianDigits(): String {
         this@toPersianDigits.forEach { char ->
             append(if (char in '0'..'9') persianDigits[char - '0'] else char)
         }
+    }
+}
+
+// Singleton manager to prevent leaking TileProvider thread pools and SQLite locks
+// during rapid Compose navigation (where old MapViews are destroyed after new ones are created).
+object TileProviderManager {
+    private var provider: com.example.uzradyab.map.tile.UzradyabMapTileProvider? = null
+
+    fun getProvider(context: android.content.Context): com.example.uzradyab.map.tile.UzradyabMapTileProvider {
+        if (provider == null) {
+            provider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(context.applicationContext)
+        }
+        return provider!!
     }
 }
