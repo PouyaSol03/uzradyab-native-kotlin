@@ -9,6 +9,7 @@ import com.example.uzradyab.data.remote.websocket.SocketEvent
 import com.example.uzradyab.data.remote.websocket.TraccarSocketClient
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.TrackingRepository
+import com.example.uzradyab.domain.repository.MapSettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,7 @@ class TrackingRepositoryImpl @Inject constructor(
     private val deviceDao: DeviceDao,
     private val positionDao: PositionDao,
     private val eventDao: EventDao,
+    private val mapSettingsRepository: MapSettingsRepository,
 ) : TrackingRepository {
     private val _connectionState = MutableStateFlow(TrackingConnectionState.Idle)
     override val connectionState: StateFlow<TrackingConnectionState> = _connectionState.asStateFlow()
@@ -37,7 +39,11 @@ class TrackingRepositoryImpl @Inject constructor(
     private var socketJob: Job? = null
     private var fallbackJob: Job? = null
     private var watchdogJob: Job? = null
+    private var settingsJob: Job? = null
     private var stopped = false
+
+    @Volatile
+    private var trackedDeviceIds: Set<Long> = emptySet()
 
     /** Timestamp of the last received WebSocket message, for the watchdog. */
     @Volatile
@@ -52,6 +58,13 @@ class TrackingRepositoryImpl @Inject constructor(
     override fun start() {
         if (socketJob?.isActive == true) return
         stopped = false
+        
+        settingsJob = scope.launch {
+            mapSettingsRepository.observeTrackedDeviceIds().collect { ids ->
+                trackedDeviceIds = ids
+            }
+        }
+        
         socketJob = scope.launch {
             var backoffMs = 2_000L
             while (!stopped) {
@@ -92,6 +105,7 @@ class TrackingRepositoryImpl @Inject constructor(
         socketJob?.cancel()
         fallbackJob?.cancel()
         watchdogJob?.cancel()
+        settingsJob?.cancel()
         _connectionState.value = TrackingConnectionState.Idle
     }
 
@@ -114,14 +128,17 @@ class TrackingRepositoryImpl @Inject constructor(
     }
 
     private suspend fun persistSocketMessage(event: SocketEvent.Message) {
-        event.data.devices?.let { devices ->
-            deviceDao.upsertAll(devices.map { it.toEntity() })
-        }
-        event.data.positions?.let { positions ->
-            positionDao.upsertLatest(positions.map { it.toEntity(isLatest = true) })
-        }
-        event.data.events?.let { events ->
-            eventDao.upsertAll(events.map { it.toEntity() })
+        val allowedIds = trackedDeviceIds
+        if (allowedIds.isNotEmpty()) {
+            event.data.devices?.filter { allowedIds.contains(it.id) }?.takeIf { it.isNotEmpty() }?.let { devices ->
+                deviceDao.upsertAll(devices.map { it.toEntity() })
+            }
+            event.data.positions?.filter { allowedIds.contains(it.deviceId) }?.takeIf { it.isNotEmpty() }?.let { positions ->
+                positionDao.upsertLatest(positions.map { it.toEntity(isLatest = true) })
+            }
+            event.data.events?.filter { allowedIds.contains(it.deviceId) }?.takeIf { it.isNotEmpty() }?.let { events ->
+                eventDao.upsertAll(events.map { it.toEntity() })
+            }
         }
     }
 

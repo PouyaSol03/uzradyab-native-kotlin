@@ -52,6 +52,31 @@ class DefaultMapSettingsRepository @Inject constructor(
 
     override suspend fun setLastSelectedDeviceId(deviceId: Long) {
         prefs.edit().putLong(KEY_LAST_DEVICE_ID, deviceId).apply()
+        addTrackedDeviceId(deviceId)
+    }
+
+    override fun observeTrackedDeviceIds(): Flow<Set<Long>> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == KEY_TRACKED_DEVICES) {
+                val value = sharedPreferences.getStringSet(KEY_TRACKED_DEVICES, emptySet()) ?: emptySet()
+                trySend(value.mapNotNull { it.toLongOrNull() }.toSet())
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }.onStart {
+        val value = prefs.getStringSet(KEY_TRACKED_DEVICES, emptySet()) ?: emptySet()
+        emit(value.mapNotNull { it.toLongOrNull() }.toSet())
+    }.conflate()
+
+    override suspend fun addTrackedDeviceId(deviceId: Long) {
+        val currentTracked = prefs.getStringSet(KEY_TRACKED_DEVICES, emptySet()) ?: emptySet()
+        if (!currentTracked.contains(deviceId.toString())) {
+            val newTracked = currentTracked + deviceId.toString()
+            prefs.edit().putStringSet(KEY_TRACKED_DEVICES, newTracked).apply()
+        }
     }
 
     override suspend fun getCachedLatestEvent(deviceId: Long): String? {
@@ -65,6 +90,7 @@ class DefaultMapSettingsRepository @Inject constructor(
     companion object {
         private const val KEY_MAP_STYLE = "map_style"
         private const val KEY_LAST_DEVICE_ID = "last_selected_device_id"
+        private const val KEY_TRACKED_DEVICES = "tracked_device_ids"
         private const val DEFAULT_STYLE = "carto" // Can be osm, googleRoad, googleSatellite, carto
     }
 }
