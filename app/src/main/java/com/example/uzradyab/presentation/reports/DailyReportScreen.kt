@@ -33,10 +33,7 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
-import com.example.uzradyab.core.utils.JalaliUtils
-import java.text.SimpleDateFormat
-import java.util.TimeZone
-import java.util.Locale
+import com.example.uzradyab.core.utils.toImmutable
 
 @Composable
 fun DailyReportRoute(
@@ -200,16 +197,6 @@ fun DailyReportScreen(
                             isLoading = state.isLoading
                         )
 
-                        // Convert engine hours (ms to hours)
-                        val engineHoursMs = state.summaryReport?.engineHours ?: 0L
-                        val ignitionDuration = String.format("%.1f", engineHoursMs / 3600000.0) + " ساعت"
-                        
-                        // Parse start time to Jalali
-                        var jalaliStartTime = "- : -"
-                        state.summaryReport?.startTime?.let { isoStart ->
-                            jalaliStartTime = formatIsoTime(isoStart)
-                        }
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -217,7 +204,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "اولین زمان روشن شدن",
-                                value = jalaliStartTime,
+                                value = state.jalaliStartTime,
                                 unit = "",
                                 icon = Icons.Default.FlashOn,
                                 isLoading = state.isLoading
@@ -225,7 +212,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "مدت روشن بودن دستگاه",
-                                value = ignitionDuration,
+                                value = state.ignitionDuration,
                                 unit = "",
                                 icon = Icons.Default.AccessTime,
                                 isLoading = state.isLoading
@@ -239,7 +226,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "میانگین سرعت",
-                                value = String.format("%.1f", state.summaryReport?.averageSpeed?.times(1.852) ?: 0.0),
+                                value = state.averageSpeed,
                                 unit = "کیلومتر بر ساعت",
                                 icon = Icons.Default.Speed,
                                 isLoading = state.isLoading
@@ -247,7 +234,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "حداکثر سرعت",
-                                value = String.format("%.1f", state.summaryReport?.maxSpeed?.times(1.852) ?: 0.0),
+                                value = state.maxSpeed,
                                 unit = "کیلومتر بر ساعت",
                                 icon = Icons.Default.Speed,
                                 isLoading = state.isLoading
@@ -261,7 +248,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "مسافت طی شده",
-                                value = String.format("%.1f", state.summaryReport?.distance?.div(1000.0) ?: 0.0),
+                                value = state.distance,
                                 unit = "کیلومتر",
                                 icon = Icons.Default.Speed,
                                 isLoading = state.isLoading
@@ -269,7 +256,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "سوخت مصرفی",
-                                value = String.format("%.1f", state.summaryReport?.spentFuel ?: 0.0),
+                                value = state.spentFuel,
                                 unit = "لیتر",
                                 icon = Icons.Default.LocalGasStation,
                                 isLoading = state.isLoading
@@ -283,7 +270,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "متر مسافت (ابتدا)",
-                                value = String.format("%.1f", state.summaryReport?.startOdometer?.div(1000.0) ?: 0.0),
+                                value = state.startOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
                                 isLoading = state.isLoading
@@ -291,7 +278,7 @@ fun DailyReportScreen(
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "متر مسافت (انتها)",
-                                value = String.format("%.1f", state.summaryReport?.endOdometer?.div(1000.0) ?: 0.0),
+                                value = state.endOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
                                 isLoading = state.isLoading
@@ -343,7 +330,7 @@ fun DailyReportScreen(
 
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
-                        devices = state.devices,
+                        devices = state.devices.toImmutable(),
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = { deviceId ->
                             onDeviceSelected(deviceId)
@@ -364,29 +351,4 @@ fun DailyReportScreen(
     }
 }
 
-private fun formatIsoTime(isoString: String): String {
-    try {
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-        val date = sdf.parse(isoString) ?: return "- : -"
-        
-        val localCal = java.util.Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply {
-            time = date
-        }
-        val year = localCal.get(java.util.Calendar.YEAR)
-        val month = localCal.get(java.util.Calendar.MONTH) + 1
-        val day = localCal.get(java.util.Calendar.DAY_OF_MONTH)
-        
-        val jalali = JalaliUtils.gregorianToJalali(year, month, day)
-        
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("Asia/Tehran")
-        }
-        val localTimeStr = timeFormat.format(date)
-        
-        return "${jalali[0]}/${String.format("%02d", jalali[1])}/${String.format("%02d", jalali[2])} $localTimeStr"
-    } catch (e: Exception) {
-        return "- : -"
-    }
-}
+

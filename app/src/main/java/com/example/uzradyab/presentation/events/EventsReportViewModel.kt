@@ -15,9 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import com.example.uzradyab.core.utils.FormatUtils
 
 enum class EventDateFilter {
     Today, Yesterday, CurrentWeek, CurrentMonth, Custom
@@ -27,7 +30,7 @@ data class EventsReportUiState(
     val isLoading: Boolean = false,
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
-    val events: List<Event> = emptyList(),
+    val events: List<EventUiModel> = emptyList(),
     val dateFilter: EventDateFilter = EventDateFilter.Today,
     val customFromDate: Long? = null,
     val customToDate: Long? = null,
@@ -94,10 +97,50 @@ class EventsReportViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, filterText = formatFilterText(filter, from)) }
             val result = eventRepository.getEventsReport(deviceId, from, to)
             result.onSuccess { events ->
-                _uiState.update { it.copy(isLoading = false, events = events.sortedByDescending { it.eventTime }) }
+                val uiModels = withContext(Dispatchers.Default) {
+                    events.sortedByDescending { it.eventTime }.map { eventToItem(it) }
+                }
+                _uiState.update { it.copy(isLoading = false, events = uiModels) }
             }.onFailure {
                 _uiState.update { it.copy(isLoading = false, events = emptyList()) }
             }
+        }
+    }
+
+    private fun eventToItem(event: Event): EventUiModel {
+        val title = eventTitle(event.type)
+        return EventUiModel(
+            id = event.id,
+            title = title,
+            description = eventTitle(event.type),
+            time = FormatUtils.formatEventTimeJalali(event.eventTime),
+        )
+    }
+
+    private fun eventTitle(type: String): String {
+        return when (type) {
+            "all" -> "همه رویدادها"
+            "deviceOnline" -> "وضعیت آنلاین"
+            "deviceUnknown" -> "وضعیت نامعلوم"
+            "deviceOffline" -> "وضعیت آفلاین"
+            "deviceInactive" -> "دستگاه غیرفعال"
+            "queuedCommandSent" -> "Queued command sent"
+            "deviceMoving" -> "حرکت دستگاه"
+            "deviceStopped" -> "دستگاه متوقف شد"
+            "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
+            "deviceFuelDrop" -> "افت سوخت"
+            "deviceFuelIncrease" -> "افزایش سوخت"
+            "commandResult" -> "نتیجه ارسال دستور"
+            "geofenceEnter" -> "ورود محدوده جغرافیایی"
+            "geofenceExit" -> "خروج محدوده جغرافیایی"
+            "alarm" -> "هشدار"
+            "ignitionOn" -> "سویچ روشن"
+            "ignitionOff" -> "سوئیچ خاموش"
+            "maintenance" -> "نیاز به تعمیر"
+            "textMessage" -> "پیامک دریافت شد"
+            "driverChanged" -> "تعویض راننده"
+            "media" -> "مدیا"
+            else -> if (type.isBlank()) "رویداد جدید" else type
         }
     }
 

@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
 
 private const val RegisterOtpLength = 6
 private const val RegisterOtpDurationSeconds = 90
@@ -133,7 +136,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                     
                     // Run slow sync tasks in the background so they don't block navigation
-                    viewModelScope.launch {
+                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                         fcmTokenManager.syncCurrentToken()
                         deviceRepository.refreshDevices()
                         positionRepository.refreshLatestPositions()
@@ -176,7 +179,7 @@ class AuthViewModel @Inject constructor(
                         .onSuccess {
                             _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                             
-                            viewModelScope.launch {
+                            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                                 fcmTokenManager.syncCurrentToken()
                                 deviceRepository.refreshDevices()
                                 positionRepository.refreshLatestPositions()
@@ -345,7 +348,7 @@ class AuthViewModel @Inject constructor(
                             current.copy(isSubmitting = false, isSignedIn = true)
                         }
                         
-                        viewModelScope.launch {
+                        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                             fcmTokenManager.syncCurrentToken()
                             deviceRepository.refreshDevices()
                             positionRepository.refreshLatestPositions()

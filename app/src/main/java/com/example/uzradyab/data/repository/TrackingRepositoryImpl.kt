@@ -128,11 +128,12 @@ class TrackingRepositoryImpl @Inject constructor(
     }
 
     private suspend fun persistSocketMessage(event: SocketEvent.Message) {
+        event.data.devices?.takeIf { it.isNotEmpty() }?.let { devices ->
+            deviceDao.upsertAll(devices.map { it.toEntity() })
+        }
+
         val allowedIds = trackedDeviceIds
         if (allowedIds.isNotEmpty()) {
-            event.data.devices?.filter { allowedIds.contains(it.id) }?.takeIf { it.isNotEmpty() }?.let { devices ->
-                deviceDao.upsertAll(devices.map { it.toEntity() })
-            }
             event.data.positions?.filter { allowedIds.contains(it.deviceId) }?.takeIf { it.isNotEmpty() }?.let { positions ->
                 positionDao.upsertLatest(positions.map { it.toEntity(isLatest = true) })
             }

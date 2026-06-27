@@ -22,6 +22,11 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.ImmutableMapWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.emptyImmutableMap
+import com.example.uzradyab.core.utils.toImmutable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,8 +41,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class HomeMapUiState(
-    val devices: List<Device> = emptyList(),
-    val latestPositions: Map<Long, Position> = emptyMap(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
+    val latestPositions: ImmutableMapWrapper<Long, Position> = emptyImmutableMap(),
     val selectedDeviceId: Long? = null,
     val devicesOpen: Boolean = false,
     val deviceCardExpanded: Boolean = false,
@@ -46,7 +51,7 @@ data class HomeMapUiState(
     val signedOut: Boolean = false,
     val todayDistanceText: String = "در حال دریافت",
     val latestEvent: MapLatestEventItem? = null,
-    val latestEventsMap: Map<Long, MapLatestEventItem> = emptyMap(),
+    val latestEventsMap: ImmutableMapWrapper<Long, MapLatestEventItem> = emptyImmutableMap(),
     val mapSettingsOpen: Boolean = false,
     val mapStyle: String = "carto",
     val tileHealth: TileHealthState = TileHealthState.Unknown,
@@ -85,8 +90,8 @@ class MapViewModel @Inject constructor(
             ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: snapshot.devices.firstOrNull()?.id
         local.copy(
-            devices = snapshot.devices,
-            latestPositions = snapshot.latestPositions,
+            devices = snapshot.devices.toImmutable(),
+            latestPositions = snapshot.latestPositions.toImmutable(),
             selectedDeviceId = selected,
             connectionState = connection,
             latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
@@ -99,6 +104,14 @@ class MapViewModel @Inject constructor(
         observeSelectedDeviceDistance()
         observeSelectedDeviceLatestEvent()
         observeTileHealth()
+        
+        viewModelScope.launch {
+            uiState.map { it.selectedDeviceId }.distinctUntilChanged().collectLatest { deviceId ->
+                if (deviceId != null) {
+                    mapSettingsRepository.addTrackedDeviceId(deviceId)
+                }
+            }
+        }
     }
 
     fun selectDevice(deviceId: Long) {
@@ -242,7 +255,7 @@ class MapViewModel @Inject constructor(
                                     localState.update { state ->
                                         val newMap = state.latestEventsMap.toMutableMap()
                                         newMap[deviceId] = item
-                                        state.copy(latestEventsMap = newMap)
+                                        state.copy(latestEventsMap = newMap.toImmutable())
                                     }
                                 }
                             }

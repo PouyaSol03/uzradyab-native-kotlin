@@ -17,6 +17,7 @@ import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.presentation.components.JalaliDateTime
 import javax.inject.Inject
+import com.example.uzradyab.core.utils.FormatUtils
 
 data class DailyReportUiState(
     val devices: List<Device> = emptyList(),
@@ -29,7 +30,15 @@ data class DailyReportUiState(
     val selectedDateFilter: String = "امروز",
     val showCustomDatePicker: Boolean = false,
     val startAddressResolved: String = "—",
-    val endAddressResolved: String = "—"
+    val endAddressResolved: String = "—",
+    val ignitionDuration: String = "۰.۰ ساعت",
+    val jalaliStartTime: String = "- : -",
+    val averageSpeed: String = "۰.۰",
+    val maxSpeed: String = "۰.۰",
+    val distance: String = "۰.۰",
+    val spentFuel: String = "۰.۰",
+    val startOdometer: String = "۰.۰",
+    val endOdometer: String = "۰.۰"
 )
 
 @HiltViewModel
@@ -139,7 +148,27 @@ class DailyReportViewModel @Inject constructor(
                 val summary = data.firstOrNull()
                 val startAddr = summary?.startAddress ?: "—"
                 val endAddr = summary?.endAddress ?: "—"
-                _uiState.update { it.copy(isLoading = false, summaryReport = summary, startAddressResolved = startAddr, endAddressResolved = endAddr) }
+                
+                val engineHoursMs = summary?.engineHours ?: 0L
+                val ignitionDur = FormatUtils.formatDoublePersian(engineHoursMs / 3600000.0) + " ساعت"
+                val jStart = summary?.startTime?.let { FormatUtils.formatEventTimeJalali(it) } ?: "- : -"
+                
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false, 
+                        summaryReport = summary, 
+                        startAddressResolved = startAddr, 
+                        endAddressResolved = endAddr,
+                        ignitionDuration = ignitionDur,
+                        jalaliStartTime = jStart,
+                        averageSpeed = FormatUtils.formatDoublePersian((summary?.averageSpeed ?: 0.0) * 1.852),
+                        maxSpeed = FormatUtils.formatDoublePersian((summary?.maxSpeed ?: 0.0) * 1.852),
+                        distance = FormatUtils.formatDoublePersian((summary?.distance ?: 0.0) / 1000.0),
+                        spentFuel = FormatUtils.formatDoublePersian(summary?.spentFuel ?: 0.0),
+                        startOdometer = FormatUtils.formatDoublePersian((summary?.startOdometer ?: 0.0) / 1000.0),
+                        endOdometer = FormatUtils.formatDoublePersian((summary?.endOdometer ?: 0.0) / 1000.0)
+                    ) 
+                }
             }.onFailure { err ->
                 _uiState.update { it.copy(isLoading = false, error = err.message ?: "خطا در دریافت گزارش") }
             }

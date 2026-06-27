@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.designsystem.SkeletonBox
+import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
@@ -185,7 +186,7 @@ fun ReportsScreen(
 
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
-                        devices = state.devices,
+                        devices = state.devices.toImmutable(),
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = { deviceId ->
                             onDeviceSelected(deviceId)

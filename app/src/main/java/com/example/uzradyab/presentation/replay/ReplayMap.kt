@@ -72,6 +72,8 @@ fun ReplayMap(
                     setMinZoomLevel(3.0)
                     // Respect tile source's declared max zoom instead of hardcoded 23
                     setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
+                    controller.setZoom(12.0)
+                    controller.setCenter(Tehran)
                 }
             },
             update = { mapView ->

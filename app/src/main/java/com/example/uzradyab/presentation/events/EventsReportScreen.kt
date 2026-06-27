@@ -29,14 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.uzradyab.domain.model.Event
 import com.example.uzradyab.ui.theme.AppBackground
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextMuted
 import com.example.uzradyab.ui.theme.AppTextPrimary
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 
 @Composable
 fun EventsReportRoute(
@@ -156,7 +152,7 @@ fun EventsReportScreen(
                 }
             } else {
                 items(state.events, key = { it.id }) { event ->
-                    EventCard(event = eventToItem(event))
+                    EventCard(event = event)
                 }
             }
         }
@@ -194,7 +190,7 @@ private fun NotificationSettingsRow() {
 }
 
 @Composable
-private fun EventCard(event: EventDeviceItem) {
+private fun EventCard(event: EventUiModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -289,86 +285,4 @@ private fun DateFilters(
     }
 }
 
-private data class EventDeviceItem(
-    val id: Long,
-    val title: String,
-    val description: String,
-    val time: String,
-)
 
-private fun eventToItem(event: Event): EventDeviceItem {
-    val title = eventTitle(event.type)
-    return EventDeviceItem(
-        id = event.id,
-        title = title,
-        description = eventDescription(event.type),
-        time = event.eventTime?.let(::formatTime).orEmpty(),
-    )
-}
-
-private fun eventTitle(type: String): String {
-    return when (type) {
-        "all" -> "همه رویدادها"
-        "deviceOnline" -> "وضعیت آنلاین"
-        "deviceUnknown" -> "وضعیت نامعلوم"
-        "deviceOffline" -> "وضعیت آفلاین"
-        "deviceInactive" -> "دستگاه غیرفعال"
-        "queuedCommandSent" -> "Queued command sent"
-        "deviceMoving" -> "حرکت دستگاه"
-        "deviceStopped" -> "دستگاه متوقف شد"
-        "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
-        "deviceFuelDrop" -> "افت سوخت"
-        "deviceFuelIncrease" -> "افزایش سوخت"
-        "commandResult" -> "نتیجه ارسال دستور"
-        "geofenceEnter" -> "ورود محدوده جغرافیایی"
-        "geofenceExit" -> "خروج محدوده جغرافیایی"
-        "alarm" -> "هشدار"
-        "ignitionOn" -> "سویچ روشن"
-        "ignitionOff" -> "سوئیچ خاموش"
-        "maintenance" -> "نیاز به تعمیر"
-        "textMessage" -> "پیامک دریافت شد"
-        "driverChanged" -> "تعویض راننده"
-        "media" -> "مدیا"
-        else -> if (type.isBlank()) "رویداد جدید" else type
-    }
-}
-
-private fun eventDescription(type: String): String {
-    return eventTitle(type)
-}
-
-private fun formatTime(value: String): String {
-    val parsed = listOf(
-        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
-        "yyyy-MM-dd'T'HH:mm:ssX",
-        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-        "yyyy-MM-dd'T'HH:mm:ss'Z'",
-    ).firstNotNullOfOrNull { pattern ->
-        runCatching {
-            SimpleDateFormat(pattern, Locale.US).apply {
-                timeZone = TimeZone.getTimeZone("UTC")
-            }.parse(value)
-        }.getOrNull()
-    } ?: return ""
-    
-    val cal = java.util.Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = parsed }
-    val gY = cal.get(java.util.Calendar.YEAR)
-    val gM = cal.get(java.util.Calendar.MONTH) + 1
-    val gD = cal.get(java.util.Calendar.DAY_OF_MONTH)
-    
-    val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
-    val timeStr = SimpleDateFormat("HH:mm", Locale.US).apply {
-        timeZone = TimeZone.getTimeZone("Asia/Tehran")
-    }.format(parsed)
-    
-    return "${jDate[0]}/${String.format(Locale.US, "%02d", jDate[1])}/${String.format(Locale.US, "%02d", jDate[2])} - $timeStr".toPersianDigits()
-}
-
-private fun String.toPersianDigits(): String {
-    val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
-    return buildString(length) {
-        this@toPersianDigits.forEach { char ->
-            append(if (char in '0'..'9') persianDigits[char - '0'] else char)
-        }
-    }
-}

@@ -21,5 +21,4 @@ object MapDependencies {
             .followRedirects(true)
             .build()
     }
-
 }

@@ -59,14 +59,11 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.BackButton
-import com.example.uzradyab.domain.model.StopReport
 import com.example.uzradyab.presentation.components.JalaliDateTime
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextPrimary
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.TimeZone
+import com.example.uzradyab.core.utils.toImmutable
+import com.example.uzradyab.core.utils.FormatUtils.toPersianDigits
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,7 +220,7 @@ fun StopReportsScreen(
 
         if (deviceSelectorOpen) {
             DeviceSelectDialog(
-                devices = state.devices,
+                devices = state.devices.toImmutable(),
                 selectedDeviceId = state.selectedDeviceId,
                 onDeviceClick = { deviceId ->
                     deviceSelectorOpen = false
@@ -253,7 +250,7 @@ fun StopReportsScreen(
 
 @Composable
 fun StopReportCard(
-    report: StopReport,
+    report: StopReportUiModel,
     selectedColumns: Set<String>,
     onResolveAddress: suspend (Double, Double) -> String
 ) {
@@ -290,7 +287,7 @@ fun StopReportCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = formatDuration(report.duration),
+                        text = report.duration,
                         color = Color.Black,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
@@ -309,7 +306,7 @@ fun StopReportCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = formatIsoTime(report.startTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.startTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -319,7 +316,7 @@ fun StopReportCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = formatIsoTime(report.endTime), fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.endTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -331,7 +328,7 @@ fun StopReportCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.SettingsSuggest, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "ساعات کارکرد موتور: ${formatDuration(report.engineHours)}", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "ساعات کارکرد موتور: ${report.engineHours}", color = Color.DarkGray, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -340,7 +337,7 @@ fun StopReportCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "سوخت مصرفی: ${String.format(Locale.US, "%.1f", report.spentFuel).toPersianDigits()} لیتر", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "سوخت مصرفی: ${report.spentFuel} لیتر", color = Color.DarkGray, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -367,52 +364,7 @@ fun StopReportCard(
     }
 }
 
-private fun formatDuration(durationMs: Long): String {
-    val totalMinutes = durationMs / 60000
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-    
-    val hStr = if (hours > 0) "$hours ساعت " else ""
-    val mStr = if (minutes > 0 || hours == 0L) "$minutes دقیقه" else ""
-    val andStr = if (hours > 0 && minutes > 0) "و " else ""
-    
-    return "$hStr$andStr$mStr".toPersianDigits()
-}
 
-private fun formatIsoTime(isoString: String): String {
-    return try {
-        val formatIn = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-        val date = formatIn.parse(isoString.substring(0, 19)) ?: return isoString
-        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = date }
-        
-        val h = cal.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
-        val min = cal.get(Calendar.MINUTE).toString().padStart(2, '0')
-        
-        val gY = cal.get(Calendar.YEAR)
-        val gM = cal.get(Calendar.MONTH) + 1
-        val gD = cal.get(Calendar.DAY_OF_MONTH)
-        val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(gY, gM, gD)
-        
-        val y = jDate[0]
-        val m = jDate[1].toString().padStart(2, '0')
-        val d = jDate[2].toString().padStart(2, '0')
-        
-        "$h:$min | $y/$m/$d".toPersianDigits()
-    } catch (e: Exception) {
-        isoString
-    }
-}
-
-private fun String.toPersianDigits(): String {
-    val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
-    return buildString(length) {
-        this@toPersianDigits.forEach { char ->
-            append(if (char in '0'..'9') persianDigits[char - '0'] else char)
-        }
-    }
-}
 
 @Composable
 fun DeviceSelectTrigger(

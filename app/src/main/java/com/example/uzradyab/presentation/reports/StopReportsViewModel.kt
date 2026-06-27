@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.example.uzradyab.core.utils.FormatUtils
 import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.presentation.components.JalaliDateTime
@@ -23,7 +26,7 @@ data class StopReportsUiState(
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
-    val reports: List<StopReport> = emptyList(),
+    val reports: List<StopReportUiModel> = emptyList(),
     val error: String? = null,
     val fromDateIso: String = "",
     val toDateIso: String = "",
@@ -170,7 +173,23 @@ class StopReportsViewModel @Inject constructor(
                 from = currentState.fromDateIso,
                 to = currentState.toDateIso
             ).onSuccess { data ->
-                _uiState.update { it.copy(isLoading = false, reports = data) }
+                val uiModels = withContext(Dispatchers.Default) {
+                    data.map { report ->
+                        StopReportUiModel(
+                            deviceId = report.deviceId,
+                            positionId = report.positionId,
+                            latitude = report.latitude,
+                            longitude = report.longitude,
+                            startTime = formatIsoTimeWithFormatUtils(report.startTime),
+                            endTime = formatIsoTimeWithFormatUtils(report.endTime),
+                            address = report.address,
+                            duration = formatDuration(report.duration),
+                            engineHours = formatDuration(report.engineHours),
+                            spentFuel = FormatUtils.formatDoublePersian(report.spentFuel, 1)
+                        )
+                    }
+                }
+                _uiState.update { it.copy(isLoading = false, reports = uiModels) }
             }.onFailure { err ->
                 _uiState.update { it.copy(isLoading = false, error = err.message ?: "خطا در دریافت گزارش") }
             }
@@ -179,6 +198,44 @@ class StopReportsViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    private fun formatDuration(durationMs: Long): String {
+        val totalMinutes = durationMs / 60000
+        val hours = totalMinutes / 60
+        val minutes = totalMinutes % 60
+        
+        val hStr = if (hours > 0) "$hours ساعت " else ""
+        val mStr = if (minutes > 0 || hours == 0L) "$minutes دقیقه" else ""
+        val andStr = if (hours > 0 && minutes > 0) "و " else ""
+        
+        return ("$hStr$andStr$mStr").let { FormatUtils.formatDoublePersian(0.0).replace("۰.۰", "").let { _ -> it } }
+            .map { char ->
+                if (char in '0'..'9') {
+                    charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')[char - '0']
+                } else char
+            }.joinToString("")
+    }
+
+    private fun formatIsoTimeWithFormatUtils(isoString: String?): String {
+        if (isoString.isNullOrBlank()) return "نامشخص"
+        val date = FormatUtils.parseIsoDate(isoString) ?: return isoString
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply { time = date }
+        val h = cal.get(java.util.Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+        val min = cal.get(java.util.Calendar.MINUTE).toString().padStart(2, '0')
+        val gY = cal.get(java.util.Calendar.YEAR)
+        val gM = cal.get(java.util.Calendar.MONTH) + 1
+        val gD = cal.get(java.util.Calendar.DAY_OF_MONTH)
+        val jDate = JalaliUtils.gregorianToJalali(gY, gM, gD)
+        val y = jDate[0]
+        val m = jDate[1].toString().padStart(2, '0')
+        val d = jDate[2].toString().padStart(2, '0')
+        
+        return "$h:$min | $y/$m/$d".map { char ->
+            if (char in '0'..'9') {
+                charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')[char - '0']
+            } else char
+        }.joinToString("")
     }
 
     private fun getIsoRangeForFilter(filter: String): Pair<String, String> {

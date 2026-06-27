@@ -27,6 +27,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.util.Log
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.ImmutableMapWrapper
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.map.OsmdroidConfig
@@ -48,8 +50,8 @@ private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
 
 @Composable
 fun TrackingMap(
-    devices: List<Device>,
-    latestPositions: Map<Long, Position>,
+    devices: ImmutableListWrapper<Device>,
+    latestPositions: ImmutableMapWrapper<Long, Position>,
     selectedDeviceId: Long?,
     mapStyle: String = "carto",
     activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
@@ -200,9 +202,9 @@ fun TrackingMap(
                         mapView.overlays.add(
                             Marker(mapView).apply {
                                 this.position = position.toGeoPoint()
-                                icon = createDeviceMarkerDrawable(
+                                icon = MarkerCache.getOrCreate(
                                     context = mapView.context,
-                                    speedKmh = (position.speed * 1.852).toInt(),
+                                    speedKmh = (position.speed * 1.852).toInt()
                                 )
                                 setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
                                 relatedObject = SELECTED_DEVICE_MARKER
@@ -317,6 +319,19 @@ private fun String.toPersianDigits(): String {
     return buildString(length) {
         this@toPersianDigits.forEach { char ->
             append(if (char in '0'..'9') persianDigits[char - '0'] else char)
+        }
+    }
+}
+
+// Cache to prevent allocating Bitmaps 1x per second on the UI thread
+object MarkerCache {
+    private val cache = android.util.LruCache<Int, BitmapDrawable>(60)
+
+    fun getOrCreate(context: Context, speedKmh: Int): BitmapDrawable {
+        return cache.get(speedKmh) ?: run {
+            val drawable = createDeviceMarkerDrawable(context, speedKmh)
+            cache.put(speedKmh, drawable)
+            drawable
         }
     }
 }

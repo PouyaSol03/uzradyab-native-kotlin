@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextMuted
@@ -67,7 +68,7 @@ import com.example.uzradyab.ui.theme.AppTextPrimary
 
 @Composable
 fun MapTopControls(
-    devices: List<Device>,
+    devices: ImmutableListWrapper<Device>,
     selectedDeviceId: Long?,
     latestEvent: MapLatestEventItem?,
     isMapLocked: Boolean,
@@ -387,7 +388,7 @@ fun MapSettingsDialog(
 
 @Composable
 fun DeviceSelectDialog(
-    devices: List<Device>,
+    devices: ImmutableListWrapper<Device>,
     selectedDeviceId: Long?,
     onDeviceClick: (Long) -> Unit,
     onDismiss: () -> Unit,

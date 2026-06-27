@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.example.uzradyab.core.utils.FormatUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -27,7 +30,7 @@ data class TripReportsUiState(
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
-    val reports: List<TripReport> = emptyList(),
+    val reports: List<TripReportUiModel> = emptyList(),
     val error: String? = null,
     val fromDateIso: String = "",
     val toDateIso: String = "",
@@ -166,10 +169,30 @@ class TripReportsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = reportRepository.getTripsReport(deviceId, from, to)
             result.onSuccess { reportsList ->
+                val uiModels = withContext(Dispatchers.Default) {
+                    reportsList.map { report ->
+                        TripReportUiModel(
+                            startPositionId = report.startPositionId,
+                            startTime = formatIsoTimeWithFormatUtils(report.startTime),
+                            endTime = formatIsoTimeWithFormatUtils(report.endTime),
+                            distance = FormatUtils.formatDoublePersian(report.distance / 1000.0, 2),
+                            averageSpeed = FormatUtils.formatDoublePersian(report.averageSpeed * 1.852, 0),
+                            maxSpeed = FormatUtils.formatDoublePersian(report.maxSpeed * 1.852, 0),
+                            duration = formatDuration(report.duration),
+                            spentFuel = FormatUtils.formatDoublePersian(report.spentFuel, 1),
+                            startAddress = report.startAddress,
+                            endAddress = report.endAddress,
+                            startLat = report.startLat,
+                            startLon = report.startLon,
+                            endLat = report.endLat,
+                            endLon = report.endLon
+                        )
+                    }
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        reports = reportsList
+                        reports = uiModels
                     )
                 }
             }.onFailure { err ->
@@ -190,6 +213,44 @@ class TripReportsViewModel @Inject constructor(
         } catch (e: Exception) {
             "نامشخص"
         }
+    }
+
+    private fun formatDuration(durationMs: Long): String {
+        val totalMinutes = durationMs / 60000
+        val hours = totalMinutes / 60
+        val minutes = totalMinutes % 60
+        
+        val hStr = if (hours > 0) "$hours ساعت " else ""
+        val mStr = if (minutes > 0 || hours == 0L) "$minutes دقیقه" else ""
+        val andStr = if (hours > 0 && minutes > 0) "و " else ""
+        
+        return ("$hStr$andStr$mStr").let { FormatUtils.formatDoublePersian(0.0).replace("۰.۰", "").let { _ -> it } }
+            .map { char ->
+                if (char in '0'..'9') {
+                    charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')[char - '0']
+                } else char
+            }.joinToString("")
+    }
+
+    private fun formatIsoTimeWithFormatUtils(isoString: String?): String {
+        if (isoString.isNullOrBlank()) return "نامشخص"
+        val date = FormatUtils.parseIsoDate(isoString) ?: return isoString
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = date }
+        val h = cal.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+        val min = cal.get(Calendar.MINUTE).toString().padStart(2, '0')
+        val gY = cal.get(Calendar.YEAR)
+        val gM = cal.get(Calendar.MONTH) + 1
+        val gD = cal.get(Calendar.DAY_OF_MONTH)
+        val jDate = JalaliUtils.gregorianToJalali(gY, gM, gD)
+        val y = jDate[0]
+        val m = jDate[1].toString().padStart(2, '0')
+        val d = jDate[2].toString().padStart(2, '0')
+        
+        return "$h:$min | $y/$m/$d".map { char ->
+            if (char in '0'..'9') {
+                charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')[char - '0']
+            } else char
+        }.joinToString("")
     }
 
     private fun getIsoRangeForFilter(filter: String): Pair<String, String> {

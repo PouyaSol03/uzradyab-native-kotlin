@@ -102,7 +102,8 @@ class ReplayViewModel @Inject constructor(
                         currentIndex = 0,
                         isPlaying = false,
                         isLoading = false,
-                        totalDistanceText = persianDistance
+                        totalDistanceText = persianDistance,
+                        error = if (positions.isEmpty()) "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد." else null
                     ) }
                     playbackJob?.cancel()
                 }
@@ -110,6 +111,10 @@ class ReplayViewModel @Inject constructor(
                     _state.update { it.copy(isLoading = false, error = err.localizedMessage) }
                 }
         }
+    }
+
+    fun clearError() {
+        _state.update { it.copy(error = null) }
     }
 
     fun togglePlayback() {

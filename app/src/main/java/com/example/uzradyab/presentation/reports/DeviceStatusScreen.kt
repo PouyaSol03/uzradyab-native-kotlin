@@ -32,6 +32,7 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
+import com.example.uzradyab.core.utils.toImmutable
 
 @Composable
 fun DeviceStatusRoute(
@@ -279,7 +280,7 @@ fun DeviceStatusScreen(
 
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
-                        devices = state.devices,
+                        devices = state.devices.toImmutable(),
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = { deviceId ->
                             onDeviceSelect(deviceId)
