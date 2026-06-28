@@ -14,13 +14,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 
 private const val RegisterOtpLength = 6
 private const val RegisterOtpDurationSeconds = 90
@@ -29,6 +30,13 @@ enum class RegisterStep {
     Details,
     Otp,
     Password,
+}
+
+sealed interface AuthUiEffect {
+    object NavigateToHome : AuthUiEffect
+    data class ShowError(val message: String) : AuthUiEffect
+    data class ShowInfo(val message: String) : AuthUiEffect
+    object TriggerBiometric : AuthUiEffect
 }
 
 data class AuthUiState(
@@ -42,12 +50,8 @@ data class AuthUiState(
     val canResendOtp: Boolean = false,
     val passwordRules: PasswordRuleState = PasswordRuleState(),
     val isSubmitting: Boolean = false,
-    val isSignedIn: Boolean = false,
     val isPrivacyPolicyAccepted: Boolean = false,
-    val errorMessage: String? = null,
-    val infoMessage: String? = null,
     val canUseBiometric: Boolean = false,
-    val shouldAutoTriggerBiometric: Boolean = false,
 )
 
 @HiltViewModel
@@ -61,8 +65,11 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+    
+    private val _effect = Channel<AuthUiEffect>()
+    val effect = _effect.receiveAsFlow()
+    
     private var otpTimerJob: Job? = null
-
     private var hasActiveSession = false
 
     init {
@@ -74,26 +81,23 @@ class AuthViewModel @Inject constructor(
             val hasSavedCredentials = biometricHelper.getSavedPhone() != null && biometricHelper.getSavedPassword() != null
             
             _uiState.update { 
-                it.copy(
-                    canUseBiometric = biometricAvailable,
-                    shouldAutoTriggerBiometric = hasSavedCredentials && biometricAvailable && biometricEnabled
-                ) 
+                it.copy(canUseBiometric = biometricAvailable) 
+            }
+            
+            if (hasSavedCredentials && biometricAvailable && biometricEnabled) {
+                _effect.send(AuthUiEffect.TriggerBiometric)
             }
         }
     }
 
     fun onPhoneNumberChange(value: String) {
         if (value.length <= 11 && value.all(Char::isDigit)) {
-            _uiState.update { it.copy(phoneNumber = value, errorMessage = null, infoMessage = null) }
+            _uiState.update { it.copy(phoneNumber = value) }
         }
     }
 
-    fun clearMessages() {
-        _uiState.update { it.copy(errorMessage = null, infoMessage = null) }
-    }
-
     fun onPrivacyPolicyAcceptChange(isAccepted: Boolean) {
-        _uiState.update { it.copy(isPrivacyPolicyAccepted = isAccepted, errorMessage = null, infoMessage = null) }
+        _uiState.update { it.copy(isPrivacyPolicyAccepted = isAccepted) }
     }
 
     fun onPasswordChange(value: String) {
@@ -101,41 +105,39 @@ class AuthViewModel @Inject constructor(
             it.copy(
                 password = value,
                 passwordRules = passwordRuleState(value),
-                errorMessage = null,
-                infoMessage = null,
             )
         }
     }
 
     fun onNameChange(value: String) {
-        _uiState.update { it.copy(name = value, errorMessage = null, infoMessage = null) }
+        _uiState.update { it.copy(name = value) }
     }
 
     fun onConfirmPasswordChange(value: String) {
-        _uiState.update { it.copy(confirmPassword = value, errorMessage = null, infoMessage = null) }
+        _uiState.update { it.copy(confirmPassword = value) }
     }
 
     fun onOtpChange(value: String) {
         if (value.length <= RegisterOtpLength && value.all(Char::isDigit)) {
-            _uiState.update { it.copy(otp = value, errorMessage = null, infoMessage = null) }
+            _uiState.update { it.copy(otp = value) }
         }
     }
 
     fun login() {
         val state = _uiState.value
         if (state.phoneNumber.length != 11 || state.password.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "شماره تلفن یا رمز عبور صحیح نیست") }
+            viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("شماره تلفن یا رمز عبور صحیح نیست")) }
             return
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+            _uiState.update { it.copy(isSubmitting = true) }
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
                     biometricHelper.saveCredentials(state.phoneNumber, state.password)
-                    _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    _effect.send(AuthUiEffect.NavigateToHome)
                     
-                    // Run slow sync tasks in the background so they don't block navigation
                     CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                         fcmTokenManager.syncCurrentToken()
                         deviceRepository.refreshDevices()
@@ -143,41 +145,38 @@ class AuthViewModel @Inject constructor(
                     }
                 }
                 .onFailure {
-                    _uiState.update { current ->
-                        current.copy(
-                            isSubmitting = false,
-                            errorMessage = "ورود به برنامه با خطا مواجه شد",
-                        )
-                    }
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    _effect.send(AuthUiEffect.ShowError("ورود به برنامه با خطا مواجه شد"))
                 }
         }
     }
 
-    fun onBiometricClicked(triggerPrompt: () -> Unit) {
+    fun onBiometricClicked() {
         val hasSavedCredentials = biometricHelper.getSavedPhone() != null && biometricHelper.getSavedPassword() != null
         if (!hasSavedCredentials) {
-            _uiState.update { it.copy(infoMessage = "برای ورود با اثر انگشت، ابتدا یکبار با رمز عبور وارد شوید.") }
+            viewModelScope.launch { _effect.send(AuthUiEffect.ShowInfo("برای ورود با اثر انگشت، ابتدا یکبار با رمز عبور وارد شوید.")) }
             return
         }
         if (!biometricHelper.isBiometricEnabled()) {
-            _uiState.update { it.copy(infoMessage = "لطفاً ابتدا اثر انگشت را در تنظیمات برنامه فعال کنید.") }
+            viewModelScope.launch { _effect.send(AuthUiEffect.ShowInfo("لطفاً ابتدا اثر انگشت را در تنظیمات برنامه فعال کنید.")) }
             return
         }
-        triggerPrompt()
+        viewModelScope.launch { _effect.send(AuthUiEffect.TriggerBiometric) }
     }
 
     fun onBiometricSuccess() {
         if (hasActiveSession) {
-            _uiState.update { it.copy(isSignedIn = true) }
+            viewModelScope.launch { _effect.send(AuthUiEffect.NavigateToHome) }
         } else {
             val phone = biometricHelper.getSavedPhone()
             val pass = biometricHelper.getSavedPassword()
             if (phone != null && pass != null) {
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+                    _uiState.update { it.copy(isSubmitting = true) }
                     authRepository.login(phone, pass)
                         .onSuccess {
-                            _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
+                            _uiState.update { it.copy(isSubmitting = false) }
+                            _effect.send(AuthUiEffect.NavigateToHome)
                             
                             CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                                 fcmTokenManager.syncCurrentToken()
@@ -186,16 +185,12 @@ class AuthViewModel @Inject constructor(
                             }
                         }
                         .onFailure {
-                            _uiState.update { current ->
-                                current.copy(
-                                    isSubmitting = false,
-                                    errorMessage = "ورود با اثر انگشت با خطا مواجه شد",
-                                )
-                            }
+                            _uiState.update { it.copy(isSubmitting = false) }
+                            _effect.send(AuthUiEffect.ShowError("ورود با اثر انگشت با خطا مواجه شد"))
                         }
                 }
             } else {
-                _uiState.update { it.copy(errorMessage = "اطلاعات ورود یافت نشد. لطفا یکبار با رمز عبور وارد شوید.") }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("اطلاعات ورود یافت نشد. لطفا یکبار با رمز عبور وارد شوید.")) }
             }
         }
     }
@@ -204,24 +199,14 @@ class AuthViewModel @Inject constructor(
         val state = _uiState.value
         when {
             state.name.isBlank() -> {
-                _uiState.update {
-                    it.copy(
-                        errorMessage = "نام و نام خانوادگی را وارد کنید",
-                        infoMessage = null,
-                    )
-                }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("نام و نام خانوادگی را وارد کنید")) }
             }
             !isValidIranPhoneNumber(state.phoneNumber) -> {
-                _uiState.update {
-                    it.copy(
-                        errorMessage = "شماره تلفن باید ۱۱ رقم باشد",
-                        infoMessage = null,
-                    )
-                }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("شماره تلفن باید ۱۱ رقم باشد")) }
             }
             else -> {
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+                    _uiState.update { it.copy(isSubmitting = true) }
                     registrationRepository.sendOtp(state.phoneNumber)
                         .onSuccess {
                             _uiState.update {
@@ -236,12 +221,8 @@ class AuthViewModel @Inject constructor(
                             startOtpTimer()
                         }
                         .onFailure {
-                            _uiState.update { current ->
-                                current.copy(
-                                    isSubmitting = false,
-                                    errorMessage = "ارسال کد تایید با خطا مواجه شد",
-                                )
-                            }
+                            _uiState.update { it.copy(isSubmitting = false) }
+                            _effect.send(AuthUiEffect.ShowError("ارسال کد تایید با خطا مواجه شد"))
                         }
                 }
             }
@@ -251,12 +232,12 @@ class AuthViewModel @Inject constructor(
     fun verifyRegisterOtp() {
         val state = _uiState.value
         if (state.otp.length != RegisterOtpLength) {
-            _uiState.update { it.copy(errorMessage = "کد تایید باید ۶ رقم باشد") }
+            viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("کد تایید باید ۶ رقم باشد")) }
             return
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+            _uiState.update { it.copy(isSubmitting = true) }
             registrationRepository.verifyOtp(state.phoneNumber, state.otp)
                 .onSuccess {
                     otpTimerJob?.cancel()
@@ -271,12 +252,8 @@ class AuthViewModel @Inject constructor(
                     }
                 }
                 .onFailure {
-                    _uiState.update { current ->
-                        current.copy(
-                            isSubmitting = false,
-                            errorMessage = "کد تایید نادرست است",
-                        )
-                    }
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    _effect.send(AuthUiEffect.ShowError("کد تایید نادرست است"))
                 }
         }
     }
@@ -286,7 +263,7 @@ class AuthViewModel @Inject constructor(
         if (!state.canResendOtp || state.isSubmitting) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+            _uiState.update { it.copy(isSubmitting = true) }
             registrationRepository.sendOtp(state.phoneNumber)
                 .onSuccess {
                     _uiState.update {
@@ -300,12 +277,8 @@ class AuthViewModel @Inject constructor(
                     startOtpTimer()
                 }
                 .onFailure {
-                    _uiState.update { current ->
-                        current.copy(
-                            isSubmitting = false,
-                            errorMessage = "ارسال مجدد کد تایید با خطا مواجه شد",
-                        )
-                    }
+                    _uiState.update { it.copy(isSubmitting = false) }
+                    _effect.send(AuthUiEffect.ShowError("ارسال مجدد کد تایید با خطا مواجه شد"))
                 }
         }
     }
@@ -318,8 +291,6 @@ class AuthViewModel @Inject constructor(
                 otp = "",
                 remainingOtpSeconds = RegisterOtpDurationSeconds,
                 canResendOtp = false,
-                errorMessage = null,
-                infoMessage = null,
             )
         }
     }
@@ -328,25 +299,24 @@ class AuthViewModel @Inject constructor(
         val state = _uiState.value
         when {
             !state.isPrivacyPolicyAccepted -> {
-                _uiState.update { it.copy(errorMessage = "لطفا قوانین و مقررات را تایید کنید") }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("لطفا قوانین و مقررات را تایید کنید")) }
             }
             !state.passwordRules.isValid -> {
-                _uiState.update { it.copy(errorMessage = "رمز عبور باید شرایط امنیتی را داشته باشد") }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("رمز عبور باید شرایط امنیتی را داشته باشد")) }
             }
             state.password != state.confirmPassword -> {
-                _uiState.update { it.copy(errorMessage = "رمز عبور و تایید آن یکسان نیست") }
+                viewModelScope.launch { _effect.send(AuthUiEffect.ShowError("رمز عبور و تایید آن یکسان نیست")) }
             }
             else -> {
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+                    _uiState.update { it.copy(isSubmitting = true) }
                     registrationRepository.createUserAndLogin(
                         name = state.name,
                         phoneNumber = state.phoneNumber,
                         password = state.password,
                     ).onSuccess {
-                        _uiState.update { current ->
-                            current.copy(isSubmitting = false, isSignedIn = true)
-                        }
+                        _uiState.update { it.copy(isSubmitting = false) }
+                        _effect.send(AuthUiEffect.NavigateToHome)
                         
                         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                             fcmTokenManager.syncCurrentToken()
@@ -354,12 +324,8 @@ class AuthViewModel @Inject constructor(
                             positionRepository.refreshLatestPositions()
                         }
                     }.onFailure {
-                        _uiState.update { current ->
-                            current.copy(
-                                isSubmitting = false,
-                                errorMessage = "تکمیل عضویت با خطا مواجه شد",
-                            )
-                        }
+                        _uiState.update { it.copy(isSubmitting = false) }
+                        _effect.send(AuthUiEffect.ShowError("تکمیل عضویت با خطا مواجه شد"))
                     }
                 }
             }

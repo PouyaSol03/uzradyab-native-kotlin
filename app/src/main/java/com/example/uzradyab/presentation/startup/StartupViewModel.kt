@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 sealed interface StartupNavigationTarget {
@@ -36,8 +38,8 @@ class StartupViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<StartupUiState>(StartupUiState.Checking)
     val uiState: StateFlow<StartupUiState> = _uiState.asStateFlow()
 
-    private val _navigationTarget = MutableStateFlow<StartupNavigationTarget?>(null)
-    val navigationTarget: StateFlow<StartupNavigationTarget?> = _navigationTarget.asStateFlow()
+    private val _effect = Channel<StartupNavigationTarget>()
+    val effect = _effect.receiveAsFlow()
 
     init {
         checkStatus()
@@ -46,37 +48,38 @@ class StartupViewModel @Inject constructor(
     fun checkStatus() {
         viewModelScope.launch {
             _uiState.value = StartupUiState.Checking
-            _navigationTarget.value = null
             
             // 1. Check onboarding completion
             val sharedPrefs = context.getSharedPreferences("uzradyab_prefs", Context.MODE_PRIVATE)
             val isOnboardingCompleted = sharedPrefs.getBoolean("onboarding_completed", false)
             if (!isOnboardingCompleted) {
-                _navigationTarget.value = StartupNavigationTarget.Onboarding
+                _effect.send(StartupNavigationTarget.Onboarding)
                 return@launch
             }
 
             // 2. Check session expiry (which clears database session internally if older than 30 days)
             val isExpired = authRepository.isSessionExpired()
             if (isExpired) {
-                _navigationTarget.value = StartupNavigationTarget.SignIn
+                _effect.send(StartupNavigationTarget.SignIn)
                 return@launch
             }
 
             // 3. Check if session exists in DB
             val session = authRepository.currentSession.first()
             if (session == null) {
-                _navigationTarget.value = StartupNavigationTarget.SignIn
+                _effect.send(StartupNavigationTarget.SignIn)
                 return@launch
             }
 
             // Go straight to Home if session is active
-            _navigationTarget.value = StartupNavigationTarget.Home
+            _effect.send(StartupNavigationTarget.Home)
         }
     }
 
     fun onBiometricSuccess() {
-        _navigationTarget.value = StartupNavigationTarget.Home
+        viewModelScope.launch {
+            _effect.send(StartupNavigationTarget.Home)
+        }
     }
 
     fun onBiometricFailure(message: String) {
@@ -86,7 +89,7 @@ class StartupViewModel @Inject constructor(
     fun logoutAndGoToSignIn() {
         viewModelScope.launch {
             authRepository.logout()
-            _navigationTarget.value = StartupNavigationTarget.SignIn
+            _effect.send(StartupNavigationTarget.SignIn)
         }
     }
 }

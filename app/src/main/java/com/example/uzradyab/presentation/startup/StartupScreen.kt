@@ -48,19 +48,18 @@ fun StartupRoute(
     viewModel: StartupViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val navigationTarget by viewModel.navigationTarget.collectAsState()
-    val context = LocalContext.current
-
     // Handle navigation targets
-    LaunchedEffect(navigationTarget) {
-        when (navigationTarget) {
-            StartupNavigationTarget.Onboarding -> onNavigateToOnboarding()
-            StartupNavigationTarget.SignIn -> onNavigateToSignIn()
-            StartupNavigationTarget.Home -> onNavigateToHome()
-            null -> {}
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                StartupNavigationTarget.Onboarding -> onNavigateToOnboarding()
+                StartupNavigationTarget.SignIn -> onNavigateToSignIn()
+                StartupNavigationTarget.Home -> onNavigateToHome()
+            }
         }
     }
 
+    val context = LocalContext.current
     // Find host FragmentActivity
     val activity = remember(context) { context.findActivity() }
 

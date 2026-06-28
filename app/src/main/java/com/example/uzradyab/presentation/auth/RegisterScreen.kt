@@ -65,23 +65,14 @@ fun RegisterRoute(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarController = LocalSnackbarController.current
 
-    LaunchedEffect(state.isSignedIn) {
-        if (state.isSignedIn) {
-            onSignedIn()
-        }
-    }
-
-    LaunchedEffect(state.errorMessage) {
-        state.errorMessage?.let {
-            snackbarController.showError(it)
-            viewModel.clearMessages()
-        }
-    }
-
-    LaunchedEffect(state.infoMessage) {
-        state.infoMessage?.let {
-            snackbarController.showInfo(it)
-            viewModel.clearMessages()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is AuthUiEffect.NavigateToHome -> onSignedIn()
+                is AuthUiEffect.ShowError -> snackbarController.showError(effect.message)
+                is AuthUiEffect.ShowInfo -> snackbarController.showInfo(effect.message)
+                is AuthUiEffect.TriggerBiometric -> { /* Not used in register */ }
+            }
         }
     }
 
