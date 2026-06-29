@@ -2,11 +2,12 @@ package com.example.uzradyab.presentation.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uzradyab.domain.manager.FcmTokenManager
+import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.domain.repository.AuthRepository
-import com.example.uzradyab.domain.repository.DeviceRepository
-import com.example.uzradyab.domain.repository.PositionRepository
-import com.example.uzradyab.domain.repository.RegistrationRepository
+import com.example.uzradyab.domain.usecase.auth.LoginUseCase
+import com.example.uzradyab.domain.usecase.auth.CompleteRegistrationUseCase
+import com.example.uzradyab.domain.usecase.auth.SendOtpUseCase
+import com.example.uzradyab.domain.usecase.auth.VerifyOtpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -17,9 +18,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
@@ -57,11 +55,11 @@ data class AuthUiState(
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val registrationRepository: RegistrationRepository,
-    private val fcmTokenManager: FcmTokenManager,
-    private val deviceRepository: DeviceRepository,
-    private val positionRepository: PositionRepository,
-    private val biometricHelper: com.example.uzradyab.core.biometric.BiometricHelper,
+    private val loginUseCase: LoginUseCase,
+    private val completeRegistrationUseCase: CompleteRegistrationUseCase,
+    private val sendOtpUseCase: SendOtpUseCase,
+    private val verifyOtpUseCase: VerifyOtpUseCase,
+    private val biometricHelper: BiometricHelper,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -132,17 +130,11 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true) }
-            authRepository.login(state.phoneNumber, state.password)
+            loginUseCase(state.phoneNumber, state.password)
                 .onSuccess {
                     biometricHelper.saveCredentials(state.phoneNumber, state.password)
                     _uiState.update { it.copy(isSubmitting = false) }
                     _effect.send(AuthUiEffect.NavigateToHome)
-                    
-                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                        fcmTokenManager.syncCurrentToken()
-                        deviceRepository.refreshDevices()
-                        positionRepository.refreshLatestPositions()
-                    }
                 }
                 .onFailure {
                     _uiState.update { it.copy(isSubmitting = false) }
@@ -173,16 +165,10 @@ class AuthViewModel @Inject constructor(
             if (phone != null && pass != null) {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isSubmitting = true) }
-                    authRepository.login(phone, pass)
+                    loginUseCase(phone, pass)
                         .onSuccess {
                             _uiState.update { it.copy(isSubmitting = false) }
                             _effect.send(AuthUiEffect.NavigateToHome)
-                            
-                            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                                fcmTokenManager.syncCurrentToken()
-                                deviceRepository.refreshDevices()
-                                positionRepository.refreshLatestPositions()
-                            }
                         }
                         .onFailure {
                             _uiState.update { it.copy(isSubmitting = false) }
@@ -207,7 +193,7 @@ class AuthViewModel @Inject constructor(
             else -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isSubmitting = true) }
-                    registrationRepository.sendOtp(state.phoneNumber)
+                    sendOtpUseCase(state.phoneNumber)
                         .onSuccess {
                             _uiState.update {
                                 it.copy(
@@ -238,7 +224,7 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true) }
-            registrationRepository.verifyOtp(state.phoneNumber, state.otp)
+            verifyOtpUseCase(state.phoneNumber, state.otp)
                 .onSuccess {
                     otpTimerJob?.cancel()
                     _uiState.update { current ->
@@ -264,7 +250,7 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true) }
-            registrationRepository.sendOtp(state.phoneNumber)
+            sendOtpUseCase(state.phoneNumber)
                 .onSuccess {
                     _uiState.update {
                         it.copy(
@@ -310,19 +296,13 @@ class AuthViewModel @Inject constructor(
             else -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isSubmitting = true) }
-                    registrationRepository.createUserAndLogin(
+                    completeRegistrationUseCase(
                         name = state.name,
-                        phoneNumber = state.phoneNumber,
-                        password = state.password,
+                        phone = state.phoneNumber,
+                        pass = state.password,
                     ).onSuccess {
                         _uiState.update { it.copy(isSubmitting = false) }
                         _effect.send(AuthUiEffect.NavigateToHome)
-                        
-                        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                            fcmTokenManager.syncCurrentToken()
-                            deviceRepository.refreshDevices()
-                            positionRepository.refreshLatestPositions()
-                        }
                     }.onFailure {
                         _uiState.update { it.copy(isSubmitting = false) }
                         _effect.send(AuthUiEffect.ShowError("تکمیل عضویت با خطا مواجه شد"))
