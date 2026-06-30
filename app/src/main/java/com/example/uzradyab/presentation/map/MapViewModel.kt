@@ -21,7 +21,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
-import kotlin.math.roundToInt
+import android.util.Log
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.core.utils.ImmutableMapWrapper
 import com.example.uzradyab.core.utils.emptyImmutableList
@@ -39,6 +39,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
+enum class ConnectionErrorType {
+    NONE,
+    NETWORK_UNREACHABLE,
+    SERVER_DOWN
+}
 
 data class HomeMapUiState(
     val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
@@ -58,6 +65,8 @@ data class HomeMapUiState(
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     val isMapLocked: Boolean = false,
     val infoMessage: String? = null,
+    val connectionError: ConnectionErrorType = ConnectionErrorType.NONE,
+    val isCheckingServer: Boolean = false,
 )
 
 data class MapLatestEventItem(
@@ -105,6 +114,7 @@ class MapViewModel @Inject constructor(
         observeSelectedDeviceDistance()
         observeSelectedDeviceLatestEvent()
         observeTileHealth()
+        startHealthCheckLoop()
         
         viewModelScope.launch {
             uiState.map { it.selectedDeviceId }.distinctUntilChanged().collectLatest { deviceId ->
@@ -112,6 +122,15 @@ class MapViewModel @Inject constructor(
                     mapSettingsRepository.addTrackedDeviceId(deviceId)
                 }
             }
+        }
+
+        viewModelScope.launch {
+            trackingRepository.connectionState
+                .collect { state ->
+                    if (state == TrackingConnectionState.Disconnected) {
+                        checkServerHealth()
+                    }
+                }
         }
     }
 
@@ -184,11 +203,13 @@ class MapViewModel @Inject constructor(
 
     fun toggleMapLock() {
         localState.update { it.copy(isMapLocked = !it.isMapLocked) }
+        Log.d("MapViewModel", "Map lock toggled: ${!localState.value.isMapLocked}")
     }
 
     fun unlockMap() {
         if (localState.value.isMapLocked) {
             localState.update { it.copy(isMapLocked = false) }
+            Log.d("MapViewModel", "Map unlocked by user action")
         }
     }
 
@@ -197,6 +218,72 @@ class MapViewModel @Inject constructor(
             currentState.copy(
                 tileHealth = TileHealthState.Healthy
             )
+        }
+    }
+
+    private var lastServerDownTime = 0L
+
+    fun dismissServerDown() {
+        localState.update { it.copy(connectionError = ConnectionErrorType.NONE) }
+        lastServerDownTime = System.currentTimeMillis()
+    }
+
+    private fun startHealthCheckLoop() {
+        viewModelScope.launch {
+            while (true) {
+                checkServerHealth()
+                delay(30L * 60L * 1000L) // 30 minutes
+            }
+        }
+    }
+
+    private fun checkServerHealth() {
+        viewModelScope.launch {
+            localState.update { it.copy(isCheckingServer = true, connectionError = ConnectionErrorType.NONE) }
+            val result = authRepository.checkServerHealth()
+            
+            result.onSuccess { statusCode ->
+                val currentTime = System.currentTimeMillis()
+                val oneHourMs = 60L * 60L * 1000L
+                val shouldShowError = (lastServerDownTime == 0L || currentTime - lastServerDownTime > oneHourMs)
+
+                if (statusCode == 401 || statusCode == 404) {
+                    logout()
+                } else if (statusCode in 200..299) {
+                    localState.update { it.copy(isCheckingServer = false, connectionError = ConnectionErrorType.NONE) }
+                } else if (statusCode in 400..499) {
+                    if (shouldShowError) {
+                        localState.update { it.copy(isCheckingServer = false, connectionError = ConnectionErrorType.NETWORK_UNREACHABLE) }
+                    } else {
+                        localState.update { it.copy(isCheckingServer = false) }
+                    }
+                } else if (statusCode >= 500) {
+                    if (shouldShowError) {
+                        localState.update { it.copy(isCheckingServer = false, connectionError = ConnectionErrorType.SERVER_DOWN) }
+                    } else {
+                        localState.update { it.copy(isCheckingServer = false) }
+                    }
+                } else {
+                    localState.update { it.copy(isCheckingServer = false) }
+                }
+            }.onFailure { exception ->
+                if (exception is retrofit2.HttpException && (exception.code() == 401 || exception.code() == 404)) {
+                    logout()
+                } else {
+                    val currentTime = System.currentTimeMillis()
+                    val oneHourMs = 60L * 60L * 1000L
+                    if (lastServerDownTime == 0L || currentTime - lastServerDownTime > oneHourMs) {
+                        val errorType = if (exception is java.net.UnknownHostException || exception is java.net.ConnectException || exception is java.net.SocketException || exception is java.net.SocketTimeoutException) {
+                            ConnectionErrorType.NETWORK_UNREACHABLE
+                        } else {
+                            ConnectionErrorType.SERVER_DOWN
+                        }
+                        localState.update { it.copy(isCheckingServer = false, connectionError = errorType) }
+                    } else {
+                        localState.update { it.copy(isCheckingServer = false) }
+                    }
+                }
+            }
         }
     }
 

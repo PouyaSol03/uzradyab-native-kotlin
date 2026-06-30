@@ -26,6 +26,11 @@ class AuthRepositoryImpl @Inject constructor(
         entity.toDomain()
     }
 
+    override suspend fun checkServerHealth(): Result<Int> = runCatching {
+        val response = api.checkServerHealth()
+        response.code()
+    }
+
     override suspend fun login(phoneNumber: String, password: String): Result<UserSession> = runCatching {
         val session = api.login(phoneNumber = phoneNumber, password = password)
         val entity = session.toEntity()

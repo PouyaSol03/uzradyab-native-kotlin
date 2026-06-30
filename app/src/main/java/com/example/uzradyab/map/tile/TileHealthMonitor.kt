@@ -49,11 +49,18 @@ enum class TileHealthState {
 @Singleton
 class TileHealthMonitor @Inject constructor() {
 
-    private companion object {
+    companion object {
         const val TAG = "TileHealthMonitor"
-        const val BASE_INTERVAL_MS = 30_000L
-        const val MAX_INTERVAL_MS = 120_000L
+        const val BASE_INTERVAL_MS = 10_000L
+        const val MAX_INTERVAL_MS = 60_000L
         const val MAX_CONSECUTIVE_FAILURES = 3
+
+        @Volatile
+        private var instance: TileHealthMonitor? = null
+
+        fun reportTileDownloadError() {
+            instance?.onTileDownloadError()
+        }
     }
 
     private val _state = MutableStateFlow(TileHealthState.Unknown)
@@ -74,6 +81,21 @@ class TileHealthMonitor @Inject constructor() {
             .build()
     }
 
+    init {
+        instance = this
+    }
+
+    private fun onTileDownloadError() {
+        if (_state.value == TileHealthState.Unreachable) return
+        consecutiveFailures++
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+            _state.value = TileHealthState.Unreachable
+            Log.w(TAG, "Tile source unreachable due to direct download failures")
+        } else {
+            _state.value = TileHealthState.Degraded
+        }
+    }
+
     /**
      * Start monitoring for the given [styleId].
      * Cancels any previous monitoring session.
@@ -89,8 +111,8 @@ class TileHealthMonitor @Inject constructor() {
             val chain = TileSourceRegistry.fallbackChain(styleId)
             var interval = BASE_INTERVAL_MS
 
-            // Initial delay before first probe
-            delay(BASE_INTERVAL_MS)
+            // Initial delay before first probe (shortened)
+            delay(2_000L)
 
             while (true) {
                 val healthy = probe(healthUrl)

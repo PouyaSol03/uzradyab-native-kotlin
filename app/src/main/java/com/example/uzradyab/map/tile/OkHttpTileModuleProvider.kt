@@ -77,6 +77,7 @@ class OkHttpTileModuleProvider(
                 val response = client.newCall(request).execute()
                 if (!response.isSuccessful) {
                     Log.w("OkHttpTileModule", "Failed to load tile: $tileUrl, code: ${response.code}")
+                    com.example.uzradyab.map.tile.TileHealthMonitor.reportTileDownloadError()
                     response.close()
                     return null
                 }
@@ -105,6 +106,7 @@ class OkHttpTileModuleProvider(
                 }
             } catch (e: Exception) {
                 Log.e("OkHttpTileModule", "Error downloading tile: $tileUrl", e)
+                com.example.uzradyab.map.tile.TileHealthMonitor.reportTileDownloadError()
                 null
             }
         }

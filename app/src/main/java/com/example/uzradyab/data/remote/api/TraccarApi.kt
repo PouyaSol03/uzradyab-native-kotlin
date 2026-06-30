@@ -21,6 +21,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TraccarApi {
+    @GET("api/health")
+    suspend fun checkServerHealth(): retrofit2.Response<Unit>
+
     @GET("api/session")
     suspend fun getSession(): SessionDto
 

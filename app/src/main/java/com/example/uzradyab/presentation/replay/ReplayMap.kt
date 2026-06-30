@@ -20,6 +20,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.map.OsmdroidConfig
 import com.example.uzradyab.map.tile.TileSourceRegistry
+import com.example.uzradyab.presentation.map.MarkerAnimator
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
@@ -110,52 +111,52 @@ fun ReplayMap(
                     mapView.controller.animateTo(center)
                 }
 
-                mapView.overlays.clear()
-
                 if (positions.isNotEmpty()) {
-                    // Draw Polyline
-                    val routePolyline = Polyline(mapView).apply {
-                        setPoints(positions.map { it.toGeoPoint() })
-                        color = AndroidColor.parseColor("#A12887")
-                        width = with(density) { 4.dp.toPx() } // thickness
-                        isGeodesic = true
-                        infoWindow = null // Disable native infoWindow on click
-                    }
-                    mapView.overlays.add(routePolyline)
-
-                    // Draw a dot for each position (Commented out to prevent lag on huge routes)
-                    /* 
-                    val dotDrawable = getCachedDotDrawable(mapView.context)
-                    positions.forEach { pos ->
-                        val nodeMarker = Marker(mapView).apply {
-                            position = pos.toGeoPoint()
-                            icon = dotDrawable
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                    // Draw or Update Polyline
+                    var routePolyline = mapView.overlays.find { it is Polyline } as? Polyline
+                    if (routePolyline == null) {
+                        routePolyline = Polyline(mapView).apply {
+                            color = AndroidColor.parseColor("#A12887")
+                            width = with(density) { 4.dp.toPx() } // thickness
+                            isGeodesic = true
                             infoWindow = null // Disable native infoWindow on click
-                            setOnMarkerClickListener { _, _ ->
-                                onNodeClick(pos)
-                                true
-                            }
                         }
-                        mapView.overlays.add(nodeMarker)
+                        mapView.overlays.add(0, routePolyline) // add at bottom
                     }
-                    */
+                    routePolyline.setPoints(positions.map { it.toGeoPoint() })
 
                     // Draw current car marker
                     currentPosition?.let { pos ->
-                        mapView.overlays.add(
-                            Marker(mapView).apply {
-                                this.position = pos.toGeoPoint()
-                                icon = createDeviceMarkerDrawable(
-                                    context = mapView.context,
-                                    speedKmh = (pos.speed * 1.852).toInt()
-                                )
-                                setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                                relatedObject = REPLAY_MARKER
-                                infoWindow = null
-                            }
-                        )
+                        var currentMarker = mapView.overlays.find { it is Marker && it.relatedObject == REPLAY_MARKER } as? Marker
+                        val newGeoPoint = pos.toGeoPoint()
+                        val newRotation = pos.course.toFloat()
+                        val speedKmh = (pos.speed * 1.852).toInt()
+                        val newIcon = createDeviceMarkerDrawable(mapView.context, speedKmh)
+
+                        if (currentMarker == null) {
+                            mapView.overlays.add(
+                                Marker(mapView).apply {
+                                    this.position = newGeoPoint
+                                    this.rotation = 0f
+                                    this.icon = newIcon
+                                    setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
+                                    relatedObject = REPLAY_MARKER
+                                    infoWindow = null
+                                }
+                            )
+                        } else {
+                            currentMarker.icon = newIcon
+                            MarkerAnimator.animateMarker(
+                                marker = currentMarker,
+                                mapView = mapView,
+                                endPosition = newGeoPoint,
+                                endCourse = newRotation,
+                                durationMs = 1000L // 1 second animation for replay too
+                            )
+                        }
                     }
+                } else {
+                    mapView.overlays.clear()
                 }
 
                 mapView.invalidate()

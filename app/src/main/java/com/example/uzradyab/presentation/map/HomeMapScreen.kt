@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -107,6 +109,7 @@ fun HomeMapRoute(
         onAlertsSettingsClick = onAlertsSettingsClick,
         onGeofenceClick = onGeofenceClick,
         onToggleMapLock = viewModel::toggleMapLock,
+        onDismissServerDown = viewModel::dismissServerDown,
     )
 }
 
@@ -137,6 +140,7 @@ fun HomeMapScreen(
     onGeofenceClick: (Long) -> Unit,
     onToggleMapLock: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
+    onDismissServerDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
@@ -317,6 +321,16 @@ fun HomeMapScreen(
                         )
                     }
                 )
+
+                if (state.connectionError == ConnectionErrorType.SERVER_DOWN) {
+                    ServerDownBottomSheet(
+                        onDismiss = onDismissServerDown
+                    )
+                } else if (state.connectionError == ConnectionErrorType.NETWORK_UNREACHABLE) {
+                    NetworkErrorBottomSheet(
+                        onDismiss = onDismissServerDown
+                    )
+                }
             }
         }
     }
@@ -422,6 +436,125 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                     .navigationBarsPadding()
                     .padding(bottom = 16.dp),
             )
+        }
+    }
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun ServerDownBottomSheet(
+    onDismiss: () -> Unit,
+) {
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            androidx.compose.material3.Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                tint = Color(0xFFF44336),
+                modifier = Modifier.size(64.dp)
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "عدم ارتباط با سرور",
+                style = MaterialTheme.typography.titleLarge
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "ارتباط با سرور برقرار نیست. لطفا وضعیت اینترنت خود را بررسی کنید.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(32.dp))
+            
+            androidx.compose.material3.Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+            ) {
+                Text("متوجه شدم", fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun NetworkErrorBottomSheet(
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = Color.White
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
+                .navigationBarsPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Warning Icon in a circular badge
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(Color(0xFFFFF4E5), androidx.compose.foundation.shape.CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = Color(0xFFE5B850),
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(20.dp))
+            
+            // Centered Title
+            Text(
+                text = "خطا در اتصال به شبکه",
+                fontSize = 20.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = com.example.uzradyab.ui.theme.AppTextPrimary,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(12.dp))
+            
+            // Centered and slightly larger description
+            Text(
+                text = "ارتباط با سرور برقرار نشد.\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید.",
+                fontSize = 15.sp,
+                color = com.example.uzradyab.ui.theme.AppTextPrimary.copy(alpha = 0.7f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                lineHeight = 24.sp
+            )
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(32.dp))
+            
+            // Modern Button
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .background(com.example.uzradyab.ui.theme.AppBlue, androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                    .clickable { onDismiss() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "متوجه شدم",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
+            }
         }
     }
 }

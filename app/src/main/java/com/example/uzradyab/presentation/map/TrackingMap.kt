@@ -154,14 +154,13 @@ fun TrackingMap(
                     mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
                 }
 
-                val justLocked = isMapLocked && !wasLocked
+                // Keep map interactive: always allow multi‑touch gestures (pinch, rotate, pan)
+                mapView.setMultiTouchControls(true)
+                // Center map only when needed; we no longer disable interaction
                 if (isMapLocked) {
-                    mapView.setMultiTouchControls(false)
-                    // When locked, immediately strictly center the map
+                    // When locked, strictly center the map without disabling gestures
                     mapView.controller.animateTo(center, 20.0, 500L)
                     mapView.tag = centerKey
-                } else {
-                    mapView.setMultiTouchControls(true)
                 }
                 wasLocked = isMapLocked
                 
@@ -194,23 +193,41 @@ fun TrackingMap(
                 }
 
                 if (selectedPosition != tracker.lastPosition) {
-                    mapView.overlays.removeAll { overlay ->
-                        (overlay is Marker && overlay.relatedObject == SELECTED_DEVICE_MARKER)
-                    }
-                    
-                    selectedPosition?.let { position ->
-                        mapView.overlays.add(
-                            Marker(mapView).apply {
-                                this.position = position.toGeoPoint()
-                                icon = MarkerCache.getOrCreate(
-                                    context = mapView.context,
-                                    speedKmh = (position.speed * 1.852).toInt()
-                                )
-                                setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                                relatedObject = SELECTED_DEVICE_MARKER
-                                infoWindow = null
-                            },
-                        )
+                    val existingMarker = mapView.overlays.find { 
+                        it is Marker && it.relatedObject == SELECTED_DEVICE_MARKER 
+                    } as? Marker
+
+                    if (selectedPosition == null) {
+                        existingMarker?.let { mapView.overlays.remove(it) }
+                    } else {
+                        val newGeoPoint = selectedPosition.toGeoPoint()
+                        val newRotation = selectedPosition.course.toFloat()
+                        val speedKmh = (selectedPosition.speed * 1.852).toInt()
+                        val newIcon = MarkerCache.getOrCreate(mapView.context, speedKmh)
+
+                        if (existingMarker == null) {
+                            mapView.overlays.add(
+                                Marker(mapView).apply {
+                                    this.position = newGeoPoint
+                                    this.rotation = 0f
+                                    this.icon = newIcon
+                                    setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
+                                    relatedObject = SELECTED_DEVICE_MARKER
+                                    infoWindow = null
+                                }
+                            )
+                            // Rotate map so that the device marker stays upright based on its course
+                            mapView.mapOrientation = (360f - newRotation) % 360f
+                        } else {
+                            existingMarker.icon = newIcon
+                            MarkerAnimator.animateMarker(
+                                marker = existingMarker,
+                                mapView = mapView,
+                                endPosition = newGeoPoint,
+                                endCourse = newRotation,
+                                durationMs = 1000L
+                            )
+                        }
                     }
                     tracker.lastPosition = selectedPosition
                     mapView.invalidate()

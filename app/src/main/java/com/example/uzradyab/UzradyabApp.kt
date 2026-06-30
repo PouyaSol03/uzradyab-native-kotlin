@@ -105,19 +105,7 @@ fun UzradyabApp(
         }
     }
 
-    var showNetworkErrorSheet by remember { mutableStateOf(false) }
-    var lastNetworkErrorTime by rememberSaveable { mutableStateOf(0L) }
-
-    LaunchedEffect(networkEventBus) {
-        networkEventBus?.networkErrorEvent?.collectLatest {
-            val currentTime = System.currentTimeMillis()
-            val oneHourMs = 60L * 60L * 1000L
-            if (currentTime - lastNetworkErrorTime > oneHourMs) {
-                showNetworkErrorSheet = true
-                lastNetworkErrorTime = currentTime
-            }
-        }
-    }
+    // Removed showNetworkErrorSheet and lastNetworkErrorTime as it is now handled by HomeMapScreen
 
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarController = remember(snackbarHostState, scope) { 
@@ -564,73 +552,7 @@ fun UzradyabApp(
                     .padding(bottom = 16.dp)
             )
 
-            if (showNetworkErrorSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showNetworkErrorSheet = false },
-                    containerColor = Color.White
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
-                            .navigationBarsPadding(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Warning Icon in a circular badge
-                        Box(
-                            modifier = Modifier
-                                .size(72.dp)
-                                .background(Color(0xFFFFF4E5), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = Color(0xFFE5B850),
-                                modifier = Modifier.size(36.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                        
-                        // Centered Title
-                        Text(
-                            text = "خطا در اتصال به شبکه",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = com.example.uzradyab.ui.theme.AppTextPrimary,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
-                        // Centered and slightly larger description
-                        Text(
-                            text = "ارتباط با سرور برقرار نشد.\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید.",
-                            fontSize = 15.sp,
-                            color = com.example.uzradyab.ui.theme.AppTextPrimary.copy(alpha = 0.7f),
-                            textAlign = TextAlign.Center,
-                            lineHeight = 24.sp
-                        )
-                        Spacer(modifier = Modifier.height(32.dp))
-                        
-                        // Modern Button
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp)
-                                .background(AppBlue, RoundedCornerShape(12.dp))
-                                .clickable { showNetworkErrorSheet = false },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = "متوجه شدم",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                    }
-                }
-            }
+            // Old global network bottom sheet removed
 
             // Local Crash Reporter Dialog
             var crashLogToShow by remember { mutableStateOf<String?>(null) }
