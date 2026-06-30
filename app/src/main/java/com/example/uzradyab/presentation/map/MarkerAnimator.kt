@@ -15,6 +15,7 @@ object MarkerAnimator {
         mapView: MapView,
         endPosition: GeoPoint,
         endCourse: Float,
+        rotateMap: Boolean,
         durationMs: Long = 1000L
     ) {
         // Cancel any ongoing animation for this marker
@@ -40,9 +41,13 @@ object MarkerAnimator {
             val lon = startPosition.longitude + (endPosition.longitude - startPosition.longitude) * fraction
             marker.position = GeoPoint(lat, lon)
             
-            // Interpolate map orientation (so the marker always points up and the map rotates)
+            // Marker should always stay vertical
             marker.rotation = 0f
-            mapView.mapOrientation = startOrientation + deltaRotation * fraction
+
+            if (rotateMap) {
+                // Interpolate map orientation based on course
+                mapView.mapOrientation = startOrientation + deltaRotation * fraction
+            }
             
             mapView.invalidate()
         }

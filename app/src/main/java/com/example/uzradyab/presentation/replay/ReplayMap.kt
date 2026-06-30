@@ -40,6 +40,7 @@ fun ReplayMap(
     positions: List<Position>,
     currentIndex: Int,
     mapStyle: String = "osm",
+    playSpeed: Int = 1,
     activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
@@ -84,6 +85,8 @@ fun ReplayMap(
                     mapView.setTileSource(tileSource)
                     // Update max zoom to match the new source's limit
                     mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
+                    // Force a full redraw so old tiles are immediately dropped from screen
+                    mapView.invalidate()
                 }
 
                 // Adjust for bottom panel padding
@@ -144,14 +147,18 @@ fun ReplayMap(
                                     infoWindow = null
                                 }
                             )
+                            // Initialize map orientation to match the course
+                            mapView.mapOrientation = (360f - newRotation) % 360f
                         } else {
+                            val animationDuration = if (playSpeed == 1) 1000L else 500L
                             currentMarker.icon = newIcon
                             MarkerAnimator.animateMarker(
                                 marker = currentMarker,
                                 mapView = mapView,
                                 endPosition = newGeoPoint,
                                 endCourse = newRotation,
-                                durationMs = 1000L // 1 second animation for replay too
+                                rotateMap = true,
+                                durationMs = animationDuration
                             )
                         }
                     }

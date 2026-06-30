@@ -38,6 +38,7 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -125,19 +126,23 @@ fun TrackingMap(
                     // Force start rendering immediately (fixes blank map during enter animations)
                     onResume()
 
+                    val rotationGestureOverlay = RotationGestureOverlay(this)
+                    rotationGestureOverlay.isEnabled = true
+                    overlays.add(rotationGestureOverlay)
+
                     setOnTouchListener { _, event ->
-                        if (event.action == MotionEvent.ACTION_DOWN) {
+                        if (event.action == android.view.MotionEvent.ACTION_DOWN) {
                             currentOnMapInteraction()
                         }
                         
                         if (currentIsMapLocked) {
                             // Block any panning (ACTION_MOVE) or zooming (multi-touch)
-                            if (event.action == MotionEvent.ACTION_MOVE || event.pointerCount > 1) {
+                            if (event.action == android.view.MotionEvent.ACTION_MOVE || event.pointerCount > 1) {
                                 currentOnMapInteraction()
                                 return@setOnTouchListener true
                             }
                         } else {
-                            if (event.action == MotionEvent.ACTION_MOVE) {
+                            if (event.action == android.view.MotionEvent.ACTION_MOVE) {
                                 currentOnMapInteraction()
                             }
                         }
@@ -152,10 +157,18 @@ fun TrackingMap(
                     mapView.setTileSource(tileSource)
                     // Update max zoom to match the new source's limit
                     mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
+                    // Force a full redraw so old tiles are immediately dropped from screen
+                    mapView.invalidate()
                 }
 
                 // Keep map interactive: always allow multi‑touch gestures (pinch, rotate, pan)
                 mapView.setMultiTouchControls(true)
+                
+                // Toggle map rotation gesture based on map lock state
+                mapView.overlays.filterIsInstance<RotationGestureOverlay>().firstOrNull()?.let {
+                    it.isEnabled = !isMapLocked
+                }
+
                 // Center map only when needed; we no longer disable interaction
                 if (isMapLocked) {
                     // When locked, strictly center the map without disabling gestures
@@ -209,6 +222,7 @@ fun TrackingMap(
                             mapView.overlays.add(
                                 Marker(mapView).apply {
                                     this.position = newGeoPoint
+                                    // Marker should always be vertical (0f)
                                     this.rotation = 0f
                                     this.icon = newIcon
                                     setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
@@ -216,8 +230,10 @@ fun TrackingMap(
                                     infoWindow = null
                                 }
                             )
-                            // Rotate map so that the device marker stays upright based on its course
-                            mapView.mapOrientation = (360f - newRotation) % 360f
+                            if (isMapLocked) {
+                                // Rotate map so that the device marker stays upright based on its course
+                                mapView.mapOrientation = (360f - newRotation) % 360f
+                            }
                         } else {
                             existingMarker.icon = newIcon
                             MarkerAnimator.animateMarker(
@@ -225,7 +241,8 @@ fun TrackingMap(
                                 mapView = mapView,
                                 endPosition = newGeoPoint,
                                 endCourse = newRotation,
-                                durationMs = 1000L
+                                rotateMap = isMapLocked,
+                                durationMs = 300L
                             )
                         }
                     }

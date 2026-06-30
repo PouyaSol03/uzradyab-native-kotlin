@@ -25,7 +25,7 @@ import com.example.uzradyab.data.local.entity.UserSessionEntity
         DailyDistanceEntity::class,
     ],
     version = 4,
-    exportSchema = true,
+    exportSchema = false,
 )
 abstract class UzradyabDatabase : RoomDatabase() {
     abstract fun userSessionDao(): UserSessionDao
