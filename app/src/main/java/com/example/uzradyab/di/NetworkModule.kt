@@ -13,6 +13,7 @@ import com.example.uzradyab.core.network.UnauthorizedInterceptor
 import com.example.uzradyab.data.remote.api.AuthHelperApi
 import com.example.uzradyab.data.remote.api.MapIrApi
 import com.example.uzradyab.data.remote.api.NotificationApi
+import com.example.uzradyab.data.remote.api.AppConfigApi
 import com.example.uzradyab.data.remote.api.TraccarApi
 import com.example.uzradyab.data.repository.GeocoderRepositoryImpl
 import com.example.uzradyab.domain.repository.GeocoderRepository
@@ -166,6 +167,12 @@ object NetworkModule {
     @Singleton
     fun provideNotificationApi(@Named(NOTIFICATION_RETROFIT) retrofit: Retrofit): NotificationApi {
         return retrofit.create(NotificationApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppConfigApi(@Named(NOTIFICATION_RETROFIT) retrofit: Retrofit): AppConfigApi {
+        return retrofit.create(AppConfigApi::class.java)
     }
 
     /**

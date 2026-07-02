@@ -1,6 +1,6 @@
 package com.example.uzradyab.data.repository
 
-import com.example.uzradyab.data.remote.api.TraccarApi
+import com.example.uzradyab.data.remote.api.AppConfigApi
 import com.example.uzradyab.data.remote.dto.AppConfigDto
 import com.example.uzradyab.domain.repository.AppConfigRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppConfigRepositoryImpl @Inject constructor(
-    private val traccarApi: TraccarApi
+    private val appConfigApi: AppConfigApi
 ) : AppConfigRepository {
 
     private val _currentConfig = MutableStateFlow<AppConfigDto?>(null)
@@ -19,7 +19,7 @@ class AppConfigRepositoryImpl @Inject constructor(
 
     override suspend fun getAppConfig(): Result<AppConfigDto> {
         return try {
-            val result = traccarApi.getAppConfig()
+            val result = appConfigApi.getAppConfig()
             _currentConfig.value = result
             Result.success(result)
         } catch (e: Exception) {

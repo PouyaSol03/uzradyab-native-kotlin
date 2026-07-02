@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.util.Log
 
 sealed interface StartupNavigationTarget {
     object Onboarding : StartupNavigationTarget
@@ -54,16 +55,26 @@ class StartupViewModel @Inject constructor(
             _navigationTarget.value = null
             
             // 1. Fetch Config from Server FIRST
+            Log.d("UpdateSystem", "Fetching app config...")
             val configResult = appConfigRepository.getAppConfig()
             if (configResult.isSuccess) {
                 val config = configResult.getOrNull()
+                Log.d("UpdateSystem", "Config fetched: newRelease=${config?.newRelease}, code=${config?.newReleaseCode}")
                 if (config != null && config.newRelease == true && !config.newReleaseCode.isNullOrEmpty()) {
                     val currentVersion = BuildConfig.VERSION_NAME
+                    Log.d("UpdateSystem", "Comparing versions: server=${config.newReleaseCode}, local=$currentVersion")
                     if (isVersionGreater(config.newReleaseCode, currentVersion)) {
+                        Log.d("UpdateSystem", "Update is available! Showing bottom sheet.")
                         _uiState.value = StartupUiState.UpdateAvailable(config)
                         return@launch
+                    } else {
+                        Log.d("UpdateSystem", "App is up to date.")
                     }
+                } else {
+                    Log.d("UpdateSystem", "newRelease is false or code is empty.")
                 }
+            } else {
+                Log.e("UpdateSystem", "Failed to fetch config", configResult.exceptionOrNull())
             }
 
             continueToApp()
