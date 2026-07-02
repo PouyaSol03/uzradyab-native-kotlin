@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
-private const val DEFAULT_SERVER_URL = "https://app.uzradyab.ir/"
-private const val AUTH_HELPER_URL = "https://pay.uzradyab.ir/"
-private const val NOTIFICATION_URL = "https://notification.uzradyab.ir/"
+private val DEFAULT_SERVER_URL = BuildConfig.API_BASE_URL
+private val AUTH_HELPER_URL = BuildConfig.PAY_BASE_URL
+private val NOTIFICATION_URL = BuildConfig.NOTIFICATION_BASE_URL
 
 private const val AUTH_HELPER_RETROFIT = "authHelperRetrofit"
 private const val NOTIFICATION_RETROFIT = "notificationRetrofit"

@@ -105,7 +105,7 @@ class PersistentCookieJar(private val context: Context) : CookieJar {
 
     private companion object {
         const val KEY_COOKIES = "cookies"
-        const val DEFAULT_SERVER_URL = "https://app.uzradyab.ir"
+        val DEFAULT_SERVER_URL = com.example.uzradyab.BuildConfig.API_BASE_URL
         /** Separator between origin URL and cookie string in storage. */
         const val SEPARATOR = "||"
     }

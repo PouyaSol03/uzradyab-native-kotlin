@@ -39,7 +39,7 @@ class TraccarSocketClient @Inject constructor(
 
     fun connect(): Flow<SocketEvent> = callbackFlow {
         val request = Request.Builder()
-            .url("wss://app.uzradyab.ir/api/socket")
+            .url(com.example.uzradyab.BuildConfig.SOCKET_BASE_URL)
             .build()
         val socket = wsClient.newWebSocket(
             request,
