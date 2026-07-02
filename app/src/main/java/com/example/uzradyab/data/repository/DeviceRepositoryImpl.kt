@@ -76,17 +76,25 @@ class DeviceRepositoryImpl @Inject constructor(
             }
         }
 
-        val request = AddDeviceRequestDto(
-            id = id,
-            name = name,
-            uniqueId = uniqueId,
-            phone = phone,
-            category = category,
-            expirationTime = null,
-            attributes = attributes
-        )
+        // Build a partial object containing only what we want to send
+        val partialRequest = JsonObject().apply {
+            addProperty("id", id)
+            addProperty("name", name)
+            addProperty("uniqueId", uniqueId)
+            addProperty("phone", phone)
+            addProperty("category", category)
+            add("attributes", attributes)
+        }
 
-        val updatedDeviceDto = api.updateDevice(id, request)
-        deviceDao.upsertAll(listOf(updatedDeviceDto.toEntity()))
+        android.util.Log.d("DeviceUpdate", "Sending partial update device request: $partialRequest")
+
+        val updateResponse = api.updateDeviceRaw(id, partialRequest)
+        if (!updateResponse.isSuccessful) {
+            throw Exception("Failed to update device: ${updateResponse.code()}")
+        }
+
+        // Fetch fresh data from server to reflect changes
+        val devices = api.getDevices()
+        deviceDao.upsertAll(devices.map { it.toEntity() })
     }
 }

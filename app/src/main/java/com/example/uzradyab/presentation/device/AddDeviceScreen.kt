@@ -363,7 +363,7 @@ private fun DeviceTextField(
         
         Spacer(modifier = Modifier.height(8.dp))
 
-        val alignment = if (forceLtr && value.isNotEmpty()) TextAlign.Left else TextAlign.Right
+        val alignment = TextAlign.Right
         val textDirection = if (forceLtr) TextDirection.Ltr else TextDirection.Rtl
 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {

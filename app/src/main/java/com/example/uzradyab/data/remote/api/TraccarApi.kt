@@ -58,6 +58,15 @@ interface TraccarApi {
         @Body request: AddDeviceRequestDto,
     ): DeviceDto
 
+    @GET("api/devices")
+    suspend fun getDeviceRaw(@Query("id") id: Long): retrofit2.Response<com.google.gson.JsonArray>
+
+    @PUT("api/devices/{id}")
+    suspend fun updateDeviceRaw(
+        @Path("id") id: Long,
+        @Body request: com.google.gson.JsonObject,
+    ): retrofit2.Response<com.google.gson.JsonObject>
+
     @GET("api/positions")
     suspend fun getPositions(): List<PositionDto>
 
