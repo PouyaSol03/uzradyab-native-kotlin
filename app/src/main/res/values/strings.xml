@@ -15,7 +15,7 @@
     <string name="str_818ae17d">آذر</string>
     <string name="str_c20b7c3b">تغییر شماره تلفن</string>
     <string name="str_255a1d7a">چند ضلعی</string>
-    <string name="str_b7f7c5c7">🌐 خطای شبکه/اینترنت در تلاش ${attempt + 1}: ${e.message}</string>
+    <string name="str_b7f7c5c7">🌐 خطای شبکه/اینترنت در تلاش %1$s: %2$s</string>
     <string name="str_75887764">اعتبار دستگاه به اتمام رسیده است. لطفا برای شارژ مجدد آن اقدام کنید.</string>
     <string name="str_6814380a">رمز عبور</string>
     <string name="str_a6623b0b">لطفا قوانین و مقررات را تایید کنید</string>
@@ -47,9 +47,9 @@
     <string name="str_2de602d7">عنوان دستگاه برای شناسایی راحت‌تر آن در میان بقیه دستگاه‌های ثبت شده است.</string>
     <string name="str_2c57b4c7">انتخاب دستگاه</string>
     <string name="str_454a0f23">وضعیت روزانه</string>
-    <string name="str_524c6a2b">امروز | $day $monthName $year</string>
-    <string name="str_bb13c4c3">$hours ساعت </string>
-    <string name="str_80d413c2">${days.toString().toPersianDigits()} روز قبل</string>
+    <string name="str_524c6a2b">امروز | %1$s %2$s %3$s</string>
+    <string name="str_bb13c4c3">%1$s ساعت </string>
+    <string name="str_80d413c2">%1$s روز قبل</string>
     <string name="str_85a99996">اطلاعات کاربر</string>
     <string name="str_212724cd">
             [
@@ -116,7 +116,7 @@
     <string name="str_1626c15e">اطلاعات تماس و پشتیبانی</string>
     <string name="str_8fd3df27">گزارش ترکیبی</string>
     <string name="str_db19d059">نقـــــشه</string>
-    <string name="str_b9d32bc1">${minutes.toString().toPersianDigits()} دقیقه قبل</string>
+    <string name="str_b9d32bc1">%1$s دقیقه قبل</string>
     <string name="str_31665826">جستجوی نام یا سریال دستگاه</string>
     <string name="str_f58f20ca">گزارش رویدادها</string>
     <string name="str_71d8b973">پیامک دریافت شد</string>
@@ -128,7 +128,7 @@
     <string name="str_6c3a358d">پرش متن هنگام وارد کردن اعداد و مقادیر در فرم دستگاه برطرف شده و راست‌چین شده است.</string>
     <string name="str_a9374766">سرعت از حد مجاز فراتر رفت</string>
     <string name="str_d945f210">ورود با اثر انگشت</string>
-    <string name="str_748fcc0c">پایان: $persianDate</string>
+    <string name="str_748fcc0c">پایان: %1$s</string>
     <string name="str_343dc69f">خطا در دریافت گزارش مسافت‌ها</string>
     <string name="str_a0a519bd">زبان برنامه</string>
     <string name="str_ec7a5b14">مدت زمان</string>
@@ -176,12 +176,12 @@ fun TimeFilterBottomSheet(
     val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedRange by remember { mutableStateOf(</string>
     <string name="str_25dcb532">زمان شروع</string>
-    <string name="str_76a937b9">$minutes دقیقه</string>
+    <string name="str_76a937b9">%1$s دقیقه</string>
     <string name="str_2e7aff1b">متوقف</string>
     <string name="str_2fe5ef7d">بازپخش مسیرها</string>
     <string name="str_05fc0424">آدرس در دسترس نیست</string>
     <string name="str_1b92a31d">در حال حرکت...</string>
-    <string name="str_8678d1c1">پیمایش امروز: $todayDistanceText</string>
+    <string name="str_8678d1c1">پیمایش امروز: %1$s</string>
     <string name="str_675d2703">پایان کیلومترشمار</string>
     <string name="str_1ba8f1e1">شروع حرکت</string>
     <string name="str_8f5b399d">با ارسال این دستور دستگاه وضعیت کلی خود را پاسخ می‌دهد.</string>
@@ -202,7 +202,7 @@ fun TimeFilterBottomSheet(
     <string name="str_4bc510cc">شماره سیم‌کارت موجود در دستگاه.</string>
     <string name="str_9d13af3e">۰</string>
     <string name="str_e4966467">داده‌ای موجود نیست</string>
-    <string name="str_6d3a96c5"> تا ${end.day} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(end.month)}</string>
+    <string name="str_6d3a96c5"> تا %1$s %2$s</string>
     <string name="str_34df5c35">ارسال فرمـــــان</string>
     <string name="str_2dee03de">انتخاب تاریخ و زمان</string>
     <string name="str_06f6c148">افت سوخت</string>
@@ -213,7 +213,7 @@ fun TimeFilterBottomSheet(
     <string name="str_c236aa20">تکمیل عضویت</string>
     <string name="str_2944a2c7">ورود با اثرانگشت / تشخیص چهره</string>
     <string name="str_1b739f54">خرداد</string>
-    <string name="str_fa50fea6">${report.averageSpeed} کیلومتر بر ساعت</string>
+    <string name="str_fa50fea6">%1$s کیلومتر بر ساعت</string>
     <string name="str_036f8b42">گزارش‌ها</string>
     <string name="str_8e1af4d9">بازه انتخابی</string>
     <string name="str_47824b58">ارسال مجدد کد تایید با خطا مواجه شد</string>
@@ -227,7 +227,7 @@ fun TimeFilterBottomSheet(
     <string name="str_47385eb9">ارسال دستور وصل کردن سوخت خودرو در صورتی که سوخت از قبل توسط رله قطع شده باشد.</string>
     <string name="str_38d0fd72">باشه</string>
     <string name="str_5fc7f3bc">کیلومتر فعلی دستگاه</string>
-    <string name="str_6f6bf7d5">✅ توکن با موفقیت در تلاش ${attempt + 1} ارسال شد.</string>
+    <string name="str_6f6bf7d5">✅ توکن با موفقیت در تلاش %1$s ارسال شد.</string>
     <string name="str_b8800bdd">راه اندازی مجدد</string>
     <string name="str_0799c18b">جزئیات بیشتر</string>
     <string name="str_a604190b">سوخت مصرفی</string>
@@ -235,9 +235,9 @@ fun TimeFilterBottomSheet(
     <string name="str_eb96cc44">شماره تلفن یا رمز عبور صحیح نیست</string>
     <string name="str_b7ab4dbb">شهریور</string>
     <string name="str_ed7c278e">توقفی یافت نشد</string>
-    <string name="str_e18b56c4">❌ خطای سرور/بک‌اند در تلاش ${attempt + 1}: ${e.message}</string>
+    <string name="str_e18b56c4">❌ خطای سرور/بک‌اند در تلاش %1$s: %2$s</string>
     <string name="str_9ccd7059">دایره</string>
-    <string name="str_b0a53e74">مدت زمان سفر: ${report.duration}</string>
+    <string name="str_b0a53e74">مدت زمان سفر: %1$s</string>
     <string name="str_68a2de5f">انتخاب ستون‌ها</string>
     <string name="str_94f14b96">محدوده‌های من</string>
     <string name="str_8105a2a5">درباره اکسیر</string>
@@ -281,7 +281,7 @@ fun TimeFilterBottomSheet(
     <string name="str_01bc9216">تاریخ سفارشی</string>
     <string name="str_897c5c5e">ورود با رمز عبور / حساب دیگر</string>
     <string name="str_c5e2b3f8">هشدار جدید</string>
-    <string name="str_6dbef4b1">شعاع: ${geofence.radius?.toInt()} متر</string>
+    <string name="str_6dbef4b1">شعاع: %1$s متر</string>
     <string name="str_fccaf0bf">اعتبار دستگاه نامشخص است</string>
     <string name="str_0fb8bf04">کیلومتر بر ساعت</string>
     <string name="str_ba28441b">همه رویدادها</string>
@@ -289,7 +289,7 @@ fun TimeFilterBottomSheet(
     <string name="str_9a71e650">آیا حساب کاربری ندارید؟</string>
     <string name="str_845ef70c">%.1f کیلومتر</string>
     <string name="str_f53c8810">ایجاد حساب کاربری جدید</string>
-    <string name="str_f5da67c7">${daysRemaining.toString().toPersianDigits()} روز تا پایان اعتبار دستگاه</string>
+    <string name="str_f5da67c7">%1$s روز تا پایان اعتبار دستگاه</string>
     <string name="str_088577d4">ش</string>
     <string name="str_6b683714">محدوده جدید</string>
     <string name="str_4304506f">نام و نام خانوادگی</string>
@@ -308,7 +308,7 @@ fun TimeFilterBottomSheet(
     <string name="str_23c4bfdc">دریافت کد تایید</string>
     <string name="str_f8b1e2b8">ذخیــــــره تغییرات</string>
     <string name="str_a8997203">در حال دریافت آدرس...</string>
-    <string name="str_6bb21b35">شعاع: ${radius.toInt()} متر</string>
+    <string name="str_6bb21b35">شعاع: %1$s متر</string>
     <string name="str_6dca01e2">محدوده‌های جغرافیایی</string>
     <string name="str_fe09ff34">زرین‌پال</string>
     <string name="str_5df0ff58">رمز عبور را وارد کنید</string>
@@ -344,7 +344,7 @@ fun TimeFilterBottomSheet(
     <string name="str_eea6afd1">در حال بارگذاری...</string>
     <string name="str_63a0ce0e">با ارسال این دستور دستگاه خاموش و مجدد راه اندازی می شود.</string>
     <string name="str_237a1703">نام محدوده</string>
-    <string name="str_992fc66b">آخرین بروزرسانی: ${formatRelativeTime(position?.serverTime ?: device.lastUpdate)}</string>
+    <string name="str_992fc66b">آخرین بروزرسانی: %1$s</string>
     <string name="str_9d239801">ساعات کارکرد موتور</string>
     <string name="str_853b5735">اعتبار 1 ساله اکسیر</string>
     <string name="str_dc0b8afd">دستگاه با موفقیت ویرایش شد</string>
@@ -380,7 +380,7 @@ fun TimeFilterBottomSheet(
     <string name="str_e3781719">رمز عبور و تایید آن یکسان نیست</string>
     <string name="str_914a74a3">آخرین رویداد</string>
     <string name="str_1d020430">شماره موبایل</string>
-    <string name="str_0ea21b78">${report.maxSpeed} کیلومتر بر ساعت</string>
+    <string name="str_0ea21b78">%1$s کیلومتر بر ساعت</string>
     <string name="str_9cb4abe0">خطایی در ارسال دستور رخ داد</string>
     <string name="str_b2e84f4c">هفته گذشته</string>
     <string name="str_90f01fe7">داده موجود نیست</string>
@@ -433,8 +433,8 @@ fun TimeFilterBottomSheet(
     <string name="str_4e098cb9">در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد.</string>
     <string name="str_bb90cb93">رفع مشکل نقشه</string>
     <string name="str_14320cbf">ارسال دستور قطع سوخت خودرو توسط رله در صورتی که سرعت خودرو کمتر از 10 کیلومتر باشد.</string>
-    <string name="str_16d6547d">دیروز | ${yJDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(yJDate[1])} ${yJDate[0]}</string>
-    <string name="str_92b6baba">${distanceMeters.roundToInt()} متر</string>
+    <string name="str_16d6547d">دیروز | %1$s %2$s %3$s</string>
+    <string name="str_92b6baba">%1$s متر</string>
     <string name="str_4d69eb22">د</string>
     <string name="str_f5fda019">موقعیت جاری دستگاه</string>
     <string name="str_665fa1fc">ارسال مجدد</string>
@@ -445,7 +445,7 @@ fun TimeFilterBottomSheet(
     <string name="str_7af2f388">مدیریت</string>
     <string name="str_23e8f2f0">آدرس مقصد</string>
     <string name="str_5da6626b">از طریق پیام‌رسان نصب شده بر روی گوشی دستور مورد نظر ارسال و پاسخ از همین طریق دریافت خواهد شد.</string>
-    <string name="str_43167dcf">${daysRemaining.toString().toPersianDigits()} روز باقیمانده</string>
+    <string name="str_43167dcf">%1$s روز باقیمانده</string>
     <string name="str_cfde5abf">تاریخ و ساعت شروع</string>
     <string name="str_2273efe7">دستگاه متوقف شد</string>
     <string name="str_ece143b5">تاریخ شروع</string>
@@ -478,12 +478,12 @@ fun TimeFilterBottomSheet(
     <string name="str_4348a334">فنی</string>
     <string name="str_d815091c">گزارشات / مسافت‌ها</string>
     <string name="str_15e25a13">خروج از حساب کاربری</string>
-    <string name="str_179218bc">ساعات کارکرد موتور: ${report.engineHours}</string>
+    <string name="str_179218bc">ساعات کارکرد موتور: %1$s</string>
     <string name="str_e4276c68">مبلغ شارژ اعتبار:</string>
     <string name="str_61d6bf6c">نام و نام خانوادگی را وارد کنید</string>
     <string name="str_d2aebe43">برای ورود اثر انگشت یا چهره خود را تایید کنید</string>
     <string name="str_c9c1b29c">تنظیمات نقشه</string>
-    <string name="str_f3d099e9">${hours.toString().toPersianDigits()} ساعت قبل</string>
+    <string name="str_f3d099e9">%1$s ساعت قبل</string>
     <string name="str_e5c8c50c">رمز عبور باید شرایط امنیتی را داشته باشد</string>
     <string name="str_ee6d1b92">مبلغ قابل پرداخت:</string>
     <string name="str_54b42848">هیچ رویدادی در این بازه زمانی یافت نشد.</string>
@@ -511,14 +511,14 @@ fun TimeFilterBottomSheet(
     <string name="str_e5d70e6c">مثلا: 09151094755</string>
     <string name="str_1b7dc619">مصرف سوخت</string>
     <string name="str_7bfb0205">س</string>
-    <string name="str_3ebdee3c">${report.distance} کیلومتر</string>
+    <string name="str_3ebdee3c">%1$s کیلومتر</string>
     <string name="str_9e0476de">تاریخ پایان</string>
     <string name="str_61f1cc3c">در حال تایید...</string>
     <string name="str_646e8d8f">جستجو دستگاه</string>
     <string name="str_530cd1e0">۱۰:۲۲</string>
     <string name="str_8e187cae">سرعت بالا</string>
     <string name="str_9150c5be">فیلتر زمان</string>
-    <string name="str_aa1d1f9e">سرعت: ${speedKmh.toString().toPersianDigits()} کیلومتر بر ساعت</string>
+    <string name="str_aa1d1f9e">سرعت: %1$s کیلومتر بر ساعت</string>
     <string name="str_5d5c25c9">فراموشی رمز عبور</string>
     <string name="str_d9fe67ce">ارسال این دستور سرور دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.</string>
     <string name="str_46e5cb39">۰.۰ ساعت</string>
@@ -538,14 +538,14 @@ fun TimeFilterBottomSheet(
     <string name="str_b19fc85c">مسافت</string>
     <string name="str_1f82cde6">دی</string>
     <string name="str_66030b73">فارسی</string>
-    <string name="str_a1221040">امروز | ${jDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jDate[1])} ${jDate[0]}</string>
+    <string name="str_a1221040">امروز | %1$s %2$s %3$s</string>
     <string name="str_cd898dd6">تاریخ ثبت دستگاه</string>
     <string name="str_41375b63">در حال دریافت...</string>
     <string name="str_96962d39">مسیر تستی</string>
     <string name="str_50196c4f">سوئیچ خاموش</string>
     <string name="str_02b42328">پیامک</string>
     <string name="str_7be2abc0">شامل حداقل 1 کاراکتر خاص</string>
-    <string name="str_b31c3b88">پرداخت - ${selectedPlan.period} $amountFormatted</string>
+    <string name="str_b31c3b88">پرداخت - %1$s %2$s</string>
     <string name="str_99041703">۰.۰</string>
     <string name="str_82e6d85b">افزودن محدوده جدید</string>
     <string name="str_b53c0371">عدم ارتباط با سرور</string>
@@ -569,7 +569,7 @@ fun TimeFilterBottomSheet(
         </string>
     <string name="str_1dce144e">افزایش اعتبار</string>
     <string name="str_f4268cbb">افزودن دستگاه جدید</string>
-    <string name="str_1344f661">${seconds.toString().toPersianDigits()} ثانیه قبل</string>
+    <string name="str_1344f661">%1$s ثانیه قبل</string>
     <string name="str_08f22343">انتخاب کنید</string>
     <string name="str_505ebef4">مکان‌یابی خودکار و قفل نقشه بر روی دستگاه شما بهبود یافته است.</string>
     <string name="str_e51b994e">تغییرات و امکانات نسخه جدید ردیاب</string>
@@ -601,18 +601,18 @@ fun TimeFilterBottomSheet(
     <string name="str_3f246adf">لطفاً چند لحظه منتظر بمانید</string>
     <string name="str_33cdbf9e" formatted="false">
                   {
-                    \"id\": ${i + 1},
+                    \"id\": %1$s,
                     \"deviceId\": 1,
                     \"protocol\": \"osmand\",
-                    \"serverTime\": \"$time\",
-                    \"deviceTime\": \"$time\",
-                    \"fixTime\": \"$time\",
+                    \"serverTime\": \"%2$s\",
+                    \"deviceTime\": \"%3$s\",
+                    \"fixTime\": \"%4$s\",
                     \"valid\": true,
-                    \"latitude\": $lat,
-                    \"longitude\": $lon,
+                    \"latitude\": %5$s,
+                    \"longitude\": %6$s,
                     \"altitude\": 1200.0,
-                    \"speed\": ${40 + (i % 20)},
-                    \"course\": ${(i * 5) % 360},
+                    \"speed\": %7$s,
+                    \"course\": %8$s,
                     \"address\": \"مسیر تستی\",
                     \"accuracy\": 0.0,
                     \"network\": null,
@@ -621,7 +621,7 @@ fun TimeFilterBottomSheet(
                       \"distance\": 15.2,
                       \"motion\": true
                     }
-                  }${if (i &lt; count - 1) \",\" else \"\"}
+                  }%9$s
                 </string>
     <string name="str_21ed9bdb">.toPersianDigits()
     }
@@ -641,7 +641,7 @@ fun TimeFilterBottomSheet(
     fun formatDoublePersian(value: Double, decimals: Int = 1): String {
         return String.format(Locale.US, </string>
     <string name="str_1900cb75">اتصالات</string>
-    <string name="str_dd52d8ed">زمان: ${formatTimeOnly(position.fixTime)}</string>
+    <string name="str_dd52d8ed">زمان: %1$s</string>
     <string name="str_e33a7bc8">مثلا: پژو پارس</string>
     <string name="str_69c5b430">هیچ دستگاهی پیدا نشد.</string>
     <string name="str_968581ce">تایید و ارسال</string>
@@ -654,10 +654,10 @@ fun TimeFilterBottomSheet(
         }.joinToString(</string>
     <string name="str_3cc406eb">اختیاری</string>
     <string name="str_9b67c707">رویـــدادها</string>
-    <string name="str_e8341c7e">حذف محدوده جغرافیایی ${geofence.name}</string>
+    <string name="str_e8341c7e">حذف محدوده جغرافیایی %1$s</string>
     <string name="str_3fb91542">دستگاه‌ها</string>
     <string name="str_158780fe">تهران، میدان ولیعصر</string>
-    <string name="str_435fcfb8">کد تایید ارسال شده به شماره ${maskPhoneNumber(state.phoneNumber)} را وارد کنید.</string>
+    <string name="str_435fcfb8">کد تایید ارسال شده به شماره %1$s را وارد کنید.</string>
     <string name="str_4bea3705">مقصد: ${endAddressText ?: </string>
     <string name="str_5b6b4335">مسافت‌ها</string>
     <string name="str_bb4cda41">فعال کردن رله سوخت</string>
@@ -667,7 +667,7 @@ fun TimeFilterBottomSheet(
     <string name="str_044bb654">چ</string>
     <string name="str_2573d577">مبدأ: ${startAddressText ?: </string>
     <string name="str_f1e188f5">رویدادها</string>
-    <string name="str_cbe620ec">سوخت مصرفی: ${report.spentFuel} لیتر</string>
+    <string name="str_cbe620ec">سوخت مصرفی: %1$s لیتر</string>
     <string name="str_2dce9aee">- ساعت</string>
     <string name="str_50c44a23">دستگاه آفلاین</string>
     <string name="str_9be99371">آدرس مبدأ</string>
