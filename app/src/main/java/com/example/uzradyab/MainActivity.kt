@@ -23,6 +23,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.core.network.SessionEventBus
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.AppConfigRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,6 +41,9 @@ class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var authRepository: AuthRepository
+
+    @Inject
+    lateinit var appConfigRepository: AppConfigRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -60,7 +64,8 @@ class MainActivity : FragmentActivity() {
                 biometricHelper = biometricHelper,
                 sessionEventBus = sessionEventBus,
                 networkEventBus = networkEventBus,
-                authRepository = authRepository
+                authRepository = authRepository,
+                appConfigRepository = appConfigRepository
             )
         }
     }
@@ -78,7 +83,8 @@ private fun UzradyabAppRoot(
     biometricHelper: BiometricHelper? = null,
     sessionEventBus: SessionEventBus? = null,
     networkEventBus: com.example.uzradyab.core.network.NetworkEventBus? = null,
-    authRepository: AuthRepository? = null
+    authRepository: AuthRepository? = null,
+    appConfigRepository: AppConfigRepository? = null
 ) {
     UzradyabTheme {
         CompositionLocalProvider(
@@ -90,7 +96,8 @@ private fun UzradyabAppRoot(
                 biometricHelper = biometricHelper,
                 sessionEventBus = sessionEventBus,
                 networkEventBus = networkEventBus,
-                authRepository = authRepository
+                authRepository = authRepository,
+                appConfigRepository = appConfigRepository
             )
         }
     }

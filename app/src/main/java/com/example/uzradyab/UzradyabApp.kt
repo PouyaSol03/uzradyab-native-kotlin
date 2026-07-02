@@ -30,6 +30,9 @@ import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.core.network.SessionEventBus
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.AppConfigRepository
+import androidx.compose.runtime.collectAsState
+import com.example.uzradyab.presentation.startup.UpdateBottomSheet
 import com.example.uzradyab.presentation.alerts.AlertsSettingsRoute
 import com.example.uzradyab.presentation.auth.LoginRoute
 import com.example.uzradyab.presentation.auth.RegisterRoute
@@ -84,6 +87,7 @@ fun UzradyabApp(
     sessionEventBus: SessionEventBus? = null,
     networkEventBus: com.example.uzradyab.core.network.NetworkEventBus? = null,
     authRepository: AuthRepository? = null,
+    appConfigRepository: AppConfigRepository? = null,
     navController: NavHostController = rememberNavController(),
 ) {
     val context = LocalContext.current
@@ -91,6 +95,9 @@ fun UzradyabApp(
     val actualBiometricHelper = remember(biometricHelper) {
         biometricHelper ?: BiometricHelper(context.applicationContext)
     }
+    
+    val configState = appConfigRepository?.currentConfig?.collectAsState()
+    val config = configState?.value
 
     // Listen for 401 Unauthorized events globally
     LaunchedEffect(sessionEventBus, authRepository, navController) {
@@ -549,10 +556,26 @@ fun UzradyabApp(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .navigationBarsPadding()
-                    .padding(bottom = 16.dp)
             )
 
-            // Old global network bottom sheet removed
+            if (config != null && config.newRelease == true && !config.newReleaseCode.isNullOrEmpty()) {
+                val currentVersion = BuildConfig.VERSION_NAME
+                if (isVersionGreater(config.newReleaseCode, currentVersion)) {
+                    var showUpdate by remember { androidx.compose.runtime.mutableStateOf(true) }
+                    if (showUpdate) {
+                        UpdateBottomSheet(
+                            config = config,
+                            onUpdateClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://cafebazaar.ir/app/com.exir.uzradyab"))
+                                context.startActivity(intent)
+                            },
+                            onLaterClick = {
+                                showUpdate = false
+                            }
+                        )
+                    }
+                }
+            }
 
             // Local Crash Reporter Dialog
             var crashLogToShow by remember { mutableStateOf<String?>(null) }
@@ -632,4 +655,17 @@ private enum class AppRoute(val path: String) {
     DebugLog("/debug-logs"),
     Geofence("/geofences"),
     TripReports("/trip-reports"),
+}
+
+private fun isVersionGreater(v1: String, v2: String): Boolean {
+    val v1Parts = v1.split(".").mapNotNull { it.toIntOrNull() }
+    val v2Parts = v2.split(".").mapNotNull { it.toIntOrNull() }
+    val length = maxOf(v1Parts.size, v2Parts.size)
+    for (i in 0 until length) {
+        val part1 = v1Parts.getOrElse(i) { 0 }
+        val part2 = v2Parts.getOrElse(i) { 0 }
+        if (part1 > part2) return true
+        if (part1 < part2) return false
+    }
+    return false
 }

@@ -28,7 +28,6 @@ sealed interface StartupUiState {
     object Checking : StartupUiState
     object BiometricRequired : StartupUiState
     data class BiometricFailed(val message: String) : StartupUiState
-    data class UpdateAvailable(val config: AppConfigDto) : StartupUiState
 }
 
 @HiltViewModel
@@ -60,19 +59,6 @@ class StartupViewModel @Inject constructor(
             if (configResult.isSuccess) {
                 val config = configResult.getOrNull()
                 Log.d("UpdateSystem", "Config fetched: newRelease=${config?.newRelease}, code=${config?.newReleaseCode}")
-                if (config != null && config.newRelease == true && !config.newReleaseCode.isNullOrEmpty()) {
-                    val currentVersion = BuildConfig.VERSION_NAME
-                    Log.d("UpdateSystem", "Comparing versions: server=${config.newReleaseCode}, local=$currentVersion")
-                    if (isVersionGreater(config.newReleaseCode, currentVersion)) {
-                        Log.d("UpdateSystem", "Update is available! Showing bottom sheet.")
-                        _uiState.value = StartupUiState.UpdateAvailable(config)
-                        return@launch
-                    } else {
-                        Log.d("UpdateSystem", "App is up to date.")
-                    }
-                } else {
-                    Log.d("UpdateSystem", "newRelease is false or code is empty.")
-                }
             } else {
                 Log.e("UpdateSystem", "Failed to fetch config", configResult.exceptionOrNull())
             }
@@ -125,16 +111,4 @@ class StartupViewModel @Inject constructor(
         }
     }
 
-    private fun isVersionGreater(v1: String, v2: String): Boolean {
-        val v1Parts = v1.split(".").mapNotNull { it.toIntOrNull() }
-        val v2Parts = v2.split(".").mapNotNull { it.toIntOrNull() }
-        val length = maxOf(v1Parts.size, v2Parts.size)
-        for (i in 0 until length) {
-            val part1 = v1Parts.getOrElse(i) { 0 }
-            val part2 = v2Parts.getOrElse(i) { 0 }
-            if (part1 > part2) return true
-            if (part1 < part2) return false
-        }
-        return false
-    }
 }

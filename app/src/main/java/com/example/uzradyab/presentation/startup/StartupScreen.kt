@@ -158,29 +158,6 @@ fun StartupScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-                is StartupUiState.UpdateAvailable -> {
-                    // Show checking background
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFEFF3F5)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = Color(0xFF307EF3),
-                            strokeWidth = 3.dp,
-                            modifier = Modifier.size(70.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = "در حال بارگذاری...",
-                        color = Color(0xFF6A8BA5),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
                 is StartupUiState.BiometricRequired, is StartupUiState.BiometricFailed -> {
                     // Biometric Authentication Center Icon/Art
                     Box(
@@ -244,17 +221,6 @@ fun StartupScreen(
                 }
             }
         }
-    }
-
-    if (state is StartupUiState.UpdateAvailable) {
-        UpdateBottomSheet(
-            config = state.config,
-            onUpdateClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://cafebazaar.ir/app/com.exir.uzradyab"))
-                context.startActivity(intent)
-            },
-            onLaterClick = onContinueApp
-        )
     }
 }
 
