@@ -172,7 +172,12 @@ fun TrackingMap(
                 // Center map only when needed; we no longer disable interaction
                 if (isMapLocked) {
                     // When locked, strictly center the map without disabling gestures
-                    mapView.controller.animateTo(center, 20.0, 500L)
+                    if (mapView.width > 0 && mapView.height > 0) {
+                        mapView.controller.animateTo(center, 20.0, 500L)
+                    } else {
+                        mapView.controller.setZoom(20.0)
+                        mapView.controller.setCenter(center)
+                    }
                     mapView.tag = centerKey
                 }
                 wasLocked = isMapLocked
@@ -183,7 +188,12 @@ fun TrackingMap(
                 }
                 
                 if (selectedPosition != null && !tracker.hasInitialCentered) {
-                    mapView.controller.animateTo(center, 18.0, 1000L)
+                    if (mapView.width > 0 && mapView.height > 0) {
+                        mapView.controller.animateTo(center, 18.0, 1000L)
+                    } else {
+                        mapView.controller.setZoom(18.0)
+                        mapView.controller.setCenter(center)
+                    }
                     tracker.hasInitialCentered = true
                 }
 
