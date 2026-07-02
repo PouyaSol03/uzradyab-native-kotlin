@@ -8,6 +8,7 @@ import com.example.uzradyab.domain.model.LatestNotificationEvent
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.AppConfigRepository
 import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.ReportRepository
@@ -78,6 +79,7 @@ data class MapLatestEventItem(
 class MapViewModel @Inject constructor(
     observeHomeSnapshot: ObserveHomeSnapshotUseCase,
     private val authRepository: AuthRepository,
+    private val appConfigRepository: AppConfigRepository,
     private val eventRepository: EventRepository,
     private val reportRepository: ReportRepository,
     private val trackingRepository: TrackingRepository,
@@ -93,19 +95,37 @@ class MapViewModel @Inject constructor(
         eventRepository.observeRecentEvents(limit = 8),
         combine(
             mapSettingsRepository.observeMapStyle(),
-            mapSettingsRepository.observeLastSelectedDeviceId()
-        ) { style, lastId -> style to lastId }
-    ) { snapshot, connection, local, recentEvents, (mapStyle, lastDeviceId) ->
+            mapSettingsRepository.observeLastSelectedDeviceId(),
+            appConfigRepository.currentConfig
+        ) { style, lastId, config -> Triple(style, lastId, config) }
+    ) { snapshot, connection, local, recentEvents, (mapStyle, lastDeviceId, config) ->
         val selected = local.selectedDeviceId 
             ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: snapshot.devices.firstOrNull()?.id
+            
+        val (finalMapStyle, finalTileSource) = if (config?.alternativeMap == true && !config.alternativeMapUrl.isNullOrEmpty()) {
+            val url = config.alternativeMapUrl
+            val overrideSource = org.osmdroid.tileprovider.tilesource.XYTileSource(
+                "alternative_forced",
+                1,
+                20,
+                256,
+                ".png",
+                arrayOf(if (url.endsWith("/")) url else "$url/")
+            )
+            "alternative_forced" to overrideSource
+        } else {
+            mapStyle to local.activeTileSource
+        }
+
         local.copy(
             devices = snapshot.devices.toImmutable(),
             latestPositions = snapshot.latestPositions.toImmutable(),
             selectedDeviceId = selected,
             connectionState = connection,
+            mapStyle = finalMapStyle,
+            activeTileSource = finalTileSource,
             latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
-            mapStyle = mapStyle,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
 
