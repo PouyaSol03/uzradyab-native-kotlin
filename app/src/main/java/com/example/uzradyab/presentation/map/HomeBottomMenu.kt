@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.ui.theme.AppBlue
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 enum class HomeBottomItem {
     Events,
@@ -57,25 +59,25 @@ fun HomeBottomMenu(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             BottomMenuItem(
-                label = "رویـــدادها",
+                label = stringResource(R.string.str_9b67c707),
                 selected = selectedItem == HomeBottomItem.Events,
                 onClick = onEventsClick,
                 icon = { AlarmIcon(it) },
             )
             BottomMenuItem(
-                label = "مدیریت",
+                label = stringResource(R.string.str_7af2f388),
                 selected = selectedItem == HomeBottomItem.Management,
                 onClick = onManagementClick,
                 icon = { CarIcon(it) },
             )
             BottomMenuItem(
-                label = "نقـــــشه",
+                label = stringResource(R.string.str_db19d059),
                 selected = selectedItem == HomeBottomItem.Map,
                 onClick = onMapClick,
                 icon = { MapIcon(it) },
             )
             BottomMenuItem(
-                label = "حساب کاربری",
+                label = stringResource(R.string.str_a802ae5f),
                 selected = selectedItem == HomeBottomItem.Account,
                 onClick = onAccountClick,
                 icon = { UserIcon(it) },

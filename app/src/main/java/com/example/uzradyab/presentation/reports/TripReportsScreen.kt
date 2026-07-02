@@ -38,6 +38,8 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +115,7 @@ fun TripReportsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "گزارشات / مسافت‌ها",
+                                text = stringResource(R.string.str_d815091c),
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -177,7 +179,7 @@ fun TripReportsScreen(
                     IconButton(onClick = onOpenColumnSelector) {
                         Icon(
                             imageVector = Icons.Default.Tune,
-                            contentDescription = "انتخاب ستون‌ها",
+                            contentDescription = stringResource(R.string.str_68a2de5f),
                             tint = Color(0xFF676C70)
                         )
                     }
@@ -191,7 +193,7 @@ fun TripReportsScreen(
                     }
                 } else if (state.reports.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "مسافتی یافت نشد", color = Color.Gray, fontSize = 16.sp)
+                        Text(text = stringResource(R.string.str_fb6f9fa9), color = Color.Gray, fontSize = 16.sp)
                     }
                 } else {
                     LazyColumn(
@@ -341,7 +343,7 @@ fun TripReportCard(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "مسافت:", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = stringResource(R.string.str_4190f2e7), color = Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${report.distance} کیلومتر",
@@ -356,7 +358,7 @@ fun TripReportCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (selectedColumns.contains("startTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "شروع حرکت", color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_1ba8f1e1), color = Color.Gray, fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
@@ -366,7 +368,7 @@ fun TripReportCard(
                 }
                 if (selectedColumns.contains("endTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "پایان حرکت", color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_00682caf), color = Color.Gray, fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
@@ -381,7 +383,7 @@ fun TripReportCard(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     if (selectedColumns.contains("averageSpeed")) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "میانگین سرعت", color = Color.Gray, fontSize = 10.sp)
+                            Text(text = stringResource(R.string.str_0ddc0842), color = Color.Gray, fontSize = 10.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = Color(0xFFE5B850), modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -391,7 +393,7 @@ fun TripReportCard(
                     }
                     if (selectedColumns.contains("maxSpeed")) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "حداکثر سرعت", color = Color.Gray, fontSize = 10.sp)
+                            Text(text = stringResource(R.string.str_8263bc39), color = Color.Gray, fontSize = 10.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = Color(0xFFE5B850), modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))

@@ -53,6 +53,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 private val COMMAND_TYPES = listOf(
     CommandData("status", "وضعیت دستگاه", "با ارسال این دستور دستگاه وضعیت کلی خود را پاسخ می‌دهد.", "STATUS#"),
@@ -124,7 +126,7 @@ fun CommandCenterScreen(
                     startContent = { BackButton(onClick = onBackClick) },
                     centerContent = {
                         Text(
-                            text = "دستورات",
+                            text = stringResource(R.string.str_68fb631d),
                             color = Color(0xFF676C70),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -155,7 +157,7 @@ fun CommandCenterScreen(
                         )
                     ) {
                         Text(
-                            text = "ارسال فرمـــــان",
+                            text = stringResource(R.string.str_34df5c35),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -185,7 +187,7 @@ fun CommandCenterScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "این دستورات به شما امکان می‌دهند دستگاه خود را از راه دور و از طریق پیامک یا اینترنت کنترل کنید.",
+                            text = stringResource(R.string.str_e0e2a491),
                             color = Color.White,
                             fontSize = 12.sp,
                             lineHeight = 22.sp,
@@ -252,7 +254,7 @@ fun CommandCenterScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "لطفا روش ارسال دستور به دستگاه را انتخاب و عملیات را تایید کنید.",
+                        text = stringResource(R.string.str_de7ae3ed),
                         fontSize = 14.sp,
                         color = Color(0xFF676C70),
                         modifier = Modifier.fillMaxWidth(),
@@ -264,8 +266,8 @@ fun CommandCenterScreen(
                     // Internet Method
                     MethodSelection(
                         method = "internet",
-                        title = "اینترنت",
-                        description = "دستور از طریق اینترنت ارسال و پاسخ به صورت آنلاین دریافت خواهد شد.",
+                        title = stringResource(R.string.str_a85af005),
+                        description = stringResource(R.string.str_5ea43f41),
                         selectedMethod = commandMethod,
                         onMethodSelect = { commandMethod = it }
                     )
@@ -275,8 +277,8 @@ fun CommandCenterScreen(
                     // SMS Method
                     MethodSelection(
                         method = "sms",
-                        title = "پیامک",
-                        description = "از طریق پیام‌رسان نصب شده بر روی گوشی دستور مورد نظر ارسال و پاسخ از همین طریق دریافت خواهد شد.",
+                        title = stringResource(R.string.str_02b42328),
+                        description = stringResource(R.string.str_5da6626b),
                         selectedMethod = commandMethod,
                         onMethodSelect = { commandMethod = it }
                     )
@@ -310,7 +312,7 @@ fun CommandCenterScreen(
                             if (isSending) {
                                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                             } else {
-                                Text("تایید و ارسال", fontSize = 14.sp)
+                                Text(stringResource(R.string.str_968581ce), fontSize = 14.sp)
                             }
                         }
                         
@@ -326,7 +328,7 @@ fun CommandCenterScreen(
                             ),
                             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBEC1C3))
                         ) {
-                            Text("انصراف", fontSize = 14.sp)
+                            Text(stringResource(R.string.str_c8d2a1fb), fontSize = 14.sp)
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))

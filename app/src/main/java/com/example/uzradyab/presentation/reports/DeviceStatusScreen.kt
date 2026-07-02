@@ -33,6 +33,8 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun DeviceStatusRoute(
@@ -80,7 +82,7 @@ fun DeviceStatusScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "گزارشات",
+                                text = stringResource(R.string.str_3d9b4b4a),
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -138,7 +140,7 @@ fun DeviceStatusScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "وضعیت جاری دستگاه",
+                                text = stringResource(R.string.str_cf441594),
                                 color = Color.White,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
@@ -163,7 +165,7 @@ fun DeviceStatusScreen(
                         }
 
                         LocationCard(
-                            title = "موقعیت",
+                            title = stringResource(R.string.str_6ba39ff9),
                             address = state.currentAddress,
                             icon = Icons.Default.GpsFixed,
                             isLoading = state.isLoading && state.currentAddress == "در حال دریافت..."
@@ -175,7 +177,7 @@ fun DeviceStatusScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "اولین زمان روشن شدن",
+                                title = stringResource(R.string.str_21c081b4),
                                 value = state.firstIgnitionTime,
                                 unit = "",
                                 icon = Icons.Default.FlashOn,
@@ -183,7 +185,7 @@ fun DeviceStatusScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "مدت روشن بودن دستگاه",
+                                title = stringResource(R.string.str_3d6f575f),
                                 value = state.ignitionDuration,
                                 unit = "",
                                 icon = Icons.Default.AccessTime,
@@ -197,7 +199,7 @@ fun DeviceStatusScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "میانگین سرعت",
+                                title = stringResource(R.string.str_0ddc0842),
                                 value = state.averageSpeed,
                                 unit = "کیلومتر",
                                 icon = Icons.Default.Speed,
@@ -205,7 +207,7 @@ fun DeviceStatusScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "مصرف سوخت",
+                                title = stringResource(R.string.str_1b7dc619),
                                 value = state.spentFuel,
                                 unit = "لیتر",
                                 icon = Icons.Default.LocalGasStation,
@@ -219,7 +221,7 @@ fun DeviceStatusScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "شروع کیلومترشمار",
+                                title = stringResource(R.string.str_57396a22),
                                 value = state.startOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
@@ -227,7 +229,7 @@ fun DeviceStatusScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "پایان کیلومترشمار",
+                                title = stringResource(R.string.str_675d2703),
                                 value = state.endOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
@@ -254,7 +256,7 @@ fun DeviceStatusScreen(
                     //         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
                     //         border = BorderStroke(1.dp, Color(0xFF307EF3))
                     //     ) {
-                    //         Text("خروجی", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    //         Text(stringResource(R.string.str_f792dea4), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     //     }
 
                     //     Button(
@@ -265,7 +267,7 @@ fun DeviceStatusScreen(
                     //         shape = RoundedCornerShape(12.dp),
                     //         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
                     //     ) {
-                    //         Text("مسیرهای پیموده شده", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    //         Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     //     }
                     // }
                 }

@@ -67,6 +67,8 @@ import com.example.uzradyab.ui.theme.AppInputBorder
 import com.example.uzradyab.ui.theme.AppTextBody
 import com.example.uzradyab.ui.theme.AppTextMuted
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 internal val AuthPanelWidth = 327.dp
 internal val AuthControlWidth = 279.dp
@@ -287,7 +289,7 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.End,
     ) {
         Text(
-            text = "زبان برنامه",
+            text = stringResource(R.string.str_a0a519bd),
             color = AppTextBody,
             fontSize = 14.sp,
             lineHeight = 24.sp,
@@ -308,7 +310,7 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "فارسی",
+                    text = stringResource(R.string.str_66030b73),
                     color = AppTextBody,
                     fontSize = 14.sp,
                     lineHeight = 24.sp,

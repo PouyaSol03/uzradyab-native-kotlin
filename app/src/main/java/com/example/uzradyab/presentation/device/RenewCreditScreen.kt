@@ -29,6 +29,7 @@ import com.example.uzradyab.R
 import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun RenewCreditRoute(
@@ -81,7 +82,7 @@ fun RenewCreditScreen(
                     startContent = { BackButton(onClick = onBackClick) },
                     centerContent = {
                         Text(
-                            text = "تمدید اعتبار دستگاه",
+                            text = stringResource(R.string.str_96ad5971),
                             color = Color(0xFF676C70),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -162,7 +163,7 @@ fun RenewCreditScreen(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("شماره سریال دستگاه:", fontSize = 14.sp, color = Color.Gray)
+                                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = Color.Gray)
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                     Text(device.uniqueId, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
                                 }
@@ -172,14 +173,14 @@ fun RenewCreditScreen(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("شماره سیمکارت دستگاه:", fontSize = 14.sp, color = Color.Gray)
+                                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = Color.Gray)
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                     Text(device.phone ?: "—", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
                                 }
                             }
 
                             if (state.accountCharges.isEmpty()) {
-                                Text("هیچ بسته سرویسی در دسترس نیست", color = Color.Gray, modifier = Modifier.padding(vertical = 16.dp))
+                                Text(stringResource(R.string.str_de13da6c), color = Color.Gray, modifier = Modifier.padding(vertical = 16.dp))
                             } else {
                                 state.accountCharges.forEach { charge ->
                                     val isSelected = state.selectedPlanId == charge.id
@@ -225,19 +226,19 @@ fun RenewCreditScreen(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("مبلغ شارژ اعتبار:", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
+                                Text(stringResource(R.string.str_e4276c68), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
                                 Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = Color.LightGray)
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("مبلغ قابل پرداخت:", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
+                                Text(stringResource(R.string.str_ee6d1b92), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
                                 Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = Color.White)
                             }
 
                             // Gateway Selection
-                            Text("درگاه‌های پرداخت:", fontSize = 14.sp, color = Color.LightGray, modifier = Modifier.padding(bottom = 8.dp))
+                            Text(stringResource(R.string.str_0e1684cc), fontSize = 14.sp, color = Color.LightGray, modifier = Modifier.padding(bottom = 8.dp))
                             
                             val isZarinpal = state.selectedGateway == "zarinpal"
                             Row(
@@ -255,7 +256,7 @@ fun RenewCreditScreen(
                                     colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("زرین‌پال", color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(stringResource(R.string.str_fe09ff34), color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             }
                         }
                     }

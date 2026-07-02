@@ -54,6 +54,8 @@ import com.google.android.gms.common.api.Status
 import com.example.uzradyab.presentation.components.LocalSnackbarController
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -174,12 +176,12 @@ private fun RegisterDetailsStep(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(101.dp))
-        AuthTitle(text = "ایجاد حساب کاربری جدید")
+        AuthTitle(text = stringResource(R.string.str_f53c8810))
         Spacer(modifier = Modifier.height(32.dp))
         AuthTextField(
             value = state.name,
             onValueChange = onNameChange,
-            label = "نام و نام خانوادگی",
+            label = stringResource(R.string.str_4304506f),
             placeholder = "نام و نام خانوادگی را وارد کنید",
             rightIcon = { UserFieldIcon() },
         )
@@ -187,7 +189,7 @@ private fun RegisterDetailsStep(
         AuthTextField(
             value = state.phoneNumber,
             onValueChange = onPhoneNumberChange,
-            label = "شماره تلفن",
+            label = stringResource(R.string.str_c4cd95ab),
             placeholder = "09",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             inputTextDirection = TextDirection.Ltr,
@@ -269,7 +271,7 @@ private fun RegisterOtpStep(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(101.dp))
-        AuthTitle(text = "ایجاد حساب کاربری جدید")
+        AuthTitle(text = stringResource(R.string.str_f53c8810))
         Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = "کد تایید ارسال شده به شماره ${maskPhoneNumber(state.phoneNumber)} را وارد کنید.",
@@ -283,7 +285,7 @@ private fun RegisterOtpStep(
         AuthTextField(
             value = state.otp,
             onValueChange = onOtpChange,
-            label = "کد تایید",
+            label = stringResource(R.string.str_f5b1f6c0),
             placeholder = "x x x x x x",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             inputTextDirection = TextDirection.Ltr,
@@ -296,13 +298,13 @@ private fun RegisterOtpStep(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AuthTextLink(
-                text = "تغییر شماره تلفن",
+                text = stringResource(R.string.str_c20b7c3b),
                 onClick = onChangePhoneClick,
                 fontSize = 12,
             )
             if (state.canResendOtp) {
                 AuthTextLink(
-                    text = "ارسال مجدد",
+                    text = stringResource(R.string.str_665fa1fc),
                     onClick = onResendOtpClick,
                     fontSize = 12,
                 )
@@ -347,12 +349,12 @@ private fun RegisterPasswordStep(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(101.dp))
-        AuthTitle(text = "ایجاد حساب کاربری جدید")
+        AuthTitle(text = stringResource(R.string.str_f53c8810))
         Spacer(modifier = Modifier.height(40.dp))
         AuthTextField(
             value = state.password,
             onValueChange = onPasswordChange,
-            label = "رمز عبور",
+            label = stringResource(R.string.str_6814380a),
             placeholder = "رمز عبور را وارد کنید",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -371,7 +373,7 @@ private fun RegisterPasswordStep(
         AuthTextField(
             value = state.confirmPassword,
             onValueChange = onConfirmPasswordChange,
-            label = "تایید رمز عبور",
+            label = stringResource(R.string.str_9cc24ffb),
             placeholder = "رمز عبور را دوباره وارد کنید",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -408,7 +410,7 @@ private fun RegisterPasswordStep(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "حریم خصوصی و مقررات",
+                    text = stringResource(R.string.str_e59048e1),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = AppTextPrimary,
@@ -417,7 +419,7 @@ private fun RegisterPasswordStep(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "کاربر گرامی، با ثبت نام در اپلیکیشن اکسیر ردیاب، شما موافقت خود را با شرایط و مقررات استفاده از خدمات و همچنین سیاست حریم خصوصی ما اعلام می‌دارید. اطلاعات شخصی شما نزد ما محفوظ بوده و تنها برای ارائه خدمات بهتر استفاده خواهد شد.",
+                    text = stringResource(R.string.str_46a0f4a8),
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     color = AppTextBody,
@@ -426,7 +428,7 @@ private fun RegisterPasswordStep(
                 )
                 Spacer(modifier = Modifier.height(32.dp))
                 AuthPrimaryButton(
-                    text = "متوجه شدم",
+                    text = stringResource(R.string.str_ed52d39d),
                     onClick = { showPrivacyPolicy = false }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -442,9 +444,9 @@ private fun PasswordRules(rules: PasswordRuleState) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.Start,
     ) {
-        PasswordRule(text = "حداقل 8 کاراکتر", isMet = rules.hasMinimumLength)
-        PasswordRule(text = "شامل حداقل 1 عدد", isMet = rules.hasDigit)
-        PasswordRule(text = "شامل حداقل 1 کاراکتر خاص", isMet = rules.hasSpecialCharacter)
+        PasswordRule(text = stringResource(R.string.str_62ad2446), isMet = rules.hasMinimumLength)
+        PasswordRule(text = stringResource(R.string.str_7037fc5a), isMet = rules.hasDigit)
+        PasswordRule(text = stringResource(R.string.str_7be2abc0), isMet = rules.hasSpecialCharacter)
     }
 }
 
@@ -481,14 +483,14 @@ private fun PasswordRule(text: String, isMet: Boolean) {
 @Composable
 private fun RegisterFooter(onLoginClick: () -> Unit) {
     Text(
-        text = "در حال حاضر حساب کاربری دارید؟",
+        text = stringResource(R.string.str_aaa682a4),
         color = AppTextBody,
         fontSize = 14.sp,
         lineHeight = 24.sp,
         textAlign = TextAlign.Center,
     )
     AuthTextLink(
-        text = "ورود",
+        text = stringResource(R.string.str_32a81e55),
         onClick = onLoginClick,
     )
 }

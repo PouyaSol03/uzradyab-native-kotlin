@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.uzradyab.BuildConfig
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AppMenuDialog(
@@ -74,7 +76,7 @@ fun AppMenuDialog(
             ) {
                 // Right side: Title
                 Text(
-                    text = "تنظیمات زبان برنامه",
+                    text = stringResource(R.string.str_ace11fd5),
                     color = Color(0xFF333638),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -87,7 +89,7 @@ fun AppMenuDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "فارسی",
+                        text = stringResource(R.string.str_66030b73),
                         color = Color(0xFF333638),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -102,7 +104,7 @@ fun AppMenuDialog(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 MenuCardItem(
-                    label = "افزودن دستگاه جدید",
+                    label = stringResource(R.string.str_f4268cbb),
                     icon = Icons.Default.Add,
                     onClick = {
                         onAddDeviceClick()
@@ -110,12 +112,12 @@ fun AppMenuDialog(
                     }
                 )
                 MenuCardItem(
-                    label = "سرویس‌های دوره‌ای",
+                    label = stringResource(R.string.str_c2d21116),
                     icon = Icons.Default.Assignment,
                     onClick = onDismiss
                 )
                 MenuCardItem(
-                    label = "گزارش‌ها",
+                    label = stringResource(R.string.str_036f8b42),
                     icon = Icons.Default.Description,
                     onClick = {
                         onReportsClick()
@@ -123,12 +125,12 @@ fun AppMenuDialog(
                     }
                 )
                 MenuCardItem(
-                    label = "محدوده‌های جغرافیایی",
+                    label = stringResource(R.string.str_6dca01e2),
                     icon = Icons.Default.Layers,
                     onClick = onDismiss
                 )
                 MenuCardItem(
-                    label = "تنظیمات هشدارها",
+                    label = stringResource(R.string.str_34260011),
                     icon = Icons.Default.Assignment,
                     onClick = {
                         onAlertsSettingsClick()
@@ -143,17 +145,17 @@ fun AppMenuDialog(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 MenuCardItem(
-                    label = "درباره اکسیر",
+                    label = stringResource(R.string.str_8105a2a5),
                     icon = Icons.Default.Business,
                     onClick = onDismiss
                 )
                 MenuCardItem(
-                    label = "اطلاعات تماس و پشتیبانی",
+                    label = stringResource(R.string.str_1626c15e),
                     icon = Icons.Default.HeadsetMic,
                     onClick = onDismiss
                 )
                 MenuCardItem(
-                    label = "خروج از حساب کاربری",
+                    label = stringResource(R.string.str_15e25a13),
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
                     onClick = {
                         onLogoutClick()
@@ -257,7 +259,7 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
         }
 
         Text(
-            text = "لاگ‌های شبکه  [DEBUG]",
+            text = stringResource(R.string.str_24b95075),
             color = Color(0xFF58A6FF),
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,

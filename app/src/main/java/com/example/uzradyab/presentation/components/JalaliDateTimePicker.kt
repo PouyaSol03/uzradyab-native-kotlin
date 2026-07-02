@@ -25,6 +25,8 @@ import com.example.uzradyab.core.utils.JalaliUtils
 import com.example.uzradyab.core.utils.JalaliUtils.toPersianDigits
 import com.example.uzradyab.ui.theme.AppBlue
 import java.util.Calendar
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 data class JalaliDateTime(
     val year: Int,
@@ -169,7 +171,7 @@ fun JalaliDateTimePicker(
             ) {
                 NumberPickerBox(
                     value = hour,
-                    label = "ساعت",
+                    label = stringResource(R.string.str_1120f944),
                     range = 0..23,
                     onValueChange = { hour = it }
                 )
@@ -182,7 +184,7 @@ fun JalaliDateTimePicker(
                 )
                 NumberPickerBox(
                     value = minute,
-                    label = "دقیقه",
+                    label = stringResource(R.string.str_4fec5171),
                     range = 0..59,
                     onValueChange = { minute = it }
                 )
@@ -198,7 +200,7 @@ fun JalaliDateTimePicker(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("انصراف", fontSize = 16.sp)
+                    Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
                 }
                 Button(
                     onClick = { onConfirm(JalaliDateTime(year, month, day, hour, minute)) },
@@ -206,7 +208,7 @@ fun JalaliDateTimePicker(
                     colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("تایید", fontSize = 16.sp)
+                    Text(stringResource(R.string.str_911598cd), fontSize = 16.sp)
                 }
             }
         }

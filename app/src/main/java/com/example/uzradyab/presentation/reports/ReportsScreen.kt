@@ -40,6 +40,8 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ReportsRoute(
@@ -100,7 +102,7 @@ fun ReportsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "گزارش ترکیبی",
+                                text = stringResource(R.string.str_8fd3df27),
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -212,7 +214,7 @@ private fun CurrentDeviceStatusSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "وضعیت جاری دستگاه",
+                text = stringResource(R.string.str_cf441594),
                 color = Color(0xFF333638),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
@@ -259,7 +261,7 @@ private fun CurrentDeviceStatusSection(
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        text = "موقعیت",
+                        text = stringResource(R.string.str_6ba39ff9),
                         color = Color(0xFF8F99A3),
                         fontSize = 12.sp
                     )
@@ -283,7 +285,7 @@ private fun CurrentDeviceStatusSection(
         ) {
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "مسافت پیموده",
+                title = stringResource(R.string.str_0a62ea7c),
                 value = state.distanceKm,
                 unit = "کیلومتر",
                 icon = Icons.Default.Route,
@@ -291,7 +293,7 @@ private fun CurrentDeviceStatusSection(
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "مصرف سوخت",
+                title = stringResource(R.string.str_1b7dc619),
                 value = state.fuelLiters,
                 unit = "لیتر",
                 icon = Icons.Default.LocalGasStation,
@@ -299,7 +301,7 @@ private fun CurrentDeviceStatusSection(
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "میانگین سرعت",
+                title = stringResource(R.string.str_0ddc0842),
                 value = state.averageSpeed,
                 unit = "کیلومتر",
                 icon = Icons.Default.Speed,
@@ -319,7 +321,7 @@ private fun CurrentDeviceStatusSection(
             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF307EF3))
         ) {
             Text(
-                text = "جزئیات بیشتر",
+                text = stringResource(R.string.str_0799c18b),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -385,7 +387,7 @@ private fun StatCard(
 private fun OtherReportsSection(onItemClick: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            text = "سایر گزارش‌ها",
+            text = stringResource(R.string.str_8ffce954),
             color = Color(0xFF333638),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold

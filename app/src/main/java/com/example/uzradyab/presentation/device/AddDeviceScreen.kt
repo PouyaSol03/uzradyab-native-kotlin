@@ -63,6 +63,8 @@ import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AddDeviceRoute(
@@ -194,7 +196,7 @@ fun AddDeviceScreen(
                     DeviceTextField(
                         value = name,
                         onValueChange = onNameChange,
-                        label = "عنوان دستگاه",
+                        label = stringResource(R.string.str_e14b74e4),
                         placeholder = "مثلا: پژو پارس",
                         helperText = "عنوان دستگاه برای شناسایی راحت‌تر آن در میان بقیه دستگاه‌های ثبت شده است.",
                         forceLtr = false,
@@ -206,7 +208,7 @@ fun AddDeviceScreen(
                     DeviceTextField(
                         value = uniqueId,
                         onValueChange = onUniqueIdChange,
-                        label = "شماره سریال دستگاه",
+                        label = stringResource(R.string.str_bbf521c7),
                         placeholder = "مثلا: 123456789",
                         helperText = "شماره سریال دستگاه با عنوان IEMI بر روی جعبه دستگاه ردیاب درج شده است.",
                         forceLtr = true,
@@ -244,7 +246,7 @@ fun AddDeviceScreen(
                     DeviceTextField(
                         value = phone,
                         onValueChange = onPhoneChange,
-                        label = "شماره سیمکارت دستگاه",
+                        label = stringResource(R.string.str_575acc6e),
                         placeholder = "مثلا: 09151094755",
                         helperText = "شماره سیم‌کارت موجود در دستگاه.",
                         forceLtr = true,
@@ -256,7 +258,7 @@ fun AddDeviceScreen(
                     DeviceTextField(
                         value = currentKilometers,
                         onValueChange = onCurrentKilometersChange,
-                        label = "کیلومتر فعلی دستگاه",
+                        label = stringResource(R.string.str_5fc7f3bc),
                         placeholder = "مثلا: 100",
                         helperText = "اختیاری",
                         forceLtr = true,

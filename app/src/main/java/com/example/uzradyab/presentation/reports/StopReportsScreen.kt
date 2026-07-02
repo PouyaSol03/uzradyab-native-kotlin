@@ -65,6 +65,8 @@ import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextPrimary
 import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.core.utils.FormatUtils.toPersianDigits
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,7 +138,7 @@ fun StopReportsScreen(
                 startContent = { BackButton(onClick = onBackClick) },
                 centerContent = {
                     Text(
-                        text = "گزارشات / توقف ها",
+                        text = stringResource(R.string.str_4a9a9330),
                         color = Color(0xFF676C70),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -188,7 +190,7 @@ fun StopReportsScreen(
                 IconButton(onClick = onOpenColumnSelector) {
                     Icon(
                         imageVector = Icons.Default.Tune,
-                        contentDescription = "انتخاب ستون‌ها",
+                        contentDescription = stringResource(R.string.str_68a2de5f),
                         tint = Color(0xFF676C70)
                     )
                 }
@@ -202,7 +204,7 @@ fun StopReportsScreen(
                 }
             } else if (state.reports.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "توقفی یافت نشد", color = Color.Gray, fontSize = 16.sp)
+                    Text(text = stringResource(R.string.str_ed7c278e), color = Color.Gray, fontSize = 16.sp)
                 }
             } else {
                 LazyColumn(
@@ -336,7 +338,7 @@ fun StopReportCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "مدت توقف:",
+                        text = stringResource(R.string.str_8b8d6508),
                         color = Color.Gray,
                         fontSize = 12.sp
                     )
@@ -357,7 +359,7 @@ fun StopReportCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (selectedColumns.contains("startTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "شروع توقف", color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_8309a992), color = Color.Gray, fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
@@ -367,7 +369,7 @@ fun StopReportCard(
                 }
                 if (selectedColumns.contains("endTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = "پایان توقف", color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_a80ac219), color = Color.Gray, fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
@@ -514,7 +516,7 @@ fun CustomDateBottomSheet(
         androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl) {
             if (showStartPicker) {
                 com.example.uzradyab.presentation.components.JalaliDateTimePicker(
-                    title = "انتخاب تاریخ و ساعت شروع",
+                    title = stringResource(R.string.str_b0180550),
                     initialDateTime = customStart,
                     onConfirm = { 
                         customStart = it
@@ -524,7 +526,7 @@ fun CustomDateBottomSheet(
                 )
             } else if (showEndPicker) {
                 com.example.uzradyab.presentation.components.JalaliDateTimePicker(
-                    title = "انتخاب تاریخ و ساعت پایان",
+                    title = stringResource(R.string.str_75079114),
                     initialDateTime = customEnd,
                     onConfirm = { 
                         customEnd = it
@@ -540,7 +542,7 @@ fun CustomDateBottomSheet(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     androidx.compose.material3.Text(
-                        text = "بازه زمانی دلخواه",
+                        text = stringResource(R.string.str_00a90073),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF384C5C),
@@ -548,7 +550,7 @@ fun CustomDateBottomSheet(
                     )
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        androidx.compose.material3.Text("تاریخ و ساعت شروع", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.Text(stringResource(R.string.str_cfde5abf), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
                         androidx.compose.material3.OutlinedButton(
                             onClick = { showStartPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -566,7 +568,7 @@ fun CustomDateBottomSheet(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        androidx.compose.material3.Text("تاریخ و ساعت پایان", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.Text(stringResource(R.string.str_bc542cf1), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
                         androidx.compose.material3.OutlinedButton(
                             onClick = { showEndPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -590,7 +592,7 @@ fun CustomDateBottomSheet(
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            androidx.compose.material3.Text("انصراف", fontSize = 16.sp)
+                            androidx.compose.material3.Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
                         }
                         androidx.compose.material3.Button(
                             onClick = {
@@ -602,7 +604,7 @@ fun CustomDateBottomSheet(
                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AppBlue),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            androidx.compose.material3.Text("ثبت", fontSize = 16.sp)
+                            androidx.compose.material3.Text(stringResource(R.string.str_606f279a), fontSize = 16.sp)
                         }
                     }
                 }

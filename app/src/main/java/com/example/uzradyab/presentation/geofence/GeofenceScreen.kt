@@ -32,6 +32,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.domain.model.Geofence
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.ui.theme.AppBlue
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun GeofenceRoute(
@@ -66,7 +68,7 @@ fun GeofenceScreen(
                     },
                     centerContent = {
                         Text(
-                            text = "محدوده جغرافیایی",
+                            text = stringResource(R.string.str_9704c0ca),
                             color = Color(0xFF676C70),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
@@ -177,24 +179,24 @@ fun AddGeofencePanel(
     onClear: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("افزودن محدوده جدید", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
+        Text(stringResource(R.string.str_82e6d85b), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
                 selected = drawMode == DrawMode.CIRCLE,
                 onClick = { onModeSelect(DrawMode.CIRCLE) },
-                label = { Text("دایره") }
+                label = { Text(stringResource(R.string.str_9ccd7059)) }
             )
             FilterChip(
                 selected = drawMode == DrawMode.POLYGON,
                 onClick = { onModeSelect(DrawMode.POLYGON) },
-                label = { Text("چند ضلعی") }
+                label = { Text(stringResource(R.string.str_255a1d7a)) }
             )
             FilterChip(
                 selected = drawMode == DrawMode.LINESTRING,
                 onClick = { onModeSelect(DrawMode.LINESTRING) },
-                label = { Text("مسیر (خط)") }
+                label = { Text(stringResource(R.string.str_fa2660b3)) }
             )
         }
 
@@ -210,7 +212,7 @@ fun AddGeofencePanel(
         OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
-            label = { Text("نام محدوده") },
+            label = { Text(stringResource(R.string.str_237a1703)) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -233,7 +235,7 @@ fun AddGeofencePanel(
                 ) {
                     Icon(Icons.Default.Undo, contentDescription = "Undo")
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("بازگشت")
+                    Text(stringResource(R.string.str_a7976da7))
                 }
                 OutlinedButton(
                     onClick = onClear,
@@ -242,7 +244,7 @@ fun AddGeofencePanel(
                 ) {
                     Icon(Icons.Default.Clear, contentDescription = "Clear")
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("پاک کردن")
+                    Text(stringResource(R.string.str_ae6ae380))
                 }
             }
         }
@@ -254,7 +256,7 @@ fun AddGeofencePanel(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.weight(1f)
             ) {
-                Text("انصراف", color = Color.Black)
+                Text(stringResource(R.string.str_c8d2a1fb), color = Color.Black)
             }
 
             val isValid = when (drawMode) {
@@ -269,7 +271,7 @@ fun AddGeofencePanel(
                 enabled = isValid,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("ذخیره", color = Color.White)
+                Text(stringResource(R.string.str_9b860f70), color = Color.White)
             }
         }
     }
@@ -290,7 +292,7 @@ fun GeofenceListPanel(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("محدوده‌های من", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
+            Text(stringResource(R.string.str_94f14b96), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
             Box(
                 modifier = Modifier
                     .height(36.dp)
@@ -308,7 +310,7 @@ fun GeofenceListPanel(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "افزودن محدوده",
+                        text = stringResource(R.string.str_4dde4e62),
                         color = Color.White,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
@@ -319,7 +321,7 @@ fun GeofenceListPanel(
 
         if (geofences.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                Text("هیچ محدوده‌ای ثبت نشده است.", color = Color.Gray)
+                Text(stringResource(R.string.str_593c9a2b), color = Color.Gray)
             }
         } else {
             LazyColumn(
@@ -377,7 +379,7 @@ fun GeofenceItem(
             if (geofence.isCircle) {
                 Text("شعاع: ${geofence.radius?.toInt()} متر", fontSize = 12.sp, color = Color.Gray)
             } else {
-                Text("چند ضلعی", fontSize = 12.sp, color = Color.Gray)
+                Text(stringResource(R.string.str_255a1d7a), fontSize = 12.sp, color = Color.Gray)
             }
         }
         IconButton(onClick = onDeleteClick) {
@@ -433,7 +435,7 @@ fun DeleteGeofenceDialog(
 
                 // Description
                 Text(
-                    text = "با حذف محدوده جغرافیایی امکان بازیابی مجدد آن وجود ندارد. آیا از حذف آن مطمئن هستید؟",
+                    text = stringResource(R.string.str_885a32f4),
                     fontSize = 13.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Right,
@@ -451,7 +453,7 @@ fun DeleteGeofenceDialog(
                     TextButton(
                         onClick = onDismiss
                     ) {
-                        Text("انصراف", color = AppBlue, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_c8d2a1fb), color = AppBlue, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                     Spacer(modifier = Modifier.width(24.dp))
                     Button(
@@ -462,7 +464,7 @@ fun DeleteGeofenceDialog(
                             .height(44.dp)
                             .widthIn(min = 120.dp)
                     ) {
-                        Text("بله", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.str_5e8fdd3b), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

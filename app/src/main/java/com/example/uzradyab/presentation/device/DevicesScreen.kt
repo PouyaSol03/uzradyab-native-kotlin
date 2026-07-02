@@ -35,6 +35,8 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MapViewModel
 import com.example.uzradyab.presentation.map.daysUntilExpiration
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun DevicesRoute(
@@ -82,7 +84,7 @@ fun DevicesScreen(
                     startContent = { BackButton(onClick = onBackClick) },
                     centerContent = {
                         Text(
-                            text = "دستگاه‌ها",
+                            text = stringResource(R.string.str_3fb91542),
                             color = Color(0xFF676C70),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
@@ -125,7 +127,7 @@ fun DevicesScreen(
                         ) {
                             Box(modifier = Modifier.weight(1f)) {
                                 if (searchQuery.isEmpty()) {
-                                    Text("جستجوی نام یا سریال دستگاه", color = Color(0xFFAEB1B4), fontSize = 14.sp)
+                                    Text(stringResource(R.string.str_31665826), color = Color(0xFFAEB1B4), fontSize = 14.sp)
                                 }
                                 BasicTextField(
                                     value = searchQuery,
@@ -150,7 +152,7 @@ fun DevicesScreen(
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("فیلتر", color = Color(0xFF3B82F6), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_74921051), color = Color(0xFF3B82F6), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -171,7 +173,7 @@ fun DevicesScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Add", tint = Color(0xFF3B82F6), modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "افزودن دستگاه", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color(0xFF3B82F6))
+                        Text(text = stringResource(R.string.str_bde8bf83), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color(0xFF3B82F6))
                     }
                 }
 
@@ -256,7 +258,7 @@ fun DeviceListCard(
             
             // Info Rows
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("شماره سریال دستگاه:", fontSize = 14.sp, color = Color(0xFF8B98A5))
+                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = Color(0xFF8B98A5))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Text(device.uniqueId.toPersianDigits(), fontSize = 15.sp, color = Color(0xFF333638), fontWeight = FontWeight.Medium)
                 }
@@ -265,7 +267,7 @@ fun DeviceListCard(
             Spacer(modifier = Modifier.height(12.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("شماره سیمکارت دستگاه:", fontSize = 14.sp, color = Color(0xFF8B98A5))
+                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = Color(0xFF8B98A5))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Text((device.phone ?: "—").toPersianDigits(), fontSize = 15.sp, color = Color(0xFF333638), fontWeight = FontWeight.Medium)
                 }
@@ -288,7 +290,7 @@ fun DeviceListCard(
                     ) {
                         Icon(Icons.Default.ErrorOutline, contentDescription = "Error", tint = Color(0xFFE53935))
                         Text(
-                            text = "اعتبار دستگاه به اتمام رسیده است. لطفا برای شارژ مجدد آن اقدام کنید.",
+                            text = stringResource(R.string.str_75887764),
                             color = Color(0xFFE53935),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -299,7 +301,7 @@ fun DeviceListCard(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("تاریخ ثبت دستگاه:", fontSize = 14.sp, color = Color(0xFFE53935))
+                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = Color(0xFFE53935))
                         Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = Color(0xFFE53935), fontWeight = FontWeight.Medium)
                     }
                 }
@@ -315,7 +317,7 @@ fun DeviceListCard(
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                 ) {
-                    Text("افزایش اعتبار", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                    Text(stringResource(R.string.str_1dce144e), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color.White)
                 }
             } else {
                 // Active State Background Box
@@ -330,7 +332,7 @@ fun DeviceListCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("تاریخ ثبت دستگاه:", fontSize = 14.sp, color = Color(0xFFC0CDD8))
+                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = Color(0xFFC0CDD8))
                         Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
                     }
 
@@ -341,7 +343,7 @@ fun DeviceListCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("مدت اعتبار:", fontSize = 14.sp, color = Color(0xFFC0CDD8))
+                        Text(stringResource(R.string.str_f2f0dded), fontSize = 14.sp, color = Color(0xFFC0CDD8))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(formatEndDate(device.expirationTime), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
                             Spacer(modifier = Modifier.width(8.dp))
@@ -367,7 +369,7 @@ fun DeviceListCard(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("مدیریت دستگاه", fontSize = 15.sp, color = Color(0xFF3B82F6), fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.str_a6b9c52a), fontSize = 15.sp, color = Color(0xFF3B82F6), fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(Icons.Default.ChevronLeft, contentDescription = "Manage", tint = Color(0xFF3B82F6))
                 }

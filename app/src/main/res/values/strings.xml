@@ -1,3 +1,675 @@
 <resources>
-    <string name="app_name">uzradyab</string>
+    <string name="app_name">Uzradyab</string>
+    <string name="str_06dbe415">دستگاه مورد نظر یافت نشد</string>
+    <string name="str_b0899fb6">هنوز موقعیتی برای این دستگاه ثبت نشده است.</string>
+    <string name="str_e6587430">دستگاه با موفقیت ثبت شد</string>
+    <string name="str_de13da6c">هیچ بسته سرویسی در دسترس نیست</string>
+    <string name="str_2ab0e316">خطا در برقراری ارتباط با درگاه پرداخت</string>
+    <string name="str_1fbf6f67">وضعیت آفلاین</string>
+    <string name="str_10ac1e5f">بهمن</string>
+    <string name="str_fd5beab8">روشن</string>
+    <string name="str_706defd4">جاده گوگل</string>
+    <string name="str_350cf470">خطایی در ثبت دستگاه رخ داد.</string>
+    <string name="str_96ad5971">تمدید اعتبار دستگاه</string>
+    <string name="str_d52a6027">مدیا</string>
+    <string name="str_818ae17d">آذر</string>
+    <string name="str_c20b7c3b">تغییر شماره تلفن</string>
+    <string name="str_255a1d7a">چند ضلعی</string>
+    <string name="str_b7f7c5c7">🌐 خطای شبکه/اینترنت در تلاش ${attempt + 1}: ${e.message}</string>
+    <string name="str_75887764">اعتبار دستگاه به اتمام رسیده است. لطفا برای شارژ مجدد آن اقدام کنید.</string>
+    <string name="str_6814380a">رمز عبور</string>
+    <string name="str_a6623b0b">لطفا قوانین و مقررات را تایید کنید</string>
+    <string name="str_f2f0dded">مدت اعتبار:</string>
+    <string name="str_fa882772">بستن</string>
+    <string name="str_c70fe4a8">روشن | متوقف</string>
+    <string name="str_3d6f575f">مدت روشن بودن دستگاه</string>
+    <string name="str_62ad2446">حداقل 8 کاراکتر</string>
+    <string name="str_575acc6e">شماره سیمکارت دستگاه</string>
+    <string name="str_ef261f3a">مثلا: 100</string>
+    <string name="str_0a62ea7c">مسافت پیموده</string>
+    <string name="str_4bda1027">ورود محدوده جغرافیایی</string>
+    <string name="str_8fa1c93d">قطع ولتاژ</string>
+    <string name="str_43d104ae">تصادف</string>
+    <string name="str_66ba146d">دریافت نقشه با مشکل مواجه شد. لطفا اینترنت یا منبع نقشه را بررسی کنید.</string>
+    <string name="str_9912a3f6">روشن | در حال حرکت</string>
+    <string name="str_aaa040ae">کد تایید باید ۶ رقم باشد</string>
+    <string name="str_264f61d0">نامشخص</string>
+    <string name="str_b061ae8a">ورود به حساب کاربری</string>
+    <string name="str_7fdd4576">ورود به برنامه با خطا مواجه شد</string>
+    <string name="str_1a3ca6db">غیر فعال کردن رله سوخت</string>
+    <string name="str_734eb615">خ</string>
+    <string name="str_807fb3de">وضعیت نامشخص</string>
+    <string name="str_c913f560">تیر</string>
+    <string name="str_41ea99ff">هیچ رویدادی برای این تاریخ پیدا نشد</string>
+    <string name="str_29612784">ارتباط با سرور برقرار نیست. لطفا وضعیت اینترنت خود را بررسی کنید.</string>
+    <string name="str_eae04353">تنظیم سرور</string>
+    <string name="str_30cbccc5">ذخیــــــره دستگاه</string>
+    <string name="str_2de602d7">عنوان دستگاه برای شناسایی راحت‌تر آن در میان بقیه دستگاه‌های ثبت شده است.</string>
+    <string name="str_2c57b4c7">انتخاب دستگاه</string>
+    <string name="str_454a0f23">وضعیت روزانه</string>
+    <string name="str_524c6a2b">امروز | $day $monthName $year</string>
+    <string name="str_bb13c4c3">$hours ساعت </string>
+    <string name="str_80d413c2">${days.toString().toPersianDigits()} روز قبل</string>
+    <string name="str_85a99996">اطلاعات کاربر</string>
+    <string name="str_212724cd">
+            [
+              {
+                \"id\": 1,
+                \"name\": \"دستگاه تستی ۱\",
+                \"uniqueId\": \"123456789012345\",
+                \"status\": \"online\",
+                \"lastUpdate\": \"2026-06-11T12:00:00Z\",
+                \"positionId\": 1,
+                \"groupId\": 0,
+                \"phone\": \"\",
+                \"model\": \"TestModel\",
+                \"contact\": \"\",
+                \"category\": \"car\",
+                \"disabled\": false,
+                \"attributes\": {}
+              }
+            ]
+        </string>
+    <string name="str_4dde4e62">افزودن محدوده</string>
+    <string name="str_fb6f9fa9">مسافتی یافت نشد</string>
+    <string name="str_674d1835">در حال حرکت</string>
+    <string name="str_851a4f9a">یدک کش</string>
+    <string name="str_6290a021">وضعیت آنلاین</string>
+    <string name="str_917fcbee">مشخصات دستگاه</string>
+    <string name="str_0d42d1c3">ورود به برنامه</string>
+    <string name="str_ab1ec059"> }.toSet())
+                .apply()
+        }
+
+        return valid.map { it.second }.filter { it.matches(url) }
+    }
+
+    fun clear() {
+        preferences.edit().remove(KEY_COOKIES).apply()
+    }
+
+    /**
+     * Load all stored cookies. Each entry is stored as `originUrl||cookieString`.
+     * Falls back to parsing against [DEFAULT_SERVER_URL] for legacy entries
+     * that don\'t contain the separator.
+     */
+    private fun loadAllCookies(): List&lt;Pair&lt;String, Cookie&gt;&gt; {
+        return preferences.getStringSet(KEY_COOKIES, emptySet()).orEmpty()
+            .mapNotNull { entry -&gt;
+                val separatorIdx = entry.indexOf(SEPARATOR)
+                val (originUrl, cookieStr) = if (separatorIdx &gt; 0) {
+                    entry.substring(0, separatorIdx) to entry.substring(separatorIdx + SEPARATOR.length)
+                } else {
+                    // Legacy format: no origin URL stored, fall back to default
+                    DEFAULT_SERVER_URL to entry
+                }
+                
+                // استفاده از تابع استاندارد و ایمنِ OkHttp برای پارس کردن URL
+                val httpUrl = originUrl.toHttpUrlOrNull() ?: DEFAULT_SERVER_URL.toHttpUrlOrNull() ?: return@mapNotNull null
+                Cookie.parse(httpUrl, cookieStr)?.let { originUrl to it }
+            }
+    }
+
+    private companion object {
+        const val KEY_COOKIES = </string>
+    <string name="str_cd9ff04c">تکمیل عضویت با خطا مواجه شد</string>
+    <string name="str_1626c15e">اطلاعات تماس و پشتیبانی</string>
+    <string name="str_8fd3df27">گزارش ترکیبی</string>
+    <string name="str_db19d059">نقـــــشه</string>
+    <string name="str_b9d32bc1">${minutes.toString().toPersianDigits()} دقیقه قبل</string>
+    <string name="str_31665826">جستجوی نام یا سریال دستگاه</string>
+    <string name="str_f58f20ca">گزارش رویدادها</string>
+    <string name="str_71d8b973">پیامک دریافت شد</string>
+    <string name="str_108269d9">تعویض راننده</string>
+    <string name="str_73403401">ایجاد حساب کاربری</string>
+    <string name="str_57dd9294">خطا در دریافت رویدادها</string>
+    <string name="str_911598cd">تایید</string>
+    <string name="str_bde8bf83">افزودن دستگاه</string>
+    <string name="str_6c3a358d">پرش متن هنگام وارد کردن اعداد و مقادیر در فرم دستگاه برطرف شده و راست‌چین شده است.</string>
+    <string name="str_a9374766">سرعت از حد مجاز فراتر رفت</string>
+    <string name="str_d945f210">ورود با اثر انگشت</string>
+    <string name="str_748fcc0c">پایان: $persianDate</string>
+    <string name="str_343dc69f">خطا در دریافت گزارش مسافت‌ها</string>
+    <string name="str_a0a519bd">زبان برنامه</string>
+    <string name="str_ec7a5b14">مدت زمان</string>
+    <string name="str_d2472f48">اعتبار دستگاه به پایان رسیده است</string>
+    <string name="str_1deb7f66">مسیرهای پیموده</string>
+    <string name="str_a80ac219">پایان توقف</string>
+    <string name="str_74921051">فیلتر</string>
+    <string name="str_8ee7dcdc">نتیجه ارسال دستور</string>
+    <string name="str_f52ed5f2">
+        val cachedData = cache[cacheKey]
+        val currentTime = System.currentTimeMillis()
+
+        // بررسی اعتبار کش (آیا کمتر از ۳ دقیقه گذشته است؟)
+        if (cachedData != null &amp;&amp; (currentTime - cachedData.timestamp) &lt; CACHE_DURATION_MS) {
+            return cachedData.address
+        }
+
+        return try {
+            val response = api.getReverseGeocode(apiKey = API_KEY, lat = lat, lon = lon)
+
+            // اولویت با formatted_address است، در غیر این صورت address، در غیر این صورت پیام پیش‌فرض
+            val newAddress = response.formattedAddress ?: response.address ?: </string>
+    <string name="str_db228392">اردیبهشت</string>
+    <string name="str_896106c2">)
+            }.parse(value)
+        }.getOrNull()
+    }
+}
+
+private fun String.toPersianDigits(): String {
+    val persianDigits = charArrayOf(\'۰\', \'۱\', \'۲\', \'۳\', \'۴\', \'۵\', \'۶\', \'۷\', \'۸\', \'۹\')
+    return buildString(length) {
+        this@toPersianDigits.forEach { char -&gt;
+            append(if (char in \'0\'..\'9\') persianDigits[char - \'0\'] else char)
+        }
+    }
+}
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun TimeFilterBottomSheet(
+    onDismiss: () -&gt; Unit,
+    onApplyQuickRange: (String) -&gt; Unit,
+    onApplyCustomRange: (com.example.uzradyab.presentation.components.JalaliDateTime?, com.example.uzradyab.presentation.components.JalaliDateTime?) -&gt; Unit
+) {
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selectedRange by remember { mutableStateOf(</string>
+    <string name="str_25dcb532">زمان شروع</string>
+    <string name="str_76a937b9">$minutes دقیقه</string>
+    <string name="str_2e7aff1b">متوقف</string>
+    <string name="str_2fe5ef7d">بازپخش مسیرها</string>
+    <string name="str_05fc0424">آدرس در دسترس نیست</string>
+    <string name="str_1b92a31d">در حال حرکت...</string>
+    <string name="str_8678d1c1">پیمایش امروز: $todayDistanceText</string>
+    <string name="str_675d2703">پایان کیلومترشمار</string>
+    <string name="str_1ba8f1e1">شروع حرکت</string>
+    <string name="str_8f5b399d">با ارسال این دستور دستگاه وضعیت کلی خود را پاسخ می‌دهد.</string>
+    <string name="str_7083cfdf">پخش</string>
+    <string name="str_f57206ad">فعال‌سازی ورود سریع بیومتریک</string>
+    <string name="str_feff5be7">).let { _ -&gt; it } }
+            .map { char -&gt;
+                if (char in \'0\'..\'9\') {
+                    charArrayOf(\'۰\', \'۱\', \'۲\', \'۳\', \'۴\', \'۵\', \'۶\', \'۷\', \'۸\', \'۹\')[char - \'0\']
+                } else char
+            }.joinToString(</string>
+    <string name="str_9a8bd9a1">در حال دریافت مسیر...</string>
+    <string name="str_ed52d39d">متوجه شدم</string>
+    <string name="str_00f6b789">اطلاعات ورود یافت نشد. لطفا یکبار با رمز عبور وارد شوید.</string>
+    <string name="str_e59048e1">حریم خصوصی و مقررات</string>
+    <string name="str_80ebd658">دستور با موفقیت ارسال شد</string>
+    <string name="str_75079114">انتخاب تاریخ و ساعت پایان</string>
+    <string name="str_4bc510cc">شماره سیم‌کارت موجود در دستگاه.</string>
+    <string name="str_9d13af3e">۰</string>
+    <string name="str_e4966467">داده‌ای موجود نیست</string>
+    <string name="str_6d3a96c5"> تا ${end.day} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(end.month)}</string>
+    <string name="str_34df5c35">ارسال فرمـــــان</string>
+    <string name="str_2dee03de">انتخاب تاریخ و زمان</string>
+    <string name="str_06f6c148">افت سوخت</string>
+    <string name="str_21c081b4">اولین زمان روشن شدن</string>
+    <string name="str_d65b37fd">جزئیات</string>
+    <string name="str_eab3008b">نمایش نقشه</string>
+    <string name="str_70e3ef0e">مهر</string>
+    <string name="str_c236aa20">تکمیل عضویت</string>
+    <string name="str_2944a2c7">ورود با اثرانگشت / تشخیص چهره</string>
+    <string name="str_1b739f54">خرداد</string>
+    <string name="str_fa50fea6">${report.averageSpeed} کیلومتر بر ساعت</string>
+    <string name="str_036f8b42">گزارش‌ها</string>
+    <string name="str_8e1af4d9">بازه انتخابی</string>
+    <string name="str_47824b58">ارسال مجدد کد تایید با خطا مواجه شد</string>
+    <string name="str_d4cdc585">کیلومتر</string>
+    <string name="str_972dbfb4">ج</string>
+    <string name="str_fbcc4761">مسیرهای پیموده شده</string>
+    <string name="str_3407857f">هیچ گزارشی برای این بازه زمانی یافت نشد.</string>
+    <string name="str_9586a8f3">کد تایید نادرست است</string>
+    <string name="str_eaa6c1e8">نام کامل</string>
+    <string name="str_6836d224">توقف</string>
+    <string name="str_47385eb9">ارسال دستور وصل کردن سوخت خودرو در صورتی که سوخت از قبل توسط رله قطع شده باشد.</string>
+    <string name="str_38d0fd72">باشه</string>
+    <string name="str_5fc7f3bc">کیلومتر فعلی دستگاه</string>
+    <string name="str_6f6bf7d5">✅ توکن با موفقیت در تلاش ${attempt + 1} ارسال شد.</string>
+    <string name="str_b8800bdd">راه اندازی مجدد</string>
+    <string name="str_0799c18b">جزئیات بیشتر</string>
+    <string name="str_a604190b">سوخت مصرفی</string>
+    <string name="str_fa837aa3">شماره سریال دستگاه:</string>
+    <string name="str_eb96cc44">شماره تلفن یا رمز عبور صحیح نیست</string>
+    <string name="str_b7ab4dbb">شهریور</string>
+    <string name="str_ed7c278e">توقفی یافت نشد</string>
+    <string name="str_e18b56c4">❌ خطای سرور/بک‌اند در تلاش ${attempt + 1}: ${e.message}</string>
+    <string name="str_9ccd7059">دایره</string>
+    <string name="str_b0a53e74">مدت زمان سفر: ${report.duration}</string>
+    <string name="str_68a2de5f">انتخاب ستون‌ها</string>
+    <string name="str_94f14b96">محدوده‌های من</string>
+    <string name="str_8105a2a5">درباره اکسیر</string>
+    <string name="str_1dc36021">موقعیت نامشخص</string>
+    <string name="str_a14ffbdc">آدرس نامشخص</string>
+    <string name="str_821b9bff">در حال ورود...</string>
+    <string name="str_68fb631d">دستورات</string>
+    <string name="str_4bf0eb7d">,
+            )
+            throw e
+        }
+
+        val durationMs = (System.nanoTime() - startNs) / 1_000_000L
+        val code = response.code
+
+        // ── Log response ──────────────────────────────────────────────────────
+        val respBodySnippet = runCatching {
+            val source = response.body?.source() ?: return@runCatching null
+            // Component 6: فقط ۱ کیلوبایت اول خوانده می‌شود تا رم گوشی اشغال نشود
+            source.request(1024) 
+            val buffer = source.buffer.clone()
+            buffer.readString(Charset.forName(</string>
+    <string name="str_d3ed1245">نمایش ستون‌ها</string>
+    <string name="str_3d20052f">)
+            val summaryResult = reportRepository.getSummaryReport(
+                deviceId = deviceId,
+                from = fromIso,
+                to = toIso
+            )
+
+            // ۵. پردازش و آپدیت UI
+            summaryResult.onSuccess { summaryList -&gt;
+                val summary = summaryList.firstOrNull()
+                AppLogger.log(LogLevel.RESPONSE, </string>
+    <string name="str_c58b4a6c">خطا در اتصال به شبکه</string>
+    <string name="str_a85af005">اینترنت</string>
+    <string name="str_04945136">انتخاب تاریخ</string>
+    <string name="str_5e9b8ad8">در حال دریافت</string>
+    <string name="str_a5ba150c">گزارش‌های جامع</string>
+    <string name="str_8634402d">تغییر رمز عبور (اختیاری)</string>
+    <string name="str_01bc9216">تاریخ سفارشی</string>
+    <string name="str_897c5c5e">ورود با رمز عبور / حساب دیگر</string>
+    <string name="str_c5e2b3f8">هشدار جدید</string>
+    <string name="str_6dbef4b1">شعاع: ${geofence.radius?.toInt()} متر</string>
+    <string name="str_fccaf0bf">اعتبار دستگاه نامشخص است</string>
+    <string name="str_0fb8bf04">کیلومتر بر ساعت</string>
+    <string name="str_ba28441b">همه رویدادها</string>
+    <string name="str_9704c0ca">محدوده جغرافیایی</string>
+    <string name="str_9a71e650">آیا حساب کاربری ندارید؟</string>
+    <string name="str_845ef70c">%.1f کیلومتر</string>
+    <string name="str_f53c8810">ایجاد حساب کاربری جدید</string>
+    <string name="str_f5da67c7">${daysRemaining.toString().toPersianDigits()} روز تا پایان اعتبار دستگاه</string>
+    <string name="str_088577d4">ش</string>
+    <string name="str_6b683714">محدوده جدید</string>
+    <string name="str_4304506f">نام و نام خانوادگی</string>
+    <string name="str_34260011">تنظیمات هشدارها</string>
+    <string name="str_0a237931">تنظیم زمان دستگاه</string>
+    <string name="str_112db91a">توقف‌ها</string>
+    <string name="str_00682caf">پایان حرکت</string>
+    <string name="str_67f5793b">ارسال این دستور زمان دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.</string>
+    <string name="str_d56e1d24">تنظیمات دستگاه</string>
+    <string name="str_8263bc39">حداکثر سرعت</string>
+    <string name="str_fb8cbc4d">تاریخ ثبت دستگاه:</string>
+    <string name="str_e2332df6">خطا در دریافت اطلاعات</string>
+    <string name="str_2fecc133">متر مسافت (ابتدا)</string>
+    <string name="str_5cdcc33b"> ساعت</string>
+    <string name="str_92d617ad">- ساعت و - دقیقه</string>
+    <string name="str_23c4bfdc">دریافت کد تایید</string>
+    <string name="str_f8b1e2b8">ذخیــــــره تغییرات</string>
+    <string name="str_a8997203">در حال دریافت آدرس...</string>
+    <string name="str_6bb21b35">شعاع: ${radius.toInt()} متر</string>
+    <string name="str_6dca01e2">محدوده‌های جغرافیایی</string>
+    <string name="str_fe09ff34">زرین‌پال</string>
+    <string name="str_5df0ff58">رمز عبور را وارد کنید</string>
+    <string name="str_fb236ce1">رویداد جدید</string>
+    <string name="str_66697949">موقعیت یابی دقیق</string>
+    <string name="str_551b1db8">خاموش</string>
+    <string name="str_3b4fddcc">خروج از محدوده</string>
+    <string name="str_5ea43f41">دستور از طریق اینترنت ارسال و پاسخ به صورت آنلاین دریافت خواهد شد.</string>
+    <string name="str_f523fb6e">حرکت دستگاه</string>
+    <string name="str_238c4a4d">
+
+            // ذخیره در کش
+            cache[cacheKey] = CacheEntry(address = newAddress, timestamp = currentTime)
+
+            newAddress
+        } catch (e: Exception) {
+            android.util.Log.e(</string>
+    <string name="str_ce0244ec">ورود امن به برنامه</string>
+    <string name="str_aaa682a4">در حال حاضر حساب کاربری دارید؟</string>
+    <string name="str_6505762a">آدرس ایمیل</string>
+    <string name="str_bf19d98c">در صورت حرکت غیرمجاز یا خروج خودرو از محدوده تعریف شده، بلافاصله برای کاربر هشدار ارسال می‌شود.</string>
+    <string name="str_b23095fa">ی</string>
+    <string name="str_4a16f930">تعریف مدیر</string>
+    <string name="str_c8d2a1fb">انصراف</string>
+    <string name="str_5a1a721d">دستگاه غیرفعال</string>
+    <string name="str_32a81e55">ورود</string>
+    <string name="str_55d482e1">ذخیره تغییرات</string>
+    <string name="str_b9c4b88d">با استفاده از فناوری GPS، می‌توان به صورت لحظه به لحظه از وضعیت خودرو مطلع بود.</string>
+    <string name="str_8109f957">خطا در ذخیره اطلاعات</string>
+    <string name="str_e0e2a491">این دستورات به شما امکان می‌دهند دستگاه خود را از راه دور و از طریق پیامک یا اینترنت کنترل کنید.</string>
+    <string name="str_f5b1f6c0">کد تایید</string>
+    <string name="str_39ab91bd">نقشه</string>
+    <string name="str_eea6afd1">در حال بارگذاری...</string>
+    <string name="str_63a0ce0e">با ارسال این دستور دستگاه خاموش و مجدد راه اندازی می شود.</string>
+    <string name="str_237a1703">نام محدوده</string>
+    <string name="str_992fc66b">آخرین بروزرسانی: ${formatRelativeTime(position?.serverTime ?: device.lastUpdate)}</string>
+    <string name="str_9d239801">ساعات کارکرد موتور</string>
+    <string name="str_853b5735">اعتبار 1 ساله اکسیر</string>
+    <string name="str_dc0b8afd">دستگاه با موفقیت ویرایش شد</string>
+    <string name="str_f61c9809">ورود با اثر انگشت با خطا مواجه شد</string>
+    <string name="str_8378fed7">
+            [
+              {
+                \"id\": 1,
+                \"deviceId\": 1,
+                \"protocol\": \"osmand\",
+                \"serverTime\": \"2026-06-11T12:00:00Z\",
+                \"deviceTime\": \"2026-06-11T12:00:00Z\",
+                \"fixTime\": \"2026-06-11T12:00:00Z\",
+                \"valid\": true,
+                \"latitude\": 35.7000,
+                \"longitude\": 51.4000,
+                \"altitude\": 1200.0,
+                \"speed\": 60.5,
+                \"course\": 90.0,
+                \"address\": \"تهران، میدان ولیعصر\",
+                \"accuracy\": 0.0,
+                \"network\": null,
+                \"attributes\": {
+                  \"ignition\": true,
+                  \"batteryLevel\": 85,
+                  \"distance\": 15.2,
+                  \"totalDistance\": 15000.5,
+                  \"motion\": true
+                }
+              }
+            ]
+        </string>
+    <string name="str_e3781719">رمز عبور و تایید آن یکسان نیست</string>
+    <string name="str_914a74a3">آخرین رویداد</string>
+    <string name="str_1d020430">شماره موبایل</string>
+    <string name="str_0ea21b78">${report.maxSpeed} کیلومتر بر ساعت</string>
+    <string name="str_9cb4abe0">خطایی در ارسال دستور رخ داد</string>
+    <string name="str_b2e84f4c">هفته گذشته</string>
+    <string name="str_90f01fe7">داده موجود نیست</string>
+    <string name="str_a6b9c52a">مدیریت دستگاه</string>
+    <string name="str_885a32f4">با حذف محدوده جغرافیایی امکان بازیابی مجدد آن وجود ندارد. آیا از حذف آن مطمئن هستید؟</string>
+    <string name="str_10d3f658">شماره سریال دستگاه با عنوان IEMI بر روی جعبه دستگاه ردیاب درج شده است.</string>
+    <string name="str_cf441594">وضعیت جاری دستگاه</string>
+    <string name="str_c3d503c4">باز شدن سوییچ</string>
+    <string name="str_bbf521c7">شماره سریال دستگاه</string>
+    <string name="str_a12d7b02">مثلا: 123456789</string>
+    <string name="str_93d4ac0b">وضعیت نامعلوم</string>
+    <string name="str_cb32d819">تاریخ انقضا</string>
+    <string name="str_6bc54204">انتخاب تاریخ شروع</string>
+    <string name="str_890666b5">شماره تلفن باید ۱۱ رقم باشد</string>
+    <string name="str_24b95075">لاگ‌های شبکه  [DEBUG]</string>
+    <string name="str_9a15d35b">و </string>
+    <string name="str_a802ae5f">حساب کاربری</string>
+    <string name="str_4a9a9330">گزارشات / توقف ها</string>
+    <string name="str_aad6a683">در حال ارسال...</string>
+    <string name="str_ac580d59">خطا در دریافت گزارش</string>
+    <string name="str_78972bdb">هفته جاری</string>
+    <string name="str_00b05b97">لطفاً ابتدا اثر انگشت را در تنظیمات برنامه فعال کنید.</string>
+    <string name="str_b3da1036">تمدید اعتبار</string>
+    <string name="str_7037fc5a">شامل حداقل 1 عدد</string>
+    <string name="str_be9638ce">شماره سیمکارت دستگاه:</string>
+    <string name="str_c2d21116">سرویس‌های دوره‌ای</string>
+    <string name="str_af2f9933">کنترل رویدادها و هشدارها</string>
+    <string name="str_60806661">خروج</string>
+    <string name="str_76c49620">تنظیمات هشدار‌ها</string>
+    <string name="str_98be806c">لیتر</string>
+    <string name="str_6104d0f3">آنلاین</string>
+    <string name="str_5186c975">دستگاه نامعتبر است</string>
+    <string name="str_4e8b37ff">۳ ساعت و ۳۰ دقیقه</string>
+    <string name="str_8d2db852">دیروز</string>
+    <string name="str_585d180f">عملیات تایید هویت لغو شد</string>
+    <string name="str_c9121bd4">خطا در دریافت آدرس</string>
+    <string name="str_e14b74e4">عنوان دستگاه</string>
+    <string name="str_b7923ec1">اکسیر ردیاب</string>
+    <string name="str_aac7d1e0">امروز</string>
+    <string name="str_8b8d6508">مدت توقف:</string>
+    <string name="str_417bc307">۰ کیلومتر</string>
+    <string name="str_8ffce954">سایر گزارش‌ها</string>
+    <string name="str_c07436a4">ویرایش دستگاه بدون افت اطلاعات</string>
+    <string name="str_e2882775">نیاز به تعمیر</string>
+    <string name="str_9b860f70">ذخیره</string>
+    <string name="str_caaedae2">مرداد</string>
+    <string name="str_0e5ff03f">زمان پایان</string>
+    <string name="str_011e6dea">ورود به محدوده</string>
+    <string name="str_3156cd98">خطا در بروزرسانی تنظیمات</string>
+    <string name="str_4e098cb9">در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد.</string>
+    <string name="str_bb90cb93">رفع مشکل نقشه</string>
+    <string name="str_14320cbf">ارسال دستور قطع سوخت خودرو توسط رله در صورتی که سرعت خودرو کمتر از 10 کیلومتر باشد.</string>
+    <string name="str_16d6547d">دیروز | ${yJDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(yJDate[1])} ${yJDate[0]}</string>
+    <string name="str_92b6baba">${distanceMeters.roundToInt()} متر</string>
+    <string name="str_4d69eb22">د</string>
+    <string name="str_f5fda019">موقعیت جاری دستگاه</string>
+    <string name="str_665fa1fc">ارسال مجدد</string>
+    <string name="str_f792dea4">خروجی</string>
+    <string name="str_4190f2e7">مسافت:</string>
+    <string name="str_697b71f4">ارسال کد تایید با خطا مواجه شد</string>
+    <string name="str_00a90073">بازه زمانی دلخواه</string>
+    <string name="str_7af2f388">مدیریت</string>
+    <string name="str_23e8f2f0">آدرس مقصد</string>
+    <string name="str_5da6626b">از طریق پیام‌رسان نصب شده بر روی گوشی دستور مورد نظر ارسال و پاسخ از همین طریق دریافت خواهد شد.</string>
+    <string name="str_43167dcf">${daysRemaining.toString().toPersianDigits()} روز باقیمانده</string>
+    <string name="str_cfde5abf">تاریخ و ساعت شروع</string>
+    <string name="str_2273efe7">دستگاه متوقف شد</string>
+    <string name="str_ece143b5">تاریخ شروع</string>
+    <string name="str_00215df2">نقشه قفل است</string>
+    <string name="str_0cd459cd">آدرس</string>
+    <string name="str_6ba39ff9">موقعیت</string>
+    <string name="str_11832a0c">سویچ روشن</string>
+    <string name="str_9db0c865">تغییرات با موفقیت ذخیره شد</string>
+    <string name="str_81544cd1">خطا در دریافت تنظیمات</string>
+    <string name="str_2dbdb0bf">مشکل پاک شدن زمان انقضای دستگاه هنگام تغییر نام یا اطلاعات رفع شد.</string>
+    <string name="str_a5d890ea">)
+            val summaryResult = reportRepository.getSummaryReport(
+                deviceId = deviceId,
+                from = fromIso,
+                to = toIso
+            )
+
+            // ۵. آپدیت UI
+            summaryResult.onSuccess { summaryList -&gt;
+                val summary = summaryList.firstOrNull()
+                AppLogger.log(LogLevel.RESPONSE, </string>
+    <string name="str_c85e5dc9">مسافت طی شده</string>
+    <string name="str_6cc41484">آبان</string>
+    <string name="str_3c82d654">ویژگی‌های جدید برنامه</string>
+    <string name="str_f1f5da01">اسفند</string>
+    <string name="str_de7ae3ed">لطفا روش ارسال دستور به دستگاه را انتخاب و عملیات را تایید کنید.</string>
+    <string name="str_b2fab46e">تعریف شماره خاص جهت دستور به دستگاه.</string>
+    <string name="str_8309a992">شروع توقف</string>
+    <string name="str_6286d553">حداکثر تلاش برای ارسال توکن انجام شد اما شبکه پاسخ نداد.</string>
+    <string name="str_4348a334">فنی</string>
+    <string name="str_d815091c">گزارشات / مسافت‌ها</string>
+    <string name="str_15e25a13">خروج از حساب کاربری</string>
+    <string name="str_179218bc">ساعات کارکرد موتور: ${report.engineHours}</string>
+    <string name="str_e4276c68">مبلغ شارژ اعتبار:</string>
+    <string name="str_61d6bf6c">نام و نام خانوادگی را وارد کنید</string>
+    <string name="str_d2aebe43">برای ورود اثر انگشت یا چهره خود را تایید کنید</string>
+    <string name="str_c9c1b29c">تنظیمات نقشه</string>
+    <string name="str_f3d099e9">${hours.toString().toPersianDigits()} ساعت قبل</string>
+    <string name="str_e5c8c50c">رمز عبور باید شرایط امنیتی را داشته باشد</string>
+    <string name="str_ee6d1b92">مبلغ قابل پرداخت:</string>
+    <string name="str_54b42848">هیچ رویدادی در این بازه زمانی یافت نشد.</string>
+    <string name="str_7ef9b987">برای رسم چند ضلعی، حداقل ۳ نقطه روی نقشه انتخاب کنید.</string>
+    <string name="str_f2144196">فروردین</string>
+    <string name="str_feeb3b1c"> کیلومتر</string>
+    <string name="str_a31b1e94">بعدی</string>
+    <string name="str_593c9a2b">هیچ محدوده‌ای ثبت نشده است.</string>
+    <string name="str_2c0a74b8">تنظیمات اعلان رویدادها</string>
+    <string name="str_7eb2d002">هشدار</string>
+    <string name="str_872fd19f">اکسیر</string>
+    <string name="str_a45b23c5">رمز عبور را دوباره وارد کنید</string>
+    <string name="str_4fec5171">دقیقه</string>
+    <string name="str_606f279a">ثبت</string>
+    <string name="str_101940e7">برای ورود با اثر انگشت، ابتدا یکبار با رمز عبور وارد شوید.</string>
+    <string name="str_7783a0a5">تایید هویت ناموفق بود</string>
+    <string name="str_bc542cf1">تاریخ و ساعت پایان</string>
+    <string name="str_533595b2">بسته شدن سوییچ</string>
+    <string name="str_a7976da7">بازگشت</string>
+    <string name="str_f6eb9984">بازپخش مسیر</string>
+    <string name="str_3d9b4b4a">گزارشات</string>
+    <string name="str_ffea8cb4">روی نقشه ضربه بزنید تا مرکز دایره مشخص شود.</string>
+    <string name="str_ae6ae380">پاک کردن</string>
+    <string name="str_96bd12ab">برای ورود به برنامه، حسگر اثر انگشت یا تشخیص چهره دستگاه خود را لمس کنید.</string>
+    <string name="str_e5d70e6c">مثلا: 09151094755</string>
+    <string name="str_1b7dc619">مصرف سوخت</string>
+    <string name="str_7bfb0205">س</string>
+    <string name="str_3ebdee3c">${report.distance} کیلومتر</string>
+    <string name="str_9e0476de">تاریخ پایان</string>
+    <string name="str_61f1cc3c">در حال تایید...</string>
+    <string name="str_646e8d8f">جستجو دستگاه</string>
+    <string name="str_530cd1e0">۱۰:۲۲</string>
+    <string name="str_8e187cae">سرعت بالا</string>
+    <string name="str_9150c5be">فیلتر زمان</string>
+    <string name="str_aa1d1f9e">سرعت: ${speedKmh.toString().toPersianDigits()} کیلومتر بر ساعت</string>
+    <string name="str_5d5c25c9">فراموشی رمز عبور</string>
+    <string name="str_d9fe67ce">ارسال این دستور سرور دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.</string>
+    <string name="str_46e5cb39">۰.۰ ساعت</string>
+    <string name="str_f28033c8">گزارش‌های دقیقی از وضعیت خودرو در زمان‌های مختلف و همچنین جزئیات مسیرهای پیموده شده و امکان مرور مجدد آن‌ها.</string>
+    <string name="str_da3316cb">ستون‌هایی که می‌خواهید در گزارش نمایش داده شوند را انتخاب کنید:</string>
+    <string name="str_fbdeb416">تاریخ ثبت دستگاه is 2027-05-04</string>
+    <string name="str_df443aae">خروج محدوده جغرافیایی</string>
+    <string name="str_ace11fd5">تنظیمات زبان برنامه</string>
+    <string name="str_2854007e">دریافت پیامک</string>
+    <string name="str_57396a22">شروع کیلومترشمار</string>
+    <string name="str_fde07dbe">در حال تکمیل...</string>
+    <string name="str_708b3c01">تنظیم LBS</string>
+    <string name="str_07dff32f">موقعیت مبدا</string>
+    <string name="str_eb5ed02e">وضعیت دستگاه</string>
+    <string name="str_b8e8183e">%,d ریال</string>
+    <string name="str_c4cd95ab">شماره تلفن</string>
+    <string name="str_b19fc85c">مسافت</string>
+    <string name="str_1f82cde6">دی</string>
+    <string name="str_66030b73">فارسی</string>
+    <string name="str_a1221040">امروز | ${jDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jDate[1])} ${jDate[0]}</string>
+    <string name="str_cd898dd6">تاریخ ثبت دستگاه</string>
+    <string name="str_41375b63">در حال دریافت...</string>
+    <string name="str_96962d39">مسیر تستی</string>
+    <string name="str_50196c4f">سوئیچ خاموش</string>
+    <string name="str_02b42328">پیامک</string>
+    <string name="str_7be2abc0">شامل حداقل 1 کاراکتر خاص</string>
+    <string name="str_b31c3b88">پرداخت - ${selectedPlan.period} $amountFormatted</string>
+    <string name="str_99041703">۰.۰</string>
+    <string name="str_82e6d85b">افزودن محدوده جدید</string>
+    <string name="str_b53c0371">عدم ارتباط با سرور</string>
+    <string name="str_7717f8af">آفلاین</string>
+    <string name="str_a309c10f">طراحی جدید فرم‌ها</string>
+    <string name="str_3c3b70ed">دستگاه تستی ۱</string>
+    <string name="str_a4d4a103">
+            {
+              \"id\": 1,
+              \"name\": \"کاربر تست\",
+              \"email\": \"09123456789\",
+              \"phone\": \"09123456789\",
+              \"readonly\": false,
+              \"administrator\": true,
+              \"map\": \"\",
+              \"latitude\": 35.6892,
+              \"longitude\": 51.3890,
+              \"zoom\": 12,
+              \"attributes\": {}
+            }
+        </string>
+    <string name="str_1dce144e">افزایش اعتبار</string>
+    <string name="str_f4268cbb">افزودن دستگاه جدید</string>
+    <string name="str_1344f661">${seconds.toString().toPersianDigits()} ثانیه قبل</string>
+    <string name="str_08f22343">انتخاب کنید</string>
+    <string name="str_505ebef4">مکان‌یابی خودکار و قفل نقشه بر روی دستگاه شما بهبود یافته است.</string>
+    <string name="str_e51b994e">تغییرات و امکانات نسخه جدید ردیاب</string>
+    <string name="str_d617e432">افزایش سوخت</string>
+    <string name="str_9d6d33d5">متر مسافت (انتها)</string>
+    <string name="str_5e8fdd3b">بله</string>
+    <string name="str_67ddae20">با فعال کردن هر گزینه، اعلان مربوط به آن از طریق نوتیفیکیشن به موبایل شما ارسال خواهد شد.</string>
+    <string name="str_5bfe9082">پ</string>
+    <string name="str_b0180550">انتخاب تاریخ و ساعت شروع</string>
+    <string name="str_f859ec5e">
+            [
+                {
+                    \"deviceId\": 1,
+                    \"deviceName\": \"دستگاه تستی ۱\",
+                    \"maxSpeed\": 80.0,
+                    \"averageSpeed\": 40.0,
+                    \"distance\": 25.0,
+                    \"spentFuel\": 2.5,
+                    \"engineHours\": 7200000
+                }
+            ]
+        </string>
+    <string name="str_b987913f">ماهواره‌ای گوگل</string>
+    <string name="str_0e1684cc">درگاه‌های پرداخت:</string>
+    <string name="str_0ddc0842">میانگین سرعت</string>
+    <string name="str_fa2660b3">مسیر (خط)</string>
+    <string name="str_5e0ce028">برای رسم مسیر، نقاط را روی نقشه انتخاب کنید.</string>
+    <string name="str_1120f944">ساعت</string>
+    <string name="str_3f246adf">لطفاً چند لحظه منتظر بمانید</string>
+    <string name="str_33cdbf9e" formatted="false">
+                  {
+                    \"id\": ${i + 1},
+                    \"deviceId\": 1,
+                    \"protocol\": \"osmand\",
+                    \"serverTime\": \"$time\",
+                    \"deviceTime\": \"$time\",
+                    \"fixTime\": \"$time\",
+                    \"valid\": true,
+                    \"latitude\": $lat,
+                    \"longitude\": $lon,
+                    \"altitude\": 1200.0,
+                    \"speed\": ${40 + (i % 20)},
+                    \"course\": ${(i * 5) % 360},
+                    \"address\": \"مسیر تستی\",
+                    \"accuracy\": 0.0,
+                    \"network\": null,
+                    \"attributes\": {
+                      \"ignition\": true,
+                      \"distance\": 15.2,
+                      \"motion\": true
+                    }
+                  }${if (i &lt; count - 1) \",\" else \"\"}
+                </string>
+    <string name="str_21ed9bdb">.toPersianDigits()
+    }
+
+    fun String.toPersianDigits(): String {
+        val persianDigits = charArrayOf(\'۰\', \'۱\', \'۲\', \'۳\', \'۴\', \'۵\', \'۶\', \'۷\', \'۸\', \'۹\')
+        val chars = this.toCharArray()
+        for (i in chars.indices) {
+            val char = chars[i]
+            if (char in \'0\'..\'9\') {
+                chars[i] = persianDigits[char - \'0\']
+            }
+        }
+        return String(chars)
+    }
+    
+    fun formatDoublePersian(value: Double, decimals: Int = 1): String {
+        return String.format(Locale.US, </string>
+    <string name="str_1900cb75">اتصالات</string>
+    <string name="str_dd52d8ed">زمان: ${formatTimeOnly(position.fixTime)}</string>
+    <string name="str_e33a7bc8">مثلا: پژو پارس</string>
+    <string name="str_69c5b430">هیچ دستگاهی پیدا نشد.</string>
+    <string name="str_968581ce">تایید و ارسال</string>
+    <string name="str_1a88c3d6">دستگاه آنلاین</string>
+    <string name="str_46a0f4a8">کاربر گرامی، با ثبت نام در اپلیکیشن اکسیر ردیاب، شما موافقت خود را با شرایط و مقررات استفاده از خدمات و همچنین سیاست حریم خصوصی ما اعلام می‌دارید. اطلاعات شخصی شما نزد ما محفوظ بوده و تنها برای ارائه خدمات بهتر استفاده خواهد شد.</string>
+    <string name="str_6e71a0f0">.map { char -&gt;
+            if (char in \'0\'..\'9\') {
+                charArrayOf(\'۰\', \'۱\', \'۲\', \'۳\', \'۴\', \'۵\', \'۶\', \'۷\', \'۸\', \'۹\')[char - \'0\']
+            } else char
+        }.joinToString(</string>
+    <string name="str_3cc406eb">اختیاری</string>
+    <string name="str_9b67c707">رویـــدادها</string>
+    <string name="str_e8341c7e">حذف محدوده جغرافیایی ${geofence.name}</string>
+    <string name="str_3fb91542">دستگاه‌ها</string>
+    <string name="str_158780fe">تهران، میدان ولیعصر</string>
+    <string name="str_435fcfb8">کد تایید ارسال شده به شماره ${maskPhoneNumber(state.phoneNumber)} را وارد کنید.</string>
+    <string name="str_4bea3705">مقصد: ${endAddressText ?: </string>
+    <string name="str_5b6b4335">مسافت‌ها</string>
+    <string name="str_bb4cda41">فعال کردن رله سوخت</string>
+    <string name="str_d6d2952c">ماه جاری</string>
+    <string name="str_694c9923">انتخاب تاریخ پایان</string>
+    <string name="str_9cc24ffb">تایید رمز عبور</string>
+    <string name="str_044bb654">چ</string>
+    <string name="str_2573d577">مبدأ: ${startAddressText ?: </string>
+    <string name="str_f1e188f5">رویدادها</string>
+    <string name="str_cbe620ec">سوخت مصرفی: ${report.spentFuel} لیتر</string>
+    <string name="str_2dce9aee">- ساعت</string>
+    <string name="str_50c44a23">دستگاه آفلاین</string>
+    <string name="str_9be99371">آدرس مبدأ</string>
+    <string name="str_0506f810">کاربر تست</string>
 </resources>

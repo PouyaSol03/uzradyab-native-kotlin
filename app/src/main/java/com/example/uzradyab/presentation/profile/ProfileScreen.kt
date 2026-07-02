@@ -31,6 +31,8 @@ import com.example.uzradyab.ui.theme.AppTextPrimary
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ProfileRoute(
@@ -118,7 +120,7 @@ fun ProfileScreen(
                     },
                     centerContent = {
                         Text(
-                            text = "حساب کاربری", 
+                            text = stringResource(R.string.str_a802ae5f), 
                             fontSize = 16.sp, 
                             fontWeight = FontWeight.Bold,
                             color = AppTextPrimary
@@ -175,7 +177,7 @@ fun ProfileScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "اطلاعات کاربر",
+                                        text = stringResource(R.string.str_85a99996),
                                         color = Color.White,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium
@@ -187,7 +189,7 @@ fun ProfileScreen(
                             Column(modifier = Modifier.padding(24.dp)) {
                                 
                                 // Expiration Time (Readonly)
-                                Text("تاریخ انقضا", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6A8BA5))
+                                Text(stringResource(R.string.str_cb32d819), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6A8BA5))
                                 Spacer(modifier = Modifier.height(8.dp))
                                 OutlinedTextField(
                                     value = expirationTime,
@@ -205,7 +207,7 @@ fun ProfileScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 // Name
-                                Text("نام کامل", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
+                                Text(stringResource(R.string.str_eaa6c1e8), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 OutlinedTextField(
                                     value = name,
@@ -218,7 +220,7 @@ fun ProfileScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Email
-                                Text("آدرس ایمیل", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
+                                Text(stringResource(R.string.str_6505762a), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                     OutlinedTextField(
@@ -234,7 +236,7 @@ fun ProfileScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Phone
-                                Text("شماره موبایل", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
+                                Text(stringResource(R.string.str_1d020430), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                     OutlinedTextField(
@@ -250,7 +252,7 @@ fun ProfileScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Password
-                                Text("رمز عبور", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
+                                Text(stringResource(R.string.str_6814380a), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                                     OutlinedTextField(
@@ -260,7 +262,7 @@ fun ProfileScreen(
                                         shape = RoundedCornerShape(12.dp),
                                         singleLine = true,
                                         visualTransformation = PasswordVisualTransformation(),
-                                        placeholder = { Text("تغییر رمز عبور (اختیاری)") }
+                                        placeholder = { Text(stringResource(R.string.str_8634402d)) }
                                     )
                                 }
                             }
@@ -286,13 +288,13 @@ fun ProfileScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = "ورود با اثرانگشت / تشخیص چهره",
+                                    text = stringResource(R.string.str_2944a2c7),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = AppTextPrimary
                                 )
                                 Text(
-                                    text = "فعال‌سازی ورود سریع بیومتریک",
+                                    text = stringResource(R.string.str_f57206ad),
                                     fontSize = 12.sp,
                                     color = Color(0xFF6A8BA5)
                                 )
@@ -323,7 +325,7 @@ fun ProfileScreen(
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
                         ) {
-                            Text(text = "خروج", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(text = stringResource(R.string.str_60806661), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         }
                         
                         Button(
@@ -348,7 +350,7 @@ fun ProfileScreen(
                             if (state.isSaving) {
                                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                             } else {
-                                Text(text = "ذخیره", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                Text(text = stringResource(R.string.str_9b860f70), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }

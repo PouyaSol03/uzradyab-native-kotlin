@@ -34,6 +34,8 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun DailyReportRoute(
@@ -97,7 +99,7 @@ fun DailyReportScreen(
                     startContent = { BackButton(onClick = onBackClick) },
                     centerContent = {
                         Text(
-                            text = "وضعیت روزانه",
+                            text = stringResource(R.string.str_454a0f23),
                             color = Color(0xFF676C70),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
@@ -193,14 +195,14 @@ fun DailyReportScreen(
                         }
 
                         LocationCard(
-                            title = "موقعیت مبدا",
+                            title = stringResource(R.string.str_07dff32f),
                             address = state.startAddressResolved,
                             icon = Icons.Default.GpsFixed,
                             isLoading = state.isLoading
                         )
                         
                         LocationCard(
-                            title = "موقعیت جاری دستگاه",
+                            title = stringResource(R.string.str_f5fda019),
                             address = state.endAddressResolved,
                             icon = Icons.Default.GpsFixed,
                             isLoading = state.isLoading
@@ -212,7 +214,7 @@ fun DailyReportScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "اولین زمان روشن شدن",
+                                title = stringResource(R.string.str_21c081b4),
                                 value = state.jalaliStartTime,
                                 unit = "",
                                 icon = Icons.Default.FlashOn,
@@ -220,7 +222,7 @@ fun DailyReportScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "مدت روشن بودن دستگاه",
+                                title = stringResource(R.string.str_3d6f575f),
                                 value = state.ignitionDuration,
                                 unit = "",
                                 icon = Icons.Default.AccessTime,
@@ -234,7 +236,7 @@ fun DailyReportScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "میانگین سرعت",
+                                title = stringResource(R.string.str_0ddc0842),
                                 value = state.averageSpeed,
                                 unit = "کیلومتر بر ساعت",
                                 icon = Icons.Default.Speed,
@@ -242,7 +244,7 @@ fun DailyReportScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "حداکثر سرعت",
+                                title = stringResource(R.string.str_8263bc39),
                                 value = state.maxSpeed,
                                 unit = "کیلومتر بر ساعت",
                                 icon = Icons.Default.Speed,
@@ -256,7 +258,7 @@ fun DailyReportScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "مسافت طی شده",
+                                title = stringResource(R.string.str_c85e5dc9),
                                 value = state.distance,
                                 unit = "کیلومتر",
                                 icon = Icons.Default.Speed,
@@ -264,7 +266,7 @@ fun DailyReportScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "سوخت مصرفی",
+                                title = stringResource(R.string.str_a604190b),
                                 value = state.spentFuel,
                                 unit = "لیتر",
                                 icon = Icons.Default.LocalGasStation,
@@ -278,7 +280,7 @@ fun DailyReportScreen(
                         ) {
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "متر مسافت (ابتدا)",
+                                title = stringResource(R.string.str_2fecc133),
                                 value = state.startOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
@@ -286,7 +288,7 @@ fun DailyReportScreen(
                             )
                             DetailStatCard(
                                 modifier = Modifier.weight(1f),
-                                title = "متر مسافت (انتها)",
+                                title = stringResource(R.string.str_9d6d33d5),
                                 value = state.endOdometer,
                                 unit = "کیلومتر",
                                 icon = Icons.Outlined.Timer,
@@ -313,7 +315,7 @@ fun DailyReportScreen(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
                             border = BorderStroke(1.dp, Color(0xFF307EF3))
                         ) {
-                            Text("خروجی", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.str_f792dea4), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
 
                         Button(
@@ -324,7 +326,7 @@ fun DailyReportScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
                         ) {
-                            Text("مسیرهای پیموده شده", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }

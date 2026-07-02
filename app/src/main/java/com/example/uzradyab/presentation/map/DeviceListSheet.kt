@@ -33,6 +33,8 @@ import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.ui.theme.AppTextMuted
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun DeviceListSheet(
@@ -51,7 +53,7 @@ fun DeviceListSheet(
     ) {
         Column(modifier = Modifier.padding(top = 80.dp, start = 12.dp, end = 12.dp)) {
             Text(
-                text = "دستگاه‌ها",
+                text = stringResource(R.string.str_3fb91542),
                 color = AppTextPrimary,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,

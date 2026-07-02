@@ -46,6 +46,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.Calendar
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun ReplayTripRoute(
@@ -100,7 +102,7 @@ fun ReplayTripScreen(
                     },
                     centerContent = {
                         Text(
-                            text = "مسیرهای پیموده",
+                            text = stringResource(R.string.str_1deb7f66),
                             color = Color(0xFF676C70),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
@@ -140,7 +142,7 @@ fun ReplayTripScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "فیلتر زمان",
+                                text = stringResource(R.string.str_9150c5be),
                                 color = AppBlue,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
@@ -200,14 +202,14 @@ fun ReplayTripScreen(
                                 )
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Text(
-                                    text = "در حال دریافت مسیر...",
+                                    text = stringResource(R.string.str_9a8bd9a1),
                                     color = Color(0xFF2C3E50),
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = "لطفاً چند لحظه منتظر بمانید",
+                                    text = stringResource(R.string.str_3f246adf),
                                     color = Color(0xFF6A8BA5),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
@@ -407,7 +409,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "مسافت",
+                                    text = stringResource(R.string.str_b19fc85c),
                                     color = Color(0xFFEFF3F5),
                                     fontSize = 10.sp
                                 )
@@ -459,7 +461,7 @@ fun DefaultControls(onTogglePlayback: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "جزئیات",
+                text = stringResource(R.string.str_d65b37fd),
                 color = Color(0xFF307EF3),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
@@ -476,7 +478,7 @@ fun DefaultControls(onTogglePlayback: () -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "پخش",
+                    text = stringResource(R.string.str_7083cfdf),
                     color = Color(0xFF307EF3),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
@@ -787,7 +789,7 @@ fun TimeFilterBottomSheet(
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             if (showStartPicker) {
                 com.example.uzradyab.presentation.components.JalaliDateTimePicker(
-                    title = "انتخاب تاریخ شروع",
+                    title = stringResource(R.string.str_6bc54204),
                     initialDateTime = customStart,
                     onConfirm = { 
                         customStart = it
@@ -797,7 +799,7 @@ fun TimeFilterBottomSheet(
                 )
             } else if (showEndPicker) {
                 com.example.uzradyab.presentation.components.JalaliDateTimePicker(
-                    title = "انتخاب تاریخ پایان",
+                    title = stringResource(R.string.str_694c9923),
                     initialDateTime = customEnd,
                     onConfirm = { 
                         customEnd = it
@@ -813,7 +815,7 @@ fun TimeFilterBottomSheet(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "انتخاب تاریخ",
+                        text = stringResource(R.string.str_04945136),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF384C5C),
@@ -836,7 +838,7 @@ fun TimeFilterBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        Text("تاریخ شروع", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.str_ece143b5), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
                         OutlinedButton(
                             onClick = { showStartPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -851,7 +853,7 @@ fun TimeFilterBottomSheet(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        Text("تاریخ پایان", fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.str_9e0476de), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
                         OutlinedButton(
                             onClick = { showEndPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -872,7 +874,7 @@ fun TimeFilterBottomSheet(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("انصراف", fontSize = 16.sp)
+                            Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
                         }
                         Button(
                             onClick = {
@@ -886,7 +888,7 @@ fun TimeFilterBottomSheet(
                             colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("ثبت", fontSize = 16.sp)
+                            Text(stringResource(R.string.str_606f279a), fontSize = 16.sp)
                         }
                     }
                 }

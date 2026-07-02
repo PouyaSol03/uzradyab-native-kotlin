@@ -55,6 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -67,18 +69,18 @@ fun OnboardingScreen(
 
     val pages = listOf(
         OnboardingPageData(
-            title = "موقعیت یابی دقیق",
-            description = "با استفاده از فناوری GPS، می‌توان به صورت لحظه به لحظه از وضعیت خودرو مطلع بود.",
+            title = stringResource(R.string.str_66697949),
+            description = stringResource(R.string.str_b9c4b88d),
             pageType = OnboardingPageType.GPS
         ),
         OnboardingPageData(
-            title = "کنترل رویدادها و هشدارها",
-            description = "در صورت حرکت غیرمجاز یا خروج خودرو از محدوده تعریف شده، بلافاصله برای کاربر هشدار ارسال می‌شود.",
+            title = stringResource(R.string.str_af2f9933),
+            description = stringResource(R.string.str_bf19d98c),
             pageType = OnboardingPageType.ALERTS
         ),
         OnboardingPageData(
-            title = "گزارش‌های جامع",
-            description = "گزارش‌های دقیقی از وضعیت خودرو در زمان‌های مختلف و همچنین جزئیات مسیرهای پیموده شده و امکان مرور مجدد آن‌ها.",
+            title = stringResource(R.string.str_a5ba150c),
+            description = stringResource(R.string.str_f28033c8),
             pageType = OnboardingPageType.REPORTS
         )
     )
@@ -119,7 +121,7 @@ fun OnboardingScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "بستن",
+                    contentDescription = stringResource(R.string.str_fa882772),
                     tint = Color(0xFF384C5C),
                     modifier = Modifier.size(20.dp)
                 )

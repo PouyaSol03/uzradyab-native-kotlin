@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.ui.theme.AppBlue
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun MapSettingsButton(modifier: Modifier = Modifier) {
@@ -46,7 +48,7 @@ fun MapSettingsButton(modifier: Modifier = Modifier) {
         SettingsGearIcon()
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "تنظیمات نقشه",
+            text = stringResource(R.string.str_c9c1b29c),
             color = Color.White,
             fontSize = 14.sp,
             lineHeight = 24.sp,

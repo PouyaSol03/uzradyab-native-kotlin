@@ -35,6 +35,8 @@ import com.example.uzradyab.ui.theme.AppBackground
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextMuted
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun EventsReportRoute(
@@ -83,7 +85,7 @@ fun EventsReportScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "گزارش رویدادها",
+                                text = stringResource(R.string.str_f58f20ca),
                                 color = Color(0xFF676C70),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -127,7 +129,7 @@ fun EventsReportScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "انتخاب تاریخ",
+                text = stringResource(R.string.str_04945136),
                 color = AppTextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -165,7 +167,7 @@ fun EventsReportScreen(
             } else if (state.events.isEmpty()) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        Text("هیچ رویدادی برای این تاریخ پیدا نشد", color = AppTextMuted, fontSize = 14.sp)
+                        Text(stringResource(R.string.str_41ea99ff), color = AppTextMuted, fontSize = 14.sp)
                     }
                 }
             } else {
@@ -239,7 +241,7 @@ private fun NotificationSettingsRow() {
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF307EF3))
     ) {
         Text(
-            text = "تنظیمات اعلان رویدادها",
+            text = stringResource(R.string.str_2c0a74b8),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )

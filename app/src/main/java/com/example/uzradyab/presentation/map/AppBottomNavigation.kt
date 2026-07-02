@@ -29,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.ui.theme.AppBlue
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 enum class BottomNavItem {
     ALARM, DEVICES, MAP, ACCOUNT
@@ -51,26 +53,26 @@ fun AppBottomNavigation(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BottomNavItemView(
-            label = "حساب کاربری",
+            label = stringResource(R.string.str_a802ae5f),
             icon = Icons.Default.Person,
             isSelected = selectedItem == BottomNavItem.ACCOUNT,
             onClick = { onItemSelected(BottomNavItem.ACCOUNT) }
         )
         BottomNavItemView(
-            label = "نقشه",
+            label = stringResource(R.string.str_39ab91bd),
             icon = Icons.Default.Map,
             isSelected = selectedItem == BottomNavItem.MAP,
             onClick = { onItemSelected(BottomNavItem.MAP) }
         )
         BottomNavItemView(
-            label = "دستگاه‌ها",
+            label = stringResource(R.string.str_3fb91542),
             icon = Icons.Default.DirectionsCar,
             isSelected = selectedItem == BottomNavItem.DEVICES,
             showDot = true,
             onClick = { onItemSelected(BottomNavItem.DEVICES) }
         )
         BottomNavItemView(
-            label = "رویدادها",
+            label = stringResource(R.string.str_f1e188f5),
             icon = Icons.Default.Notifications,
             isSelected = selectedItem == BottomNavItem.ALARM,
             onClick = { onItemSelected(BottomNavItem.ALARM) }

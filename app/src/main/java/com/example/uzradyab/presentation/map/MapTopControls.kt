@@ -65,6 +65,8 @@ import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.ui.theme.AppBlue
 import com.example.uzradyab.ui.theme.AppTextMuted
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun MapTopControls(
@@ -185,7 +187,7 @@ private fun MapSettingsTrigger(
         SettingsGearIcon(size = 18)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "تنظیمات نقشه",
+            text = stringResource(R.string.str_c9c1b29c),
             color = Color.White,
             fontSize = 14.sp,
             lineHeight = 24.sp,
@@ -278,7 +280,7 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "نقشه قفل است",
+                        text = stringResource(R.string.str_00215df2),
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
@@ -329,7 +331,7 @@ fun MapSettingsDialog(
                     SettingsGearIcon(size = 22, color = AppTextMuted)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "تنظیمات نقشه",
+                        text = stringResource(R.string.str_c9c1b29c),
                         color = AppTextPrimary,
                         fontSize = 18.sp,
                         lineHeight = 28.sp,
@@ -338,7 +340,7 @@ fun MapSettingsDialog(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
-                    text = "نمایش نقشه",
+                    text = stringResource(R.string.str_eab3008b),
                     color = AppTextPrimary,
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
@@ -369,13 +371,13 @@ fun MapSettingsDialog(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     DialogTextButton(
-                        text = "انصراف",
+                        text = stringResource(R.string.str_c8d2a1fb),
                         primary = false,
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
                     )
                     DialogTextButton(
-                        text = "ذخیره تغییرات",
+                        text = stringResource(R.string.str_55d482e1),
                         primary = true,
                         onClick = { onSaveStyle(selectedStyle) },
                         modifier = Modifier.weight(1f),
@@ -418,7 +420,7 @@ fun DeviceSelectDialog(
                 onValueChange = { search = it },
                 placeholder = {
                     Text(
-                        text = "جستجو دستگاه",
+                        text = stringResource(R.string.str_646e8d8f),
                         color = AppTextPrimary,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Right,
@@ -468,7 +470,7 @@ fun DeviceSelectDialog(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "هیچ دستگاهی پیدا نشد.",
+                                text = stringResource(R.string.str_69c5b430),
                                 color = AppTextMuted,
                                 fontSize = 14.sp,
                             )
@@ -556,7 +558,7 @@ fun MapLatestEventDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "آخرین رویداد",
+                        text = stringResource(R.string.str_914a74a3),
                         color = AppTextPrimary,
                         fontSize = 18.sp,
                         lineHeight = 28.sp,
@@ -589,7 +591,7 @@ fun MapLatestEventDialog(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
                 DialogTextButton(
-                    text = "بستن",
+                    text = stringResource(R.string.str_fa882772),
                     primary = true,
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),

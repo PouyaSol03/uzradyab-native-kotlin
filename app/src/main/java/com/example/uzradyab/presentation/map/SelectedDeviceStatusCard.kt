@@ -62,6 +62,7 @@ import java.util.TimeZone
 import kotlin.math.abs
 import kotlin.math.ceil
 import org.json.JSONObject
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun SelectedDeviceStatusCard(
@@ -237,7 +238,7 @@ private fun DistanceRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SecondaryActionPill(
-            text = "بازپخش مسیر", 
+            text = stringResource(R.string.str_f6eb9984), 
             dark = dark, 
             onClick = onReplayClick
         )
@@ -266,7 +267,7 @@ private fun ExpirationRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SecondaryActionPill(
-            text = "تمدید اعتبار", 
+            text = stringResource(R.string.str_b3da1036), 
             dark = false, 
             primaryText = true,
             onClick = { /* TODO */ }
@@ -330,7 +331,7 @@ private fun ActionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         PrimaryActionButton(
-            text = "مدیریت دستگاه",
+            text = stringResource(R.string.str_a6b9c52a),
             onClick = onManageClick,
             modifier = Modifier.weight(1f),
         )

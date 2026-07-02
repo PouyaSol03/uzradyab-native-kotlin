@@ -45,6 +45,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.ui.theme.AppBackground
 import com.example.uzradyab.map.tile.TileHealthState
 import kotlinx.coroutines.launch
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun HomeMapRoute(
@@ -463,12 +465,12 @@ fun ServerDownBottomSheet(
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "عدم ارتباط با سرور",
+                text = stringResource(R.string.str_b53c0371),
                 style = MaterialTheme.typography.titleLarge
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "ارتباط با سرور برقرار نیست. لطفا وضعیت اینترنت خود را بررسی کنید.",
+                text = stringResource(R.string.str_29612784),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
@@ -479,7 +481,7 @@ fun ServerDownBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             ) {
-                Text("متوجه شدم", fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text(stringResource(R.string.str_ed52d39d), fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
         }
@@ -521,7 +523,7 @@ fun NetworkErrorBottomSheet(
             
             // Centered Title
             Text(
-                text = "خطا در اتصال به شبکه",
+                text = stringResource(R.string.str_c58b4a6c),
                 fontSize = 20.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color = com.example.uzradyab.ui.theme.AppTextPrimary,
@@ -549,7 +551,7 @@ fun NetworkErrorBottomSheet(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "متوجه شدم",
+                    text = stringResource(R.string.str_ed52d39d),
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,

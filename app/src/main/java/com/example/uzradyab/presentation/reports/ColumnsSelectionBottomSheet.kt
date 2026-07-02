@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uzradyab.R
+import androidx.compose.ui.res.stringResource
 
 data class ColumnOption(
     val id: String,
@@ -56,7 +58,7 @@ fun ColumnsSelectionBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "نمایش ستون‌ها",
+                        text = stringResource(R.string.str_d3ed1245),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1C262E)
@@ -73,7 +75,7 @@ fun ColumnsSelectionBottomSheet(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "ستون‌هایی که می‌خواهید در گزارش نمایش داده شوند را انتخاب کنید:",
+                    text = stringResource(R.string.str_da3316cb),
                     fontSize = 14.sp,
                     color = Color(0xFF676C70),
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -130,7 +132,7 @@ fun ColumnsSelectionBottomSheet(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
                 ) {
-                    Text("تایید", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(R.string.str_911598cd), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }

@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.ui.theme.AppBlue
+import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.R
 
 @Composable
 fun DeviceManagementPanel(
@@ -130,7 +132,7 @@ private fun DeviceManagementHeader(
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = if ((position?.speed ?: 0.0) > 0.0) "در حال حرکت..." else formatDeviceStatus(device.status),
+                        text = if ((position?.speed ?: 0.0) > 0.0) stringResource(R.string.str_1b92a31d) else formatDeviceStatus(device.status),
                         color = Color(0xFF97ADBF),
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
@@ -141,7 +143,7 @@ private fun DeviceManagementHeader(
                 }
             }
             HeaderButton(
-                text = "مشخصات دستگاه",
+                text = stringResource(R.string.str_917fcbee),
                 onClick = onSpecsClick
             )
         }
@@ -156,7 +158,7 @@ private fun DeviceManagementHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "پیمایش امروز: $todayDistanceText",
+                text = stringResource(R.string.str_8678d1c1, todayDistanceText),
                 color = Color.White,
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
@@ -165,7 +167,7 @@ private fun DeviceManagementHeader(
                 modifier = Modifier.padding(start = 8.dp).weight(1f),
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
-            HeaderButton(text = "بازپخش مسیر", white = true, onClick = onReplayClick)
+            HeaderButton(text = stringResource(R.string.str_f6eb9984), white = true, onClick = onReplayClick)
         }
     }
 }
@@ -229,14 +231,14 @@ private fun ManagementGrid(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("محدوده جغرافیایی", Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f), onClick = onGeofenceClick) { MapFrameIcon(it) }
-            ManagementTile("بازپخش مسیرها", Color(0xFFE7F6ED), Color(0xFF205535), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
-            ManagementTile("تنظیمات دستگاه", Color(0xFFFEF3EC), Color(0xFF743106), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
+            ManagementTile(stringResource(R.string.str_9704c0ca), Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f), onClick = onGeofenceClick) { MapFrameIcon(it) }
+            ManagementTile(stringResource(R.string.str_2fe5ef7d), Color(0xFFE7F6ED), Color(0xFF205535), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
+            ManagementTile(stringResource(R.string.str_d56e1d24), Color(0xFFFEF3EC), Color(0xFF743106), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile("گزارش‌ها", Color(0xFFFDF1FE), Color(0xFF6A0872), modifier = Modifier.weight(1f), onClick = onReportsClick) { DocumentsIcon(it) }
-            ManagementTile("تنظیمات هشدار‌ها", Color(0xFFFEECEC), Color(0xFF6B0606), modifier = Modifier.weight(1f), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
-            ManagementTile("دستورات", Color(0xFFF4F6F8), Color(0xFF384C5C), modifier = Modifier.weight(1f), onClick = onCommandsClick) { FlashIcon(it) }
+            ManagementTile(stringResource(R.string.str_036f8b42), Color(0xFFFDF1FE), Color(0xFF6A0872), modifier = Modifier.weight(1f), onClick = onReportsClick) { DocumentsIcon(it) }
+            ManagementTile(stringResource(R.string.str_76c49620), Color(0xFFFEECEC), Color(0xFF6B0606), modifier = Modifier.weight(1f), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
+            ManagementTile(stringResource(R.string.str_68fb631d), Color(0xFFF4F6F8), Color(0xFF384C5C), modifier = Modifier.weight(1f), onClick = onCommandsClick) { FlashIcon(it) }
         }
     }
 }
@@ -384,8 +386,9 @@ private fun FlashIcon(color: Color) {
     )
 }
 
+@Composable
 private fun formatDeviceStatus(status: String): String = when (status) {
-    "online" -> "آنلاین"
-    "offline" -> "آفلاین"
-    else -> "وضعیت نامشخص"
+    "online" -> stringResource(R.string.str_6104d0f3)
+    "offline" -> stringResource(R.string.str_7717f8af)
+    else -> stringResource(R.string.str_807fb3de)
 }

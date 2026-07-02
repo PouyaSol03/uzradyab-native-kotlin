@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
 import com.example.uzradyab.ui.theme.AppTextPrimary
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun AppTopToolbar(
@@ -67,7 +68,7 @@ fun AppTopToolbar(
 fun AppLogo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(id = R.drawable.exir_final_logo_blue),
-        contentDescription = "اکسیر ردیاب",
+        contentDescription = stringResource(R.string.str_b7923ec1),
         contentScale = ContentScale.FillBounds,
         modifier = modifier.size(width = 67.dp, height = 24.dp),
     )
