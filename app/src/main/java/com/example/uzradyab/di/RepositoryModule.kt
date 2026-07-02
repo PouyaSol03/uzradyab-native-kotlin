@@ -8,6 +8,7 @@ import com.example.uzradyab.data.repository.PositionRepositoryImpl
 import com.example.uzradyab.data.repository.RegistrationRepositoryImpl
 import com.example.uzradyab.data.repository.ReportRepositoryImpl
 import com.example.uzradyab.data.repository.TrackingRepositoryImpl
+import com.example.uzradyab.data.repository.AppConfigRepositoryImpl
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
@@ -19,6 +20,7 @@ import com.example.uzradyab.domain.repository.RegistrationRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.repository.TokenRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
+import com.example.uzradyab.domain.repository.AppConfigRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -49,6 +51,12 @@ abstract class RepositoryModule {
     abstract fun bindTrackingRepository(
         trackingRepositoryImpl: TrackingRepositoryImpl
     ): TrackingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAppConfigRepository(
+        appConfigRepositoryImpl: AppConfigRepositoryImpl
+    ): AppConfigRepository
 
     @Binds
     @Singleton

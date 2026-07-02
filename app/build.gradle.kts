@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,8 +10,6 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
-import java.util.Properties
-import java.io.FileInputStream
 
 val envProperties = Properties()
 val envFile = rootProject.file(".env")
@@ -40,8 +41,8 @@ android {
         )
         
         buildConfigField("String", "API_BASE_URL", "\"${envProperties.getProperty("API_BASE_URL", "https://app.uzradyab.ir/")}\"")
-        buildConfigField("String", "PAY_BASE_URL", "\"${envProperties.getProperty("PAY_BASE_URL", "https://pay.uzradyab.ir/")}\"")
-        buildConfigField("String", "NOTIFICATION_BASE_URL", "\"${envProperties.getProperty("NOTIFICATION_BASE_URL", "https://notification.uzradyab.ir/")}\"")
+        buildConfigField("String", "PAY_BASE_URL", "\"${envProperties.getProperty("PAY_BASE_URL", "http://192.168.1.130:8000/")}\"")
+        buildConfigField("String", "NOTIFICATION_BASE_URL", "\"${envProperties.getProperty("NOTIFICATION_BASE_URL", "http://192.168.1.130:8000/")}\"")
         buildConfigField("String", "SOCKET_BASE_URL", "\"${envProperties.getProperty("SOCKET_BASE_URL", "wss://app.uzradyab.ir/api/socket")}\"")
     }
 

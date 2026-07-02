@@ -2,8 +2,11 @@ package com.example.uzradyab.presentation.startup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.AppConfigRepository
+import com.example.uzradyab.data.remote.dto.AppConfigDto
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,11 +27,13 @@ sealed interface StartupUiState {
     object Checking : StartupUiState
     object BiometricRequired : StartupUiState
     data class BiometricFailed(val message: String) : StartupUiState
+    data class UpdateAvailable(val config: AppConfigDto) : StartupUiState
 }
 
 @HiltViewModel
 class StartupViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val appConfigRepository: AppConfigRepository,
     @ApplicationContext private val context: Context,
     private val biometricHelper: BiometricHelper
 ) : ViewModel() {
@@ -48,6 +53,25 @@ class StartupViewModel @Inject constructor(
             _uiState.value = StartupUiState.Checking
             _navigationTarget.value = null
             
+            // 1. Fetch Config from Server FIRST
+            val configResult = appConfigRepository.getAppConfig()
+            if (configResult.isSuccess) {
+                val config = configResult.getOrNull()
+                if (config != null && config.newRelease == true && !config.newReleaseCode.isNullOrEmpty()) {
+                    val currentVersion = BuildConfig.VERSION_NAME
+                    if (isVersionGreater(config.newReleaseCode, currentVersion)) {
+                        _uiState.value = StartupUiState.UpdateAvailable(config)
+                        return@launch
+                    }
+                }
+            }
+
+            continueToApp()
+        }
+    }
+
+    fun continueToApp() {
+        viewModelScope.launch {
             // 1. Check onboarding completion
             val sharedPrefs = context.getSharedPreferences("uzradyab_prefs", Context.MODE_PRIVATE)
             val isOnboardingCompleted = sharedPrefs.getBoolean("onboarding_completed", false)
@@ -88,5 +112,18 @@ class StartupViewModel @Inject constructor(
             authRepository.logout()
             _navigationTarget.value = StartupNavigationTarget.SignIn
         }
+    }
+
+    private fun isVersionGreater(v1: String, v2: String): Boolean {
+        val v1Parts = v1.split(".").mapNotNull { it.toIntOrNull() }
+        val v2Parts = v2.split(".").mapNotNull { it.toIntOrNull() }
+        val length = maxOf(v1Parts.size, v2Parts.size)
+        for (i in 0 until length) {
+            val part1 = v1Parts.getOrElse(i) { 0 }
+            val part2 = v2Parts.getOrElse(i) { 0 }
+            if (part1 > part2) return true
+            if (part1 < part2) return false
+        }
+        return false
     }
 }

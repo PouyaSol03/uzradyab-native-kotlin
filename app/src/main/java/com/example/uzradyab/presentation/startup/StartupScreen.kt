@@ -38,6 +38,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.presentation.common.UzradyabPrimaryButton
 import com.example.uzradyab.presentation.common.UzradyabTextAction
+import android.content.Intent
+import android.net.Uri
 
 @Composable
 fun StartupRoute(
@@ -101,6 +103,9 @@ fun StartupRoute(
         },
         onLogoutClick = {
             viewModel.logoutAndGoToSignIn()
+        },
+        onContinueApp = {
+            viewModel.continueToApp()
         }
     )
 }
@@ -110,8 +115,11 @@ fun StartupScreen(
     state: StartupUiState,
     onRetryBiometric: () -> Unit,
     onLogoutClick: () -> Unit,
+    onContinueApp: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -143,6 +151,29 @@ fun StartupScreen(
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "در حال بارگذاری...",
+                        color = Color(0xFF6A8BA5),
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                is StartupUiState.UpdateAvailable -> {
+                    // Show checking background
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFEFF3F5)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color(0xFF307EF3),
+                            strokeWidth = 3.dp,
+                            modifier = Modifier.size(70.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "در حال بارگذاری...",
                         color = Color(0xFF6A8BA5),
@@ -213,6 +244,17 @@ fun StartupScreen(
                 }
             }
         }
+    }
+
+    if (state is StartupUiState.UpdateAvailable) {
+        UpdateBottomSheet(
+            config = state.config,
+            onUpdateClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://cafebazaar.ir/app/com.exir.uzradyab"))
+                context.startActivity(intent)
+            },
+            onLaterClick = onContinueApp
+        )
     }
 }
 
