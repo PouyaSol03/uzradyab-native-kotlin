@@ -88,6 +88,24 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
     private val localState = MutableStateFlow(HomeMapUiState())
 
+    private var cachedAlternativeSourceUrl: String? = null
+    private var cachedAlternativeSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null
+
+    private fun getAlternativeTileSource(url: String): org.osmdroid.tileprovider.tilesource.ITileSource {
+        if (url != cachedAlternativeSourceUrl || cachedAlternativeSource == null) {
+            cachedAlternativeSourceUrl = url
+            cachedAlternativeSource = org.osmdroid.tileprovider.tilesource.XYTileSource(
+                "alternative_forced",
+                1,
+                20,
+                256,
+                ".png",
+                arrayOf(if (url.endsWith("/")) url else "$url/")
+            )
+        }
+        return cachedAlternativeSource!!
+    }
+
     val uiState: StateFlow<HomeMapUiState> = combine(
         observeHomeSnapshot(),
         trackingRepository.connectionState,
@@ -104,15 +122,7 @@ class MapViewModel @Inject constructor(
             ?: snapshot.devices.firstOrNull()?.id
             
         val (finalMapStyle, finalTileSource) = if (config?.alternativeMap == true && !config.alternativeMapUrl.isNullOrEmpty()) {
-            val url = config.alternativeMapUrl
-            val overrideSource = org.osmdroid.tileprovider.tilesource.XYTileSource(
-                "alternative_forced",
-                1,
-                20,
-                256,
-                ".png",
-                arrayOf(if (url.endsWith("/")) url else "$url/")
-            )
+            val overrideSource = getAlternativeTileSource(config.alternativeMapUrl)
             "alternative_forced" to overrideSource
         } else {
             mapStyle to local.activeTileSource

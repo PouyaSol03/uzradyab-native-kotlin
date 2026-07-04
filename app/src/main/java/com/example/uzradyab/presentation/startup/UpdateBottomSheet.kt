@@ -1,6 +1,8 @@
 package com.example.uzradyab.presentation.startup
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,10 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.uzradyab.R
+import com.example.uzradyab.core.utils.FormatUtils.toPersianDigits
 import com.example.uzradyab.data.remote.dto.AppConfigDto
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,24 +49,23 @@ fun UpdateBottomSheet(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Placeholder for Rocket Image
-            Box(
+            Image(
+                painter = painterResource(id = R.drawable.exir_final_logo_blue),
+                contentDescription = "Logo",
                 modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFEFF3F5)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "🚀", fontSize = 60.sp)
-            }
+                    .size(100.dp)
+                    .padding(8.dp)
+            )
             
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "نسخه ${config.newReleaseCode} آماده به‌روزرسانی!",
+                text = "نسخه ${config.newReleaseCode?.toPersianDigits() ?: ""} آماده به‌روزرسانی!",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B)
+                color = Color(0xFF1E293B),
+                textAlign = TextAlign.Right,
+                modifier = Modifier.fillMaxWidth()
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -77,6 +81,7 @@ fun UpdateBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f, fill = false)
+                    .animateContentSize()
             ) {
                 items(displayItems) { item ->
                     Row(
@@ -94,10 +99,12 @@ fun UpdateBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = item.value,
+                            text = item.value.toPersianDigits(),
                             fontSize = 14.sp,
                             color = Color(0xFF475569),
-                            lineHeight = 22.sp
+                            lineHeight = 22.sp,
+                            textAlign = TextAlign.Right,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
@@ -134,22 +141,6 @@ fun UpdateBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(
-                    onClick = onUpdateClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
-                ) {
-                    Text(
-                        text = "به‌روزرسانی",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
-                
                 TextButton(
                     onClick = onLaterClick,
                     modifier = Modifier
@@ -161,6 +152,22 @@ fun UpdateBottomSheet(
                     Text(
                         text = "بعداً",
                         color = Color(0xFF1E293B),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+
+                Button(
+                    onClick = onUpdateClick,
+                    modifier = Modifier
+                        .weight(2f)
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                ) {
+                    Text(
+                        text = "به‌روزرسانی",
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
