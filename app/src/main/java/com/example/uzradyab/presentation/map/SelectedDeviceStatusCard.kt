@@ -78,9 +78,9 @@ fun SelectedDeviceStatusCard(
     val daysRemaining = daysUntilExpiration(device.expirationTime)
     val hasExpirationWarning = daysRemaining != null && daysRemaining < 10
     val targetCardHeight = when {
-        expanded && hasExpirationWarning -> 273.dp
-        expanded -> 214.dp
-        else -> 163.dp
+        expanded && hasExpirationWarning -> 294.dp
+        expanded -> 230.dp
+        else -> 170.dp
     }
     val cardHeight by animateDpAsState(
         targetValue = targetCardHeight,
@@ -89,8 +89,8 @@ fun SelectedDeviceStatusCard(
     )
     val bodyHeight = cardHeight - 23.dp
     val targetActionY = when {
-        expanded && hasExpirationWarning -> 191.dp
-        expanded -> 135.dp
+        expanded && hasExpirationWarning -> 207.dp
+        expanded -> 143.dp
         else -> 83.dp
     }
     val actionY by animateDpAsState(
@@ -147,7 +147,7 @@ fun SelectedDeviceStatusCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
-                                .offset(y = 135.dp)
+                                .offset(y = 143.dp)
                                 .alpha(extraRowsAlpha),
                         )
                     }
@@ -231,9 +231,9 @@ private fun DistanceRow(
 ) {
     Row(
         modifier = modifier
-            .height(40.dp)
-            .background(if (dark) Color(0xFF27343F) else Color(0xFFF7F7F8), RoundedCornerShape(8.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .height(48.dp)
+            .background(if (dark) Color(0xFF27343F) else Color(0xFFF7F7F8), RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -260,9 +260,9 @@ private fun ExpirationRow(
 ) {
     Row(
         modifier = modifier
-            .height(40.dp)
-            .background(Color(0xFFFADDDD), RoundedCornerShape(8.dp))
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .height(48.dp)
+            .background(Color(0xFFFADDDD), RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -297,10 +297,10 @@ private fun SecondaryActionPill(
 ) {
     Row(
         modifier = modifier
-            .height(32.dp)
-            .background(if (dark) Color.Transparent else Color.White, RoundedCornerShape(8.dp))
+            .height(36.dp)
+            .background(if (dark) Color.Transparent else Color.White, RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp),
+            .padding(horizontal = 14.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -326,7 +326,7 @@ private fun ActionRow(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.height(40.dp),
+        modifier = modifier.height(48.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -380,22 +380,20 @@ private fun PrimaryActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .height(40.dp)
-            .background(AppBlue, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+    androidx.compose.material3.Button(
+        onClick = onClick,
+        modifier = modifier.height(48.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ChevronSideIcon(left = true, color = Color.White, size = 20)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
-                color = Color.White,
-                fontSize = 14.sp,
-                lineHeight = 24.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
+                color = Color.White
             )
         }
     }
@@ -406,7 +404,7 @@ private fun CircleIconButton(content: @Composable () -> Unit) {
     IconButton(
         onClick = {},
         modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .background(Color(0xFFECF4FE), CircleShape),
     ) {
         content()
@@ -462,9 +460,9 @@ private fun ChevronSideIcon(left: Boolean, color: Color, size: Int) {
 @Composable
 private fun DirectionIcon() {
     Icon(
-        imageVector = Icons.Default.NearMe,
+        painter = painterResource(id = R.drawable.ic_custom_location),
         contentDescription = "Directions",
-        tint = AppBlue,
+        tint = androidx.compose.ui.graphics.Color.Unspecified,
         modifier = Modifier.size(24.dp)
     )
 }
@@ -472,9 +470,9 @@ private fun DirectionIcon() {
 @Composable
 private fun ShareIcon() {
     Icon(
-        imageVector = Icons.Default.Share,
+        painter = painterResource(id = R.drawable.ic_custom_share),
         contentDescription = "Share",
-        tint = AppBlue,
+        tint = androidx.compose.ui.graphics.Color.Unspecified,
         modifier = Modifier.size(24.dp)
     )
 }

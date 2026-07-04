@@ -135,28 +135,8 @@ fun StartupScreen(
         ) {
             when (state) {
                 is StartupUiState.Checking -> {
-                    // App Branding Pulsing Loader
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFEFF3F5)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = Color(0xFF307EF3),
-                            strokeWidth = 3.dp,
-                            modifier = Modifier.size(70.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "در حال بارگذاری...",
-                        color = Color(0xFF6A8BA5),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    // Empty UI: let the transition to Login/Home happen seamlessly
+                    // without flashing a loading spinner and text.
                 }
                 is StartupUiState.BiometricRequired, is StartupUiState.BiometricFailed -> {
                     // Biometric Authentication Center Icon/Art

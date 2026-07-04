@@ -53,14 +53,16 @@ class StartupViewModel @Inject constructor(
             _uiState.value = StartupUiState.Checking
             _navigationTarget.value = null
             
-            // 1. Fetch Config from Server FIRST
-            Log.d("UpdateSystem", "Fetching app config...")
-            val configResult = appConfigRepository.getAppConfig()
-            if (configResult.isSuccess) {
-                val config = configResult.getOrNull()
-                Log.d("UpdateSystem", "Config fetched: newRelease=${config?.newRelease}, code=${config?.newReleaseCode}")
-            } else {
-                Log.e("UpdateSystem", "Failed to fetch config", configResult.exceptionOrNull())
+            // 1. Fetch Config from Server asynchronously without blocking app startup
+            viewModelScope.launch {
+                Log.d("UpdateSystem", "Fetching app config...")
+                val configResult = appConfigRepository.getAppConfig()
+                if (configResult.isSuccess) {
+                    val config = configResult.getOrNull()
+                    Log.d("UpdateSystem", "Config fetched: newRelease=${config?.newRelease}, code=${config?.newReleaseCode}")
+                } else {
+                    Log.e("UpdateSystem", "Failed to fetch config", configResult.exceptionOrNull())
+                }
             }
 
             continueToApp()

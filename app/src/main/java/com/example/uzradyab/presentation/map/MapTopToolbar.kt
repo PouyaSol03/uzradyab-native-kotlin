@@ -106,9 +106,9 @@ fun MenuGridButton(
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Default.GridView,
+            painter = painterResource(id = R.drawable.ic_custom_menu_dots),
             contentDescription = "Grid Menu",
-            tint = AppTextPrimary,
+            tint = androidx.compose.ui.graphics.Color.Unspecified,
             modifier = Modifier.size(24.dp)
         )
     }
