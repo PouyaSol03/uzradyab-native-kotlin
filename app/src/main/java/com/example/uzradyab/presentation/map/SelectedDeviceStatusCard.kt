@@ -75,6 +75,7 @@ fun SelectedDeviceStatusCard(
     onReplayClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val daysRemaining = daysUntilExpiration(device.expirationTime)
     val hasExpirationWarning = daysRemaining != null && daysRemaining < 10
     val targetCardHeight = when {
@@ -154,6 +155,25 @@ fun SelectedDeviceStatusCard(
                     
                     ActionRow(
                         onManageClick = onManageClick,
+                        onDirectionClick = {
+                            position?.let {
+                                val uri = android.net.Uri.parse("geo:${it.latitude},${it.longitude}?q=${it.latitude},${it.longitude}(${android.net.Uri.encode(device.name)})")
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+                                runCatching { context.startActivity(intent) }
+                            }
+                        },
+                        onShareClick = {
+                            position?.let {
+                                val url = "https://maps.google.com/?q=${it.latitude},${it.longitude}"
+                                val sendIntent = android.content.Intent().apply {
+                                    action = android.content.Intent.ACTION_SEND
+                                    putExtra(android.content.Intent.EXTRA_TEXT, "موقعیت ${device.name}:\n$url")
+                                    type = "text/plain"
+                                }
+                                val shareIntent = android.content.Intent.createChooser(sendIntent, "اشتراک‌گذاری موقعیت")
+                                runCatching { context.startActivity(shareIntent) }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
@@ -323,6 +343,8 @@ private fun SecondaryActionPill(
 @Composable
 private fun ActionRow(
     onManageClick: () -> Unit,
+    onDirectionClick: () -> Unit,
+    onShareClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -337,8 +359,8 @@ private fun ActionRow(
         )
         Spacer(modifier = Modifier.width(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            CircleIconButton { DirectionIcon() }
-            CircleIconButton { ShareIcon() }
+            CircleIconButton(onClick = onDirectionClick) { DirectionIcon() }
+            CircleIconButton(onClick = onShareClick) { ShareIcon() }
         }
     }
 }
@@ -400,9 +422,9 @@ private fun PrimaryActionButton(
 }
 
 @Composable
-private fun CircleIconButton(content: @Composable () -> Unit) {
+private fun CircleIconButton(onClick: () -> Unit, content: @Composable () -> Unit) {
     IconButton(
-        onClick = {},
+        onClick = onClick,
         modifier = Modifier
             .size(48.dp)
             .background(Color(0xFFECF4FE), CircleShape),

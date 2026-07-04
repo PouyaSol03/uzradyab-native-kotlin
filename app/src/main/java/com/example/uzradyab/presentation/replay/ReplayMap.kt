@@ -107,7 +107,7 @@ fun ReplayMap(
                     )
                     // Post to let MapView layout first
                     mapView.post {
-                        mapView.zoomToBoundingBox(boundingBox, true, 100)
+                        mapView.zoomToBoundingBox(boundingBox, false, 100)
                     }
                 } else if (positions.isNotEmpty() && !isFirstLoad) {
                     // Smoothly animate to current position when playing
