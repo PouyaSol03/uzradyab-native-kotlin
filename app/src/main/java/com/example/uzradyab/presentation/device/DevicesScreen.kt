@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Search
@@ -67,17 +68,41 @@ fun DevicesScreen(
     onRenewCreditClick: (Long) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf(DeviceFilter.ALL) }
+    var showFilterSheet by remember { mutableStateOf(false) }
     
-    val filteredDevices = remember(searchQuery, devices) {
-        if (searchQuery.isBlank()) devices
-        else devices.filter { 
-            it.name.contains(searchQuery, ignoreCase = true) || 
-            it.uniqueId.contains(searchQuery, ignoreCase = true) ||
-            (it.phone?.contains(searchQuery) == true)
+    val filteredDevices = remember(searchQuery, selectedFilter, devices) {
+        devices.filter { device ->
+            val matchesSearch = if (searchQuery.isBlank()) true else {
+                device.name.contains(searchQuery, ignoreCase = true) || 
+                device.uniqueId.contains(searchQuery, ignoreCase = true) ||
+                (device.phone?.contains(searchQuery) == true)
+            }
+            
+            val daysRemaining = daysUntilExpiration(device.expirationTime)
+            val isExpired = daysRemaining != null && daysRemaining <= 0
+            
+            val matchesFilter = when (selectedFilter) {
+                DeviceFilter.ALL -> true
+                DeviceFilter.ACTIVE -> !isExpired
+                DeviceFilter.EXPIRED -> isExpired
+            }
+            
+            matchesSearch && matchesFilter
         }
     }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        if (showFilterSheet) {
+            FilterBottomSheet(
+                selectedFilter = selectedFilter,
+                onFilterSelected = { 
+                    selectedFilter = it
+                    showFilterSheet = false
+                },
+                onDismissRequest = { showFilterSheet = false }
+            )
+        }
         Scaffold(
             topBar = {
                 AppTopToolbar(
@@ -148,7 +173,7 @@ fun DevicesScreen(
                             .height(48.dp)
                             .border(1.dp, Color(0xFF3B82F6), RoundedCornerShape(8.dp))
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { /* TODO Filter */ }
+                            .clickable { showFilterSheet = true }
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -436,6 +461,82 @@ private fun String.toPersianDigits(): String {
     return buildString(length) {
         this@toPersianDigits.forEach { char ->
             append(if (char in '0'..'9') persianDigits[char - '0'] else char)
+        }
+    }
+}
+
+enum class DeviceFilter(val title: String) {
+    ALL("همه دستگاه ها"),
+    ACTIVE("دستگاه های فعال"),
+    EXPIRED("دستگاه های منقضی")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FilterBottomSheet(
+    selectedFilter: DeviceFilter,
+    onFilterSelected: (DeviceFilter) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = Color.White,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(top = 8.dp, bottom = 16.dp)
+        ) {
+            Text(
+                text = "فیلتر دستگاه‌ها",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF333638),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            DeviceFilter.values().forEach { filter ->
+                FilterOptionRow(
+                    title = filter.title,
+                    isSelected = selectedFilter == filter,
+                    onClick = { onFilterSelected(filter) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterOptionRow(
+    title: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = title,
+            fontSize = 16.sp,
+            color = if (isSelected) Color(0xFF3B82F6) else Color(0xFF333638),
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        )
+        if (isSelected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = Color(0xFF3B82F6)
+            )
         }
     }
 }
