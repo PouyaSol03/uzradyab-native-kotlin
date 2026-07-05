@@ -19,7 +19,7 @@ class AlertsSettingsViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
-    var isLoading by mutableStateOf(false)
+    var isLoading by mutableStateOf(true)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
@@ -37,9 +37,11 @@ class AlertsSettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             authRepository.currentSession.collectLatest { session ->
-                session?.let {
-                    currentUserId = it.id
-                    fetchPreferences(it.id)
+                if (session != null) {
+                    currentUserId = session.id
+                    fetchPreferences(session.id)
+                } else {
+                    isLoading = false
                 }
             }
         }

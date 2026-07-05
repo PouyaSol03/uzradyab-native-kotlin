@@ -92,6 +92,12 @@ class EventsReportViewModel @Inject constructor(
         fetchEvents(deviceId, filter)
     }
 
+    fun setCustomDateFilter(from: Long, to: Long) {
+        _uiState.update { it.copy(dateFilter = EventDateFilter.Custom, customFromDate = from, customToDate = to) }
+        val deviceId = _uiState.value.selectedDeviceId ?: return
+        fetchEvents(deviceId, EventDateFilter.Custom)
+    }
+
     private fun fetchEvents(deviceId: Long, filter: EventDateFilter) {
         val (from, to) = getRange(filter)
         viewModelScope.launch {
@@ -185,7 +191,10 @@ class EventsReportViewModel @Inject constructor(
                 cal.set(Calendar.HOUR_OF_DAY, 0)
             }
             EventDateFilter.Custom -> {
-                // Implement custom logic if needed
+                val state = _uiState.value
+                if (state.customFromDate != null && state.customToDate != null) {
+                    return Pair(sdf.format(Date(state.customFromDate)), sdf.format(Date(state.customToDate)))
+                }
             }
         }
         return Pair(sdf.format(cal.time), to)
@@ -198,6 +207,13 @@ class EventsReportViewModel @Inject constructor(
             EventDateFilter.CurrentWeek -> "هفته جاری"
             EventDateFilter.CurrentMonth -> "ماه جاری"
             EventDateFilter.Custom -> "بازه انتخابی"
+        }
+        if (filter == EventDateFilter.Custom) {
+            val state = _uiState.value
+            if (state.customFromDate != null && state.customToDate != null) {
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }
+                return "$label | از ${FormatUtils.formatEventTimeJalali(sdf.format(Date(state.customFromDate)))} تا ${FormatUtils.formatEventTimeJalali(sdf.format(Date(state.customToDate)))}"
+            }
         }
         val jDateStr = com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString().substringAfter("| ").trim()
         return "$label | $jDateStr"

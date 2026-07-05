@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 @Composable
 fun EventsReportRoute(
     onBackClick: () -> Unit,
+    onNotificationSettingsClick: () -> Unit = {},
     viewModel: EventsReportViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -48,7 +49,9 @@ fun EventsReportRoute(
         state = state,
         onBackClick = onBackClick,
         onFilterChange = viewModel::setDateFilter,
-        onClearError = viewModel::clearError
+        onCustomFilterChange = viewModel::setCustomDateFilter,
+        onClearError = viewModel::clearError,
+        onNotificationSettingsClick = onNotificationSettingsClick
     )
 }
 
@@ -57,10 +60,13 @@ fun EventsReportScreen(
     state: EventsReportUiState,
     onBackClick: () -> Unit,
     onFilterChange: (EventDateFilter) -> Unit,
+    onCustomFilterChange: (Long, Long) -> Unit = { _, _ -> },
     onClearError: () -> Unit,
+    onNotificationSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = androidx.compose.runtime.remember { SnackbarHostState() }
+    var showFilterSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
 
     /*
     androidx.compose.runtime.LaunchedEffect(state.error) {
@@ -125,7 +131,7 @@ fun EventsReportScreen(
                 .height(48.dp)
                 .background(Color.White, RoundedCornerShape(12.dp))
                 .border(1.dp, AppTextPrimary, RoundedCornerShape(12.dp))
-                .clickable { /* TODO: Custom Date Picker */ },
+                .clickable { showFilterSheet = true },
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -179,7 +185,7 @@ fun EventsReportScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        NotificationSettingsRow()
+        NotificationSettingsRow(onClick = onNotificationSettingsClick)
         
         Spacer(modifier = Modifier.height(16.dp))
             }
@@ -224,12 +230,44 @@ fun EventsReportScreen(
             */
         }
     }
+
+    if (showFilterSheet) {
+        com.example.uzradyab.presentation.replay.TimeFilterBottomSheet(
+            onDismiss = { showFilterSheet = false },
+            onApplyQuickRange = { range ->
+                showFilterSheet = false
+                val filter = when (range) {
+                    "امروز" -> EventDateFilter.Today
+                    "دیروز" -> EventDateFilter.Yesterday
+                    "هفته جاری" -> EventDateFilter.CurrentWeek
+                    "ماه جاری" -> EventDateFilter.CurrentMonth
+                    else -> EventDateFilter.Today
+                }
+                onFilterChange(filter)
+            },
+            onApplyCustomRange = { start, end ->
+                showFilterSheet = false
+                if (start != null && end != null) {
+                    val startCal = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(start.year, start.month, start.day)
+                    val endCal = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(end.year, end.month, end.day)
+                    
+                    val sCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply {
+                        set(startCal[0], startCal[1] - 1, startCal[2], start.hour, start.minute, 0)
+                    }
+                    val eCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply {
+                        set(endCal[0], endCal[1] - 1, endCal[2], end.hour, end.minute, 59)
+                    }
+                    onCustomFilterChange(sCal.timeInMillis, eCal.timeInMillis)
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun NotificationSettingsRow() {
+private fun NotificationSettingsRow(onClick: () -> Unit) {
     OutlinedButton(
-        onClick = { /* TODO */ },
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),

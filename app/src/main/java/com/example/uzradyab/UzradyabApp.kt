@@ -299,6 +299,11 @@ fun UzradyabApp(
                 onBackClick = {
                     navController.safePopBackStack()
                 },
+                onNotificationSettingsClick = {
+                    navController.navigate("alerts_settings") {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
         composable(AppRoute.Devices.path) {
@@ -546,7 +551,12 @@ fun UzradyabApp(
         }
         composable(AppRoute.Events.path) {
             com.example.uzradyab.presentation.events.EventsReportRoute(
-                onBackClick = { navController.safePopBackStack() }
+                onBackClick = { navController.safePopBackStack() },
+                onNotificationSettingsClick = {
+                    navController.navigate("alerts_settings") {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }

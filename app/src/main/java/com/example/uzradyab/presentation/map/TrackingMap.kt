@@ -79,6 +79,7 @@ fun TrackingMap(
         var hasInitialCentered: Boolean = false
         var lastPosition: Position? = null
         var eventsReceiverAdded: Boolean = false
+        var userInteracted: Boolean = false
     } }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -132,6 +133,7 @@ fun TrackingMap(
 
                     setOnTouchListener { _, event ->
                         if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                            tracker.userInteracted = true
                             currentOnMapInteraction()
                         }
                         
@@ -185,9 +187,10 @@ fun TrackingMap(
                 if (tracker.lastDeviceId != selectedDeviceId) {
                     tracker.lastDeviceId = selectedDeviceId
                     tracker.hasInitialCentered = false
+                    tracker.userInteracted = false
                 }
                 
-                if (selectedPosition != null && !tracker.hasInitialCentered) {
+                if (selectedPosition != null && !tracker.userInteracted) {
                     if (mapView.width > 0 && mapView.height > 0) {
                         mapView.controller.animateTo(center, 18.0, 1000L)
                     } else {

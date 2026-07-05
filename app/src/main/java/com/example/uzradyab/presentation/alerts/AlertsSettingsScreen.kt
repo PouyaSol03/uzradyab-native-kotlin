@@ -75,13 +75,6 @@ val NOTIFICATION_SECTIONS = listOf(
             NotificationOption("قطع ولتاژ", "power_cut")
         )
     ),
-    NotificationSection(
-        title = "اتصالات",
-        icon = Icons.Default.Sensors,
-        options = listOf(
-            NotificationOption("دریافت پیامک", "sms_received")
-        )
-    )
 )
 
 @Composable
@@ -136,30 +129,6 @@ fun AlertsSettingsScreen(
                         .statusBarsPadding()
                         .height(64.dp)
                 )
-            },
-            bottomBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                snackbarController.showSuccess("تغییرات با موفقیت ذخیره شد")
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
-                    ) {
-                        Text("ذخیــــــره تغییرات", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
             },
             containerColor = Color(0xFFF3F4F6),
             modifier = Modifier.fillMaxSize()
