@@ -182,7 +182,7 @@ object NetworkModule {
     @Singleton
     fun provideMapIrApi(@Named(BARE_CLIENT) bareClient: OkHttpClient): MapIrApi {
         return Retrofit.Builder()
-            .baseUrl("https://map.ir/")
+            .baseUrl("https://rg.exirfirm.com/")
             .client(bareClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

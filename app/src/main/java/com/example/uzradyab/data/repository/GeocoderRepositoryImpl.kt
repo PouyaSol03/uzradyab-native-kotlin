@@ -42,10 +42,23 @@ class GeocoderRepositoryImpl @Inject constructor(
         }
 
         return try {
-            val response = api.getReverseGeocode(apiKey = API_KEY, lat = lat, lon = lon)
+            val response = api.getReverseGeocode(lat = lat, lon = lon)
+            val jsonString = response.toString()
+
+            com.example.uzradyab.core.debug.AppLogger.log(
+                level = com.example.uzradyab.core.debug.LogLevel.INFO,
+                tag = "GeocoderRepo",
+                message = "New Geocode Response: $jsonString"
+            )
 
             // اولویت با formatted_address است، در غیر این صورت address، در غیر این صورت پیام پیش‌فرض
-            val newAddress = response.formattedAddress ?: response.address ?: "آدرس نامشخص"
+            val newAddress = try {
+                response.get("formatted_address")?.asString 
+                    ?: response.get("address")?.asString 
+                    ?: "در حال بررسی قالب آدرس..."
+            } catch (e: Exception) {
+                "در حال بررسی قالب آدرس..."
+            }
 
             // ذخیره در کش
             cache[cacheKey] = CacheEntry(address = newAddress, timestamp = currentTime)
