@@ -31,6 +31,7 @@ data class EventsReportUiState(
     val devices: List<Device> = emptyList(),
     val selectedDeviceId: Long? = null,
     val events: List<EventUiModel> = emptyList(),
+    val hasMore: Boolean = false,
     val dateFilter: EventDateFilter = EventDateFilter.Today,
     val customFromDate: Long? = null,
     val customToDate: Long? = null,
@@ -48,6 +49,9 @@ class EventsReportViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(EventsReportUiState())
     val uiState: StateFlow<EventsReportUiState> = _uiState.asStateFlow()
+
+    private var fullEvents: List<EventUiModel> = emptyList()
+    private val pageSize = 50
 
     private val initialDeviceId = savedStateHandle.get<String>("deviceId")?.toLongOrNull()
 
@@ -107,15 +111,36 @@ class EventsReportViewModel @Inject constructor(
                 val uiModels = withContext(Dispatchers.Default) {
                     events.sortedByDescending { it.eventTime }.map { eventToItem(it) }
                 }
-                _uiState.update { it.copy(isLoading = false, events = uiModels, error = if (uiModels.isEmpty()) "هیچ رویدادی در این بازه زمانی یافت نشد." else null) }
+                fullEvents = uiModels
+                val initialPage = uiModels.take(pageSize)
+                
+                _uiState.update { it.copy(
+                    isLoading = false, 
+                    events = initialPage,
+                    hasMore = uiModels.size > pageSize,
+                    error = if (uiModels.isEmpty()) "هیچ رویدادی در این بازه زمانی یافت نشد." else null
+                ) }
             }.onFailure { err ->
-                _uiState.update { it.copy(isLoading = false, events = emptyList(), error = err.message ?: "خطا در دریافت رویدادها") }
+                _uiState.update { it.copy(isLoading = false, events = emptyList(), hasMore = false, error = err.message ?: "خطا در دریافت رویدادها") }
             }
         }
     }
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun loadNextPage() {
+        val currentSize = _uiState.value.events.size
+        if (currentSize >= fullEvents.size) return
+        
+        val nextSize = (currentSize + pageSize).coerceAtMost(fullEvents.size)
+        val nextChunk = fullEvents.take(nextSize)
+        
+        _uiState.update { it.copy(
+            events = nextChunk,
+            hasMore = nextSize < fullEvents.size
+        ) }
     }
 
     private fun eventToItem(event: Event): EventUiModel {

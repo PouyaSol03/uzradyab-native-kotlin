@@ -49,6 +49,9 @@ object MarkerAnimator {
                 mapView.mapOrientation = startOrientation + deltaRotation * fraction
             }
             
+            // Track the marker exactly frame-by-frame
+            mapView.controller.setCenter(GeoPoint(lat, lon))
+            
             mapView.invalidate()
         }
         

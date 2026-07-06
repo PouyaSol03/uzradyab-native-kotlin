@@ -142,7 +142,7 @@ class ReplayViewModel @Inject constructor(
                 
                 if (currentState.currentIndex < currentState.positions.lastIndex) {
                     _state.update { it.copy(currentIndex = it.currentIndex + 1) }
-                    val delayMs = if (currentState.playSpeed == 1) 1000L else 500L
+                    val delayMs = if (currentState.playSpeed == 1) 1500L else 750L
                     delay(delayMs)
                 } else {
                     _state.update { it.copy(isPlaying = false) }

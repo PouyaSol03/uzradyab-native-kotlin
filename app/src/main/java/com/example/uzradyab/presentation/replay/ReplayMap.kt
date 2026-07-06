@@ -109,9 +109,6 @@ fun ReplayMap(
                     mapView.post {
                         mapView.zoomToBoundingBox(boundingBox, false, 100)
                     }
-                } else if (positions.isNotEmpty() && !isFirstLoad) {
-                    // Smoothly animate to current position when playing
-                    mapView.controller.animateTo(center)
                 }
 
                 if (positions.isNotEmpty()) {
@@ -150,7 +147,7 @@ fun ReplayMap(
                             // Initialize map orientation to match the course
                             mapView.mapOrientation = (360f - newRotation) % 360f
                         } else {
-                            val animationDuration = if (playSpeed == 1) 1000L else 500L
+                            val animationDuration = if (playSpeed == 1) 1500L else 750L
                             currentMarker.icon = newIcon
                             MarkerAnimator.animateMarker(
                                 marker = currentMarker,

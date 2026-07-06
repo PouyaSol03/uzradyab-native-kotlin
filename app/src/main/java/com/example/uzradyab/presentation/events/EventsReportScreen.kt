@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +53,7 @@ fun EventsReportRoute(
         onFilterChange = viewModel::setDateFilter,
         onCustomFilterChange = viewModel::setCustomDateFilter,
         onClearError = viewModel::clearError,
+        onLoadMore = viewModel::loadNextPage,
         onNotificationSettingsClick = onNotificationSettingsClick
     )
 }
@@ -62,6 +65,7 @@ fun EventsReportScreen(
     onFilterChange: (EventDateFilter) -> Unit,
     onCustomFilterChange: (Long, Long) -> Unit = { _, _ -> },
     onClearError: () -> Unit,
+    onLoadMore: () -> Unit,
     onNotificationSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -177,8 +181,22 @@ fun EventsReportScreen(
                     }
                 }
             } else {
-                items(state.events, key = { it.id }) { event ->
+                itemsIndexed(state.events, key = { _, it -> it.id }) { index, event ->
                     EventCard(event = event)
+                    
+                    if (index == state.events.lastIndex && state.hasMore) {
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            onLoadMore()
+                        }
+                    }
+                }
+                
+                if (state.hasMore) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = AppBlue, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        }
+                    }
                 }
             }
         }
@@ -247,15 +265,16 @@ fun EventsReportScreen(
             },
             onApplyCustomRange = { start, end ->
                 showFilterSheet = false
-                if (start != null && end != null) {
+                if (start != null) {
                     val startCal = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(start.year, start.month, start.day)
-                    val endCal = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(end.year, end.month, end.day)
                     
                     val sCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply {
                         set(startCal[0], startCal[1] - 1, startCal[2], start.hour, start.minute, 0)
                     }
-                    val eCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply {
-                        set(endCal[0], endCal[1] - 1, endCal[2], end.hour, end.minute, 59)
+                    val eCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran"))
+                    if (end != null) {
+                        val endCal = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(end.year, end.month, end.day)
+                        eCal.set(endCal[0], endCal[1] - 1, endCal[2], end.hour, end.minute, 59)
                     }
                     onCustomFilterChange(sCal.timeInMillis, eCal.timeInMillis)
                 }
@@ -334,7 +353,7 @@ private fun EventCard(event: EventUiModel) {
             }
             Text(
                 text = event.time,
-                color = AppTextMuted,
+                color = Color.Black,
                 fontSize = 12.sp,
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Left,

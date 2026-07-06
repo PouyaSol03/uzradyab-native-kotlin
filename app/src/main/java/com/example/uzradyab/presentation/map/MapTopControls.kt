@@ -411,7 +411,8 @@ fun DeviceSelectDialog(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .widthIn(max = 343.dp),
+                .widthIn(max = 343.dp)
+                .padding(vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -448,7 +449,7 @@ fun DeviceSelectDialog(
             LazyColumn(
                 modifier = Modifier.weight(1f, fill = false),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 0.dp)
             ) {
                 items(filteredDevices, key = { it.id }) { device ->
                     DeviceSelectRow(
