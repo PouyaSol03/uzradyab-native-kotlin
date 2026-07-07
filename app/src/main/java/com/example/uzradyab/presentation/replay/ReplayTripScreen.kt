@@ -69,6 +69,7 @@ fun ReplayTripScreen(
     var showFilterSheet by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+    var showDetailsSheet by remember { mutableStateOf(false) }
 
     /*
     LaunchedEffect(state.error) {
@@ -277,7 +278,12 @@ fun ReplayTripScreen(
                         .padding(bottom = 16.dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-                    ReplayBottomPanel(state = state, viewModel = viewModel, onShowFilter = { showFilterSheet = true })
+                    ReplayBottomPanel(
+                        state = state, 
+                        viewModel = viewModel, 
+                        onShowFilter = { showFilterSheet = true },
+                        onShowDetails = { showDetailsSheet = true }
+                    )
                 }
             }
         }
@@ -296,13 +302,21 @@ fun ReplayTripScreen(
             }
         )
     }
+
+    if (showDetailsSheet) {
+        TripDetailsBottomSheet(
+            state = state,
+            onDismiss = { showDetailsSheet = false }
+        )
+    }
 }
 
 @Composable
 fun ReplayBottomPanel(
     state: ReplayUiState,
     viewModel: ReplayViewModel,
-    onShowFilter: () -> Unit
+    onShowFilter: () -> Unit,
+    onShowDetails: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -330,7 +344,8 @@ fun ReplayBottomPanel(
                 )
             } else {
                 DefaultControls(
-                    onTogglePlayback = { viewModel.togglePlayback() }
+                    onTogglePlayback = { viewModel.togglePlayback() },
+                    onDetailsClick = onShowDetails
                 )
             }
         }
@@ -447,7 +462,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
 }
 
 @Composable
-fun DefaultControls(onTogglePlayback: () -> Unit) {
+fun DefaultControls(onTogglePlayback: () -> Unit, onDetailsClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -457,7 +472,7 @@ fun DefaultControls(onTogglePlayback: () -> Unit) {
                 .width(102.dp)
                 .height(40.dp)
                 .border(1.dp, Color(0xFF307EF3), RoundedCornerShape(8.dp))
-                .clickable { /* TODO: Details */ },
+                .clickable(onClick = onDetailsClick),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -911,5 +926,138 @@ fun QuickRangeButton(text: String, isSelected: Boolean, onClick: () -> Unit, mod
         elevation = null
     ) {
         Text(text, fontSize = 12.sp)
+    }
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun TripDetailsBottomSheet(
+    state: ReplayUiState,
+    onDismiss: () -> Unit
+) {
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFFF7F9FA)
+    ) {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 16.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "جزئیات مسیر پیموده شده",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF384C5C),
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DetailsCard(
+                        title = "زمان شروع",
+                        value = state.positions.items.firstOrNull()?.fixTime?.let { "${formatDateOnly(it)} - ${formatTimeOnly(it)}" } ?: "--:--",
+                        modifier = Modifier.weight(1f)
+                    )
+                    DetailsCard(
+                        title = "زمان پایان",
+                        value = state.positions.items.lastOrNull()?.fixTime?.let { "${formatDateOnly(it)} - ${formatTimeOnly(it)}" } ?: "--:--",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val startPos = state.positions.items.firstOrNull()
+                LocationCard(
+                    title = "مبدا",
+                    address = state.startAddress ?: "در حال دریافت...",
+                    lat = startPos?.latitude,
+                    lon = startPos?.longitude
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val endPos = state.positions.items.lastOrNull()
+                LocationCard(
+                    title = "مقصد",
+                    address = state.endAddress ?: "در حال دریافت...",
+                    lat = endPos?.latitude,
+                    lon = endPos?.longitude
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    DetailsCard(
+                        title = "تعداد توقف‌ها",
+                        value = "۰".toPersianDigits(),
+                        modifier = Modifier.weight(1f)
+                    )
+                    DetailsCard(
+                        title = "مسافت پیموده شده",
+                        value = state.totalDistanceText,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                ) {
+                    Text("متوجه شدم", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailsCard(title: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .border(1.dp, Color(0xFFC0CDD8), RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(title, fontSize = 12.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF384C5C), modifier = Modifier.align(Alignment.End))
+    }
+}
+
+@Composable
+private fun LocationCard(title: String, address: String, lat: Double?, lon: Double?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Color(0xFFC0CDD8), RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(12.dp))
+            .padding(16.dp)
+    ) {
+        Text(title, fontSize = 12.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(address, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF384C5C))
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("مختصات", fontSize = 12.sp, color = Color.Gray)
+            val coordText = if (lat != null && lon != null) "${lat.toString().take(9)} | ${lon.toString().take(9)}" else "-- | --"
+            Text(coordText.toPersianDigits(), fontSize = 12.sp, color = Color(0xFF6A8BA5), fontWeight = FontWeight.Medium)
+        }
     }
 }

@@ -181,10 +181,10 @@ fun EventsReportScreen(
                     }
                 }
             } else {
-                itemsIndexed(state.events, key = { _, it -> it.id }) { index, event ->
+                itemsIndexed(state.events.items, key = { _, it -> it.id }) { index, event ->
                     EventCard(event = event)
                     
-                    if (index == state.events.lastIndex && state.hasMore) {
+                    if (index == state.events.items.lastIndex && state.hasMore) {
                         androidx.compose.runtime.LaunchedEffect(Unit) {
                             onLoadMore()
                         }

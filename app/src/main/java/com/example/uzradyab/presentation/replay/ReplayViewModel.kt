@@ -34,6 +34,8 @@ data class ReplayUiState(
     val totalDistanceText: String = "۰ کیلومتر",
     val dateFilterText: String = "",
     val mapStyle: String = "osm",
+    val startAddress: String? = null,
+    val endAddress: String? = null,
 )
 
 @HiltViewModel
@@ -41,6 +43,7 @@ class ReplayViewModel @Inject constructor(
     private val repository: PositionRepository,
     private val reportRepository: com.example.uzradyab.domain.repository.ReportRepository,
     private val mapSettingsRepository: com.example.uzradyab.domain.repository.MapSettingsRepository,
+    private val geocoderRepository: com.example.uzradyab.domain.repository.GeocoderRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -107,8 +110,24 @@ class ReplayViewModel @Inject constructor(
                         isPlaying = false,
                         isLoading = false,
                         totalDistanceText = persianDistance,
-                        error = if (positions.isEmpty()) "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد." else null
+                        error = if (positions.isEmpty()) "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد." else null,
+                        startAddress = null,
+                        endAddress = null
                     ) }
+                    
+                    if (positions.isNotEmpty()) {
+                        viewModelScope.launch {
+                            try {
+                                val first = positions.first()
+                                val last = positions.last()
+                                val startAddr = geocoderRepository.getAddress(first.latitude, first.longitude)
+                                val endAddr = geocoderRepository.getAddress(last.latitude, last.longitude)
+                                _state.update { it.copy(startAddress = startAddr, endAddress = endAddr) }
+                            } catch (e: Exception) {
+                                // ignore
+                            }
+                        }
+                    }
                     playbackJob?.cancel()
                 }
                 .onFailure { err ->

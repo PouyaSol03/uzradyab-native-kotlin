@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -95,10 +96,13 @@ fun GeofenceScreen(
                 )
 
                 if (state.addingMode || state.geofences.isNotEmpty()) {
+                    val configuration = LocalConfiguration.current
+                    val maxHeight = (configuration.screenHeightDp * 0.4f).dp
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             .fillMaxWidth()
+                            .heightIn(max = maxHeight)
                             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                             .background(Color.White)
                             .border(
