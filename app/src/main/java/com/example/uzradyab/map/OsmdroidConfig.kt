@@ -12,11 +12,11 @@ object OsmdroidConfig {
 
     private const val OSMDROID_PREFS = "osmdroid"
 
-    /** Max on-disk tile cache in bytes (1 GB). */
-    private const val CACHE_MAX_BYTES = 1000L * 1024 * 1024
+    /** Max on-disk tile cache in bytes (500 MB). */
+    private const val CACHE_MAX_BYTES = 500L * 1024 * 1024
 
-    /** Trim target when cache exceeds max (900 MB). */
-    private const val CACHE_TRIM_BYTES = 900L * 1024 * 1024
+    /** Trim target when cache exceeds max (400 MB). */
+    private const val CACHE_TRIM_BYTES = 400L * 1024 * 1024
 
 
     /** Parallel tile-download threads (default is 2). */
@@ -38,7 +38,8 @@ object OsmdroidConfig {
             load(context, prefs)
             
             // Fix caching on modern Android (Android 10+) by explicitly setting cache paths to internal storage
-            val basePath = java.io.File(context.cacheDir, "osmdroid").apply { mkdirs() }
+            // Use filesDir instead of cacheDir so map data survives app updates and isn't wiped by the system.
+            val basePath = java.io.File(context.filesDir, "osmdroid").apply { mkdirs() }
             val tileCache = java.io.File(basePath, "tiles").apply { mkdirs() }
             osmdroidBasePath = basePath
             osmdroidTileCache = tileCache

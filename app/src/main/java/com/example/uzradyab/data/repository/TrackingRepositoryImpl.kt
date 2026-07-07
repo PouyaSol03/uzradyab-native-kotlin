@@ -65,6 +65,22 @@ class TrackingRepositoryImpl @Inject constructor(
             }
         }
         
+        // Fast-path: instantly fetch devices and positions via REST API to populate empty cache quickly
+        scope.launch {
+            runCatching {
+                val devices = api.getDevices()
+                if (devices.isNotEmpty()) {
+                    deviceDao.upsertAll(devices.map { it.toEntity() })
+                }
+                val positions = api.getPositions()
+                if (positions.isNotEmpty()) {
+                    positionDao.upsertLatest(positions.map { it.toEntity(isLatest = true) })
+                }
+            }.onFailure {
+                android.util.Log.e("TrackingRepo", "Fast-path REST fetch failed", it)
+            }
+        }
+        
         socketJob = scope.launch {
             var backoffMs = 2_000L
             while (!stopped) {

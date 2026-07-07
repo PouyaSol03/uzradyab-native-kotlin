@@ -187,13 +187,15 @@ fun TrackingMap(
                 }
                 
                 if (selectedPosition != null && !tracker.userInteracted) {
-                    if (mapView.width > 0 && mapView.height > 0) {
-                        mapView.controller.animateTo(center, 18.0, 1000L)
-                    } else {
+                    if (!tracker.hasInitialCentered) {
                         mapView.controller.setZoom(18.0)
                         mapView.controller.setCenter(center)
+                        tracker.hasInitialCentered = true
+                    } else if (selectedPosition != tracker.lastPosition) {
+                        if (mapView.width > 0 && mapView.height > 0) {
+                            mapView.controller.animateTo(center, 18.0, 1000L)
+                        }
                     }
-                    tracker.hasInitialCentered = true
                 }
 
                 // Offset map center feature removed by user request
