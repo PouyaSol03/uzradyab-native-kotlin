@@ -127,7 +127,7 @@ fun GeofenceScreen(
                                     name = state.newGeofenceName,
                                     radius = state.newGeofenceRadius,
                                     drawMode = state.drawMode,
-                                    pointsCount = state.activeDrawingPoints.size,
+                                    pointsCount = state.activeDrawingPoints.items.size,
                                     onNameChange = { viewModel.updateNewGeofenceName(it) },
                                     onRadiusChange = { viewModel.updateNewGeofenceRadius(it) },
                                     onCancel = { viewModel.toggleAddingMode() },

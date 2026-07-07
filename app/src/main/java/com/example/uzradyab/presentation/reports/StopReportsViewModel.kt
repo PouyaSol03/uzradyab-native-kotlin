@@ -22,11 +22,15 @@ import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.example.uzradyab.presentation.components.JalaliDateTime
 import javax.inject.Inject
 
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
+
 data class StopReportsUiState(
-    val devices: List<Device> = emptyList(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
-    val reports: List<StopReportUiModel> = emptyList(),
+    val reports: ImmutableListWrapper<StopReportUiModel> = emptyImmutableList(),
     val error: String? = null,
     val fromDateIso: String = "",
     val toDateIso: String = "",
@@ -66,7 +70,7 @@ class StopReportsViewModel @Inject constructor(
                 _uiState.update { current ->
                     val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
-                        devices = devicesList,
+                        devices = devicesList.toImmutable(),
                         selectedDeviceId = newSelectedId
                     )
                 }
@@ -189,7 +193,7 @@ class StopReportsViewModel @Inject constructor(
                         )
                     }
                 }
-                _uiState.update { it.copy(isLoading = false, reports = uiModels, error = if (uiModels.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null) }
+                _uiState.update { it.copy(isLoading = false, reports = uiModels.toImmutable(), error = if (uiModels.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null) }
             }.onFailure { err ->
                 _uiState.update { it.copy(isLoading = false, error = err.message ?: "خطا در دریافت گزارش") }
             }

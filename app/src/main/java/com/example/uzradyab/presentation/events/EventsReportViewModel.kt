@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import com.example.uzradyab.core.utils.FormatUtils
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
 
 enum class EventDateFilter {
     Today, Yesterday, CurrentWeek, CurrentMonth, Custom
@@ -28,9 +31,9 @@ enum class EventDateFilter {
 
 data class EventsReportUiState(
     val isLoading: Boolean = false,
-    val devices: List<Device> = emptyList(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
     val selectedDeviceId: Long? = null,
-    val events: List<EventUiModel> = emptyList(),
+    val events: ImmutableListWrapper<EventUiModel> = emptyImmutableList(),
     val hasMore: Boolean = false,
     val dateFilter: EventDateFilter = EventDateFilter.Today,
     val customFromDate: Long? = null,
@@ -73,7 +76,7 @@ class EventsReportViewModel @Inject constructor(
                         fetchEvents(selectedId, state.dateFilter)
                     }
                     state.copy(
-                        devices = list.sortedBy { it.name },
+                        devices = list.sortedBy { it.name }.toImmutable(),
                         selectedDeviceId = selectedId
                     )
                 }
@@ -111,17 +114,17 @@ class EventsReportViewModel @Inject constructor(
                 val uiModels = withContext(Dispatchers.Default) {
                     events.sortedByDescending { it.eventTime }.map { eventToItem(it) }
                 }
-                fullEvents = uiModels
-                val initialPage = uiModels.take(pageSize)
+                fullEvents = uiModels.toImmutable()
+                val initialPage = fullEvents.take(pageSize).toImmutable()
                 
                 _uiState.update { it.copy(
                     isLoading = false, 
                     events = initialPage,
-                    hasMore = uiModels.size > pageSize,
-                    error = if (uiModels.isEmpty()) "هیچ رویدادی در این بازه زمانی یافت نشد." else null
+                    hasMore = fullEvents.size > pageSize,
+                    error = if (fullEvents.isEmpty()) "هیچ رویدادی در این بازه زمانی یافت نشد." else null
                 ) }
             }.onFailure { err ->
-                _uiState.update { it.copy(isLoading = false, events = emptyList(), hasMore = false, error = err.message ?: "خطا در دریافت رویدادها") }
+                _uiState.update { it.copy(isLoading = false, events = emptyImmutableList(), hasMore = false, error = err.message ?: "خطا در دریافت رویدادها") }
             }
         }
     }
@@ -138,7 +141,7 @@ class EventsReportViewModel @Inject constructor(
         val nextChunk = fullEvents.take(nextSize)
         
         _uiState.update { it.copy(
-            events = nextChunk,
+            events = nextChunk.toImmutable(),
             hasMore = nextSize < fullEvents.size
         ) }
     }

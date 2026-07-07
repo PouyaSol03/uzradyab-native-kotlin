@@ -19,8 +19,12 @@ import com.example.uzradyab.presentation.components.JalaliDateTime
 import javax.inject.Inject
 import com.example.uzradyab.core.utils.FormatUtils
 
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
+
 data class DailyReportUiState(
-    val devices: List<Device> = emptyList(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
     val summaryReport: SummaryReport? = null,
@@ -62,7 +66,7 @@ class DailyReportViewModel @Inject constructor(
                 _uiState.update { current ->
                     val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
-                        devices = devicesList,
+                        devices = devicesList.toImmutable(),
                         selectedDeviceId = newSelectedId
                     )
                 }

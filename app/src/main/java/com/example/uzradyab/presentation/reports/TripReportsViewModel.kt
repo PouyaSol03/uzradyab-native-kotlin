@@ -25,19 +25,23 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.ImmutableSetWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
 
 data class TripReportsUiState(
-    val devices: List<Device> = emptyList(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
     val selectedDeviceId: Long? = null,
     val isLoading: Boolean = false,
-    val reports: List<TripReportUiModel> = emptyList(),
+    val reports: ImmutableListWrapper<TripReportUiModel> = emptyImmutableList(),
     val error: String? = null,
     val fromDateIso: String = "",
     val toDateIso: String = "",
     val selectedDateFilter: String = "امروز",
     val showCustomDatePicker: Boolean = false,
     val showColumnSelector: Boolean = false,
-    val selectedColumns: Set<String> = setOf("startTime", "endTime", "distance", "averageSpeed")
+    val selectedColumns: ImmutableSetWrapper<String> = setOf("startTime", "endTime", "distance", "averageSpeed").toImmutable()
 )
 
 val TRIP_REPORT_COLUMNS = listOf(
@@ -73,7 +77,7 @@ class TripReportsViewModel @Inject constructor(
                 _uiState.update { current ->
                     val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
-                        devices = devicesList,
+                        devices = devicesList.toImmutable(),
                         selectedDeviceId = newSelectedId
                     )
                 }
@@ -152,7 +156,7 @@ class TripReportsViewModel @Inject constructor(
             } else {
                 current + columnId
             }
-            state.copy(selectedColumns = newColumns)
+            state.copy(selectedColumns = newColumns.toImmutable())
         }
     }
 
@@ -192,7 +196,7 @@ class TripReportsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        reports = uiModels,
+                        reports = uiModels.toImmutable(),
                         error = if (uiModels.isEmpty()) "هیچ گزارشی برای این بازه زمانی یافت نشد." else null
                     )
                 }

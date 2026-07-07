@@ -115,7 +115,9 @@ fun DeviceStatusScreen(
                             .background(figmaBackground)
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                        val selectedDevice = remember(state.devices, state.selectedDeviceId) {
+                            state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                        }
                         DeviceSelectTrigger(
                             text = selectedDevice?.name ?: "انتخاب دستگاه",
                             onClick = { deviceSelectorOpen = true },
@@ -282,7 +284,7 @@ fun DeviceStatusScreen(
 
                 if (deviceSelectorOpen) {
                     DeviceSelectDialog(
-                        devices = state.devices.toImmutable(),
+                        devices = state.devices,
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = { deviceId ->
                             onDeviceSelect(deviceId)

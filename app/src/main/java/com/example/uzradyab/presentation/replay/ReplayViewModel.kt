@@ -20,9 +20,13 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
+
 data class ReplayUiState(
     val isLoading: Boolean = false,
-    val positions: List<Position> = emptyList(),
+    val positions: ImmutableListWrapper<Position> = emptyImmutableList(),
     val currentIndex: Int = 0,
     val isPlaying: Boolean = false,
     val playSpeed: Int = 1, // 1x or 2x
@@ -98,7 +102,7 @@ class ReplayViewModel @Inject constructor(
                     val persianDistance = com.example.uzradyab.core.utils.JalaliUtils.run { formattedDistance.toPersianDigits() }
 
                     _state.update { it.copy(
-                        positions = positions, 
+                        positions = positions.toImmutable(), 
                         currentIndex = 0,
                         isPlaying = false,
                         isLoading = false,
@@ -119,13 +123,13 @@ class ReplayViewModel @Inject constructor(
 
     fun togglePlayback() {
         val currentState = _state.value
-        if (currentState.positions.isEmpty()) return
+        if (currentState.positions.items.isEmpty()) return
         
         if (currentState.isPlaying) {
             pausePlayback()
         } else {
             // If we're at the end, restart
-            if (currentState.currentIndex >= currentState.positions.lastIndex) {
+            if (currentState.currentIndex >= currentState.positions.items.lastIndex) {
                 _state.update { it.copy(currentIndex = 0) }
             }
             startPlayback()
@@ -140,7 +144,7 @@ class ReplayViewModel @Inject constructor(
                 val currentState = _state.value
                 if (!currentState.isPlaying) break
                 
-                if (currentState.currentIndex < currentState.positions.lastIndex) {
+                if (currentState.currentIndex < currentState.positions.items.lastIndex) {
                     _state.update { it.copy(currentIndex = it.currentIndex + 1) }
                     val delayMs = if (currentState.playSpeed == 1) 1500L else 750L
                     delay(delayMs)
@@ -167,7 +171,7 @@ class ReplayViewModel @Inject constructor(
     }
 
     fun setIndex(index: Int) {
-        val maxIndex = _state.value.positions.lastIndex
+        val maxIndex = _state.value.positions.items.lastIndex
         val safeIndex = index.coerceIn(0, maxIndex.coerceAtLeast(0))
         _state.update { it.copy(currentIndex = safeIndex) }
     }

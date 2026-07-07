@@ -36,10 +36,13 @@ import com.example.uzradyab.ui.theme.AppTextPrimary
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
 
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.ImmutableMapWrapper
+
 @Composable
 fun DeviceListSheet(
-    devices: List<Device>,
-    latestPositions: Map<Long, Position>,
+    devices: ImmutableListWrapper<Device>,
+    latestPositions: ImmutableMapWrapper<Long, Position>,
     selectedDeviceId: Long?,
     onDeviceClick: (Long) -> Unit,
     modifier: Modifier = Modifier,

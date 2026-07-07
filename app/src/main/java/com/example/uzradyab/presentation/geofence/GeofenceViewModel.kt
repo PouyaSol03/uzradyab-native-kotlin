@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
 
 enum class DrawMode {
     CIRCLE, POLYGON, LINESTRING
@@ -21,14 +24,14 @@ enum class DrawMode {
 
 data class GeofenceState(
     val isLoading: Boolean = false,
-    val geofences: List<Geofence> = emptyList(),
+    val geofences: ImmutableListWrapper<Geofence> = emptyImmutableList(),
     val error: String? = null,
     val deviceId: Long? = null,
     val devicePosition: Position? = null,
     val addingMode: Boolean = false,
     val drawMode: DrawMode = DrawMode.CIRCLE,
     val newGeofenceName: String = "",
-    val activeDrawingPoints: List<Pair<Double, Double>> = emptyList(),
+    val activeDrawingPoints: ImmutableListWrapper<Pair<Double, Double>> = emptyImmutableList(),
     val newGeofenceRadius: Double = 500.0,
     val selectedGeofenceId: Long? = null,
     val mapStyle: String = "osm"
@@ -75,7 +78,7 @@ class GeofenceViewModel @Inject constructor(
             val result = geofenceRepository.getGeofences()
             result.onSuccess { geofences ->
                 val initialSelectedId = if (geofences.size == 1) geofences.first().id else null
-                _state.update { it.copy(geofences = geofences, selectedGeofenceId = initialSelectedId) }
+                _state.update { it.copy(geofences = geofences.toImmutable(), selectedGeofenceId = initialSelectedId) }
             }.onFailure { e ->
                 _state.update { it.copy(error = e.message) }
             }
@@ -99,7 +102,7 @@ class GeofenceViewModel @Inject constructor(
                 addingMode = !it.addingMode,
                 drawMode = DrawMode.CIRCLE,
                 newGeofenceName = "",
-                activeDrawingPoints = initialPoints,
+                activeDrawingPoints = initialPoints.toImmutable(),
                 newGeofenceRadius = 500.0,
                 selectedGeofenceId = null
             )
@@ -115,34 +118,35 @@ class GeofenceViewModel @Inject constructor(
     }
 
     fun setDrawMode(mode: DrawMode) {
-        _state.update { it.copy(drawMode = mode, activeDrawingPoints = emptyList()) }
+        _state.update { it.copy(drawMode = mode, activeDrawingPoints = emptyImmutableList()) }
     }
 
     fun addDrawingPoint(lat: Double, lon: Double) {
-        _state.update {
-            if (!it.addingMode) return@update it
-            val newPoints = if (it.drawMode == DrawMode.CIRCLE) {
+        _state.update { state ->
+            if (!state.addingMode) return@update state
+            val newPoints = if (state.drawMode == DrawMode.CIRCLE) {
                 listOf(Pair(lat, lon))
             } else {
-                it.activeDrawingPoints + Pair(lat, lon)
+                val current = state.activeDrawingPoints.items.toMutableList()
+                current.add(lat to lon)
+                current
             }
-            it.copy(activeDrawingPoints = newPoints)
+            state.copy(activeDrawingPoints = newPoints.toImmutable())
         }
     }
 
     fun undoLastDrawingPoint() {
-        _state.update {
-            val newPoints = if (it.activeDrawingPoints.isNotEmpty()) {
-                it.activeDrawingPoints.dropLast(1)
-            } else {
-                it.activeDrawingPoints
+        _state.update { state ->
+            val current = state.activeDrawingPoints.items.toMutableList()
+            if (current.isNotEmpty()) {
+                current.removeLast()
             }
-            it.copy(activeDrawingPoints = newPoints)
+            state.copy(activeDrawingPoints = current.toImmutable())
         }
     }
 
     fun clearDrawingPoints() {
-        _state.update { it.copy(activeDrawingPoints = emptyList()) }
+        _state.update { it.copy(activeDrawingPoints = emptyImmutableList()) }
     }
 
     fun selectGeofence(id: Long?) {
@@ -157,7 +161,7 @@ class GeofenceViewModel @Inject constructor(
                 // Reload the account's full list of geofences (No deviceId needed)
                 val listResult = geofenceRepository.getGeofences()
                 listResult.onSuccess { geofences ->
-                    _state.update { it.copy(isLoading = false, geofences = geofences, selectedGeofenceId = null) }
+                    _state.update { it.copy(isLoading = false, geofences = geofences.toImmutable(), selectedGeofenceId = null) }
                 }
             } else {
                 _state.update { it.copy(isLoading = false, error = deleteResult.exceptionOrNull()?.message) }
@@ -167,7 +171,7 @@ class GeofenceViewModel @Inject constructor(
 
     fun saveNewGeofence() {
         val st = _state.value
-        val points = st.activeDrawingPoints
+        val points = st.activeDrawingPoints.items
 
         if (points.isEmpty()) return
         if (st.drawMode == DrawMode.POLYGON && points.size < 3) return
@@ -190,7 +194,7 @@ class GeofenceViewModel @Inject constructor(
                 // Skip the device linking! Just refresh the account geofences.
                 val listResult = geofenceRepository.getGeofences()
                 listResult.onSuccess { geofences ->
-                    _state.update { it.copy(isLoading = false, addingMode = false, geofences = geofences) }
+                    _state.update { it.copy(isLoading = false, addingMode = false, geofences = geofences.toImmutable()) }
                 }
             }.onFailure { e ->
                 _state.update { it.copy(isLoading = false, error = e.message) }

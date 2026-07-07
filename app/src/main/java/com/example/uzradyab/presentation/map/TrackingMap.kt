@@ -51,19 +51,15 @@ private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
 
 @Composable
 fun TrackingMap(
-    devices: ImmutableListWrapper<Device>,
     latestPositions: ImmutableMapWrapper<Long, Position>,
     selectedDeviceId: Long?,
     mapStyle: String = "carto",
     activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     isMapLocked: Boolean,
-    mapBottomPadding: Dp = 0.dp,
     onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val density = LocalDensity.current
-    val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
     
     val selectedPosition = latestPositions[selectedDeviceId]
     val center = selectedPosition?.toGeoPoint()

@@ -25,9 +25,13 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 
+import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.emptyImmutableList
+import com.example.uzradyab.core.utils.toImmutable
+
 data class DeviceStatusUiState(
     val isLoading: Boolean = false,
-    val devices: List<Device> = emptyList(),
+    val devices: ImmutableListWrapper<Device> = emptyImmutableList(),
     val selectedDeviceId: Long? = null,
     val deviceStatusText: String = "نامشخص",
     val startAddress: String = "در حال دریافت...",
@@ -73,7 +77,7 @@ class DeviceStatusViewModel @Inject constructor(
                     }
 
                     state.copy(
-                        devices = sortedList,
+                        devices = sortedList.toImmutable(),
                         selectedDeviceId = selectedId
                     )
                 }

@@ -436,8 +436,8 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                     Spacer(modifier = Modifier.height(2.dp))
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                         TimeBalloon(
-                            time = formatTimeOnly(state.positions.lastOrNull()?.fixTime),
-                            date = formatDateOnly(state.positions.lastOrNull()?.fixTime)
+                            time = formatTimeOnly(state.positions.items.lastOrNull()?.fixTime),
+                            date = formatDateOnly(state.positions.items.lastOrNull()?.fixTime)
                         )
                     }
                 }
@@ -525,12 +525,12 @@ fun PlayingControls(
         }
 
         // Middle: Scrubbable Progress
-        val progress = if (state.positions.isEmpty()) 0f else state.currentIndex.toFloat() / state.positions.lastIndex.coerceAtLeast(1)
+        val progress = if (state.positions.items.isEmpty()) 0f else state.currentIndex.toFloat() / state.positions.items.lastIndex.coerceAtLeast(1)
         ScrubbableProgress(
             progress = progress,
             isPlaying = state.isPlaying,
             onProgressChange = { p ->
-                val max = state.positions.lastIndex.coerceAtLeast(0)
+                val max = state.positions.items.lastIndex.coerceAtLeast(0)
                 onIndexChange((p * max).toInt())
             },
             onTogglePlayback = onTogglePlayback,

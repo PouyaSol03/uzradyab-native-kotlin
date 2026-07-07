@@ -145,7 +145,9 @@ fun HomeMapScreen(
     onDismissServerDown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
+    val selectedDevice = remember(state.devices, state.selectedDeviceId) { 
+        state.devices.firstOrNull { it.id == state.selectedDeviceId } 
+    }
     
     androidx.compose.runtime.LaunchedEffect(Unit) {
         android.util.Log.d("LoginPerformance", "HomeMapScreen launched at ${System.currentTimeMillis()}")
@@ -227,13 +229,11 @@ fun HomeMapScreen(
                 */
 
                 TrackingMap(
-                    devices = state.devices,
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
                     activeTileSource = state.activeTileSource,
                     isMapLocked = state.isMapLocked,
-                    mapBottomPadding = mapBottomPadding,
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {
                             onCloseDeviceManagement()
