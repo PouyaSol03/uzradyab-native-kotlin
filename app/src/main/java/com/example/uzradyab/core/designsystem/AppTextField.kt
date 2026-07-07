@@ -61,60 +61,62 @@ fun AppLabeledTextField(
             textAlign = TextAlign.Right,
             modifier = Modifier.fillMaxWidth()
         )
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .onFocusChanged { isFocused = it.isFocused },
-            enabled = enabled,
-            singleLine = singleLine,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = AppTextBody,
-                fontSize = 14.sp,
-                textDirection = inputTextDirection,
-                textAlign = TextAlign.Right
-            ),
-            keyboardOptions = keyboardOptions,
-            visualTransformation = visualTransformation,
-            decorationBox = { innerTextField ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .border(1.dp, borderColor, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    trailingIcon?.invoke()
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterEnd
+        androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .onFocusChanged { isFocused = it.isFocused },
+                enabled = enabled,
+                singleLine = singleLine,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = AppTextBody,
+                    fontSize = 14.sp,
+                    textDirection = inputTextDirection,
+                    textAlign = TextAlign.Right
+                ),
+                keyboardOptions = keyboardOptions,
+                visualTransformation = visualTransformation,
+                decorationBox = { innerTextField ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                            .padding(horizontal = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        if (value.isEmpty() && placeholder.isNotEmpty()) {
-                            Text(
-                                text = placeholder,
-                                color = AppTextMuted,
-                                fontSize = 14.sp,
-                                maxLines = 1,
-                                textAlign = TextAlign.Right,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                        if (leadingIcon != null) {
+                            Box(
+                                modifier = Modifier.size(32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                leadingIcon()
+                            }
                         }
-                        innerTextField()
-                    }
-                    if (leadingIcon != null) {
                         Box(
-                            modifier = Modifier.size(32.dp),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.CenterEnd
                         ) {
-                            leadingIcon()
+                            if (value.isEmpty() && placeholder.isNotEmpty()) {
+                                Text(
+                                    text = placeholder,
+                                    color = AppTextMuted,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    textAlign = TextAlign.Right,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            innerTextField()
                         }
+                        trailingIcon?.invoke()
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }

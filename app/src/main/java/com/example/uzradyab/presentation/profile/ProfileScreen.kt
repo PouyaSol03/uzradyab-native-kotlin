@@ -33,6 +33,9 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDirection
+import com.example.uzradyab.presentation.common.UzradyabInput
+import com.example.uzradyab.presentation.common.UzradyabPrimaryButton
 
 @Composable
 fun ProfileRoute(
@@ -189,82 +192,55 @@ fun ProfileScreen(
                             Column(modifier = Modifier.padding(24.dp)) {
                                 
                                 // Expiration Time (Readonly)
-                                Text(stringResource(R.string.str_cb32d819), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF6A8BA5))
-                                Spacer(modifier = Modifier.height(8.dp))
-                                OutlinedTextField(
+                                UzradyabInput(
                                     value = expirationTime,
                                     onValueChange = {},
-                                    enabled = false,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        disabledContainerColor = Color(0xFFF8FAFC),
-                                        disabledBorderColor = Color(0xFFE2E8F0),
-                                        disabledTextColor = Color(0xFF6A8BA5)
-                                    )
+                                    label = stringResource(R.string.str_cb32d819),
+                                    enabled = false
                                 )
                                 
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 // Name
-                                Text(stringResource(R.string.str_eaa6c1e8), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                OutlinedTextField(
+                                UzradyabInput(
                                     value = name,
                                     onValueChange = { name = it },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp),
-                                    singleLine = true,
+                                    label = stringResource(R.string.str_eaa6c1e8)
                                 )
                                 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Email
-                                Text(stringResource(R.string.str_6505762a), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                    OutlinedTextField(
-                                        value = email,
-                                        onValueChange = { email = it },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        singleLine = true,
-                                        placeholder = { Text("example@test.com") }
-                                    )
-                                }
+                                UzradyabInput(
+                                    value = email,
+                                    onValueChange = { email = it },
+                                    label = stringResource(R.string.str_6505762a),
+                                    placeholder = "example@test.com",
+                                    inputTextDirection = TextDirection.Ltr
+                                )
 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Phone
-                                Text(stringResource(R.string.str_1d020430), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                    OutlinedTextField(
-                                        value = phone,
-                                        onValueChange = { phone = it },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        singleLine = true,
-                                        placeholder = { Text("09123456789") }
-                                    )
-                                }
+                                UzradyabInput(
+                                    value = phone,
+                                    onValueChange = { phone = it },
+                                    label = stringResource(R.string.str_1d020430),
+                                    placeholder = "09123456789",
+                                    inputTextDirection = TextDirection.Ltr
+                                )
 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
                                 // Password
-                                Text(stringResource(R.string.str_6814380a), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = AppTextPrimary)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                    OutlinedTextField(
-                                        value = password,
-                                        onValueChange = { password = it },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        singleLine = true,
-                                        visualTransformation = PasswordVisualTransformation(),
-                                        placeholder = { Text(stringResource(R.string.str_8634402d)) }
-                                    )
-                                }
+                                UzradyabInput(
+                                    value = password,
+                                    onValueChange = { password = it },
+                                    label = stringResource(R.string.str_6814380a),
+                                    placeholder = stringResource(R.string.str_8634402d),
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    inputTextDirection = TextDirection.Ltr
+                                )
                             }
                         }
                     }
@@ -321,14 +297,15 @@ fun ProfileScreen(
                             onClick = onLogoutClick,
                             modifier = Modifier
                                 .weight(1f)
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
+                                .height(48.dp),
+                            shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
                         ) {
-                            Text(text = stringResource(R.string.str_60806661), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                            Text(text = stringResource(R.string.str_60806661), fontSize = 16.sp, fontWeight = FontWeight.Normal)
                         }
                         
-                        Button(
+                        UzradyabPrimaryButton(
+                            text = if (state.isSaving) "در حال ذخیره..." else stringResource(R.string.str_9b860f70),
                             onClick = { 
                                 state.sessionDto?.let { session ->
                                     val updatedSession = session.copy(
@@ -341,18 +318,8 @@ fun ProfileScreen(
                                 }
                             },
                             enabled = !state.isSaving,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppBlue)
-                        ) {
-                            if (state.isSaving) {
-                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                            } else {
-                                Text(text = stringResource(R.string.str_9b860f70), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                            }
-                        }
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                     
                     Spacer(modifier = Modifier.height(24.dp))
