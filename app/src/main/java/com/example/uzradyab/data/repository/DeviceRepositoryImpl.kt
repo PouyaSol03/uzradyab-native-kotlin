@@ -1,6 +1,8 @@
 package com.example.uzradyab.data.repository
 
 import com.example.uzradyab.data.local.dao.DeviceDao
+import com.example.uzradyab.data.local.dao.UserSessionDao
+import com.example.uzradyab.data.local.entity.UserDeviceCrossRef
 import com.example.uzradyab.data.mapper.toDomain
 import com.example.uzradyab.data.mapper.toEntity
 import com.example.uzradyab.data.remote.api.TraccarApi
@@ -11,17 +13,30 @@ import com.google.gson.JsonObject
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 
 class DeviceRepositoryImpl @Inject constructor(
     private val api: TraccarApi,
     private val deviceDao: DeviceDao,
+    private val userSessionDao: UserSessionDao,
 ) : DeviceRepository {
     override fun observeDevices(): Flow<List<Device>> {
-        return deviceDao.observeDevices().map { entities -> entities.map { it.toDomain() } }
+        return userSessionDao.observeCurrentSession().flatMapLatest { session ->
+            if (session == null) flowOf(emptyList())
+            else deviceDao.observeDevices(session.id).map { entities -> entities.map { it.toDomain() } }
+        }
     }
 
     override suspend fun refreshDevices(): Result<Unit> = runCatching {
-        deviceDao.upsertAll(api.getDevices().map { it.toEntity() })
+        val session = userSessionDao.getCurrentSession() ?: return@runCatching
+        val devices = api.getDevices()
+        val entities = devices.map { it.toEntity() }
+        deviceDao.upsertAll(entities)
+        
+        val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
+        deviceDao.upsertUserDeviceCrossRefs(crossRefs)
+        deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
     }
 
     override suspend fun addDevice(
@@ -54,6 +69,11 @@ class DeviceRepositoryImpl @Inject constructor(
 
         val newDeviceDto = api.addDevice(request)
         deviceDao.upsertAll(listOf(newDeviceDto.toEntity()))
+        
+        val session = userSessionDao.getCurrentSession()
+        if (session != null) {
+            deviceDao.upsertUserDeviceCrossRefs(listOf(UserDeviceCrossRef(session.id, newDeviceDto.id)))
+        }
     }
 
     override suspend fun getDevice(deviceId: Long): Device? {
@@ -96,5 +116,12 @@ class DeviceRepositoryImpl @Inject constructor(
         // Fetch fresh data from server to reflect changes
         val devices = api.getDevices()
         deviceDao.upsertAll(devices.map { it.toEntity() })
+        
+        val session = userSessionDao.getCurrentSession()
+        if (session != null) {
+            val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
+            deviceDao.upsertUserDeviceCrossRefs(crossRefs)
+            deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
+        }
     }
 }

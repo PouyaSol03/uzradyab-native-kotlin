@@ -22,7 +22,7 @@ object DatabaseModule {
             context,
             UzradyabDatabase::class.java,
             "uzradyab.db",
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .build()
     }
 
@@ -69,6 +69,22 @@ object DatabaseModule {
     private val MIGRATION_3_4: Migration = object : Migration(3, 4) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE devices ADD COLUMN phone TEXT")
+        }
+    }
+
+    private val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `user_device_cross_ref` (
+                    `userId` INTEGER NOT NULL,
+                    `deviceId` INTEGER NOT NULL,
+                    PRIMARY KEY(`userId`, `deviceId`)
+                )
+                """.trimIndent(),
+            )
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_user_device_cross_ref_deviceId` ON `user_device_cross_ref` (`deviceId`)")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_user_device_cross_ref_userId` ON `user_device_cross_ref` (`userId`)")
         }
     }
 }

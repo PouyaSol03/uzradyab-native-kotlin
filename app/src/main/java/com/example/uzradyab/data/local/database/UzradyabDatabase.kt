@@ -14,6 +14,7 @@ import com.example.uzradyab.data.local.entity.EventEntity
 import com.example.uzradyab.data.local.entity.OfflineRegionEntity
 import com.example.uzradyab.data.local.entity.PositionEntity
 import com.example.uzradyab.data.local.entity.UserSessionEntity
+import com.example.uzradyab.data.local.entity.UserDeviceCrossRef
 
 @Database(
     entities = [
@@ -23,8 +24,9 @@ import com.example.uzradyab.data.local.entity.UserSessionEntity
         EventEntity::class,
         OfflineRegionEntity::class,
         DailyDistanceEntity::class,
+        UserDeviceCrossRef::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class UzradyabDatabase : RoomDatabase() {

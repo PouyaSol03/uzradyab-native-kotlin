@@ -171,7 +171,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAppConfigApi(@Named(NOTIFICATION_RETROFIT) retrofit: Retrofit): AppConfigApi {
+    fun provideAppConfigApi(@Named(AUTH_HELPER_RETROFIT) retrofit: Retrofit): AppConfigApi {
         return retrofit.create(AppConfigApi::class.java)
     }
 
