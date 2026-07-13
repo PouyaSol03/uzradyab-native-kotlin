@@ -61,6 +61,8 @@ fun HomeMapRoute(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onContactSupportClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
@@ -109,6 +111,8 @@ fun HomeMapRoute(
         onCommandsClick = onCommandsClick,
         onReportsClick = onReportsClick,
         onAlertsSettingsClick = onAlertsSettingsClick,
+        onAboutClick = onAboutClick,
+        onContactSupportClick = onContactSupportClick,
         onGeofenceClick = onGeofenceClick,
         onToggleMapLock = viewModel::toggleMapLock,
         onDismissServerDown = viewModel::dismissServerDown,
@@ -139,6 +143,8 @@ fun HomeMapScreen(
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
     onAlertsSettingsClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onContactSupportClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
     onToggleMapLock: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
@@ -254,6 +260,7 @@ fun HomeMapScreen(
                     onSettingsClick = onOpenMapSettings,
                     onEventsClick = onEventsClick,
                     onLockToggleClick = onToggleMapLock,
+                    isSettingsEnabled = !state.isAlternativeMapForced,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
@@ -280,6 +287,8 @@ fun HomeMapScreen(
                         onAddDeviceClick = onAddDeviceClick,
                         onReportsClick = onReportsClick,
                         onAlertsSettingsClick = onAlertsSettingsClick,
+                        onAboutClick = onAboutClick,
+                        onContactSupportClick = onContactSupportClick,
                         onDebugLogsClick = onDebugLogsClick,
                     )
                 }

@@ -54,6 +54,8 @@ fun ReportsRoute(
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToTripReports: () -> Unit,
+    onAboutClick: () -> Unit = {},
+    onContactSupportClick: () -> Unit = {},
     viewModel: ReportsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,7 +71,9 @@ fun ReportsRoute(
         onNavigateToStopReports = onNavigateToStopReports,
         onNavigateToReplayTrip = onNavigateToReplayTrip,
         onNavigateToEvents = onNavigateToEvents,
-        onNavigateToTripReports = onNavigateToTripReports
+        onNavigateToTripReports = onNavigateToTripReports,
+        onAboutClick = onAboutClick,
+        onContactSupportClick = onContactSupportClick,
     )
 }
 
@@ -85,7 +89,9 @@ fun ReportsScreen(
     onNavigateToStopReports: () -> Unit,
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
-    onNavigateToTripReports: () -> Unit
+    onNavigateToTripReports: () -> Unit,
+    onAboutClick: () -> Unit,
+    onContactSupportClick: () -> Unit
 ) {
     val figmaBackground = Color(0xFFF3F4F6)
     var menuOpen by remember { mutableStateOf(false) }
@@ -184,7 +190,9 @@ fun ReportsScreen(
                     AppMenuDialog(
                         onDismiss = { menuOpen = false },
                         onLogoutClick = onLogoutClick,
-                        onAddDeviceClick = onAddDeviceClick
+                        onAddDeviceClick = onAddDeviceClick,
+                        onAboutClick = onAboutClick,
+                        onContactSupportClick = onContactSupportClick,
                     )
                 }
 

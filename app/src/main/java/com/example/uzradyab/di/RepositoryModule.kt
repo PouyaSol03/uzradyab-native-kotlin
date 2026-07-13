@@ -87,4 +87,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindGeofenceRepository(impl: com.example.uzradyab.data.repository.GeofenceRepositoryImpl): com.example.uzradyab.domain.repository.GeofenceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindThemeRepository(impl: com.example.uzradyab.data.repository.ThemeRepositoryImpl): com.example.uzradyab.domain.repository.ThemeRepository
 }

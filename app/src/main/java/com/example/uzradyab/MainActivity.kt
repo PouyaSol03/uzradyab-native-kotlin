@@ -1,5 +1,8 @@
 package com.example.uzradyab
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.isSystemInDarkTheme
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -45,6 +48,9 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var appConfigRepository: AppConfigRepository
 
+    @Inject
+    lateinit var themeRepository: com.example.uzradyab.domain.repository.ThemeRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -65,7 +71,8 @@ class MainActivity : FragmentActivity() {
                 sessionEventBus = sessionEventBus,
                 networkEventBus = networkEventBus,
                 authRepository = authRepository,
-                appConfigRepository = appConfigRepository
+                appConfigRepository = appConfigRepository,
+                themeRepository = themeRepository
             )
         }
     }
@@ -84,9 +91,19 @@ private fun UzradyabAppRoot(
     sessionEventBus: SessionEventBus? = null,
     networkEventBus: com.example.uzradyab.core.network.NetworkEventBus? = null,
     authRepository: AuthRepository? = null,
-    appConfigRepository: AppConfigRepository? = null
+    appConfigRepository: AppConfigRepository? = null,
+    themeRepository: com.example.uzradyab.domain.repository.ThemeRepository? = null
 ) {
-    UzradyabTheme {
+    val themeMode by (themeRepository?.themeMode ?: kotlinx.coroutines.flow.flowOf(com.example.uzradyab.domain.model.ThemeMode.SYSTEM))
+        .collectAsStateWithLifecycle(initialValue = com.example.uzradyab.domain.model.ThemeMode.SYSTEM)
+
+    val isDarkTheme = when (themeMode) {
+        com.example.uzradyab.domain.model.ThemeMode.LIGHT -> false
+        com.example.uzradyab.domain.model.ThemeMode.DARK -> true
+        com.example.uzradyab.domain.model.ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
+    UzradyabTheme(darkTheme = isDarkTheme) {
         CompositionLocalProvider(
             LocalLayoutDirection provides LayoutDirection.Rtl,
             LocalIndication provides NoIndication,

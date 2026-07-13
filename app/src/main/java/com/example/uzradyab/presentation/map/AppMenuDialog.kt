@@ -1,5 +1,7 @@
 package com.example.uzradyab.presentation.map
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,7 +52,10 @@ fun AppMenuDialog(
     onAddDeviceClick: () -> Unit,
     onReportsClick: () -> Unit = {},
     onAlertsSettingsClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {},
+    onContactSupportClick: () -> Unit = {},
     onDebugLogsClick: (() -> Unit)? = null,
+    themeViewModel: com.example.uzradyab.presentation.theme.ThemeViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     Dialog(
@@ -95,6 +100,47 @@ fun AppMenuDialog(
                         fontWeight = FontWeight.Medium,
                     )
                     IranFlagIcon()
+                }
+            }
+            
+            // Theme Toggle
+            val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "پوسته برنامه",
+                    color = Color(0xFF333638),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Right,
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ThemeOptionButton(
+                        text = "روشن",
+                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.LIGHT,
+                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.LIGHT) }
+                    )
+                    ThemeOptionButton(
+                        text = "تاریک",
+                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.DARK,
+                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.DARK) }
+                    )
+                    ThemeOptionButton(
+                        text = "سیستم",
+                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.SYSTEM,
+                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.SYSTEM) }
+                    )
                 }
             }
 
@@ -147,12 +193,18 @@ fun AppMenuDialog(
                 MenuCardItem(
                     label = stringResource(R.string.str_8105a2a5),
                     icon = Icons.Default.Business,
-                    onClick = onDismiss
+                    onClick = {
+                        onAboutClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = stringResource(R.string.str_1626c15e),
                     icon = Icons.Default.HeadsetMic,
-                    onClick = onDismiss
+                    onClick = {
+                        onContactSupportClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = stringResource(R.string.str_15e25a13),
@@ -267,6 +319,31 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 6.dp),
+        )
+    }
+}
+
+@Composable
+private fun ThemeOptionButton(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .background(
+                if (isSelected) Color(0xFF2F80ED) else Color(0xFFF7FAFD),
+                RoundedCornerShape(8.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = if (isSelected) Color.White else Color(0xFF333638),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }

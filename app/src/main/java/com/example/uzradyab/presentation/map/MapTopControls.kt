@@ -79,6 +79,7 @@ fun MapTopControls(
     onSettingsClick: () -> Unit,
     onEventsClick: () -> Unit,
     onLockToggleClick: () -> Unit,
+    isSettingsEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = devices.firstOrNull { it.id == selectedDeviceId }
@@ -104,6 +105,7 @@ fun MapTopControls(
             )
             MapSettingsTrigger(
                 onClick = onSettingsClick,
+                enabled = isSettingsEnabled,
                 modifier = Modifier.width(142.dp),
             )
         }
@@ -172,23 +174,27 @@ private fun DeviceSelectTrigger(
 @Composable
 private fun MapSettingsTrigger(
     onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
+    val backgroundColor = if (enabled) AppBlue else Color(0xFFE0E0E0)
+    val contentColor = if (enabled) Color.White else Color.Gray
+
     Row(
         modifier = modifier
             .height(40.dp)
-            .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(AppBlue, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .shadow(if (enabled) 18.dp else 0.dp, RoundedCornerShape(8.dp), clip = false)
+            .background(backgroundColor, RoundedCornerShape(8.dp))
+            .let { if (enabled) it.clickable(onClick = onClick) else it }
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SettingsGearIcon(size = 18)
+        SettingsGearIcon(size = 18, color = contentColor)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.str_c9c1b29c),
-            color = Color.White,
+            color = contentColor,
             fontSize = 14.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.Medium,

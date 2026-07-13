@@ -258,6 +258,16 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onAboutClick = {
+                    navController.navigate(AppRoute.AboutExir.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onContactSupportClick = {
+                    navController.navigate(AppRoute.ContactSupport.path) {
+                        launchSingleTop = true
+                    }
+                },
                 onGeofenceClick = { deviceId ->
                     navController.navigate("${AppRoute.Geofence.path}?deviceId=$deviceId") {
                         launchSingleTop = true
@@ -401,6 +411,12 @@ fun UzradyabApp(
                 },
                 onNavigateToTripReports = {
                     navController.navigate(AppRoute.TripReports.path) { launchSingleTop = true }
+                },
+                onAboutClick = {
+                    navController.navigate(AppRoute.AboutExir.path) { launchSingleTop = true }
+                },
+                onContactSupportClick = {
+                    navController.navigate(AppRoute.ContactSupport.path) { launchSingleTop = true }
                 }
             )
         }
@@ -559,6 +575,18 @@ fun UzradyabApp(
                 }
             )
         }
+        composable(AppRoute.AboutExir.path) {
+            com.example.uzradyab.presentation.about.AboutExirScreen(
+                onBackClick = { navController.safePopBackStack() },
+                onMenuClick = { navController.safePopBackStack() }
+            )
+        }
+        composable(AppRoute.ContactSupport.path) {
+            com.example.uzradyab.presentation.support.ContactSupportScreen(
+                onBackClick = { navController.safePopBackStack() },
+                onMenuClick = { navController.safePopBackStack() }
+            )
+        }
     }
             
             GlobalSnackbarHost(
@@ -665,6 +693,8 @@ private enum class AppRoute(val path: String) {
     DebugLog("/debug-logs"),
     Geofence("/geofences"),
     TripReports("/trip-reports"),
+    AboutExir("/about-exir"),
+    ContactSupport("/contact-support"),
 }
 
 private fun isVersionGreater(v1: String, v2: String): Boolean {

@@ -62,6 +62,7 @@ data class HomeMapUiState(
     val latestEventsMap: ImmutableMapWrapper<Long, MapLatestEventItem> = emptyImmutableMap(),
     val mapSettingsOpen: Boolean = false,
     val mapStyle: String = "carto",
+    val isAlternativeMapForced: Boolean = false,
     val tileHealth: TileHealthState = TileHealthState.Unknown,
     val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     val isMapLocked: Boolean = false,
@@ -121,8 +122,12 @@ class MapViewModel @Inject constructor(
             ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: snapshot.devices.firstOrNull()?.id
             
-        val (finalMapStyle, finalTileSource) = if (config?.alternativeMap == true && !config.alternativeMapUrl.isNullOrEmpty()) {
-            val overrideSource = getAlternativeTileSource(config.alternativeMapUrl)
+        val isAlternativeForced = config?.alternativeMap == true && !config.alternativeMapUrl.isNullOrEmpty()
+        
+        Log.d("AlternativeMap", "AppConfig -> alternativeMap: ${config?.alternativeMap}, alternativeMapUrl: ${config?.alternativeMapUrl}, isForced: $isAlternativeForced")
+
+        val (finalMapStyle, finalTileSource) = if (isAlternativeForced) {
+            val overrideSource = getAlternativeTileSource(config!!.alternativeMapUrl!!)
             "alternative_forced" to overrideSource
         } else {
             mapStyle to local.activeTileSource
@@ -135,6 +140,7 @@ class MapViewModel @Inject constructor(
             connectionState = connection,
             mapStyle = finalMapStyle,
             activeTileSource = finalTileSource,
+            isAlternativeMapForced = isAlternativeForced,
             latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
