@@ -103,6 +103,7 @@ fun AppMenuDialog(
                 }
             }
             
+            /*
             // Theme Toggle
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
             Row(
@@ -143,6 +144,7 @@ fun AppMenuDialog(
                     )
                 }
             }
+            */
 
             // Group 2: Main Menu Items (1-4)
             Column(

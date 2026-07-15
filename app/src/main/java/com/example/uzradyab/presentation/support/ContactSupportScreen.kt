@@ -75,14 +75,14 @@ fun ContactSupportScreen(
                             colors = listOf(Color(0xFFF0F4F8), Color(0xFFE2E8F0))
                         )
                     )
-                    .verticalScroll(rememberScrollState()),
-                contentAlignment = Alignment.TopCenter
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.Center
             ) {
                 // Main Premium Card
                 Column(
                     modifier = Modifier
                         .padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 32.dp)
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .shadow(
                             elevation = 24.dp, 
                             shape = RoundedCornerShape(28.dp), 
@@ -96,7 +96,7 @@ fun ContactSupportScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(260.dp) // Taller header for the large logo
+                            .weight(1f) // Takes available space, making it responsive
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(Color(0xFFF8FAFC), Color(0xFFEDF2F7))
@@ -117,7 +117,7 @@ fun ContactSupportScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 28.dp, vertical = 32.dp),
+                            .padding(horizontal = 28.dp, vertical = 24.dp), // Reduced vertical padding
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -130,7 +130,7 @@ fun ContactSupportScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         Box(
                             modifier = Modifier
@@ -152,7 +152,7 @@ fun ContactSupportScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
                             text = "تماس حاصل فرمایید.",
@@ -163,7 +163,7 @@ fun ContactSupportScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                         
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         
                         Box(
                             modifier = Modifier
@@ -185,7 +185,7 @@ fun ContactSupportScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
 
                         // Primary Action Button
                         Button(

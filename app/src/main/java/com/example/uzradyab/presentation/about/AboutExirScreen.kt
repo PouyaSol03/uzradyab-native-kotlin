@@ -70,14 +70,14 @@ fun AboutExirScreen(
                             colors = listOf(Color(0xFFF0F4F8), Color(0xFFE2E8F0))
                         )
                     )
-                    .verticalScroll(rememberScrollState()),
-                contentAlignment = Alignment.TopCenter
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.Center
             ) {
                 // Main Premium Card
                 Column(
                     modifier = Modifier
                         .padding(top = 24.dp, start = 20.dp, end = 20.dp, bottom = 32.dp)
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .shadow(
                             elevation = 24.dp, 
                             shape = RoundedCornerShape(28.dp), 
@@ -91,7 +91,7 @@ fun AboutExirScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(260.dp) // Much taller header for the big logo
+                            .weight(1f) // Takes available space, making it responsive
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(Color(0xFFF8FAFC), Color(0xFFEDF2F7))
@@ -112,7 +112,7 @@ fun AboutExirScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 28.dp, vertical = 32.dp),
+                            .padding(horizontal = 28.dp, vertical = 24.dp), // Reduced vertical padding slightly for small screens
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -125,7 +125,7 @@ fun AboutExirScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         // Version badge
                         Box(
@@ -141,7 +141,7 @@ fun AboutExirScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(36.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         // Primary Action Button
                         Button(

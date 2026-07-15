@@ -87,29 +87,42 @@ class DeviceRepositoryImpl @Inject constructor(
         phone: String,
         currentKilometers: Double?
     ): Result<Unit> = runCatching {
-        val existingDevice = deviceDao.getDeviceById(id)
-        val category = existingDevice?.category ?: "default"
+        // Fetch original device from server to avoid losing fields like expirationTime
+        val remoteResponse = api.getDeviceRaw(id)
+        if (!remoteResponse.isSuccessful) {
+            throw Exception("Failed to fetch device from server: ${remoteResponse.code()}")
+        }
+        val remoteArray = remoteResponse.body()
+        if (remoteArray == null || remoteArray.size() == 0) {
+            throw Exception("Device not found on server")
+        }
+        
+        val deviceJson = remoteArray.get(0).asJsonObject
+        android.util.Log.d("DeviceUpdate", "Original device from server before update: $deviceJson")
 
-        val attributes = JsonObject().apply {
-            if (currentKilometers != null) {
-                addProperty("currentKilometers", currentKilometers)
-            }
+        // Update fields. We only overwrite the specific fields from UI
+        deviceJson.addProperty("name", name)
+        deviceJson.addProperty("uniqueId", uniqueId)
+        deviceJson.addProperty("phone", phone)
+
+        // Preserve other existing attributes in the JSON
+        val attributes = if (deviceJson.has("attributes") && !deviceJson.get("attributes").isJsonNull) {
+            deviceJson.get("attributes").asJsonObject
+        } else {
+            JsonObject()
         }
 
-        // Build a partial object containing only what we want to send
-        val partialRequest = JsonObject().apply {
-            addProperty("id", id)
-            addProperty("name", name)
-            addProperty("uniqueId", uniqueId)
-            addProperty("phone", phone)
-            addProperty("category", category)
-            add("attributes", attributes)
+        if (currentKilometers != null) {
+            attributes.addProperty("currentKilometers", currentKilometers)
         }
+        deviceJson.add("attributes", attributes)
 
-        android.util.Log.d("DeviceUpdate", "Sending partial update device request: $partialRequest")
+        android.util.Log.d("DeviceUpdate", "Sending update device request body: $deviceJson")
 
-        val updateResponse = api.updateDeviceRaw(id, partialRequest)
+        val updateResponse = api.updateDeviceRaw(id, deviceJson)
         if (!updateResponse.isSuccessful) {
+            val errorBody = updateResponse.errorBody()?.string()
+            android.util.Log.e("DeviceUpdate", "Update failed: code=${updateResponse.code()} body=$errorBody")
             throw Exception("Failed to update device: ${updateResponse.code()}")
         }
 
