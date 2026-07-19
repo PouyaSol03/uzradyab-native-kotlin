@@ -327,7 +327,7 @@ fun CommandCenterScreen(
                                 containerColor = Color.Transparent,
                                 contentColor = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))
                             ),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)))
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF455A64)))
                         ) {
                             Text(stringResource(R.string.str_c8d2a1fb), fontSize = 14.sp)
                         }

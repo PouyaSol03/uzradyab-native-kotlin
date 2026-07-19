@@ -347,8 +347,8 @@ private fun DeviceTextField(
     var isFocused by remember { mutableStateOf(false) }
     
     val bgColor = if (enabled) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xFFE9ECEF), dark = Color(0xFF1A1F23))
-    val borderColor = if (!enabled) themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)) else if (isFocused) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042))
-    val textColor = if (enabled) themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)) else themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
+    val borderColor = if (!enabled) themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF455A64)) else if (isFocused) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF455A64))
+    val textColor = if (enabled) themedColor(light = Color(0xFF333638), dark = Color(0xFFE6E6E6)) else themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -356,7 +356,7 @@ private fun DeviceTextField(
     ) {
         Text(
             text = label,
-            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFE6E6E6)),
             fontSize = 14.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
@@ -405,7 +405,7 @@ private fun DeviceTextField(
                             if (value.isEmpty()) {
                                 Text(
                                     text = placeholder,
-                                    color = themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)),
+                                    color = themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFFA0B5C5)),
                                     fontSize = 14.sp,
                                     lineHeight = 22.sp,
                                     textAlign = TextAlign.Right,
@@ -429,13 +429,13 @@ private fun DeviceTextField(
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = null,
-                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
+                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFFA0B5C5)),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = helperText,
-                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
+                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFFA0B5C5)),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,

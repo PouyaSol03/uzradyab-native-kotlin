@@ -141,7 +141,7 @@ fun DevicesScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp)
-                            .border(1.dp, themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23)), RoundedCornerShape(8.dp))
+                            .border(1.dp, themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF384C5C)), RoundedCornerShape(8.dp))
                             .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
@@ -153,18 +153,18 @@ fun DevicesScreen(
                         ) {
                             Box(modifier = Modifier.weight(1f)) {
                                 if (searchQuery.isEmpty()) {
-                                    Text(stringResource(R.string.str_31665826), color = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)), fontSize = 14.sp)
+                                    Text(stringResource(R.string.str_31665826), color = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFFA0B5C5)), fontSize = 14.sp)
                                 }
                                 BasicTextField(
                                     value = searchQuery,
                                     onValueChange = { searchQuery = it },
-                                    textStyle = TextStyle(fontSize = 14.sp, color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))),
+                                    textStyle = TextStyle(fontSize = 14.sp, color = themedColor(light = Color(0xFF333638), dark = Color(0xFFE6E6E6))),
                                     singleLine = true,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Icon(Icons.Default.Search, contentDescription = "Search", tint = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)), modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Search, contentDescription = "Search", tint = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFFA0B5C5)), modifier = Modifier.size(20.dp))
                         }
                     }
 
