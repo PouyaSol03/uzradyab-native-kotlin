@@ -39,9 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.ui.theme.AppBlue
+
 import androidx.compose.ui.res.stringResource
 import com.example.uzradyab.R
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun DeviceManagementPanel(
@@ -76,7 +78,7 @@ fun DeviceManagementPanel(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(Color.White),
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F))),
         ) {
             ManagementGrid(
                 onDeviceSettingsClick = onDeviceSettingsClick,
@@ -106,7 +108,7 @@ private fun DeviceManagementHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(152.dp)
-            .background(Color(0xFF384C5C))
+            .background(themedColor(light = Color(0xFF384C5C), dark = Color(0xFF1C262E)))
             .padding(horizontal = 16.dp, vertical = 24.dp),
     ) {
         Row(
@@ -123,7 +125,7 @@ private fun DeviceManagementHeader(
                 Column(horizontalAlignment = Alignment.Start) {
                     Text(
                         text = device.name,
-                        color = Color.White,
+                        color = themedColor(light = Color.White, dark = Color.White),
                         fontSize = 16.sp,
                         lineHeight = 22.sp,
                         fontWeight = FontWeight.Bold,
@@ -133,7 +135,7 @@ private fun DeviceManagementHeader(
                     )
                     Text(
                         text = if ((position?.speed ?: 0.0) > 0.0) stringResource(R.string.str_1b92a31d) else formatDeviceStatus(device.status),
-                        color = Color(0xFF97ADBF),
+                        color = themedColor(light = Color(0xFF97ADBF), dark = Color(0xFF97ADBF)),
                         fontSize = 14.sp,
                         lineHeight = 22.sp,
                         textAlign = TextAlign.Right,
@@ -152,14 +154,14 @@ private fun DeviceManagementHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .background(Color(0xFF27343F), RoundedCornerShape(8.dp))
+                .background(themedColor(light = Color(0xFF27343F), dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
                 .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = stringResource(R.string.str_8678d1c1, todayDistanceText),
-                color = Color.White,
+                color = themedColor(light = Color.White, dark = Color.White),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,
@@ -182,7 +184,7 @@ private fun HeaderButton(
     Box(
         modifier = modifier
             .height(40.dp)
-            .background(if (white) Color.Transparent else AppBlue, RoundedCornerShape(8.dp))
+            .background(if (white) Color.Transparent else UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp),
         contentAlignment = Alignment.Center,
@@ -193,7 +195,7 @@ private fun HeaderButton(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = text,
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.Medium,
@@ -203,7 +205,7 @@ private fun HeaderButton(
             } else {
                 Text(
                     text = text,
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.Medium,
@@ -226,19 +228,21 @@ private fun ManagementGrid(
     onGeofenceClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val darkTileBg = Color(0xFF1C262E)
+
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile(stringResource(R.string.str_9704c0ca), Color(0xFFECF4FE), Color(0xFF062C66), modifier = Modifier.weight(1f), onClick = onGeofenceClick) { MapFrameIcon(it) }
-            ManagementTile(stringResource(R.string.str_2fe5ef7d), Color(0xFFE7F6ED), Color(0xFF205535), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
-            ManagementTile(stringResource(R.string.str_d56e1d24), Color(0xFFFEF3EC), Color(0xFF743106), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
+            ManagementTile(stringResource(R.string.str_9704c0ca), themedColor(light = Color(0xFFECF4FE), dark = darkTileBg), themedColor(light = Color(0xFF062C66), dark = Color(0xFF6FA4F6)), modifier = Modifier.weight(1f), onClick = onGeofenceClick) { MapFrameIcon(it) }
+            ManagementTile(stringResource(R.string.str_2fe5ef7d), themedColor(light = Color(0xFFE7F6ED), dark = darkTileBg), themedColor(light = Color(0xFF205535), dark = Color(0xFF90D5AB)), modifier = Modifier.weight(1f), onClick = onReplayTripClick) { PlayIcon(it) }
+            ManagementTile(stringResource(R.string.str_d56e1d24), themedColor(light = Color(0xFFFEF3EC), dark = darkTileBg), themedColor(light = Color(0xFF743106), dark = Color(0xFFF7A36E)), modifier = Modifier.weight(1f), onClick = onDeviceSettingsClick) { SettingsIcon(it) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            ManagementTile(stringResource(R.string.str_036f8b42), Color(0xFFFDF1FE), Color(0xFF6A0872), modifier = Modifier.weight(1f), onClick = onReportsClick) { DocumentsIcon(it) }
-            ManagementTile(stringResource(R.string.str_76c49620), Color(0xFFFEECEC), Color(0xFF6B0606), modifier = Modifier.weight(1f), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
-            ManagementTile(stringResource(R.string.str_68fb631d), Color(0xFFF4F6F8), Color(0xFF384C5C), modifier = Modifier.weight(1f), onClick = onCommandsClick) { FlashIcon(it) }
+            ManagementTile(stringResource(R.string.str_036f8b42), themedColor(light = Color(0xFFFDF1FE), dark = darkTileBg), themedColor(light = Color(0xFF6A0872), dark = Color(0xFFEB70F5)), modifier = Modifier.weight(1f), onClick = onReportsClick) { DocumentsIcon(it) }
+            ManagementTile(stringResource(R.string.str_76c49620), themedColor(light = Color(0xFFFEECEC), dark = darkTileBg), themedColor(light = Color(0xFF6B0606), dark = Color(0xFFF76E6E)), modifier = Modifier.weight(1f), onClick = onAlertsSettingsClick) { AlarmTileIcon(it) }
+            ManagementTile(stringResource(R.string.str_68fb631d), themedColor(light = Color(0xFFF4F6F8), dark = darkTileBg), themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), modifier = Modifier.weight(1f), onClick = onCommandsClick) { FlashIcon(it) }
         }
     }
 }
@@ -278,10 +282,10 @@ private fun ManagementTile(
 @Composable
 private fun MovingCarBadge() {
     Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-        Box(modifier = Modifier.size(48.dp).background(Color(0x14C8009D), CircleShape))
-        Box(modifier = Modifier.size(40.dp).background(Color(0x3DC8009D), CircleShape))
-        Box(modifier = Modifier.size(32.dp).background(Color(0xFFA12887), CircleShape), contentAlignment = Alignment.Center) {
-            CarGlyph(Color.White, Modifier.size(18.dp))
+        Box(modifier = Modifier.size(48.dp).background(themedColor(light = Color(0x14C8009D), dark = Color(0x14FF66DE)), CircleShape))
+        Box(modifier = Modifier.size(40.dp).background(themedColor(light = Color(0x3DC8009D), dark = Color(0x3DFF66DE)), CircleShape))
+        Box(modifier = Modifier.size(32.dp).background(themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)), CircleShape), contentAlignment = Alignment.Center) {
+            CarGlyph(themedColor(light = Color.White, dark = Color(0xFF27343F)), Modifier.size(18.dp))
         }
     }
 }
@@ -291,7 +295,7 @@ private fun MiniChevronIcon() {
     Icon(
         imageVector = Icons.Default.ChevronLeft,
         contentDescription = "Chevron",
-        tint = Color.White,
+        tint = themedColor(light = Color.White, dark = Color.White),
         modifier = Modifier.size(20.dp)
     )
 }
@@ -301,7 +305,7 @@ private fun MiniPlayIcon() {
     Icon(
         imageVector = Icons.Default.PlayCircleOutline,
         contentDescription = "Play",
-        tint = Color.White,
+        tint = themedColor(light = Color.White, dark = Color.White),
         modifier = Modifier.size(16.dp)
     )
 }

@@ -27,9 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uzradyab.ui.theme.AppInputBorder
-import com.example.uzradyab.ui.theme.AppTextBody
-import com.example.uzradyab.ui.theme.AppTextMuted
+import com.example.uzradyab.ui.theme.UzradyabTheme
 
 @Composable
 fun AppLabeledTextField(
@@ -47,7 +45,7 @@ fun AppLabeledTextField(
     inputTextDirection: TextDirection = TextDirection.ContentOrLtr,
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else AppInputBorder
+    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else UzradyabTheme.colors.inputBorder
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -56,7 +54,7 @@ fun AppLabeledTextField(
     ) {
         Text(
             text = label,
-            color = AppTextBody,
+            color = UzradyabTheme.colors.textBody,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
             textAlign = TextAlign.Right,
             modifier = Modifier.fillMaxWidth()
@@ -72,7 +70,7 @@ fun AppLabeledTextField(
                 enabled = enabled,
                 singleLine = singleLine,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = AppTextBody,
+                    color = UzradyabTheme.colors.textBody,
                     fontSize = 14.sp,
                     textDirection = inputTextDirection,
                     textAlign = TextAlign.Right
@@ -104,7 +102,7 @@ fun AppLabeledTextField(
                             if (value.isEmpty() && placeholder.isNotEmpty()) {
                                 Text(
                                     text = placeholder,
-                                    color = AppTextMuted,
+                                    color = UzradyabTheme.colors.textMuted,
                                     fontSize = 14.sp,
                                     maxLines = 1,
                                     textAlign = TextAlign.Right,

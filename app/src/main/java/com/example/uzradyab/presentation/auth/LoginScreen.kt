@@ -39,8 +39,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
 
 import com.example.uzradyab.presentation.components.LocalSnackbarController
-import com.example.uzradyab.ui.theme.AppTextBody
+
 import com.example.uzradyab.presentation.startup.findActivity
+import com.example.uzradyab.ui.theme.UzradyabTheme
 
 @Composable
 fun LoginRoute(
@@ -206,7 +207,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(32.dp))
                     Text(
                         text = "آیا حساب کاربری ندارید؟",
-                        color = AppTextBody,
+                        color = UzradyabTheme.colors.textBody,
                         fontSize = 14.sp,
                         lineHeight = 24.sp,
                         textAlign = TextAlign.Center,

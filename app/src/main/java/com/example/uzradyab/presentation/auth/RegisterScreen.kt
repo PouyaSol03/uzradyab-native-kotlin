@@ -13,7 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import com.example.uzradyab.ui.theme.AppBlue
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -48,8 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.designsystem.AuthBackground
-import com.example.uzradyab.ui.theme.AppTextBody
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -58,7 +58,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
-
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun RegisterRoute(
@@ -277,7 +278,7 @@ private fun RegisterOtpStep(
         Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = "کد تایید ارسال شده به شماره ${maskPhoneNumber(state.phoneNumber)} را وارد کنید.",
-            color = AppTextBody,
+            color = UzradyabTheme.colors.textBody,
             fontSize = 14.sp,
             lineHeight = 22.sp,
             textAlign = TextAlign.Right,
@@ -313,7 +314,7 @@ private fun RegisterOtpStep(
             } else {
                 Text(
                     text = formatOtpRemaining(state.remainingOtpSeconds),
-                    color = AppTextBody,
+                    color = UzradyabTheme.colors.textBody,
                     fontSize = 12.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.Medium,
@@ -398,8 +399,8 @@ private fun RegisterPasswordStep(
                 checked = state.isPrivacyPolicyAccepted,
                 onCheckedChange = onPrivacyPolicyAcceptChange,
                 colors = androidx.compose.material3.CheckboxDefaults.colors(
-                    checkedColor = AppBlue,
-                    uncheckedColor = AppTextBody
+                    checkedColor = UzradyabTheme.colors.primary,
+                    uncheckedColor = UzradyabTheme.colors.textBody
                 )
             )
             Spacer(modifier = Modifier.width(4.dp))
@@ -409,19 +410,19 @@ private fun RegisterPasswordStep(
             ) {
                 Text(
                     text = "با ",
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 13.sp,
                 )
                 Text(
                     text = stringResource(R.string.str_e59048e1),
-                    color = AppBlue,
+                    color = UzradyabTheme.colors.primary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
                 )
                 Text(
                     text = " موافقم",
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 13.sp,
                 )
             }
@@ -441,7 +442,7 @@ private fun RegisterPasswordStep(
         androidx.compose.material3.ModalBottomSheet(
             onDismissRequest = { showPrivacyPolicy = false },
             sheetState = sheetState,
-            containerColor = androidx.compose.ui.graphics.Color.White,
+            containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
         ) {
             Column(
                 modifier = Modifier
@@ -453,7 +454,7 @@ private fun RegisterPasswordStep(
                     text = stringResource(R.string.str_e59048e1),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
@@ -462,7 +463,7 @@ private fun RegisterPasswordStep(
                     text = stringResource(R.string.str_46a0f4a8),
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
-                    color = AppTextBody,
+                    color = UzradyabTheme.colors.textBody,
                     textAlign = TextAlign.Right,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -492,7 +493,7 @@ private fun PasswordRules(rules: PasswordRuleState) {
 
 @Composable
 private fun PasswordRule(text: String, isMet: Boolean) {
-    val color = if (isMet) MaterialTheme.colorScheme.primary else AppTextBody
+    val color = if (isMet) MaterialTheme.colorScheme.primary else UzradyabTheme.colors.textBody
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -518,13 +519,11 @@ private fun PasswordRule(text: String, isMet: Boolean) {
     }
 }
 
-
-
 @Composable
 private fun RegisterFooter(onLoginClick: () -> Unit) {
     Text(
         text = stringResource(R.string.str_aaa682a4),
-        color = AppTextBody,
+        color = UzradyabTheme.colors.textBody,
         fontSize = 14.sp,
         lineHeight = 24.sp,
         textAlign = TextAlign.Center,

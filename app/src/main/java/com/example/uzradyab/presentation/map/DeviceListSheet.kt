@@ -31,13 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.ui.theme.AppTextMuted
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
 
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.core.utils.ImmutableMapWrapper
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun DeviceListSheet(
@@ -51,13 +52,13 @@ fun DeviceListSheet(
         modifier = modifier
             .fillMaxHeight()
             .widthIn(max = 360.dp),
-        color = Color.White.copy(alpha = 0.96f),
+        color = themedColor(light = Color.White, dark = Color(0xFF1C262E)).copy(alpha = 0.96f),
         shadowElevation = 8.dp,
     ) {
         Column(modifier = Modifier.padding(top = 80.dp, start = 12.dp, end = 12.dp)) {
             Text(
                 text = stringResource(R.string.str_3fb91542),
-                color = AppTextPrimary,
+                color = UzradyabTheme.colors.textPrimary,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Right,
@@ -92,7 +93,7 @@ private fun DeviceRowCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         border = if (selected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
@@ -108,7 +109,7 @@ private fun DeviceRowCard(
             ) {
                 Text(
                     text = device.name,
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -117,7 +118,7 @@ private fun DeviceRowCard(
                 )
                 Text(
                     text = position?.serverTime ?: device.lastUpdate ?: formatStatus(device.status),
-                    color = AppTextMuted,
+                    color = UzradyabTheme.colors.textMuted,
                     fontSize = 11.sp,
                     maxLines = 1,
                     textAlign = TextAlign.Right,
@@ -134,7 +135,7 @@ private fun DeviceRowCard(
             ) {
                 Text(
                     text = device.name.take(1).ifBlank { "خ" },
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 10.dp),
@@ -144,10 +145,11 @@ private fun DeviceRowCard(
     }
 }
 
+@Composable
 private fun statusColor(status: String): Color = when (status) {
-    "online" -> Color(0xFF22A566)
-    "offline" -> Color(0xFFE45353)
-    else -> Color(0xFF8A98A8)
+    "online" -> themedColor(light = Color(0xFF22A566), dark = Color(0xFF00C89B))
+    "offline" -> themedColor(light = Color(0xFFE45353), dark = Color(0xFFE55353))
+    else -> themedColor(light = Color(0xFF8A98A8), dark = Color(0xFF97ADBF))
 }
 
 private fun formatStatus(status: String): String = when (status) {

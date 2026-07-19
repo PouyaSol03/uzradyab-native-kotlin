@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 data class ColumnOption(
     val id: String,
@@ -41,7 +42,7 @@ fun ColumnsSelectionBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
@@ -61,13 +62,13 @@ fun ColumnsSelectionBottomSheet(
                         text = stringResource(R.string.str_d3ed1245),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1C262E)
+                        color = themedColor(light = Color(0xFF1C262E), dark = Color(0xFFC0CDD8))
                     )
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Close",
-                            tint = Color(0xFF676C70)
+                            tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
                         )
                     }
                 }
@@ -77,7 +78,7 @@ fun ColumnsSelectionBottomSheet(
                 Text(
                     text = stringResource(R.string.str_da3316cb),
                     fontSize = 14.sp,
-                    color = Color(0xFF676C70),
+                    color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
@@ -92,7 +93,7 @@ fun ColumnsSelectionBottomSheet(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) Color(0xFFEBF3FF) else Color(0xFFF8F9FA))
+                                .background(if (isSelected) themedColor(light = Color(0xFFEBF3FF), dark = Color(0xFF00183D)) else themedColor(light = Color(0xFFF8F9FA), dark = Color(0xFF1A1F24)))
                                 .clickable(enabled = !option.isRequired) {
                                     onToggle(option.id)
                                 }
@@ -104,7 +105,7 @@ fun ColumnsSelectionBottomSheet(
                                 text = option.name,
                                 fontSize = 15.sp,
                                 fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-                                color = if (isSelected) Color(0xFF307EF3) else Color(0xFF495057)
+                                color = if (isSelected) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFF495057), dark = Color(0xFFACB2B9))
                             )
                             
                             Checkbox(
@@ -112,10 +113,10 @@ fun ColumnsSelectionBottomSheet(
                                 onCheckedChange = if (option.isRequired) null else { { onToggle(option.id) } },
                                 enabled = !option.isRequired,
                                 colors = CheckboxDefaults.colors(
-                                    checkedColor = Color(0xFF307EF3),
-                                    checkmarkColor = Color.White,
-                                    uncheckedColor = Color(0xFFCED4DA),
-                                    disabledCheckedColor = Color(0xFF90CAF9)
+                                    checkedColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
+                                    checkmarkColor = themedColor(light = Color.White, dark = Color.White),
+                                    uncheckedColor = themedColor(light = Color(0xFFCED4DA), dark = Color(0xFF21262C)),
+                                    disabledCheckedColor = themedColor(light = Color(0xFF90CAF9), dark = Color(0xFF074679))
                                 )
                             )
                         }
@@ -130,9 +131,9 @@ fun ColumnsSelectionBottomSheet(
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                    colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 ) {
-                    Text(stringResource(R.string.str_911598cd), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(R.string.str_911598cd), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = themedColor(light = Color.White, dark = Color.White))
                 }
             }
         }

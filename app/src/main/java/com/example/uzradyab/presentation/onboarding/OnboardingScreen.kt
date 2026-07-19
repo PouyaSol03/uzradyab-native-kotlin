@@ -57,6 +57,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -96,7 +97,7 @@ fun OnboardingScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
         ) {
             // Horizontal Pager for onboarding screens (scrolling LTR)
             HorizontalPager(
@@ -116,13 +117,13 @@ fun OnboardingScreen(
                     .statusBarsPadding()
                     .padding(top = 16.dp, end = 16.dp)
                     .size(40.dp)
-                    .background(Color(0xFFEFF3F5), shape = CircleShape)
+                    .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), shape = CircleShape)
                     .align(Alignment.TopEnd)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.str_fa882772),
-                    tint = Color(0xFF384C5C),
+                    tint = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -154,7 +155,7 @@ fun OnboardingScreen(
                                     .height(8.dp)
                                     .width(if (isActive) 24.dp else 8.dp)
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(if (isActive) Color(0xFF384C5C) else Color(0xFF97ADBF))
+                                    .background(if (isActive) themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)) else themedColor(light = Color(0xFF97ADBF), dark = Color(0xFF31414F)))
                             )
                         }
                     }
@@ -172,8 +173,8 @@ fun OnboardingScreen(
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF307EF3),
-                            contentColor = Color.White
+                            containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
+                            contentColor = themedColor(light = Color.White, dark = Color.White)
                         ),
                         modifier = Modifier.height(48.dp)
                     ) {
@@ -248,7 +249,7 @@ fun OnboardingPageContent(
         // Text Content
         Text(
             text = pageData.title,
-            color = Color(0xFF333638),
+            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold,
             textAlign = TextAlign.Center,
@@ -259,7 +260,7 @@ fun OnboardingPageContent(
 
         Text(
             text = pageData.description,
-            color = Color(0xFF6A8BA5),
+            color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
             fontSize = 16.sp,
             fontWeight = FontWeight.Light,
             textAlign = TextAlign.Center,

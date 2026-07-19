@@ -29,9 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uzradyab.ui.theme.AppBlue
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 enum class HomeBottomItem {
     Events,
@@ -54,7 +56,7 @@ fun HomeBottomMenu(
             modifier = modifier
                 .width(324.dp)
                 .height(57.dp)
-                .background(Color(0xFF27343F), RoundedCornerShape(64.dp)),
+                .background(themedColor(light = Color(0xFF27343F), dark = Color(0xFFA0B4C4)), RoundedCornerShape(64.dp)),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -93,7 +95,7 @@ private fun BottomMenuItem(
     onClick: () -> Unit,
     icon: @Composable (Color) -> Unit,
 ) {
-    val itemColor = if (selected) Color.White else Color.White.copy(alpha = 0.72f)
+    val itemColor = if (selected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color.White, dark = Color(0xFF27343F)).copy(alpha = 0.72f)
 
     Box(
         modifier = Modifier
@@ -107,7 +109,7 @@ private fun BottomMenuItem(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .size(10.dp)
-                    .background(AppBlue, CircleShape),
+                    .background(UzradyabTheme.colors.primary, CircleShape),
             )
         }
         Column(
@@ -126,8 +128,6 @@ private fun BottomMenuItem(
         }
     }
 }
-
-
 
 @Composable
 private fun AlarmIcon(color: Color) {

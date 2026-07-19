@@ -28,9 +28,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uzradyab.ui.theme.AppBlue
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 enum class BottomNavItem {
     ALARM, DEVICES, MAP, ACCOUNT
@@ -47,7 +49,7 @@ fun AppBottomNavigation(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .height(57.dp)
-            .background(Color(0xFF27343F), RoundedCornerShape(64.dp))
+            .background(themedColor(light = Color(0xFF27343F), dark = Color(0xFFA0B4C4)), RoundedCornerShape(64.dp))
             .padding(horizontal = 32.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -96,7 +98,7 @@ private fun BottomNavItemView(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) Color.White else Color(0xB8FFFFFF),
+                tint = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xB8FFFFFF), dark = Color(0xB81F1F1F)),
                 modifier = Modifier.size(24.dp)
             )
             if (showDot && isSelected) {
@@ -104,14 +106,14 @@ private fun BottomNavItemView(
                     modifier = Modifier
                         .size(10.dp)
                         .align(Alignment.TopEnd)
-                        .background(AppBlue, CircleShape)
+                        .background(UzradyabTheme.colors.primary, CircleShape)
                 )
             }
         }
         Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
-            color = if (isSelected) Color.White else Color(0xB8FFFFFF),
+            color = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xB8FFFFFF), dark = Color(0xB81F1F1F)),
             fontSize = 10.sp,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Light,
         )

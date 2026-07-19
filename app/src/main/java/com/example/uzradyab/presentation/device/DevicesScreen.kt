@@ -38,6 +38,7 @@ import com.example.uzradyab.presentation.map.MapViewModel
 import com.example.uzradyab.presentation.map.daysUntilExpiration
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun DevicesRoute(
@@ -110,7 +111,7 @@ fun DevicesScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_3fb91542),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -120,7 +121,7 @@ fun DevicesScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = Color(0xFFF3F4F6) // Figma background
+            containerColor = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23)) // Figma background
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -140,8 +141,8 @@ fun DevicesScreen(
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp)
-                            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp))
-                            .background(Color.White, RoundedCornerShape(8.dp))
+                            .border(1.dp, themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23)), RoundedCornerShape(8.dp))
+                            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
@@ -152,18 +153,18 @@ fun DevicesScreen(
                         ) {
                             Box(modifier = Modifier.weight(1f)) {
                                 if (searchQuery.isEmpty()) {
-                                    Text(stringResource(R.string.str_31665826), color = Color(0xFFAEB1B4), fontSize = 14.sp)
+                                    Text(stringResource(R.string.str_31665826), color = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)), fontSize = 14.sp)
                                 }
                                 BasicTextField(
                                     value = searchQuery,
                                     onValueChange = { searchQuery = it },
-                                    textStyle = TextStyle(fontSize = 14.sp, color = Color(0xFF333638)),
+                                    textStyle = TextStyle(fontSize = 14.sp, color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))),
                                     singleLine = true,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color(0xFFAEB1B4), modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Search, contentDescription = "Search", tint = themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)), modifier = Modifier.size(20.dp))
                         }
                     }
 
@@ -171,13 +172,13 @@ fun DevicesScreen(
                     Box(
                         modifier = Modifier
                             .height(48.dp)
-                            .border(1.dp, Color(0xFF3B82F6), RoundedCornerShape(8.dp))
+                            .border(1.dp, themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), RoundedCornerShape(8.dp))
                             .clip(RoundedCornerShape(8.dp))
                             .clickable { showFilterSheet = true }
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(R.string.str_74921051), color = Color(0xFF3B82F6), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_74921051), color = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -187,7 +188,7 @@ fun DevicesScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .height(48.dp)
-                        .border(1.dp, Color(0xFF3B82F6), RoundedCornerShape(8.dp))
+                        .border(1.dp, themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), RoundedCornerShape(8.dp))
                         .clip(RoundedCornerShape(8.dp))
                         .clickable(onClick = onAddDeviceClick),
                     contentAlignment = Alignment.Center
@@ -196,9 +197,9 @@ fun DevicesScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add", tint = Color(0xFF3B82F6), modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Add, contentDescription = "Add", tint = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.str_bde8bf83), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color(0xFF3B82F6))
+                        Text(text = stringResource(R.string.str_bde8bf83), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
                     }
                 }
 
@@ -232,7 +233,7 @@ fun DeviceListCard(
     val daysRemaining = daysUntilExpiration(device.expirationTime)
     val isExpired = daysRemaining != null && daysRemaining <= 0
 
-    val cardBorderColor = if (isExpired) Color(0xFFE53935) else Color(0xFFE5E7EB)
+    val cardBorderColor = if (isExpired) themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)) else themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23))
     val cardBorderWidth = 1.dp
 
     Card(
@@ -240,7 +241,7 @@ fun DeviceListCard(
             .fillMaxWidth()
             .border(cardBorderWidth, cardBorderColor, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -254,28 +255,28 @@ fun DeviceListCard(
                     text = device.name.toPersianDigits(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333638)
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // GSM Signal
                     Icon(
                         imageVector = Icons.Default.Wifi,
                         contentDescription = "GSM",
-                        tint = Color(0xFF00C89B),
+                        tint = themedColor(light = Color(0xFF00C89B), dark = Color(0xFF66FFDD)),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("GSM", fontSize = 12.sp, color = Color(0xFF676C70), fontWeight = FontWeight.Light)
+                    Text("GSM", fontSize = 12.sp, color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)), fontWeight = FontWeight.Light)
                     Spacer(modifier = Modifier.width(16.dp))
                     // GPS Signal
                     Icon(
                         imageVector = Icons.Default.Wifi,
                         contentDescription = "GPS",
-                        tint = Color(0xFFE55353),
+                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("GPS", fontSize = 12.sp, color = Color(0xFF676C70), fontWeight = FontWeight.Light)
+                    Text("GPS", fontSize = 12.sp, color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)), fontWeight = FontWeight.Light)
                 }
             }
             
@@ -283,18 +284,18 @@ fun DeviceListCard(
             
             // Info Rows
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = Color(0xFF8B98A5))
+                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = themedColor(light = Color(0xFF8B98A5), dark = Color(0xFFA3A6A8)))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Text(device.uniqueId.toPersianDigits(), fontSize = 15.sp, color = Color(0xFF333638), fontWeight = FontWeight.Medium)
+                    Text(device.uniqueId.toPersianDigits(), fontSize = 15.sp, color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)), fontWeight = FontWeight.Medium)
                 }
             }
             
             Spacer(modifier = Modifier.height(12.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = Color(0xFF8B98A5))
+                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = themedColor(light = Color(0xFF8B98A5), dark = Color(0xFFA3A6A8)))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Text((device.phone ?: "—").toPersianDigits(), fontSize = 15.sp, color = Color(0xFF333638), fontWeight = FontWeight.Medium)
+                    Text((device.phone ?: "—").toPersianDigits(), fontSize = 15.sp, color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)), fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -306,17 +307,17 @@ fun DeviceListCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFFCE4E4), RoundedCornerShape(12.dp))
+                        .background(themedColor(light = Color(0xFFFCE4E4), dark = Color(0xFF370606)), RoundedCornerShape(12.dp))
                         .padding(16.dp)
                 ) {
                     Row(
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.ErrorOutline, contentDescription = "Error", tint = Color(0xFFE53935))
+                        Icon(Icons.Default.ErrorOutline, contentDescription = "Error", tint = themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)))
                         Text(
                             text = stringResource(R.string.str_75887764),
-                            color = Color(0xFFE53935),
+                            color = themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             lineHeight = 22.sp
@@ -326,8 +327,8 @@ fun DeviceListCard(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = Color(0xFFE53935))
-                        Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = Color(0xFFE53935), fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)))
+                        Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)), fontWeight = FontWeight.Medium)
                     }
                 }
 
@@ -340,16 +341,16 @@ fun DeviceListCard(
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+                    colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
                 ) {
-                    Text(stringResource(R.string.str_1dce144e), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Color.White)
+                    Text(stringResource(R.string.str_1dce144e), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color.White, dark = Color.White))
                 }
             } else {
                 // Active State Background Box
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF384C5C), RoundedCornerShape(12.dp))
+                        .background(themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), RoundedCornerShape(12.dp))
                         .padding(16.dp)
                 ) {
                     Row(
@@ -357,8 +358,8 @@ fun DeviceListCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = Color(0xFFC0CDD8))
-                        Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_fb8cbc4d), fontSize = 14.sp, color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
+                        Text(formatExpirationDate(device.expirationTime), fontSize = 14.sp, color = themedColor(light = Color.White, dark = Color.White), fontWeight = FontWeight.Medium)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -368,16 +369,16 @@ fun DeviceListCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(stringResource(R.string.str_f2f0dded), fontSize = 14.sp, color = Color(0xFFC0CDD8))
+                        Text(stringResource(R.string.str_f2f0dded), fontSize = 14.sp, color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatEndDate(device.expirationTime), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                            Text(formatEndDate(device.expirationTime), fontSize = 14.sp, color = themedColor(light = Color.White, dark = Color.White), fontWeight = FontWeight.Medium)
                             Spacer(modifier = Modifier.width(8.dp))
                             Box(
                                 modifier = Modifier
-                                    .background(Color(0xFF8B9CAE), RoundedCornerShape(16.dp))
+                                    .background(themedColor(light = Color(0xFF8B9CAE), dark = Color(0xFF343F4B)), RoundedCornerShape(16.dp))
                                     .padding(horizontal = 12.dp, vertical = 4.dp)
                             ) {
-                                Text("${daysRemaining.toString().toPersianDigits()} روز باقیمانده", fontSize = 12.sp, color = Color.White)
+                                Text("${daysRemaining.toString().toPersianDigits()} روز باقیمانده", fontSize = 12.sp, color = themedColor(light = Color.White, dark = Color.White))
                             }
                         }
                     }
@@ -394,9 +395,9 @@ fun DeviceListCard(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.str_a6b9c52a), fontSize = 15.sp, color = Color(0xFF3B82F6), fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.str_a6b9c52a), fontSize = 15.sp, color = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Manage", tint = Color(0xFF3B82F6))
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Manage", tint = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
                 }
             }
         }
@@ -483,7 +484,7 @@ fun FilterBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
         dragHandle = { BottomSheetDefaults.DragHandle() }
     ) {
         Column(
@@ -496,7 +497,7 @@ fun FilterBottomSheet(
                 text = "فیلتر دستگاه‌ها",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF333638),
+                color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             
@@ -528,14 +529,14 @@ fun FilterOptionRow(
         Text(
             text = title,
             fontSize = 16.sp,
-            color = if (isSelected) Color(0xFF3B82F6) else Color(0xFF333638),
+            color = if (isSelected) themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)) else themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
         if (isSelected) {
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                tint = Color(0xFF3B82F6)
+                tint = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE))
             )
         }
     }

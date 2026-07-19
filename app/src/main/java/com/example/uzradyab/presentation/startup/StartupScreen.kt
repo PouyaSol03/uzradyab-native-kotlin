@@ -40,6 +40,7 @@ import com.example.uzradyab.presentation.common.UzradyabPrimaryButton
 import com.example.uzradyab.presentation.common.UzradyabTextAction
 import android.content.Intent
 import android.net.Uri
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun StartupRoute(
@@ -123,7 +124,7 @@ fun StartupScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F))),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -144,13 +145,13 @@ fun StartupScreen(
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFEFF3F5)),
+                            .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126))),
                         contentAlignment = Alignment.Center
                     ) {
                         // Drawing fingerprint icon/representation manually since we don't have standard assets
                         CircularProgressIndicator(
                             progress = { 1f },
-                            color = Color(0xFF384C5C),
+                            color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                             strokeWidth = 2.dp,
                             modifier = Modifier.size(90.dp)
                         )
@@ -158,7 +159,7 @@ fun StartupScreen(
                             modifier = Modifier
                                 .size(50.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF384C5C)),
+                                .background(themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))),
                             contentAlignment = Alignment.Center
                         ) {
                             // Text representation or generic lock shape
@@ -171,7 +172,7 @@ fun StartupScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "ورود امن به برنامه",
-                        color = Color(0xFF333638),
+                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
@@ -180,7 +181,7 @@ fun StartupScreen(
                     
                     Text(
                         text = "برای ورود به برنامه، حسگر اثر انگشت یا تشخیص چهره دستگاه خود را لمس کنید.",
-                        color = Color(0xFF6A8BA5),
+                        color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp,

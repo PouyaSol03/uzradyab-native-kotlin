@@ -44,6 +44,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.uzradyab.BuildConfig
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.CircleShape
 
 @Composable
 fun AppMenuDialog(
@@ -74,7 +78,7 @@ fun AppMenuDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(10.dp))
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -82,7 +86,7 @@ fun AppMenuDialog(
                 // Right side: Title
                 Text(
                     text = stringResource(R.string.str_ace11fd5),
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Right,
@@ -95,7 +99,7 @@ fun AppMenuDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.str_66030b73),
-                        color = Color(0xFF333638),
+                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -103,21 +107,20 @@ fun AppMenuDialog(
                 }
             }
             
-            /*
             // Theme Toggle
             val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(10.dp))
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "پوسته برنامه",
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Right,
@@ -125,26 +128,63 @@ fun AppMenuDialog(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    ThemeOptionButton(
-                        text = "روشن",
-                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.LIGHT,
-                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.LIGHT) }
+                    val isDark = themeMode == com.example.uzradyab.domain.model.ThemeMode.DARK
+                    val offset by androidx.compose.animation.core.animateDpAsState(
+                        targetValue = if (isDark) 0.dp else 26.dp,
+                        animationSpec = androidx.compose.animation.core.tween(300),
+                        label = "themeSwitch"
                     )
-                    ThemeOptionButton(
-                        text = "تاریک",
-                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.DARK,
-                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.DARK) }
+
+                    Text(
+                        text = if (isDark) "تاریک" else "روشن",
+                        color = themedColor(light = UzradyabTheme.colors.primary, dark = UzradyabTheme.colors.primary),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
                     )
-                    ThemeOptionButton(
-                        text = "سیستم",
-                        isSelected = themeMode == com.example.uzradyab.domain.model.ThemeMode.SYSTEM,
-                        onClick = { themeViewModel.setThemeMode(com.example.uzradyab.domain.model.ThemeMode.SYSTEM) }
-                    )
+
+                    Box(
+                        modifier = Modifier
+                            .width(54.dp)
+                            .height(28.dp)
+                            .background(
+                                color = themedColor(light = Color(0xFFE9F0F8), dark = Color(0xFF1C262E)),
+                                shape = RoundedCornerShape(14.dp)
+                            )
+                            .clickable {
+                                themeViewModel.setThemeMode(
+                                    if (isDark) com.example.uzradyab.domain.model.ThemeMode.LIGHT
+                                    else com.example.uzradyab.domain.model.ThemeMode.DARK
+                                )
+                            }
+                            .padding(2.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .offset(x = offset)
+                                .background(
+                                    color = themedColor(light = Color.White, dark = Color(0xFF27343F)),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isDark) {
+                                Text(
+                                    text = "🌙",
+                                    fontSize = 12.sp,
+                                )
+                            } else {
+                                Text(
+                                    text = "☀️",
+                                    fontSize = 12.sp,
+                                )
+                            }
+                        }
+                    }
                 }
             }
-            */
 
             // Group 2: Main Menu Items (1-4)
             Column(
@@ -233,14 +273,14 @@ fun AppMenuDialog(
 private fun MenuCardItem(
     label: String,
     icon: ImageVector,
-    color: Color = Color(0xFF333638),
+    color: Color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(Color.White, RoundedCornerShape(10.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.End,
@@ -249,7 +289,7 @@ private fun MenuCardItem(
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = if (color == Color(0xFFE55353)) color else Color(0xFFAEB1B4),
+            tint = if (color == themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))) color else themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)),
             modifier = Modifier.size(24.dp)
         )
 
@@ -268,22 +308,27 @@ private fun MenuCardItem(
 
 @Composable
 private fun IranFlagIcon() {
+    val white = themedColor(light = Color.White, dark = Color(0xFF27343F))
+    val green = themedColor(light = Color(0xFF239F40), dark = Color(0xFF82E398))
+    val red = themedColor(light = Color(0xFFDA0000), dark = Color(0xFFF43232))
+    val strokeColor = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))
+    
     Canvas(modifier = Modifier.size(width = 28.dp, height = 18.dp)) {
         drawRoundRect(
-            color = Color.White,
+            color = white,
             cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
         )
         drawRect(
-            color = Color(0xFF239F40),
+            color = green,
             size = androidx.compose.ui.geometry.Size(size.width, size.height / 3f),
         )
         drawRect(
-            color = Color(0xFFDA0000),
+            color = red,
             topLeft = Offset(0f, size.height * 2f / 3f),
             size = androidx.compose.ui.geometry.Size(size.width, size.height / 3f),
         )
         drawRoundRect(
-            color = Color(0xFF333638),
+            color = strokeColor,
             cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
@@ -296,7 +341,7 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(Color(0xFF1C2128), RoundedCornerShape(10.dp))
+            .background(themedColor(light = Color(0xFF1C2128), dark = Color(0xFFC3CBD5)), RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.End,
@@ -306,7 +351,7 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
         Box(
             modifier = Modifier
                 .size(24.dp)
-                .background(Color(0xFF30363D), RoundedCornerShape(6.dp)),
+                .background(themedColor(light = Color(0xFF30363D), dark = Color(0xFFA9B2BC)), RoundedCornerShape(6.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Text("🐛", fontSize = 14.sp)
@@ -314,7 +359,7 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
 
         Text(
             text = stringResource(R.string.str_24b95075),
-            color = Color(0xFF58A6FF),
+            color = themedColor(light = Color(0xFF58A6FF), dark = Color(0xFF003C80)),
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Right,
@@ -325,27 +370,3 @@ private fun DebugLogsMenuItem(onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun ThemeOptionButton(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .background(
-                if (isSelected) Color(0xFF2F80ED) else Color(0xFFF7FAFD),
-                RoundedCornerShape(8.dp)
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            color = if (isSelected) Color.White else Color(0xFF333638),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}

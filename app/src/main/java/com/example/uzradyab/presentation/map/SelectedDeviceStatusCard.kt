@@ -53,8 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.example.uzradyab.R
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -63,6 +62,8 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import org.json.JSONObject
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun SelectedDeviceStatusCard(
@@ -118,7 +119,7 @@ fun SelectedDeviceStatusCard(
                 .fillMaxWidth()
                 .height(bodyHeight),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -223,7 +224,7 @@ private fun DeviceHeader(
                 Text(
                     text = device.name,
                     modifier = Modifier.weight(1f, fill = false),
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium,
@@ -234,7 +235,7 @@ private fun DeviceHeader(
             }
             Text(
                 text = "آخرین بروزرسانی: ${formatRelativeTime(position?.serverTime ?: device.lastUpdate)}",
-                color = Color(0xFF9DA2A5),
+                color = themedColor(light = Color(0xFF9DA2A5), dark = Color(0xFF97ADBF)),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
                 maxLines = 1,
@@ -254,7 +255,7 @@ private fun DistanceRow(
     Row(
         modifier = modifier
             .height(48.dp)
-            .background(if (dark) Color(0xFF27343F) else Color(0xFFF7F7F8), RoundedCornerShape(12.dp))
+            .background(if (dark) themedColor(light = Color(0xFF27343F), dark = Color(0xFFA0B4C4)) else themedColor(light = Color(0xFFF7F7F8), dark = Color(0xFF1D1D21)), RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -266,7 +267,7 @@ private fun DistanceRow(
         )
         Text(
             text = "پیمایش امروز: $todayDistanceText",
-            color = if (dark) Color.White else AppTextPrimary,
+            color = if (dark) themedColor(light = Color.White, dark = Color(0xFF27343F)) else UzradyabTheme.colors.textPrimary,
             fontSize = 12.sp,
             lineHeight = 22.sp,
             textAlign = TextAlign.Right,
@@ -284,7 +285,7 @@ private fun ExpirationRow(
     Row(
         modifier = modifier
             .height(48.dp)
-            .background(Color(0xFFFADDDD), RoundedCornerShape(12.dp))
+            .background(themedColor(light = Color(0xFFFADDDD), dark = Color(0xFF350808)), RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -299,7 +300,7 @@ private fun ExpirationRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = expirationText(daysRemaining),
-                color = Color(0xFF7D2D2D),
+                color = themedColor(light = Color(0xFF7D2D2D), dark = Color(0xFFD68E8E)),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,
@@ -323,7 +324,7 @@ private fun SecondaryActionPill(
     Row(
         modifier = modifier
             .height(36.dp)
-            .background(if (dark) Color.Transparent else Color.White, RoundedCornerShape(10.dp))
+            .background(if (dark) Color.Transparent else themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(10.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp),
         horizontalArrangement = Arrangement.Center,
@@ -332,9 +333,9 @@ private fun SecondaryActionPill(
         Text(
             text = text,
             color = when {
-                dark -> Color.White
-                primaryText -> AppBlue
-                else -> Color(0xFF384C5C)
+                dark -> themedColor(light = Color.White, dark = Color.White)
+                primaryText -> UzradyabTheme.colors.primary
+                else -> themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
             },
             fontSize = 12.sp,
             lineHeight = 21.sp,
@@ -342,7 +343,7 @@ private fun SecondaryActionPill(
         )
         if (showIcon) {
             Spacer(modifier = Modifier.width(6.dp))
-            PlayCircleIcon(color = if (dark) Color.White else Color(0xFF384C5C), size = 16)
+            PlayCircleIcon(color = if (dark) themedColor(light = Color.White, dark = Color.White) else themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), size = 16)
         }
     }
 }
@@ -393,11 +394,12 @@ private fun ChevronHandle(
         Image(
             painter = painterResource(id = R.drawable.selected_device_card_handle),
             contentDescription = null,
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(themedColor(light = Color.White, dark = Color(0xFF27343F)))
         )
         Icon(
             imageVector = Icons.Default.KeyboardArrowUp,
             contentDescription = null,
-            tint = AppBlue,
+            tint = UzradyabTheme.colors.primary,
             modifier = Modifier.rotate(rotation).offset(y = (-3).dp).size(22.dp)
         )
     }
@@ -413,16 +415,16 @@ private fun PrimaryActionButton(
         onClick = onClick,
         modifier = modifier.height(48.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ChevronSideIcon(left = true, color = Color.White, size = 20)
+            ChevronSideIcon(left = true, color = themedColor(light = Color.White, dark = Color.White), size = 20)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White
+                color = themedColor(light = Color.White, dark = Color.White)
             )
         }
     }
@@ -434,7 +436,7 @@ private fun CircleIconButton(onClick: () -> Unit, content: @Composable () -> Uni
         onClick = onClick,
         modifier = Modifier
             .size(48.dp)
-            .background(Color(0xFFECF4FE), CircleShape),
+            .background(themedColor(light = Color(0xFFECF4FE), dark = UzradyabTheme.colors.primary.copy(alpha = 0.12f)), CircleShape),
     ) {
         content()
     }
@@ -443,25 +445,23 @@ private fun CircleIconButton(onClick: () -> Unit, content: @Composable () -> Uni
 @Composable
 private fun SignalBlock(label: String, active: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        WifiIcon(color = if (active) Color(0xFF00C89B) else Color(0xFFE55353))
+        WifiIcon(color = if (active) themedColor(light = Color(0xFF00C89B), dark = Color(0xFF00C89B)) else themedColor(light = Color(0xFFE55353), dark = Color(0xFFE55353)))
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = label,
-            color = Color(0xFF676C70),
+            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF6A8BA5)),
             fontSize = 10.sp,
             fontWeight = FontWeight.Light,
         )
     }
 }
 
-
-
 @Composable
 private fun WarningDotIcon() {
     Icon(
         imageVector = Icons.Default.Error,
         contentDescription = "Warning",
-        tint = Color(0xFFE55353),
+        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
         modifier = Modifier.size(16.dp)
     )
 }
@@ -491,7 +491,7 @@ private fun DirectionIcon() {
     Icon(
         painter = painterResource(id = R.drawable.ic_custom_location),
         contentDescription = "Directions",
-        tint = androidx.compose.ui.graphics.Color.Unspecified,
+        tint = themedColor(light = androidx.compose.ui.graphics.Color.Unspecified, dark = UzradyabTheme.colors.primary),
         modifier = Modifier.size(24.dp)
     )
 }
@@ -501,7 +501,7 @@ private fun ShareIcon() {
     Icon(
         painter = painterResource(id = R.drawable.ic_custom_share),
         contentDescription = "Share",
-        tint = androidx.compose.ui.graphics.Color.Unspecified,
+        tint = themedColor(light = androidx.compose.ui.graphics.Color.Unspecified, dark = UzradyabTheme.colors.primary),
         modifier = Modifier.size(24.dp)
     )
 }
@@ -521,8 +521,6 @@ private fun String.attributeInt(key: String): Int? {
         if (JSONObject(this).has(key)) JSONObject(this).optInt(key) else null
     }.getOrNull()
 }
-
-
 
 private fun expirationText(daysRemaining: Int?): String {
     return when {

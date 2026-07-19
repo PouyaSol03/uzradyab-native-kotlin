@@ -40,6 +40,7 @@ import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +88,7 @@ fun TripReportsScreen(
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
@@ -116,14 +117,14 @@ fun TripReportsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.str_d815091c),
-                                color = Color(0xFF676C70),
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                             Icon(
                                 imageVector = Icons.Default.EventNote,
                                 contentDescription = null,
-                                tint = Color(0xFF676C70),
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -180,7 +181,7 @@ fun TripReportsScreen(
                         Icon(
                             imageVector = Icons.Default.Tune,
                             contentDescription = stringResource(R.string.str_68a2de5f),
-                            tint = Color(0xFF676C70)
+                            tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
                         )
                     }
                 }
@@ -189,11 +190,11 @@ fun TripReportsScreen(
 
                 if (state.isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF307EF3))
+                        CircularProgressIndicator(color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                     }
                 } else if (state.reports.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.str_fb6f9fa9), color = Color.Gray, fontSize = 16.sp)
+                        Text(text = stringResource(R.string.str_fb6f9fa9), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 16.sp)
                     }
                 } else {
                     LazyColumn(
@@ -266,7 +267,7 @@ fun TripReportsScreen(
                     snackbar = { data ->
                         Card(
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -276,12 +277,12 @@ fun TripReportsScreen(
                                 Icon(
                                     imageVector = Icons.Default.Info,
                                     contentDescription = null,
-                                    tint = Color(0xFFE55353)
+                                    tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = data.visuals.message,
-                                    color = Color(0xFFE55353),
+                                    color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -329,7 +330,7 @@ fun TripReportCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -339,15 +340,15 @@ fun TripReportCard(
                     Icon(
                         imageVector = Icons.Default.Route,
                         contentDescription = null,
-                        tint = Color(0xFF307EF3),
+                        tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.str_4190f2e7), color = Color.Gray, fontSize = 12.sp)
+                    Text(text = stringResource(R.string.str_4190f2e7), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 12.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${report.distance} کیلومتر",
-                        color = Color.Black,
+                        color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -358,21 +359,21 @@ fun TripReportCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (selectedColumns.contains("startTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = stringResource(R.string.str_1ba8f1e1), color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_1ba8f1e1), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = report.startTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.startTime, fontSize = 12.sp, color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)), fontWeight = FontWeight.Medium)
                         }
                     }
                 }
                 if (selectedColumns.contains("endTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = stringResource(R.string.str_00682caf), color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_00682caf), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = report.endTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.endTime, fontSize = 12.sp, color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)), fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -383,21 +384,21 @@ fun TripReportCard(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     if (selectedColumns.contains("averageSpeed")) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = stringResource(R.string.str_0ddc0842), color = Color.Gray, fontSize = 10.sp)
+                            Text(text = stringResource(R.string.str_0ddc0842), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = Color(0xFFE5B850), modifier = Modifier.size(14.dp))
+                                Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210)), modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(text = "${report.averageSpeed} کیلومتر بر ساعت", fontSize = 12.sp, color = Color.DarkGray)
+                                Text(text = "${report.averageSpeed} کیلومتر بر ساعت", fontSize = 12.sp, color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)))
                             }
                         }
                     }
                     if (selectedColumns.contains("maxSpeed")) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = stringResource(R.string.str_8263bc39), color = Color.Gray, fontSize = 10.sp)
+                            Text(text = stringResource(R.string.str_8263bc39), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = Color(0xFFE5B850), modifier = Modifier.size(14.dp))
+                                Icon(imageVector = Icons.Default.Speed, contentDescription = null, tint = themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210)), modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(text = "${report.maxSpeed} کیلومتر بر ساعت", fontSize = 12.sp, color = Color.DarkGray)
+                                Text(text = "${report.maxSpeed} کیلومتر بر ساعت", fontSize = 12.sp, color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)))
                             }
                         }
                     }
@@ -407,36 +408,36 @@ fun TripReportCard(
 
             if (selectedColumns.contains("duration")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.Timer, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.Timer, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "مدت زمان سفر: ${report.duration}", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "مدت زمان سفر: ${report.duration}", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
             
             if (selectedColumns.contains("spentFuel")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "سوخت مصرفی: ${report.spentFuel} لیتر", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "سوخت مصرفی: ${report.spentFuel} لیتر", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
             if (selectedColumns.contains("startAddress")) {
                 Row(verticalAlignment = Alignment.Top) {
-                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp).padding(top = 2.dp))
+                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp).padding(top = 2.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "مبدأ: ${startAddressText ?: "نامشخص"}", color = Color.DarkGray, fontSize = 12.sp, lineHeight = 18.sp)
+                    Text(text = "مبدأ: ${startAddressText ?: "نامشخص"}", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp, lineHeight = 18.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
             if (selectedColumns.contains("endAddress")) {
                 Row(verticalAlignment = Alignment.Top) {
-                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp).padding(top = 2.dp))
+                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp).padding(top = 2.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "مقصد: ${endAddressText ?: "نامشخص"}", color = Color.DarkGray, fontSize = 12.sp, lineHeight = 18.sp)
+                    Text(text = "مقصد: ${endAddressText ?: "نامشخص"}", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
         }

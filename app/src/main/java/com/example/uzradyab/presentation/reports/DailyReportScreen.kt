@@ -36,6 +36,7 @@ import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun DailyReportRoute(
@@ -74,7 +75,7 @@ fun DailyReportScreen(
     onCustomDateDismiss: () -> Unit,
     onClearError: () -> Unit
 ) {
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
     
@@ -100,7 +101,7 @@ fun DailyReportScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_454a0f23),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -123,7 +124,7 @@ fun DailyReportScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White)
+                            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                             .padding(16.dp)
                     ) {
                         val selectedDevice = remember(state.devices, state.selectedDeviceId) {
@@ -167,7 +168,7 @@ fun DailyReportScreen(
 
                         // Status card
                         val deviceStatusText = "روشن" // Defaulting to on, as summary is just daily aggregated data
-                        val statusColor = Color(0xFF14B8A6) // Green color for online
+                        val statusColor = themedColor(light = Color(0xFF14B8A6), dark = Color(0xFF3BDDCB)) // Green color for online
 
                         Box(
                             modifier = Modifier
@@ -184,12 +185,12 @@ fun DailyReportScreen(
                                 Icon(
                                     imageVector = Icons.Default.DirectionsCar,
                                     contentDescription = null,
-                                    tint = Color.White,
+                                    tint = themedColor(light = Color.White, dark = Color.White),
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
                                     text = deviceStatusText,
-                                    color = Color.White,
+                                    color = themedColor(light = Color.White, dark = Color.White),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -314,8 +315,8 @@ fun DailyReportScreen(
                                 .weight(1f)
                                 .height(52.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
-                            border = BorderStroke(1.dp, Color(0xFF307EF3))
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC))),
+                            border = BorderStroke(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                         ) {
                             Text(stringResource(R.string.str_f792dea4), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
@@ -326,9 +327,9 @@ fun DailyReportScreen(
                                 .weight(2f)
                                 .height(52.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                            colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                         ) {
-                            Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = themedColor(light = Color.White, dark = Color.White))
                         }
                     }
                 }
@@ -372,7 +373,7 @@ fun DailyReportScreen(
                         snackbar = { data ->
                             Card(
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                                colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
@@ -382,12 +383,12 @@ fun DailyReportScreen(
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Default.Warning,
                                         contentDescription = null,
-                                        tint = Color(0xFFE55353)
+                                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = data.visuals.message,
-                                        color = Color(0xFFE55353),
+                                        color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium
                                     )

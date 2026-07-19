@@ -30,8 +30,8 @@ import com.example.uzradyab.R
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +53,7 @@ fun ContactSupportScreen(
                             text = "تماس با ما",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = AppTextPrimary
+                            color = UzradyabTheme.colors.textPrimary
                         )
                     },
                     endContent = {
@@ -64,7 +64,7 @@ fun ContactSupportScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = Color(0xFFF0F4F8), // Premium light background
+            containerColor = themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF131F2A)), // Premium light background
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -72,7 +72,7 @@ fun ContactSupportScreen(
                     .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFFF0F4F8), Color(0xFFE2E8F0))
+                            colors = listOf(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF131F2A)), themedColor(light = Color(0xFFE2E8F0), dark = Color(0xFF151D28)))
                         )
                     )
                     .navigationBarsPadding(),
@@ -86,11 +86,11 @@ fun ContactSupportScreen(
                         .shadow(
                             elevation = 24.dp, 
                             shape = RoundedCornerShape(28.dp), 
-                            spotColor = AppBlue.copy(alpha = 0.15f),
-                            ambientColor = AppBlue.copy(alpha = 0.05f)
+                            spotColor = UzradyabTheme.colors.primary.copy(alpha = 0.15f),
+                            ambientColor = UzradyabTheme.colors.primary.copy(alpha = 0.05f)
                         )
                         .clip(RoundedCornerShape(28.dp))
-                        .background(Color.White)
+                        .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                 ) {
                     // Header with BIG logo
                     Box(
@@ -99,7 +99,7 @@ fun ContactSupportScreen(
                             .weight(1f) // Takes available space, making it responsive
                             .background(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color(0xFFF8FAFC), Color(0xFFEDF2F7))
+                                    colors = listOf(themedColor(light = Color(0xFFF8FAFC), dark = Color(0xFF121F2B)), themedColor(light = Color(0xFFEDF2F7), dark = Color(0xFF131F2A)))
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -125,7 +125,7 @@ fun ContactSupportScreen(
                             fontSize = 15.sp,
                             lineHeight = 28.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF334155),
+                            color = themedColor(light = Color(0xFF334155), dark = Color(0xFF9FAFC6)),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -134,7 +134,7 @@ fun ContactSupportScreen(
 
                         Box(
                             modifier = Modifier
-                                .background(Color(0xFFFEF2F2), RoundedCornerShape(16.dp))
+                                .background(themedColor(light = Color(0xFFFEF2F2), dark = Color(0xFF390404)), RoundedCornerShape(16.dp))
                                 .padding(horizontal = 24.dp, vertical = 12.dp)
                                 .clickable {
                                     val intent = Intent(Intent.ACTION_DIAL).apply {
@@ -147,7 +147,7 @@ fun ContactSupportScreen(
                                 text = "۰۵۱۹۱۰۰۱۳۴۰",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFFDC2626),
+                                color = themedColor(light = Color(0xFFDC2626), dark = Color(0xFFDD6E6E)),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -158,7 +158,7 @@ fun ContactSupportScreen(
                             text = "تماس حاصل فرمایید.",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF334155),
+                            color = themedColor(light = Color(0xFF334155), dark = Color(0xFF9FAFC6)),
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -167,7 +167,7 @@ fun ContactSupportScreen(
                         
                         Box(
                             modifier = Modifier
-                                .background(Color(0xFFF0F9FF), RoundedCornerShape(16.dp))
+                                .background(themedColor(light = Color(0xFFF0F9FF), dark = Color(0xFF00253D)), RoundedCornerShape(16.dp))
                                 .padding(horizontal = 20.dp, vertical = 10.dp)
                                 .clickable {
                                     val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -180,7 +180,7 @@ fun ContactSupportScreen(
                                 text = "www.exirfirm.com",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = AppBlue,
+                                color = UzradyabTheme.colors.primary,
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -193,9 +193,9 @@ fun ContactSupportScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .shadow(8.dp, RoundedCornerShape(16.dp), spotColor = AppBlue.copy(alpha = 0.5f)),
+                                .shadow(8.dp, RoundedCornerShape(16.dp), spotColor = UzradyabTheme.colors.primary.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = AppBlue
+                                containerColor = UzradyabTheme.colors.primary
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {
@@ -203,7 +203,7 @@ fun ContactSupportScreen(
                                 text = "بازگشت به صفحه اصلی",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = themedColor(light = Color.White, dark = Color.White)
                             )
                         }
                     }

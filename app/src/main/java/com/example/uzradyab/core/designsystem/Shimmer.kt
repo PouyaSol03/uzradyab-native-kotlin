@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.uzradyab.ui.theme.themedColor
 
 fun Modifier.shimmerEffect(): Modifier = composed {
     val transition = rememberInfiniteTransition(label = "shimmer")
@@ -29,9 +30,9 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     )
 
     val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.6f),
+        themedColor(light = Color.LightGray, dark = Color(0xFF303030)).copy(alpha = 0.6f),
+        themedColor(light = Color.LightGray, dark = Color(0xFF303030)).copy(alpha = 0.2f),
+        themedColor(light = Color.LightGray, dark = Color(0xFF303030)).copy(alpha = 0.6f),
     )
 
     val brush = Brush.linearGradient(

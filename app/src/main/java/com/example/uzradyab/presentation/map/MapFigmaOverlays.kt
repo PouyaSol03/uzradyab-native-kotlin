@@ -31,9 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uzradyab.ui.theme.AppBlue
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun MapSettingsButton(modifier: Modifier = Modifier) {
@@ -41,7 +43,7 @@ fun MapSettingsButton(modifier: Modifier = Modifier) {
         modifier = modifier
             .height(32.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(AppBlue, RoundedCornerShape(8.dp))
+            .background(UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -49,7 +51,7 @@ fun MapSettingsButton(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.str_c9c1b29c),
-            color = Color.White,
+            color = themedColor(light = Color.White, dark = Color.White),
             fontSize = 14.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.Medium,
@@ -88,13 +90,14 @@ private fun SpeedBubble(
                 .size(width = 52.dp, height = 33.dp),
             contentAlignment = Alignment.TopCenter,
         ) {
+            val primaryColor = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD))
             Canvas(
                 modifier = Modifier
                     .matchParentSize(),
             ) {
                 val radius = 13.dp.toPx()
                 drawRoundRect(
-                    color = Color(0xFFA12887),
+                    color = primaryColor,
                     size = androidx.compose.ui.geometry.Size(width = size.width, height = 26.dp.toPx()),
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius, radius),
                 )
@@ -104,11 +107,11 @@ private fun SpeedBubble(
                     lineTo(21f / 52f * size.width, 25.5f / 33f * size.height)
                     close()
                 }
-                drawPath(path, Color(0xFFA12887))
+                drawPath(path, primaryColor)
             }
             Text(
                 text = text,
-                color = Color.White,
+                color = themedColor(light = Color.White, dark = Color.White),
                 fontSize = if (text == "متوقف") 11.sp else 10.sp,
                 lineHeight = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
@@ -124,10 +127,15 @@ private fun SpeedBubble(
 
 @Composable
 private fun DeviceMarkerIcon(modifier: Modifier = Modifier) {
+    val innerRing = themedColor(light = Color(0x14C8009D), dark = Color(0x14FF66DE))
+    val midRing = themedColor(light = Color(0x3DC8009D), dark = Color(0x3DFF66DE))
+    val primaryColor = themedColor(light = Color(0xFFA22887), dark = Color(0xFFE184CC))
+    val whiteColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
+
     Canvas(modifier = modifier.size(72.dp)) {
-        drawCircle(Color(0x14C8009D), radius = 36.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
-        drawCircle(Color(0x3DC8009D), radius = 30.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
-        drawCircle(Color(0xFFA22887), radius = 24.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
+        drawCircle(innerRing, radius = 36.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
+        drawCircle(midRing, radius = 30.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
+        drawCircle(primaryColor, radius = 24.dp.toPx(), center = Offset(36.dp.toPx(), 36.dp.toPx()))
 
         scale(scale = size.width / 72f, pivot = Offset.Zero) {
             val car = Path().apply {
@@ -157,7 +165,7 @@ private fun DeviceMarkerIcon(modifier: Modifier = Modifier) {
                 lineTo(21.5698f, 41.7749f)
                 close()
             }
-            drawPath(car, Color.White)
+            drawPath(car, whiteColor)
 
             val leftWindow = Path().apply {
                 moveTo(34.7535f, 27.5036f)
@@ -171,29 +179,27 @@ private fun DeviceMarkerIcon(modifier: Modifier = Modifier) {
                 lineTo(34.7535f, 27.5036f)
                 close()
             }
-            drawPath(leftWindow, Color(0xFFA22887))
+            drawPath(leftWindow, primaryColor)
             drawRoundRect(
-                color = Color(0xFFA22887),
+                color = primaryColor,
                 topLeft = Offset(41.3363f, 27.2598f),
                 size = androidx.compose.ui.geometry.Size(5.4857f, 3.6572f),
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(0.6095f, 0.6095f),
             )
-            drawCircle(Color.White, radius = 2.4624f, center = Offset(44.0282f, 41.6958f))
-            drawCircle(Color.White, radius = 2.4624f, center = Offset(28.411f, 41.6958f))
-            drawLine(Color.White, Offset(43.8931f, 45.8361f), Offset(48.8931f, 45.8361f), strokeWidth = 1f, cap = StrokeCap.Round)
-            drawLine(Color.White, Offset(29.8931f, 45.8361f), Offset(34.8931f, 45.8361f), strokeWidth = 1f, cap = StrokeCap.Round)
+            drawCircle(whiteColor, radius = 2.4624f, center = Offset(44.0282f, 41.6958f))
+            drawCircle(whiteColor, radius = 2.4624f, center = Offset(28.411f, 41.6958f))
+            drawLine(whiteColor, Offset(43.8931f, 45.8361f), Offset(48.8931f, 45.8361f), strokeWidth = 1f, cap = StrokeCap.Round)
+            drawLine(whiteColor, Offset(29.8931f, 45.8361f), Offset(34.8931f, 45.8361f), strokeWidth = 1f, cap = StrokeCap.Round)
         }
     }
 }
-
-
 
 @Composable
 private fun SettingsGearIcon() {
     Icon(
         imageVector = Icons.Default.Settings,
         contentDescription = "Settings",
-        tint = Color.White,
+        tint = themedColor(light = Color.White, dark = Color.White),
         modifier = Modifier.size(16.dp)
     )
 }

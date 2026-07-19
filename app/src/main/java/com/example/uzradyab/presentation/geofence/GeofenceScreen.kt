@@ -32,9 +32,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.domain.model.Geofence
 import com.example.uzradyab.presentation.map.AppTopToolbar
-import com.example.uzradyab.ui.theme.AppBlue
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun GeofenceRoute(
@@ -55,7 +57,7 @@ fun GeofenceScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
         ) {
             Column(
                 modifier = Modifier
@@ -70,7 +72,7 @@ fun GeofenceScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_9704c0ca),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -104,10 +106,10 @@ fun GeofenceScreen(
                             .fillMaxWidth()
                             .heightIn(max = maxHeight)
                             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                            .background(Color.White)
+                            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                             .border(
                                 width = 1.dp,
-                                color = Color(0xFFE0E0E0),
+                                color = themedColor(light = Color(0xFFE0E0E0), dark = Color(0xFF262626)),
                                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                             )
                             .clickable(enabled = false) { }
@@ -120,7 +122,7 @@ fun GeofenceScreen(
                                     .width(40.dp)
                                     .height(5.dp)
                                     .clip(RoundedCornerShape(2.5.dp))
-                                    .background(Color(0xFFE0E0E0))
+                                    .background(themedColor(light = Color(0xFFE0E0E0), dark = Color(0xFF262626)))
                                     .align(Alignment.CenterHorizontally)
                             )
 
@@ -153,14 +155,14 @@ fun GeofenceScreen(
                 } else {
                     FloatingActionButton(
                         onClick = { viewModel.toggleAddingMode() },
-                        containerColor = AppBlue,
+                        containerColor = UzradyabTheme.colors.primary,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(16.dp)
                             .navigationBarsPadding(),
                         shape = androidx.compose.foundation.shape.CircleShape
                     ) {
-                        Icon(Icons.Rounded.Add, contentDescription = "Add Geofence", tint = Color.White)
+                        Icon(Icons.Rounded.Add, contentDescription = "Add Geofence", tint = themedColor(light = Color.White, dark = Color.White))
                     }
                 }
             }
@@ -183,7 +185,7 @@ fun AddGeofencePanel(
     onClear: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.str_82e6d85b), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
+        Text(stringResource(R.string.str_82e6d85b), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)))
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -210,7 +212,7 @@ fun AddGeofencePanel(
             DrawMode.POLYGON -> "برای رسم چند ضلعی، حداقل ۳ نقطه روی نقشه انتخاب کنید."
             DrawMode.LINESTRING -> "برای رسم مسیر، نقاط را روی نقشه انتخاب کنید."
         }
-        Text(instructionText, fontSize = 12.sp, color = Color.Gray)
+        Text(instructionText, fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
 
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
@@ -257,10 +259,10 @@ fun AddGeofencePanel(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(
                 onClick = onCancel,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
+                colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color.LightGray, dark = Color(0xFF303030))),
                 modifier = Modifier.weight(1f)
             ) {
-                Text(stringResource(R.string.str_c8d2a1fb), color = Color.Black)
+                Text(stringResource(R.string.str_c8d2a1fb), color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)))
             }
 
             val isValid = when (drawMode) {
@@ -271,11 +273,11 @@ fun AddGeofencePanel(
 
             Button(
                 onClick = onSave,
-                colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
+                colors = ButtonDefaults.buttonColors(containerColor = UzradyabTheme.colors.primary),
                 enabled = isValid,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(stringResource(R.string.str_9b860f70), color = Color.White)
+                Text(stringResource(R.string.str_9b860f70), color = themedColor(light = Color.White, dark = Color.White))
             }
         }
     }
@@ -296,11 +298,11 @@ fun GeofenceListPanel(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.str_94f14b96), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF384C5C))
+            Text(stringResource(R.string.str_94f14b96), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)))
             Box(
                 modifier = Modifier
                     .height(36.dp)
-                    .background(AppBlue, RoundedCornerShape(8.dp))
+                    .background(UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
                     .clickable(onClick = onAddClick)
                     .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
@@ -309,13 +311,13 @@ fun GeofenceListPanel(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Geofence",
-                        tint = Color.White,
+                        tint = themedColor(light = Color.White, dark = Color.White),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = stringResource(R.string.str_4dde4e62),
-                        color = Color.White,
+                        color = themedColor(light = Color.White, dark = Color.White),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -325,7 +327,7 @@ fun GeofenceListPanel(
 
         if (geofences.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.str_593c9a2b), color = Color.Gray)
+                Text(stringResource(R.string.str_593c9a2b), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
             }
         } else {
             LazyColumn(
@@ -371,23 +373,23 @@ fun GeofenceItem(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF7F9FA))
+            .background(themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)))
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Default.Layers, contentDescription = null, tint = AppBlue)
+        Icon(Icons.Default.Layers, contentDescription = null, tint = UzradyabTheme.colors.primary)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(geofence.name, fontWeight = FontWeight.Medium, fontSize = 14.sp)
             if (geofence.isCircle) {
-                Text("شعاع: ${geofence.radius?.toInt()} متر", fontSize = 12.sp, color = Color.Gray)
+                Text("شعاع: ${geofence.radius?.toInt()} متر", fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
             } else {
-                Text(stringResource(R.string.str_255a1d7a), fontSize = 12.sp, color = Color.Gray)
+                Text(stringResource(R.string.str_255a1d7a), fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
             }
         }
         IconButton(onClick = onDeleteClick) {
-            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
+            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = themedColor(light = Color.Red, dark = Color(0xFFEF5350)).copy(alpha = 0.7f))
         }
     }
 }
@@ -407,7 +409,7 @@ fun DeleteGeofenceDialog(
                 .fillMaxWidth(0.85f)
                 .wrapContentHeight(),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)))
         ) {
             Column(
                 modifier = Modifier
@@ -424,14 +426,14 @@ fun DeleteGeofenceDialog(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = Color(0xFFE55353)
+                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "حذف محدوده جغرافیایی ${geofence.name}",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF384C5C)
+                        color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
                     )
                 }
 
@@ -441,7 +443,7 @@ fun DeleteGeofenceDialog(
                 Text(
                     text = stringResource(R.string.str_885a32f4),
                     fontSize = 13.sp,
-                    color = Color.Gray,
+                    color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)),
                     textAlign = TextAlign.Right,
                     lineHeight = 22.sp
                 )
@@ -457,18 +459,18 @@ fun DeleteGeofenceDialog(
                     TextButton(
                         onClick = onDismiss
                     ) {
-                        Text(stringResource(R.string.str_c8d2a1fb), color = AppBlue, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.str_c8d2a1fb), color = UzradyabTheme.colors.primary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     }
                     Spacer(modifier = Modifier.width(24.dp))
                     Button(
                         onClick = onConfirm,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE55353)),
+                        colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
                             .height(44.dp)
                             .widthIn(min = 120.dp)
                     ) {
-                        Text(stringResource(R.string.str_5e8fdd3b), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.str_5e8fdd3b), color = themedColor(light = Color.White, dark = Color.White), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

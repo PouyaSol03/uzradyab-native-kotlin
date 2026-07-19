@@ -120,7 +120,7 @@ fun AlertsSettingsScreen(
                     centerContent = {
                         Text(
                             text = "تنظیمات هشدارها",
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -130,7 +130,7 @@ fun AlertsSettingsScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = Color(0xFFF3F4F6),
+            containerColor = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23)),
             modifier = Modifier.fillMaxSize()
         ) { paddingValues ->
         if (isLoading) {
@@ -149,12 +149,12 @@ fun AlertsSettingsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF6A8BA5), RoundedCornerShape(8.dp))
+                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), RoundedCornerShape(8.dp))
                             .padding(16.dp)
                     ) {
                         Text(
                             text = "با فعال کردن هر گزینه، اعلان مربوط به آن از طریق نوتیفیکیشن به موبایل شما ارسال خواهد شد.",
-                            color = Color.White,
+                            color = themedColor(light = Color.White, dark = Color.White),
                             fontSize = 12.sp,
                             lineHeight = 22.sp
                         )
@@ -183,19 +183,19 @@ fun SectionCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFFE5E7EB), RoundedCornerShape(8.dp)), // Gray200
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+            .border(1.dp, themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23)), RoundedCornerShape(8.dp)), // Gray200
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(section.icon, contentDescription = null, tint = Color.Black, modifier = Modifier.size(20.dp))
+                Icon(section.icon, contentDescription = null, tint = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)), modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = section.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = Color.Black
+                    color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0))
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -227,16 +227,16 @@ fun NotificationRow(
             text = option.label,
             fontSize = 14.sp,
             fontWeight = FontWeight.Light,
-            color = Color.Black
+            color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0))
         )
         Switch(
             checked = isChecked,
             onCheckedChange = { onTogglePreference(option.key) },
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = Color(0xFF307EF3), // Primary500
-                uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = Color(0xFFD1D5DB) // Gray300
+                checkedThumbColor = themedColor(light = Color.White, dark = Color.White),
+                checkedTrackColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), // Primary500
+                uncheckedThumbColor = themedColor(light = Color.White, dark = Color.White),
+                uncheckedTrackColor = themedColor(light = Color(0xFFD1D5DB), dark = Color(0xFF22252B)) // Gray300
             )
         )
     }

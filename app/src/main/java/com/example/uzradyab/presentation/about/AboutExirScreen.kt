@@ -27,8 +27,8 @@ import com.example.uzradyab.R
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +48,7 @@ fun AboutExirScreen(
                             text = "درباره ما",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = AppTextPrimary
+                            color = UzradyabTheme.colors.textPrimary
                         )
                     },
                     endContent = {
@@ -59,7 +59,7 @@ fun AboutExirScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = Color(0xFFF0F4F8), // A slightly cooler, premium light background
+            containerColor = themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF131F2A)), // A slightly cooler, premium light background
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -67,7 +67,7 @@ fun AboutExirScreen(
                     .padding(innerPadding)
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(Color(0xFFF0F4F8), Color(0xFFE2E8F0))
+                            colors = listOf(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF131F2A)), themedColor(light = Color(0xFFE2E8F0), dark = Color(0xFF151D28)))
                         )
                     )
                     .navigationBarsPadding(),
@@ -81,11 +81,11 @@ fun AboutExirScreen(
                         .shadow(
                             elevation = 24.dp, 
                             shape = RoundedCornerShape(28.dp), 
-                            spotColor = AppBlue.copy(alpha = 0.15f),
-                            ambientColor = AppBlue.copy(alpha = 0.05f)
+                            spotColor = UzradyabTheme.colors.primary.copy(alpha = 0.15f),
+                            ambientColor = UzradyabTheme.colors.primary.copy(alpha = 0.05f)
                         )
                         .clip(RoundedCornerShape(28.dp))
-                        .background(Color.White)
+                        .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                 ) {
                     // Header with BIG logo
                     Box(
@@ -94,7 +94,7 @@ fun AboutExirScreen(
                             .weight(1f) // Takes available space, making it responsive
                             .background(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color(0xFFF8FAFC), Color(0xFFEDF2F7))
+                                    colors = listOf(themedColor(light = Color(0xFFF8FAFC), dark = Color(0xFF121F2B)), themedColor(light = Color(0xFFEDF2F7), dark = Color(0xFF131F2A)))
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -120,7 +120,7 @@ fun AboutExirScreen(
                             fontSize = 15.sp,
                             lineHeight = 28.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF334155), // Sleek slate color
+                            color = themedColor(light = Color(0xFF334155), dark = Color(0xFF9FAFC6)), // Sleek slate color
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -130,14 +130,14 @@ fun AboutExirScreen(
                         // Version badge
                         Box(
                             modifier = Modifier
-                                .background(Color(0xFFF1F5F9), RoundedCornerShape(12.dp))
+                                .background(themedColor(light = Color(0xFFF1F5F9), dark = Color(0xFF121F2B)), RoundedCornerShape(12.dp))
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Text(
                                 text = "نسخه ${BuildConfig.VERSION_NAME}",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF64748B)
+                                color = themedColor(light = Color(0xFF64748B), dark = Color(0xFF989DA4))
                             )
                         }
 
@@ -149,9 +149,9 @@ fun AboutExirScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .shadow(8.dp, RoundedCornerShape(16.dp), spotColor = AppBlue.copy(alpha = 0.5f)),
+                                .shadow(8.dp, RoundedCornerShape(16.dp), spotColor = UzradyabTheme.colors.primary.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = AppBlue
+                                containerColor = UzradyabTheme.colors.primary
                             ),
                             shape = RoundedCornerShape(16.dp)
                         ) {
@@ -159,7 +159,7 @@ fun AboutExirScreen(
                                 text = "بازگشت به صفحه اصلی",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = themedColor(light = Color.White, dark = Color.White)
                             )
                         }
                     }

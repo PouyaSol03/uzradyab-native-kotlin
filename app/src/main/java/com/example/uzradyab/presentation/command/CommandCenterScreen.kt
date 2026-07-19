@@ -55,6 +55,7 @@ import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 private val COMMAND_TYPES = listOf(
     CommandData("status", "وضعیت دستگاه", "با ارسال این دستور دستگاه وضعیت کلی خود را پاسخ می‌دهد.", "STATUS#"),
@@ -112,7 +113,7 @@ fun CommandCenterScreen(
     onSendInternet: (String, String) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var selectedCommand by remember { mutableStateOf(COMMAND_TYPES.first()) }
     var showModal by remember { mutableStateOf(false) }
     var commandMethod by remember { mutableStateOf("internet") }
@@ -127,7 +128,7 @@ fun CommandCenterScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_68fb631d),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -152,8 +153,8 @@ fun CommandCenterScreen(
                             .height(48.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF307EF3),
-                            contentColor = Color.White
+                            containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
+                            contentColor = themedColor(light = Color.White, dark = Color.White)
                         )
                     ) {
                         Text(
@@ -168,7 +169,7 @@ fun CommandCenterScreen(
         ) { innerPadding ->
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF307EF3))
+                    CircularProgressIndicator(color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 }
             } else {
                 Column(
@@ -183,12 +184,12 @@ fun CommandCenterScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF6A8BA5))
+                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)))
                             .padding(16.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.str_e0e2a491),
-                            color = Color.White,
+                            color = themedColor(light = Color.White, dark = Color.White),
                             fontSize = 12.sp,
                             lineHeight = 22.sp,
                             textAlign = TextAlign.Right
@@ -199,8 +200,8 @@ fun CommandCenterScreen(
 
                     COMMAND_TYPES.forEach { command ->
                         val isSelected = selectedCommand.type == command.type
-                        val bgColor = if (isSelected) Color(0xFFF1F6FE) else Color.White
-                        val borderColor = if (isSelected) Color(0xFF307EF3) else Color(0xFFE5E7EB)
+                        val bgColor = if (isSelected) themedColor(light = Color(0xFFF1F6FE), dark = Color(0xFF041839)) else themedColor(light = Color.White, dark = Color(0xFF27343F))
+                        val borderColor = if (isSelected) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23))
 
                         Box(
                             modifier = Modifier
@@ -215,14 +216,14 @@ fun CommandCenterScreen(
                             Column {
                                 Text(
                                     text = command.title,
-                                    color = Color(0xFF307EF3),
+                                    color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = command.description,
-                                    color = Color(0xFF676C70),
+                                    color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                     fontSize = 12.sp,
                                     lineHeight = 22.sp
                                 )
@@ -237,7 +238,7 @@ fun CommandCenterScreen(
             ModalBottomSheet(
                 onDismissRequest = { showModal = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = Color.White
+                containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
             ) {
                 Column(
                     modifier = Modifier
@@ -248,7 +249,7 @@ fun CommandCenterScreen(
                         text = "ارسال دستور \"${selectedCommand.title}\"",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF333638),
+                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -256,7 +257,7 @@ fun CommandCenterScreen(
                     Text(
                         text = stringResource(R.string.str_de7ae3ed),
                         fontSize = 14.sp,
-                        color = Color(0xFF676C70),
+                        color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -307,10 +308,10 @@ fun CommandCenterScreen(
                                 .weight(1f)
                                 .height(48.dp),
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                            colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                         ) {
                             if (isSending) {
-                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                                CircularProgressIndicator(color = themedColor(light = Color.White, dark = Color.White), modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                             } else {
                                 Text(stringResource(R.string.str_968581ce), fontSize = 14.sp)
                             }
@@ -324,9 +325,9 @@ fun CommandCenterScreen(
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent,
-                                contentColor = Color(0xFF333638)
+                                contentColor = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))
                             ),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBEC1C3))
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)))
                         ) {
                             Text(stringResource(R.string.str_c8d2a1fb), fontSize = 14.sp)
                         }
@@ -347,7 +348,7 @@ private fun MethodSelection(
     onMethodSelect: (String) -> Unit
 ) {
     val isSelected = selectedMethod == method
-    val borderColor = if (isSelected) Color(0xFF307EF3) else Color(0xFFE5E7EB)
+    val borderColor = if (isSelected) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23))
     
     Row(
         modifier = Modifier
@@ -361,13 +362,13 @@ private fun MethodSelection(
         RadioButton(
             selected = isSelected,
             onClick = { onMethodSelect(method) },
-            colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF307EF3))
+            colors = RadioButtonDefaults.colors(selectedColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(text = title, color = Color(0xFF307EF3), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text(text = title, color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = description, color = Color(0xFF676C70), fontSize = 12.sp, lineHeight = 20.sp)
+            Text(text = description, color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)), fontSize = 12.sp, lineHeight = 20.sp)
         }
     }
 }

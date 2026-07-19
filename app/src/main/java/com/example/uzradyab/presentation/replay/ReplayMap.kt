@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
 import org.osmdroid.util.BoundingBox
+import com.example.uzradyab.ui.theme.themedColor
 
 private val Tehran = GeoPoint(35.6892, 51.3890)
 private const val REPLAY_MARKER = "replay-marker"
@@ -56,7 +57,7 @@ fun ReplayMap(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFE8F0F6)),
+            .background(themedColor(light = Color(0xFFE8F0F6), dark = Color(0xFF11212C))),
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),

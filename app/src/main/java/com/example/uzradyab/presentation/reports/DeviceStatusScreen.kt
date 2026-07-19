@@ -35,6 +35,7 @@ import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun DeviceStatusRoute(
@@ -67,7 +68,7 @@ fun DeviceStatusScreen(
     onTraveledPathsClick: () -> Unit,
     onExportClick: () -> Unit
 ) {
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
 
@@ -83,14 +84,14 @@ fun DeviceStatusScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.str_3d9b4b4a),
-                                color = Color(0xFF676C70),
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                             Icon(
                                 imageVector = Icons.Default.EventNote,
                                 contentDescription = null,
-                                tint = Color(0xFF676C70),
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -136,14 +137,14 @@ fun DeviceStatusScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF9B26B6), RoundedCornerShape(12.dp))
+                                .background(themedColor(light = Color(0xFF9B26B6), dark = Color(0xFFB959CF)), RoundedCornerShape(12.dp))
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = stringResource(R.string.str_cf441594),
-                                color = Color.White,
+                                color = themedColor(light = Color.White, dark = Color.White),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -154,12 +155,12 @@ fun DeviceStatusScreen(
                                 Icon(
                                     imageVector = Icons.Default.DirectionsCar,
                                     contentDescription = null,
-                                    tint = Color.White,
+                                    tint = themedColor(light = Color.White, dark = Color.White),
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
                                     text = state.deviceStatusText,
-                                    color = Color.White,
+                                    color = themedColor(light = Color.White, dark = Color.White),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -255,8 +256,8 @@ fun DeviceStatusScreen(
                     //             .weight(1f)
                     //             .height(52.dp),
                     //         shape = RoundedCornerShape(12.dp),
-                    //         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF307EF3)),
-                    //         border = BorderStroke(1.dp, Color(0xFF307EF3))
+                    //         colors = ButtonDefaults.outlinedButtonColors(contentColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC))),
+                    //         border = BorderStroke(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                     //     ) {
                     //         Text(stringResource(R.string.str_f792dea4), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     //     }
@@ -267,9 +268,9 @@ fun DeviceStatusScreen(
                     //             .weight(2f)
                     //             .height(52.dp),
                     //         shape = RoundedCornerShape(12.dp),
-                    //         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                    //         colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                     //     ) {
-                    //         Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    //         Text(stringResource(R.string.str_fbcc4761), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = themedColor(light = Color.White, dark = Color.White))
                     //     }
                     // }
                 }
@@ -303,8 +304,8 @@ fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: B
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE3E8EE)),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
+        border = BorderStroke(1.dp, themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -318,12 +319,12 @@ fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: B
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF307EF3),
+                    tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
                     text = title,
-                    color = Color(0xFF8F99A3),
+                    color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
                     fontSize = 12.sp
                 )
             }
@@ -332,7 +333,7 @@ fun LocationCard(title: String, address: String, icon: ImageVector, isLoading: B
             } else {
                 Text(
                     text = address,
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -353,8 +354,8 @@ fun DetailStatCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, Color(0xFFE3E8EE)),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
+        border = BorderStroke(1.dp, themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -370,12 +371,12 @@ fun DetailStatCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF307EF3),
+                    tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
                     text = title,
-                    color = Color(0xFF8F99A3),
+                    color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
                     fontSize = 11.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -388,7 +389,7 @@ fun DetailStatCard(
                 val displayText = if (unit.isNotEmpty()) "$value $unit" else value
                 Text(
                     text = displayText,
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Right,

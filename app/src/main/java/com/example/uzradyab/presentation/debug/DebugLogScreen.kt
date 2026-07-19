@@ -61,22 +61,23 @@ import com.example.uzradyab.core.debug.AppLogger
 import com.example.uzradyab.core.debug.LogEntry
 import com.example.uzradyab.core.debug.LogLevel
 import kotlinx.coroutines.launch
+import com.example.uzradyab.ui.theme.themedColor
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Colors
 // ─────────────────────────────────────────────────────────────────────────────
-private val BgDark = Color(0xFF0D1117)
-private val BgCard = Color(0xFF161B22)
-private val BgCardAlt = Color(0xFF1C2128)
-private val Border = Color(0xFF30363D)
-private val TextPrimary = Color(0xFFE6EDF3)
-private val TextSecondary = Color(0xFF8B949E)
-private val TextMono = Color(0xFFCDD9E5)
+private val BgDark: Color @Composable get() = themedColor(light = Color(0xFF0D1117), dark = Color(0xFFD8DFE9))
+private val BgCard: Color @Composable get() = themedColor(light = Color(0xFF161B22), dark = Color(0xFFC1CAD7))
+private val BgCardAlt: Color @Composable get() = themedColor(light = Color(0xFF1C2128), dark = Color(0xFFC3CBD5))
+private val Border: Color @Composable get() = themedColor(light = Color(0xFF30363D), dark = Color(0xFFA9B2BC))
+private val TextPrimary: Color @Composable get() = themedColor(light = Color(0xFFE6EDF3), dark = Color(0xFF141F29))
+private val TextSecondary: Color @Composable get() = themedColor(light = Color(0xFF8B949E), dark = Color(0xFFA6A6A6))
+private val TextMono: Color @Composable get() = themedColor(light = Color(0xFFCDD9E5), dark = Color(0xFF1A2632))
 
-private val ColorRequest = Color(0xFF58A6FF)  // blue — outgoing
-private val ColorResponse = Color(0xFF3FB950) // green — success
-private val ColorError = Color(0xFFF85149)    // red — error / 4xx/5xx
-private val ColorInfo = Color(0xFFD2A8FF)     // purple — misc info
+private val ColorRequest: Color @Composable get() = themedColor(light = Color(0xFF58A6FF), dark = Color(0xFF003C80))  // blue — outgoing
+private val ColorResponse: Color @Composable get() = themedColor(light = Color(0xFF3FB950), dark = Color(0xFF7EC788)) // green — success
+private val ColorError: Color @Composable get() = themedColor(light = Color(0xFFF85149), dark = Color(0xFF7B0A05))    // red — error / 4xx/5xx
+private val ColorInfo: Color @Composable get() = themedColor(light = Color(0xFFD2A8FF), dark = Color(0xFF25004C))     // purple — misc info
 
 private val LevelFilters = listOf(null, LogLevel.REQUEST, LogLevel.RESPONSE, LogLevel.ERROR)
 
@@ -219,7 +220,7 @@ private fun ScrollToBottomFab(
             Icon(
                 imageVector = Icons.Default.ArrowDownward,
                 contentDescription = "Scroll to bottom",
-                tint = Color.White,
+                tint = themedColor(light = Color.White, dark = Color.White),
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -483,7 +484,7 @@ private fun LogEntryCard(entry: LogEntry) {
             if (entry.durationMs != null) {
                 Text(
                     text = "${entry.durationMs}ms",
-                    color = if (entry.durationMs < 500) ColorResponse else if (entry.durationMs < 2000) Color(0xFFF0B429) else ColorError,
+                    color = if (entry.durationMs < 500) ColorResponse else if (entry.durationMs < 2000) themedColor(light = Color(0xFFF0B429), dark = Color(0xFFEAC161)) else ColorError,
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace,
                 )

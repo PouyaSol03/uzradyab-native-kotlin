@@ -13,8 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppPurple
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun AuthBackground(
@@ -26,12 +26,18 @@ fun AuthBackground(
             .fillMaxSize()
             .background(
                 Brush.linearGradient(
-                    colors = listOf(AppBlue, Color(0xFF3D8AF1), AppPurple),
+                    colors = listOf(UzradyabTheme.colors.primary, themedColor(light = Color(0xFF3D8AF1), dark = Color(0xFF619CEA)), UzradyabTheme.colors.purple),
                     start = Offset.Zero,
                     end = Offset.Infinite
                 )
             )
     ) {
+        val pinColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
+        val shape1Color = themedColor(light = Color.White, dark = Color(0xFF27343F))
+        val shape2Color = themedColor(light = Color(0xFF24366E), dark = Color(0xFF8C9FD9))
+        val shape3Color = themedColor(light = Color.White, dark = Color(0xFF27343F))
+        val shape4Color = themedColor(light = Color.White, dark = Color(0xFF27343F))
+        
         Canvas(modifier = Modifier.fillMaxSize()) {
             fun drawMapPin(center: Offset, scale: Float) {
                 val pin = Path().apply {
@@ -54,9 +60,9 @@ fun AuthBackground(
                     )
                     close()
                 }
-                drawPath(pin, color = Color.White.copy(alpha = 0.1f))
+                drawPath(pin, color = pinColor.copy(alpha = 0.1f))
                 drawCircle(
-                    color = Color.White.copy(alpha = 0.1f),
+                    color = pinColor.copy(alpha = 0.1f),
                     radius = 8f * scale,
                     center = Offset(center.x, center.y - 15f * scale),
                 )
@@ -70,7 +76,7 @@ fun AuthBackground(
                     lineTo(size.width * 0.22f, 0f)
                     close()
                 },
-                color = Color.White.copy(alpha = 0.12f)
+                color = shape1Color.copy(alpha = 0.12f)
             )
             drawPath(
                 path = Path().apply {
@@ -80,7 +86,7 @@ fun AuthBackground(
                     lineTo(size.width * 0.46f, size.height * 0.36f)
                     close()
                 },
-                color = Color(0xFF24366E).copy(alpha = 0.16f)
+                color = shape2Color.copy(alpha = 0.16f)
             )
             drawPath(
                 path = Path().apply {
@@ -89,7 +95,7 @@ fun AuthBackground(
                     cubicTo(size.width * 1.15f, size.height * 0.23f, size.width * 1.18f, size.height * 0.12f, size.width * 0.94f, size.height * 0.08f)
                     cubicTo(size.width * 0.62f, size.height * 0.03f, size.width * 0.34f, size.height * 0.11f, size.width * 0.04f, size.height * 0.2f)
                 },
-                color = Color.White.copy(alpha = 0.18f),
+                color = shape3Color.copy(alpha = 0.18f),
                 style = Stroke(width = 3f, cap = StrokeCap.Round, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 12f)))
             )
             drawPath(
@@ -97,7 +103,7 @@ fun AuthBackground(
                     moveTo(size.width * 0.16f, size.height)
                     cubicTo(size.width * 0.32f, size.height * 0.86f, size.width * 0.64f, size.height * 0.93f, size.width * 1.02f, size.height * 0.72f)
                 },
-                color = Color.White.copy(alpha = 0.16f),
+                color = shape4Color.copy(alpha = 0.16f),
                 style = Stroke(width = 3f, cap = StrokeCap.Round, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 12f)))
             )
             drawMapPin(Offset(size.width * 0.65f, size.height * 0.07f), 0.75f)

@@ -39,8 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.presentation.map.AppTopToolbar
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,6 +47,8 @@ import java.util.TimeZone
 import java.util.Calendar
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun ReplayTripRoute(
@@ -87,7 +88,7 @@ fun ReplayTripScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
         ) {
             // Top Toolbar Area
             Column(
@@ -104,7 +105,7 @@ fun ReplayTripScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_1deb7f66),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -122,15 +123,15 @@ fun ReplayTripScreen(
                     // Date label
                     Text(
                         text = state.dateFilterText,
-                        color = Color(0xFF333638),
+                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium
                     )
 
                     Box(
                         modifier = Modifier
-                            .border(1.dp, AppBlue, RoundedCornerShape(8.dp))
-                            .background(Color.White, RoundedCornerShape(8.dp))
+                            .border(1.dp, UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
+                            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
                             .clickable { showFilterSheet = true }
                             .padding(horizontal = 12.dp, vertical = 8.dp)
                     ) {
@@ -138,13 +139,13 @@ fun ReplayTripScreen(
                             Icon(
                                 imageVector = Icons.Default.FilterAlt,
                                 contentDescription = null,
-                                tint = AppBlue,
+                                tint = UzradyabTheme.colors.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = stringResource(R.string.str_9150c5be),
-                                color = AppBlue,
+                                color = UzradyabTheme.colors.primary,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -159,7 +160,7 @@ fun ReplayTripScreen(
                     .fillMaxWidth()
                     .weight(1f)
                     .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                    .background(Color(0xFFF7F9FA))
+                    .background(themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)))
             ) {
                 ReplayMap(
                     positions = state.positions,
@@ -181,13 +182,13 @@ fun ReplayTripScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFFE8F0F6).copy(alpha = 0.6f))
+                            .background(themedColor(light = Color(0xFFE8F0F6), dark = Color(0xFF11212C)).copy(alpha = 0.6f))
                             .clickable(enabled = false) {}, // Intercept clicks
                         contentAlignment = Alignment.Center
                     ) {
                         Card(
                             shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
                             elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
                             modifier = Modifier.padding(32.dp)
                         ) {
@@ -197,21 +198,21 @@ fun ReplayTripScreen(
                                 modifier = Modifier.padding(horizontal = 40.dp, vertical = 32.dp)
                             ) {
                                 androidx.compose.material3.CircularProgressIndicator(
-                                    color = AppBlue,
+                                    color = UzradyabTheme.colors.primary,
                                     strokeWidth = 4.dp,
                                     modifier = Modifier.size(48.dp)
                                 )
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Text(
                                     text = stringResource(R.string.str_9a8bd9a1),
-                                    color = Color(0xFF2C3E50),
+                                    color = themedColor(light = Color(0xFF2C3E50), dark = Color(0xFF9CB2C9)),
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = stringResource(R.string.str_3f246adf),
-                                    color = Color(0xFF6A8BA5),
+                                    color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -244,7 +245,7 @@ fun ReplayTripScreen(
                         snackbar = { data ->
                             Card(
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                                colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
@@ -254,12 +255,12 @@ fun ReplayTripScreen(
                                     Icon(
                                         imageVector = Icons.Default.Info,
                                         contentDescription = null,
-                                        tint = Color(0xFFE55353)
+                                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = data.visuals.message,
-                                        color = Color(0xFFE55353),
+                                        color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -323,7 +324,7 @@ fun ReplayBottomPanel(
             .widthIn(max = 343.dp)
             .fillMaxWidth(0.9f),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
@@ -357,13 +358,15 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Box(modifier = Modifier.fillMaxWidth()) {
             // Dotted line from icon centers
+            val baseLineColor = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F))
+            val progressLineColor = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD))
             androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxWidth().height(24.dp).padding(top = 12.dp)) {
                 val y = 0f
                 val startX = 24.dp.toPx()
                 val endX = size.width - 24.dp.toPx()
                 
                 drawLine(
-                    color = Color(0xFFC0CDD8),
+                    color = baseLineColor,
                     start = androidx.compose.ui.geometry.Offset(startX, y),
                     end = androidx.compose.ui.geometry.Offset(endX, y),
                     strokeWidth = 2.dp.toPx(),
@@ -374,7 +377,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                     val progress = state.currentIndex.toFloat() / state.positions.lastIndex.coerceAtLeast(1)
                     val currentX = startX + (endX - startX) * progress
                     drawLine(
-                        color = Color(0xFFA12887),
+                        color = progressLineColor,
                         start = androidx.compose.ui.geometry.Offset(startX, y),
                         end = androidx.compose.ui.geometry.Offset(currentX, y),
                         strokeWidth = 2.dp.toPx(),
@@ -394,7 +397,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                         imageVector = Icons.Default.Timer,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = Color(0xFF00C89B)
+                        tint = themedColor(light = Color(0xFF00C89B), dark = Color(0xFF66FFDD))
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -415,7 +418,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(46.dp)
-                            .background(Color(0xFF6A8BA5), RoundedCornerShape(8.dp)),
+                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), RoundedCornerShape(8.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -425,13 +428,13 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                             ) {
                                 Text(
                                     text = stringResource(R.string.str_b19fc85c),
-                                    color = Color(0xFFEFF3F5),
+                                    color = themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)),
                                     fontSize = 10.sp
                                 )
 //                                Spacer(modifier = Modifier.height(1.dp))
                                 Text(
                                     text = state.totalDistanceText,
-                                    color = Color.White,
+                                    color = themedColor(light = Color.White, dark = Color.White),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -446,7 +449,7 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                         imageVector = Icons.Default.Timer,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = Color(0xFFE55353)
+                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -471,13 +474,13 @@ fun DefaultControls(onTogglePlayback: () -> Unit, onDetailsClick: () -> Unit) {
             modifier = Modifier
                 .width(102.dp)
                 .height(40.dp)
-                .border(1.dp, Color(0xFF307EF3), RoundedCornerShape(8.dp))
+                .border(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), RoundedCornerShape(8.dp))
                 .clickable(onClick = onDetailsClick),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.str_d65b37fd),
-                color = Color(0xFF307EF3),
+                color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
@@ -487,14 +490,14 @@ fun DefaultControls(onTogglePlayback: () -> Unit, onDetailsClick: () -> Unit) {
             modifier = Modifier
                 .weight(1f)
                 .height(40.dp)
-                .border(1.dp, Color(0xFF307EF3), RoundedCornerShape(8.dp))
+                .border(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), RoundedCornerShape(8.dp))
                 .clickable(onClick = onTogglePlayback),
             contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(R.string.str_7083cfdf),
-                    color = Color(0xFF307EF3),
+                    color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -502,7 +505,7 @@ fun DefaultControls(onTogglePlayback: () -> Unit, onDetailsClick: () -> Unit) {
                 Icon(
                     imageVector = Icons.Outlined.PlayCircleOutline,
                     contentDescription = null,
-                    tint = Color(0xFF307EF3),
+                    tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -527,13 +530,13 @@ fun PlayingControls(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .background(Color(0xFFA12887).copy(alpha = 0.08f), RoundedCornerShape(8.dp))
+                .background(themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)).copy(alpha = 0.08f), RoundedCornerShape(8.dp))
                 .clickable(onClick = onToggleSpeed),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "${state.playSpeed}x",
-                color = Color(0xFFA12887),
+                color = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -557,14 +560,14 @@ fun PlayingControls(
             modifier = Modifier
                 .width(54.dp)
                 .height(40.dp)
-                .border(1.dp, Color(0xFF676C70), RoundedCornerShape(8.dp))
+                .border(1.dp, themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)), RoundedCornerShape(8.dp))
                 .clickable(onClick = onStopPlayback),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.StopCircle,
                 contentDescription = "Stop",
-                tint = Color(0xFF676C70),
+                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -585,7 +588,7 @@ fun ScrubbableProgress(
         Box(
             modifier = modifier
                 .height(40.dp)
-                .border(1.dp, Color(0xFFA12887), RoundedCornerShape(8.dp))
+                .border(1.dp, themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)), RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp))
                 .pointerInput(Unit) {
                     detectTapGestures(
@@ -607,7 +610,7 @@ fun ScrubbableProgress(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(progress)
-                    .background(Color(0xFFA12887).copy(alpha = 0.14f))
+                    .background(themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)).copy(alpha = 0.14f))
             )
             
             Box(
@@ -619,7 +622,7 @@ fun ScrubbableProgress(
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.PauseCircle else Icons.Default.PlayCircle,
                     contentDescription = null,
-                    tint = Color(0xFFA12887),
+                    tint = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)),
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -632,6 +635,7 @@ fun TimeBalloon(time: String, date: String? = null) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val balloonColor = themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126))
         androidx.compose.foundation.Canvas(modifier = Modifier.size(8.dp, 7.dp)) {
             val path = androidx.compose.ui.graphics.Path().apply {
                 moveTo(size.width / 2f, 0f)
@@ -639,26 +643,26 @@ fun TimeBalloon(time: String, date: String? = null) {
                 lineTo(0f, size.height)
                 close()
             }
-            drawPath(path, Color(0xFFEFF3F5))
+            drawPath(path, balloonColor)
         }
         Column(
             modifier = Modifier
                 .width(if (date != null) 72.dp else 49.dp)
                 .height(if (date != null) 40.dp else 28.dp)
-                .background(Color(0xFFEFF3F5), RoundedCornerShape(8.dp)),
+                .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = time,
-                color = Color(0xFF384C5C),
+                color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium
             )
             if (date != null) {
                 Text(
                     text = date,
-                    color = Color(0xFF6A8BA5),
+                    color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
                     fontSize = 9.sp,
                     modifier = Modifier.offset(y = (-2).dp)
                 )
@@ -671,13 +675,13 @@ fun TimeBalloon(time: String, date: String? = null) {
 fun NodeDetailCard(position: com.example.uzradyab.domain.model.Position, onClose: () -> Unit) {
     val speedKmh = (position.speed * 1.852).toInt()
     val isMoving = speedKmh > 0
-    val statusColor = Color(0xFFA12887) // Uniform purple color
+    val statusColor = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD)) // Uniform purple color
     val statusText = if (isMoving) "در حال حرکت" else "توقف"
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Row(
@@ -700,20 +704,20 @@ fun NodeDetailCard(position: com.example.uzradyab.domain.model.Position, onClose
                     Text(
                         text = statusText,
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF384C5C),
+                        color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "سرعت: ${speedKmh.toString().toPersianDigits()} کیلومتر بر ساعت",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF6A8BA5)
+                        color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "زمان: ${formatTimeOnly(position.fixTime)}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF6A8BA5)
+                        color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))
                     )
                 }
             }
@@ -722,12 +726,12 @@ fun NodeDetailCard(position: com.example.uzradyab.domain.model.Position, onClose
                 onClick = onClose,
                 modifier = Modifier
                     .size(32.dp)
-                    .background(Color(0xFFEFF3F5), androidx.compose.foundation.shape.CircleShape)
+                    .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), androidx.compose.foundation.shape.CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    tint = Color(0xFF6A8BA5),
+                    tint = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -799,7 +803,7 @@ fun TimeFilterBottomSheet(
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFFF7F9FA)
+        containerColor = themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126))
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             if (showStartPicker) {
@@ -833,7 +837,7 @@ fun TimeFilterBottomSheet(
                         text = stringResource(R.string.str_04945136),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF384C5C),
+                        color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                         modifier = Modifier.padding(bottom = 24.dp) // Reduced bottom padding
                     )
                     
@@ -853,13 +857,13 @@ fun TimeFilterBottomSheet(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        Text(stringResource(R.string.str_ece143b5), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.str_ece143b5), fontSize = 14.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), modifier = Modifier.padding(bottom = 8.dp))
                         OutlinedButton(
                             onClick = { showStartPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)), contentColor = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
                         ) {
                             Text(if (customStart != null) "${customStart!!.year}/${customStart!!.month.toString().padStart(2, '0')}/${customStart!!.day.toString().padStart(2, '0')} ${customStart!!.hour.toString().padStart(2, '0')}:${customStart!!.minute.toString().padStart(2, '0')}".toPersianDigits() else "انتخاب کنید")
                         }
@@ -868,13 +872,13 @@ fun TimeFilterBottomSheet(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        Text(stringResource(R.string.str_9e0476de), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.str_9e0476de), fontSize = 14.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), modifier = Modifier.padding(bottom = 8.dp))
                         OutlinedButton(
                             onClick = { showEndPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)), contentColor = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
                         ) {
                             Text(if (customEnd != null) "${customEnd!!.year}/${customEnd!!.month.toString().padStart(2, '0')}/${customEnd!!.day.toString().padStart(2, '0')} ${customEnd!!.hour.toString().padStart(2, '0')}:${customEnd!!.minute.toString().padStart(2, '0')}".toPersianDigits() else "انتخاب کنید")
                         }
@@ -886,7 +890,7 @@ fun TimeFilterBottomSheet(
                         Button(
                             onClick = onDismiss,
                             modifier = Modifier.weight(1f).height(48.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
+                            colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), contentColor = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
@@ -900,7 +904,7 @@ fun TimeFilterBottomSheet(
                                 }
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
+                            colors = ButtonDefaults.buttonColors(containerColor = UzradyabTheme.colors.primary),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(stringResource(R.string.str_606f279a), fontSize = 16.sp)
@@ -918,11 +922,11 @@ fun QuickRangeButton(text: String, isSelected: Boolean, onClick: () -> Unit, mod
         onClick = onClick,
         modifier = modifier.height(44.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) AppBlue else Color.White,
-            contentColor = if (isSelected) Color.White else Color(0xFF6A8BA5)
+            containerColor = if (isSelected) UzradyabTheme.colors.primary else themedColor(light = Color.White, dark = Color(0xFF27343F)),
+            contentColor = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))
         ),
         shape = RoundedCornerShape(12.dp),
-        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8)),
+        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F))),
         elevation = null
     ) {
         Text(text, fontSize = 12.sp)
@@ -939,7 +943,7 @@ fun TripDetailsBottomSheet(
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFFF7F9FA)
+        containerColor = themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126))
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             Column(
@@ -952,7 +956,7 @@ fun TripDetailsBottomSheet(
                     text = "جزئیات مسیر پیموده شده",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF384C5C),
+                    color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
@@ -1012,9 +1016,9 @@ fun TripDetailsBottomSheet(
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF307EF3))
+                    colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 ) {
-                    Text("متوجه شدم", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text("متوجه شدم", color = themedColor(light = Color.White, dark = Color.White), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                 }
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1027,14 +1031,14 @@ fun TripDetailsBottomSheet(
 private fun DetailsCard(title: String, value: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .border(1.dp, Color(0xFFC0CDD8), RoundedCornerShape(12.dp))
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .border(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), RoundedCornerShape(12.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(12.dp))
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(title, fontSize = 12.sp, color = Color.Gray)
+        Text(title, fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF384C5C), modifier = Modifier.align(Alignment.End))
+        Text(value, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), modifier = Modifier.align(Alignment.End))
     }
 }
 
@@ -1043,21 +1047,21 @@ private fun LocationCard(title: String, address: String, lat: Double?, lon: Doub
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFFC0CDD8), RoundedCornerShape(12.dp))
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .border(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), RoundedCornerShape(12.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
-        Text(title, fontSize = 12.sp, color = Color.Gray)
+        Text(title, fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(address, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF384C5C))
+        Text(address, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)))
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("مختصات", fontSize = 12.sp, color = Color.Gray)
+            Text("مختصات", fontSize = 12.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
             val coordText = if (lat != null && lon != null) "${lat.toString().take(9)} | ${lon.toString().take(9)}" else "-- | --"
-            Text(coordText.toPersianDigits(), fontSize = 12.sp, color = Color(0xFF6A8BA5), fontWeight = FontWeight.Medium)
+            Text(coordText.toPersianDigits(), fontSize = 12.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), fontWeight = FontWeight.Medium)
         }
     }
 }

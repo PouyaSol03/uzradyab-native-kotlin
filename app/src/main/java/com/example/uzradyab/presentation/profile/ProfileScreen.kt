@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.core.biometric.BiometricHelper
-import com.example.uzradyab.ui.theme.AppBackground
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
@@ -36,6 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import com.example.uzradyab.presentation.common.UzradyabInput
 import com.example.uzradyab.presentation.common.UzradyabPrimaryButton
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun ProfileRoute(
@@ -126,7 +126,7 @@ fun ProfileScreen(
                             text = stringResource(R.string.str_a802ae5f), 
                             fontSize = 16.sp, 
                             fontWeight = FontWeight.Bold,
-                            color = AppTextPrimary
+                            color = UzradyabTheme.colors.textPrimary
                         ) 
                     },
                     endContent = {
@@ -137,11 +137,11 @@ fun ProfileScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = AppBackground,
+            containerColor = UzradyabTheme.colors.background,
         ) { innerPadding ->
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = AppBlue)
+                    CircularProgressIndicator(color = UzradyabTheme.colors.primary)
                 }
             } else {
                 Column(
@@ -156,7 +156,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp)),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column {
@@ -164,7 +164,7 @@ fun ProfileScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(AppBlue)
+                                    .background(UzradyabTheme.colors.primary)
                                     .padding(vertical = 12.dp, horizontal = 20.dp)
                             ) {
                                 Row(
@@ -175,13 +175,13 @@ fun ProfileScreen(
                                     Icon(
                                         imageVector = Icons.Default.Person,
                                         contentDescription = null,
-                                        tint = Color.White,
+                                        tint = themedColor(light = Color.White, dark = Color.White),
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = stringResource(R.string.str_85a99996),
-                                        color = Color.White,
+                                        color = themedColor(light = Color.White, dark = Color.White),
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -252,7 +252,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp)),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
                         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Row(
@@ -267,12 +267,12 @@ fun ProfileScreen(
                                     text = stringResource(R.string.str_2944a2c7),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = AppTextPrimary
+                                    color = UzradyabTheme.colors.textPrimary
                                 )
                                 Text(
                                     text = stringResource(R.string.str_f57206ad),
                                     fontSize = 12.sp,
-                                    color = Color(0xFF6A8BA5)
+                                    color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))
                                 )
                             }
                             Switch(
@@ -282,8 +282,8 @@ fun ProfileScreen(
                                     biometricHelper.setBiometricEnabled(it)
                                 },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = AppBlue
+                                    checkedThumbColor = themedColor(light = Color.White, dark = Color.White),
+                                    checkedTrackColor = UzradyabTheme.colors.primary
                                 )
                             )
                         }
@@ -299,7 +299,7 @@ fun ProfileScreen(
                                 .weight(1f)
                                 .height(48.dp),
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                            colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFFE53935), dark = Color(0xFFE26D6A)))
                         ) {
                             Text(text = stringResource(R.string.str_60806661), fontSize = 16.sp, fontWeight = FontWeight.Normal)
                         }

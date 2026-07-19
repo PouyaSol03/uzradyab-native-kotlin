@@ -42,6 +42,7 @@ import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun ReportsRoute(
@@ -93,7 +94,7 @@ fun ReportsScreen(
     onAboutClick: () -> Unit,
     onContactSupportClick: () -> Unit
 ) {
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
 
@@ -109,14 +110,14 @@ fun ReportsScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.str_8fd3df27),
-                                color = Color(0xFF676C70),
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                             Icon(
                                 imageVector = Icons.Default.EventNote,
                                 contentDescription = null,
-                                tint = Color(0xFF676C70),
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -225,14 +226,14 @@ private fun CurrentDeviceStatusSection(
         ) {
             Text(
                 text = stringResource(R.string.str_cf441594),
-                color = Color(0xFF333638),
+                color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Row(
                 modifier = Modifier
-                    .background(Color(0xFF9B26B6), RoundedCornerShape(50))
+                    .background(themedColor(light = Color(0xFF9B26B6), dark = Color(0xFFB959CF)), RoundedCornerShape(50))
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -240,12 +241,12 @@ private fun CurrentDeviceStatusSection(
                 Icon(
                     imageVector = Icons.Default.DirectionsCar,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = themedColor(light = Color.White, dark = Color.White),
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
                     text = state.deviceStatusText,
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -255,7 +256,7 @@ private fun CurrentDeviceStatusSection(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Row(
@@ -266,13 +267,13 @@ private fun CurrentDeviceStatusSection(
                 Icon(
                     imageVector = Icons.Default.GpsFixed,
                     contentDescription = null,
-                    tint = Color(0xFF307EF3),
+                    tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     modifier = Modifier.size(28.dp)
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = stringResource(R.string.str_6ba39ff9),
-                        color = Color(0xFF8F99A3),
+                        color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
                         fontSize = 12.sp
                     )
                     if (state.isLoading && state.currentAddress == "در حال دریافت...") {
@@ -280,7 +281,7 @@ private fun CurrentDeviceStatusSection(
                     } else {
                         Text(
                             text = state.currentAddress,
-                            color = Color(0xFF333638),
+                            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -326,9 +327,9 @@ private fun CurrentDeviceStatusSection(
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color(0xFF307EF3)
+                contentColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC))
             ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF307EF3))
+            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
         ) {
             Text(
                 text = stringResource(R.string.str_0799c18b),
@@ -352,7 +353,7 @@ private fun StatCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -367,12 +368,12 @@ private fun StatCard(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF307EF3),
+                    tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
                     text = title,
-                    color = Color(0xFF8F99A3),
+                    color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
                     fontSize = 11.sp,
                     maxLines = 1
                 )
@@ -383,7 +384,7 @@ private fun StatCard(
             } else {
                 Text(
                     text = "$value $unit",
-                    color = Color(0xFF333638),
+                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -398,7 +399,7 @@ private fun OtherReportsSection(onItemClick: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
             text = stringResource(R.string.str_8ffce954),
-            color = Color(0xFF333638),
+            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
@@ -416,7 +417,7 @@ private fun OtherReportsSection(onItemClick: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
         ) {
             reportMenuItems.forEachIndexed { index, title ->
                 ReportMenuItem(
@@ -425,7 +426,7 @@ private fun OtherReportsSection(onItemClick: (String) -> Unit) {
                 )
                 if (index < reportMenuItems.lastIndex) {
                     HorizontalDivider(
-                        color = Color(0xFFF3F4F6),
+                        color = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23)),
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -447,14 +448,14 @@ private fun ReportMenuItem(title: String, onClick: () -> Unit) {
     ) {
         Text(
             text = title,
-            color = Color(0xFF307EF3),
+            color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Navigate",
-            tint = Color(0xFF307EF3),
+            tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
             modifier = Modifier.size(20.dp)
         )
     }

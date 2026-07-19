@@ -22,8 +22,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun AppTopToolbar(
@@ -88,7 +90,7 @@ fun BackButton(
         Icon(
             imageVector = Icons.Default.ChevronLeft,
             contentDescription = "Back",
-            tint = AppTextPrimary,
+            tint = UzradyabTheme.colors.textPrimary,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -108,7 +110,7 @@ fun MenuGridButton(
         Icon(
             painter = painterResource(id = R.drawable.ic_custom_menu_dots),
             contentDescription = "Grid Menu",
-            tint = androidx.compose.ui.graphics.Color.Unspecified,
+            tint = themedColor(light = androidx.compose.ui.graphics.Color.Unspecified, dark = UzradyabTheme.colors.primary),
             modifier = Modifier.size(24.dp)
         )
     }

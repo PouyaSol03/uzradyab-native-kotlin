@@ -42,11 +42,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.uzradyab.ui.theme.AppBackground
+
 import com.example.uzradyab.map.tile.TileHealthState
 import kotlinx.coroutines.launch
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun HomeMapRoute(
@@ -178,12 +180,12 @@ fun HomeMapScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = AppBackground,
+        color = UzradyabTheme.colors.background,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F))),
         ) {
             MapTopToolbar(
                 onMenuClick = { menuOpen = true },
@@ -328,9 +330,9 @@ fun HomeMapScreen(
                     snackbar = { data ->
                         androidx.compose.material3.Snackbar(
                             modifier = Modifier.padding(16.dp),
-                            containerColor = Color(0xFFF44336),
-                            contentColor = Color.White,
-                            actionColor = Color.White,
+                            containerColor = themedColor(light = Color(0xFFF44336), dark = Color(0xFFED685F)),
+                            contentColor = themedColor(light = Color.White, dark = Color.White),
+                            actionColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
                             actionOnNewLine = false,
                             snackbarData = data
                         )
@@ -475,7 +477,7 @@ fun ServerDownBottomSheet(
             androidx.compose.material3.Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = null,
-                tint = Color(0xFFF44336),
+                tint = themedColor(light = Color(0xFFF44336), dark = Color(0xFFED685F)),
                 modifier = Modifier.size(64.dp)
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
@@ -511,7 +513,7 @@ fun NetworkErrorBottomSheet(
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = Color.White
+        containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
     ) {
         Column(
             modifier = Modifier
@@ -524,13 +526,13 @@ fun NetworkErrorBottomSheet(
             Box(
                 modifier = Modifier
                     .size(72.dp)
-                    .background(Color(0xFFFFF4E5), androidx.compose.foundation.shape.CircleShape),
+                    .background(themedColor(light = Color(0xFFFFF4E5), dark = Color(0xFF3D2300)), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = null,
-                    tint = Color(0xFFE5B850),
+                    tint = themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210)),
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -541,7 +543,7 @@ fun NetworkErrorBottomSheet(
                 text = stringResource(R.string.str_c58b4a6c),
                 fontSize = 20.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                color = com.example.uzradyab.ui.theme.AppTextPrimary,
+                color = com.example.uzradyab.ui.theme.UzradyabTheme.colors.textPrimary,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(12.dp))
@@ -550,7 +552,7 @@ fun NetworkErrorBottomSheet(
             Text(
                 text = "ارتباط با سرور برقرار نشد.\nلطفاً اتصال اینترنت خود را بررسی کرده یا در صورت روشن بودن VPN، آن را خاموش کنید.",
                 fontSize = 15.sp,
-                color = com.example.uzradyab.ui.theme.AppTextPrimary.copy(alpha = 0.7f),
+                color = com.example.uzradyab.ui.theme.UzradyabTheme.colors.textPrimary.copy(alpha = 0.7f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 lineHeight = 24.sp
             )
@@ -561,13 +563,13 @@ fun NetworkErrorBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
-                    .background(com.example.uzradyab.ui.theme.AppBlue, androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                    .background(com.example.uzradyab.ui.theme.UzradyabTheme.colors.primary, androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
                     .clickable { onDismiss() },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = stringResource(R.string.str_ed52d39d),
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     fontSize = 16.sp,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )

@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.example.uzradyab.ui.theme.themedColor
 
 enum class SnackbarType {
     SUCCESS, ERROR, INFO
@@ -73,21 +74,21 @@ fun GlobalSnackbarHost(
             }
 
             val containerColor = when (type) {
-                SnackbarType.SUCCESS -> Color(0xFF4CAF50)
-                SnackbarType.ERROR -> Color(0xFFF44336)
-                SnackbarType.INFO -> Color(0xFF6A8BA5) // Theme secondary/info color
+                SnackbarType.SUCCESS -> themedColor(light = Color(0xFF4CAF50), dark = Color(0xFF89BF8B))
+                SnackbarType.ERROR -> themedColor(light = Color(0xFFF44336), dark = Color(0xFFED685F))
+                SnackbarType.INFO -> themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)) // Theme secondary/info color
             }
 
             Snackbar(
                 modifier = Modifier.padding(16.dp),
                 containerColor = containerColor,
-                contentColor = Color.White,
-                actionContentColor = Color.White,
+                contentColor = themedColor(light = Color.White, dark = Color.White),
+                actionContentColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
                 actionOnNewLine = false,
             ) {
                 androidx.compose.material3.Text(
                     text = displayMessage,
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
                 )
             }

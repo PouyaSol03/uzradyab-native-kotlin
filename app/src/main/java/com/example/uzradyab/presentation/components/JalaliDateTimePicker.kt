@@ -23,10 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.core.utils.JalaliUtils
 import com.example.uzradyab.core.utils.JalaliUtils.toPersianDigits
-import com.example.uzradyab.ui.theme.AppBlue
+
 import java.util.Calendar
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 data class JalaliDateTime(
     val year: Int,
@@ -59,7 +61,7 @@ fun JalaliDateTimePicker(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -67,7 +69,7 @@ fun JalaliDateTimePicker(
                 text = title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF384C5C),
+                color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -75,7 +77,7 @@ fun JalaliDateTimePicker(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFF0F4F8), RoundedCornerShape(12.dp))
+                    .background(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF131F2A)), RoundedCornerShape(12.dp))
                     .padding(vertical = 4.dp, horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -83,20 +85,20 @@ fun JalaliDateTimePicker(
                 IconButton(onClick = { 
                     if (month == 1) { month = 12; year-- } else { month-- }
                 }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Previous", tint = AppBlue)
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Previous", tint = UzradyabTheme.colors.primary)
                 }
                 
                 Text(
                     text = "${JalaliUtils.getMonthName(month)} $year".toPersianDigits(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF384C5C)
+                    color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
                 )
                 
                 IconButton(onClick = { 
                     if (month == 12) { month = 1; year++ } else { month++ }
                 }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Next", tint = AppBlue)
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Next", tint = UzradyabTheme.colors.primary)
                 }
             }
 
@@ -109,7 +111,7 @@ fun JalaliDateTimePicker(
                     Text(
                         text = wd, 
                         fontSize = 14.sp, 
-                        color = Color(0xFF6A8BA5), 
+                        color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), 
                         modifier = Modifier.weight(1f), 
                         textAlign = TextAlign.Center
                     )
@@ -138,13 +140,13 @@ fun JalaliDateTimePicker(
                                         .aspectRatio(1f)
                                         .padding(4.dp)
                                         .clip(CircleShape)
-                                        .background(if (isSelected) Color(0xFF384C5C) else Color.Transparent)
+                                        .background(if (isSelected) themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)) else Color.Transparent)
                                         .clickable { day = d },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = d.toString().toPersianDigits(),
-                                        color = if (isSelected) Color.White else Color(0xFF384C5C),
+                                        color = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                                         fontSize = 14.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                     )
@@ -160,7 +162,7 @@ fun JalaliDateTimePicker(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFE5E7EB))
+            HorizontalDivider(color = themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23)))
             Spacer(modifier = Modifier.height(16.dp))
 
             // Time Picker
@@ -179,7 +181,7 @@ fun JalaliDateTimePicker(
                     text = ":", 
                     fontSize = 24.sp, 
                     fontWeight = FontWeight.Bold, 
-                    color = Color(0xFFC0CDD8),
+                    color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)),
                     modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
                 )
                 NumberPickerBox(
@@ -197,7 +199,7 @@ fun JalaliDateTimePicker(
                 Button(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f).height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
+                    colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), contentColor = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
@@ -205,7 +207,7 @@ fun JalaliDateTimePicker(
                 Button(
                     onClick = { onConfirm(JalaliDateTime(year, month, day, hour, minute)) },
                     modifier = Modifier.weight(1f).height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = UzradyabTheme.colors.primary),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(stringResource(R.string.str_911598cd), fontSize = 16.sp)
@@ -226,8 +228,8 @@ fun NumberPickerBox(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .border(1.dp, Color(0xFFC0CDD8), RoundedCornerShape(12.dp))
-                .background(Color.White, RoundedCornerShape(12.dp))
+                .border(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), RoundedCornerShape(12.dp))
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(12.dp))
                 .padding(horizontal = 4.dp, vertical = 8.dp)
         ) {
             IconButton(onClick = { 
@@ -235,13 +237,13 @@ fun NumberPickerBox(
                 if (nv > range.last) nv = range.first
                 onValueChange(nv)
             }, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.ChevronRight, "Up", tint = Color(0xFF6A8BA5))
+                Icon(Icons.Default.ChevronRight, "Up", tint = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)))
             }
             Text(
                 text = value.toString().padStart(2, '0').toPersianDigits(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF384C5C),
+                color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
             IconButton(onClick = { 
@@ -249,9 +251,9 @@ fun NumberPickerBox(
                 if (nv < range.first) nv = range.last
                 onValueChange(nv)
             }, modifier = Modifier.size(32.dp)) {
-                Icon(Icons.Default.ChevronLeft, "Down", tint = Color(0xFF6A8BA5))
+                Icon(Icons.Default.ChevronLeft, "Down", tint = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)))
             }
         }
-        Text(text = label, fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(top = 8.dp))
+        Text(text = label, fontSize = 14.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), modifier = Modifier.padding(top = 8.dp))
     }
 }

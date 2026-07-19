@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.example.uzradyab.R
 import com.example.uzradyab.core.utils.FormatUtils.toPersianDigits
 import com.example.uzradyab.data.remote.dto.AppConfigDto
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +41,7 @@ fun UpdateBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onLaterClick,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -63,7 +64,7 @@ fun UpdateBottomSheet(
                 text = "نسخه ${config.newReleaseCode?.toPersianDigits() ?: ""} آماده به‌روزرسانی!",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B),
+                color = themedColor(light = Color(0xFF1E293B), dark = Color(0xFFBBC8DD)),
                 textAlign = TextAlign.Right,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -95,13 +96,13 @@ fun UpdateBottomSheet(
                                 .padding(top = 8.dp)
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF94A3B8))
+                                .background(themedColor(light = Color(0xFF94A3B8), dark = Color(0xFF333E4D)))
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = item.value.toPersianDigits(),
                             fontSize = 14.sp,
-                            color = Color(0xFF475569),
+                            color = themedColor(light = Color(0xFF475569), dark = Color(0xFFA4B0C1)),
                             lineHeight = 22.sp,
                             textAlign = TextAlign.Right,
                             modifier = Modifier.fillMaxWidth()
@@ -121,14 +122,14 @@ fun UpdateBottomSheet(
                         ) {
                             Text(
                                 text = if (expanded) "کمتر" else "بیشتر",
-                                color = Color(0xFF2563EB),
+                                color = themedColor(light = Color(0xFF2563EB), dark = Color(0xFF648DE7)),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
                             Icon(
                                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                                 contentDescription = null,
-                                tint = Color(0xFF2563EB)
+                                tint = themedColor(light = Color(0xFF2563EB), dark = Color(0xFF648DE7))
                             )
                         }
                     }
@@ -146,12 +147,12 @@ fun UpdateBottomSheet(
                     modifier = Modifier
                         .weight(1f)
                         .height(50.dp)
-                        .background(Color(0xFFF1F5F9), RoundedCornerShape(12.dp)),
+                        .background(themedColor(light = Color(0xFFF1F5F9), dark = Color(0xFF121F2B)), RoundedCornerShape(12.dp)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = "بعداً",
-                        color = Color(0xFF1E293B),
+                        color = themedColor(light = Color(0xFF1E293B), dark = Color(0xFFBBC8DD)),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
@@ -163,11 +164,11 @@ fun UpdateBottomSheet(
                         .weight(2f)
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
+                    colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF2563EB), dark = Color(0xFF648DE7)))
                 ) {
                     Text(
                         text = "به‌روزرسانی",
-                        color = Color.White,
+                        color = themedColor(light = Color.White, dark = Color.White),
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )

@@ -24,16 +24,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 data class ChangelogFeature(
     val title: String,
     val description: String,
-    val icon: ImageVector = Icons.Default.CheckCircle,
-    val iconTint: Color = AppBlue
+    val icon: ImageVector = androidx.compose.material.icons.Icons.Default.CheckCircle,
+    val iconTint: Color? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +62,7 @@ fun ChangelogBottomSheet(
         ModalBottomSheet(
             onDismissRequest = onDismiss,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = Color.White
+            containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
         ) {
             Column(
                 modifier = Modifier
@@ -74,13 +75,13 @@ fun ChangelogBottomSheet(
                 Box(
                     modifier = Modifier
                         .size(72.dp)
-                        .background(Color(0xFFF0F5FF), CircleShape),
+                        .background(themedColor(light = Color(0xFFF0F5FF), dark = Color(0xFF00143D)), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
                         contentDescription = null,
-                        tint = AppBlue,
+                        tint = UzradyabTheme.colors.primary,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -91,7 +92,7 @@ fun ChangelogBottomSheet(
                     text = stringResource(R.string.str_3c82d654),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     textAlign = TextAlign.Center
                 )
                 
@@ -100,7 +101,7 @@ fun ChangelogBottomSheet(
                 Text(
                     text = stringResource(R.string.str_e51b994e),
                     fontSize = 14.sp,
-                    color = AppTextPrimary.copy(alpha = 0.6f),
+                    color = UzradyabTheme.colors.textPrimary.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center
                 )
                 
@@ -115,16 +116,17 @@ fun ChangelogBottomSheet(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top
                         ) {
+                            val tint = feature.iconTint ?: UzradyabTheme.colors.primary
                             Box(
                                 modifier = Modifier
                                     .size(40.dp)
-                                    .background(feature.iconTint.copy(alpha = 0.1f), CircleShape),
+                                    .background(tint.copy(alpha = 0.1f), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = feature.icon,
                                     contentDescription = null,
-                                    tint = feature.iconTint,
+                                    tint = tint,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -136,13 +138,13 @@ fun ChangelogBottomSheet(
                                     text = feature.title,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = AppTextPrimary
+                                    color = UzradyabTheme.colors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = feature.description,
                                     fontSize = 14.sp,
-                                    color = AppTextPrimary.copy(alpha = 0.7f),
+                                    color = UzradyabTheme.colors.textPrimary.copy(alpha = 0.7f),
                                     lineHeight = 22.sp
                                 )
                             }
@@ -158,13 +160,13 @@ fun ChangelogBottomSheet(
                         .fillMaxWidth()
                         .height(54.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(AppBlue)
+                        .background(UzradyabTheme.colors.primary)
                         .clickable { onDismiss() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = stringResource(R.string.str_ed52d39d),
-                        color = Color.White,
+                        color = themedColor(light = Color.White, dark = Color.White),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )

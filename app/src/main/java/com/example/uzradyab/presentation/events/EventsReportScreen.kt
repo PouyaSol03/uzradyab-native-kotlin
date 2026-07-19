@@ -33,12 +33,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.uzradyab.ui.theme.AppBackground
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextMuted
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun EventsReportRoute(
@@ -96,14 +95,14 @@ fun EventsReportScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.str_f58f20ca),
-                                color = Color(0xFF676C70),
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = null,
-                                tint = Color(0xFF676C70),
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -113,7 +112,7 @@ fun EventsReportScreen(
                         .height(64.dp)
                 )
             },
-            containerColor = AppBackground,
+            containerColor = UzradyabTheme.colors.background,
         ) { innerPadding ->
             Column(
                 modifier = modifier
@@ -133,14 +132,14 @@ fun EventsReportScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .border(1.dp, AppTextPrimary, RoundedCornerShape(12.dp))
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(12.dp))
+                .border(1.dp, UzradyabTheme.colors.textPrimary, RoundedCornerShape(12.dp))
                 .clickable { showFilterSheet = true },
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.str_04945136),
-                color = AppTextPrimary,
+                color = UzradyabTheme.colors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
             )
@@ -150,7 +149,7 @@ fun EventsReportScreen(
         
         Text(
             text = state.filterText,
-            color = AppTextPrimary,
+            color = UzradyabTheme.colors.textPrimary,
             fontSize = 12.sp,
             lineHeight = 20.sp,
             fontWeight = FontWeight.Medium,
@@ -158,7 +157,7 @@ fun EventsReportScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
-                .background(Color(0xFFE7EEF5), RoundedCornerShape(12.dp))
+                .background(themedColor(light = Color(0xFFE7EEF5), dark = Color(0xFF121F2B)), RoundedCornerShape(12.dp))
                 .padding(vertical = 6.dp, horizontal = 12.dp)
         )
 
@@ -171,13 +170,13 @@ fun EventsReportScreen(
             if (state.isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = AppBlue)
+                        CircularProgressIndicator(color = UzradyabTheme.colors.primary)
                     }
                 }
             } else if (state.events.isEmpty()) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        Text(stringResource(R.string.str_41ea99ff), color = AppTextMuted, fontSize = 14.sp)
+                        Text(stringResource(R.string.str_41ea99ff), color = UzradyabTheme.colors.textMuted, fontSize = 14.sp)
                     }
                 }
             } else {
@@ -194,7 +193,7 @@ fun EventsReportScreen(
                 if (state.hasMore) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = AppBlue, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            CircularProgressIndicator(color = UzradyabTheme.colors.primary, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                         }
                     }
                 }
@@ -221,7 +220,7 @@ fun EventsReportScreen(
                     snackbar = { data ->
                         Card(
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -231,12 +230,12 @@ fun EventsReportScreen(
                                 Icon(
                                     imageVector = Icons.Default.Info,
                                     contentDescription = null,
-                                    tint = Color(0xFFE55353)
+                                    tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = data.visuals.message,
-                                    color = Color(0xFFE55353),
+                                    color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -293,9 +292,9 @@ private fun NotificationSettingsRow(onClick: () -> Unit) {
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.Transparent,
-            contentColor = Color(0xFF307EF3)
+            contentColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC))
         ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF307EF3))
+        border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
     ) {
         Text(
             text = stringResource(R.string.str_2c0a74b8),
@@ -312,7 +311,7 @@ private fun EventCard(event: EventUiModel) {
             .fillMaxWidth()
             .height(74.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
@@ -325,13 +324,13 @@ private fun EventCard(event: EventUiModel) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .background(Color(0xFFE5B850), CircleShape),
+                    .background(themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210)), CircleShape),
             )
             Spacer(modifier = Modifier.size(10.dp))
             Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
                 Text(
                     text = event.title,
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium,
@@ -342,7 +341,7 @@ private fun EventCard(event: EventUiModel) {
                 )
                 Text(
                     text = event.description,
-                    color = Color(0xFF8F99A3),
+                    color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
                     fontSize = 12.sp,
                     lineHeight = 20.sp,
                     maxLines = 1,
@@ -353,7 +352,7 @@ private fun EventCard(event: EventUiModel) {
             }
             Text(
                 text = event.time,
-                color = Color.Black,
+                color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
                 fontSize = 12.sp,
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Left,
@@ -383,15 +382,15 @@ private fun DateFilters(
             Box(
                 modifier = Modifier
                     .height(32.dp)
-                    .background(if (isSelected) AppBlue else Color.White, RoundedCornerShape(8.dp))
-                    .border(1.dp, if (isSelected) AppBlue else Color(0xFFE3E8EE), RoundedCornerShape(8.dp))
+                    .background(if (isSelected) UzradyabTheme.colors.primary else themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
+                    .border(1.dp, if (isSelected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(8.dp))
                     .clickable { onFilterChange(filter) }
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = label,
-                    color = if (isSelected) Color.White else AppTextPrimary,
+                    color = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else UzradyabTheme.colors.textPrimary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1,
@@ -400,5 +399,4 @@ private fun DateFilters(
         }
     }
 }
-
 

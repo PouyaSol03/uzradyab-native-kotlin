@@ -62,11 +62,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.domain.model.Device
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextMuted
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun MapTopControls(
@@ -147,16 +147,16 @@ private fun DeviceSelectTrigger(
         modifier = modifier
             .height(40.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SmallCarIcon(color = Color.Black)
+        SmallCarIcon(color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)))
         Text(
             text = text,
-            color = Color.Black,
+            color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
             fontSize = 14.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
@@ -167,7 +167,7 @@ private fun DeviceSelectTrigger(
                 .weight(1f)
                 .padding(horizontal = 8.dp),
         )
-        ChevronDownIcon(color = AppTextPrimary)
+        ChevronDownIcon(color = UzradyabTheme.colors.textPrimary)
     }
 }
 
@@ -177,8 +177,8 @@ private fun MapSettingsTrigger(
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
-    val backgroundColor = if (enabled) AppBlue else Color(0xFFE0E0E0)
-    val contentColor = if (enabled) Color.White else Color.Gray
+    val backgroundColor = if (enabled) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE0E0E0), dark = Color(0xFF262626))
+    val contentColor = if (enabled) themedColor(light = Color.White, dark = Color.White) else themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
 
     Row(
         modifier = modifier
@@ -212,7 +212,7 @@ private fun LatestEventsTicker(
         modifier = modifier
             .height(40.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -224,7 +224,7 @@ private fun LatestEventsTicker(
         ) {
             Text(
                 text = latestEvent?.text ?: "داده‌ای موجود نیست",
-                color = Color(0xFF1C262E),
+                color = themedColor(light = Color(0xFF1C262E), dark = Color(0xFFC0CDD8)),
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
                 fontWeight = FontWeight.Bold,
@@ -237,7 +237,7 @@ private fun LatestEventsTicker(
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Text(
                         text = time,
-                        color = AppBlue,
+                        color = UzradyabTheme.colors.primary,
                         fontSize = 10.sp,
                         lineHeight = 12.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -255,7 +255,7 @@ private fun NotificationButton(onClick: () -> Unit) {
         modifier = Modifier
             .size(40.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(AppBlue, RoundedCornerShape(8.dp))
+            .background(UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -270,7 +270,7 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
             .height(40.dp)
             .widthIn(min = 40.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(if (isLocked) AppBlue else Color.White, RoundedCornerShape(8.dp))
+            .background(if (isLocked) UzradyabTheme.colors.primary else themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -287,7 +287,7 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = stringResource(R.string.str_00215df2),
-                        color = Color.White,
+                        color = themedColor(light = Color.White, dark = Color.White),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 1,
@@ -298,7 +298,7 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
             Icon(
                 imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.LockOpen,
                 contentDescription = "Lock Map",
-                tint = if (isLocked) Color.White else AppBlue,
+                tint = if (isLocked) themedColor(light = Color.White, dark = Color.White) else UzradyabTheme.colors.primary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -326,7 +326,7 @@ fun MapSettingsDialog(
                 .fillMaxWidth()
                 .widthIn(max = 420.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(
@@ -334,11 +334,11 @@ fun MapSettingsDialog(
                 horizontalAlignment = Alignment.Start,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    SettingsGearIcon(size = 22, color = AppTextMuted)
+                    SettingsGearIcon(size = 22, color = UzradyabTheme.colors.textMuted)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.str_c9c1b29c),
-                        color = AppTextPrimary,
+                        color = UzradyabTheme.colors.textPrimary,
                         fontSize = 18.sp,
                         lineHeight = 28.sp,
                         fontWeight = FontWeight.Bold,
@@ -347,7 +347,7 @@ fun MapSettingsDialog(
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = stringResource(R.string.str_eab3008b),
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     textAlign = TextAlign.Right,
@@ -428,7 +428,7 @@ fun DeviceSelectDialog(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.str_646e8d8f),
-                        color = AppTextPrimary,
+                        color = UzradyabTheme.colors.textPrimary,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Right,
                         modifier = Modifier.fillMaxWidth(),
@@ -436,13 +436,13 @@ fun DeviceSelectDialog(
                 },
                 singleLine = true,
                 textStyle = androidx.compose.ui.text.TextStyle(
-                    color = AppTextPrimary,
+                    color = UzradyabTheme.colors.textPrimary,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Right,
                 ),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
+                    focusedContainerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
+                    unfocusedContainerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
@@ -450,7 +450,7 @@ fun DeviceSelectDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .border(2.dp, AppBlue, RoundedCornerShape(8.dp)),
+                    .border(2.dp, UzradyabTheme.colors.primary, RoundedCornerShape(8.dp)),
             )
             LazyColumn(
                 modifier = Modifier.weight(1f, fill = false),
@@ -472,13 +472,13 @@ fun DeviceSelectDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(60.dp)
-                                .background(Color.White, RoundedCornerShape(8.dp))
-                                .border(1.dp, Color(0xFFE3E8EE), RoundedCornerShape(8.dp)),
+                                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
+                                .border(1.dp, themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 text = stringResource(R.string.str_69c5b430),
-                                color = AppTextMuted,
+                                color = UzradyabTheme.colors.textMuted,
                                 fontSize = 14.sp,
                             )
                         }
@@ -499,8 +499,8 @@ private fun DeviceSelectRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .border(2.dp, if (selected) AppBlue else Color(0xFFE3E8EE), RoundedCornerShape(8.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
+            .border(2.dp, if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -513,18 +513,18 @@ private fun DeviceSelectRow(
             Box(
                 modifier = Modifier
                     .size(28.dp)
-                    .background(if (selected) AppBlue else Color(0xFFE3E8EE), androidx.compose.foundation.shape.CircleShape),
+                    .background(if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(Color.White, androidx.compose.foundation.shape.CircleShape),
+                        .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), androidx.compose.foundation.shape.CircleShape),
                 )
             }
             Text(
                 text = device.name,
-                color = AppBlue,
+                color = UzradyabTheme.colors.primary,
                 fontSize = 14.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.Bold,
@@ -534,7 +534,7 @@ private fun DeviceSelectRow(
         }
         Text(
             text = device.phone ?: "نامشخص",
-            color = Color(0xFF68737D),
+            color = themedColor(light = Color(0xFF68737D), dark = Color(0xFF999999)),
             fontSize = 14.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -556,7 +556,7 @@ fun MapLatestEventDialog(
                 .fillMaxWidth()
                 .widthIn(max = 360.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(
@@ -566,18 +566,18 @@ fun MapLatestEventDialog(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = stringResource(R.string.str_914a74a3),
-                        color = AppTextPrimary,
+                        color = UzradyabTheme.colors.textPrimary,
                         fontSize = 18.sp,
                         lineHeight = 28.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    NotificationBellIcon(color = AppBlue)
+                    NotificationBellIcon(color = UzradyabTheme.colors.primary)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = latestEvent?.text ?: "داده‌ای موجود نیست",
-                    color = Color(0xFF1C262E),
+                    color = themedColor(light = Color(0xFF1C262E), dark = Color(0xFFC0CDD8)),
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.Medium,
@@ -589,7 +589,7 @@ fun MapLatestEventDialog(
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                         Text(
                             text = time,
-                            color = AppBlue,
+                            color = UzradyabTheme.colors.primary,
                             fontSize = 12.sp,
                             lineHeight = 20.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -618,10 +618,10 @@ private fun MapStyleCard(
     Column(
         modifier = modifier
             .height(116.dp)
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .border(
                 width = 1.dp,
-                color = if (selected) AppBlue else Color(0xFFE3E8EE),
+                color = if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)),
                 shape = RoundedCornerShape(8.dp),
             )
             .clickable(onClick = onClick),
@@ -630,7 +630,7 @@ private fun MapStyleCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(36.dp)
-                .background(Color.White, RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                 .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
@@ -638,13 +638,13 @@ private fun MapStyleCard(
             RadioButton(
                 selected = selected,
                 onClick = onClick,
-                colors = RadioButtonDefaults.colors(selectedColor = AppBlue),
+                colors = RadioButtonDefaults.colors(selectedColor = UzradyabTheme.colors.primary),
                 modifier = Modifier.size(28.dp),
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = option.title,
-                color = AppTextPrimary,
+                color = UzradyabTheme.colors.textPrimary,
                 fontSize = 12.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -654,7 +654,7 @@ private fun MapStyleCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .background(Color(0xFFE3E8EE), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
+                .background(themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp))
                 .clip(RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
         ) {
             val imageRes = when (option.id) {
@@ -686,13 +686,13 @@ private fun DialogTextButton(
     Box(
         modifier = modifier
             .height(48.dp)
-            .background(if (primary) AppBlue else Color.Transparent, RoundedCornerShape(8.dp))
+            .background(if (primary) UzradyabTheme.colors.primary else Color.Transparent, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            color = if (primary) Color.White else AppBlue,
+            color = if (primary) themedColor(light = Color.White, dark = Color(0xFF27343F)) else UzradyabTheme.colors.primary,
             fontSize = 14.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.Medium,
@@ -705,22 +705,23 @@ private data class MapStyleOption(
     val title: String,
 )
 
+@Composable
 private fun mapPreviewColor(id: String): Color = when (id) {
-    "googleSatellite" -> Color(0xFF51604A)
-    "googleRoad" -> Color(0xFFE9E5D7)
-    "carto" -> Color(0xFFE7EEF5)
-    else -> Color(0xFFEDEAE0)
+    "googleSatellite" -> themedColor(light = Color(0xFF51604A), dark = Color(0xFFAFBCA9))
+    "googleRoad" -> themedColor(light = Color(0xFFE9E5D7), dark = Color(0xFF312C1B))
+    "carto" -> themedColor(light = Color(0xFFE7EEF5), dark = Color(0xFF121F2B))
+    else -> themedColor(light = Color(0xFFEDEAE0), dark = Color(0xFF272316))
 }
 
 @Composable
 private fun EventPulseDot() {
+    val outerColor = themedColor(light = Color(0x29E5B850), dark = Color(0x296F5210))
+    val innerColor = themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210))
     Canvas(modifier = Modifier.size(10.dp)) {
-        drawCircle(Color(0x29E5B850), radius = 5.dp.toPx(), center = Offset(size.width / 2f, size.height / 2f))
-        drawCircle(Color(0xFFE5B850), radius = 3.dp.toPx(), center = Offset(size.width / 2f, size.height / 2f))
+        drawCircle(outerColor, radius = 5.dp.toPx(), center = Offset(size.width / 2f, size.height / 2f))
+        drawCircle(innerColor, radius = 3.dp.toPx(), center = Offset(size.width / 2f, size.height / 2f))
     }
 }
-
-
 
 @Composable
 private fun SmallCarIcon(color: Color) {
@@ -743,7 +744,7 @@ private fun ChevronDownIcon(color: Color) {
 }
 
 @Composable
-private fun SettingsGearIcon(size: Int, color: Color = Color.White) {
+private fun SettingsGearIcon(size: Int, color: Color = themedColor(light = Color.White, dark = Color.White)) {
     Icon(
         imageVector = Icons.Default.Settings,
         contentDescription = "Settings",
@@ -753,7 +754,7 @@ private fun SettingsGearIcon(size: Int, color: Color = Color.White) {
 }
 
 @Composable
-private fun NotificationBellIcon(color: Color = Color.White) {
+private fun NotificationBellIcon(color: Color = themedColor(light = Color.White, dark = Color.White)) {
     Icon(
         imageVector = Icons.Default.Notifications,
         contentDescription = "Notifications",

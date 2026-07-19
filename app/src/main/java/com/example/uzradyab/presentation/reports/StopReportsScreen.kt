@@ -61,12 +61,13 @@ import com.example.uzradyab.presentation.map.AppMenuDialog
 import com.example.uzradyab.presentation.map.DeviceSelectDialog
 import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.components.JalaliDateTime
-import com.example.uzradyab.ui.theme.AppBlue
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.core.utils.toImmutable
 import com.example.uzradyab.core.utils.FormatUtils.toPersianDigits
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,7 +117,7 @@ fun StopReportsScreen(
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
-    val figmaBackground = Color(0xFFF9F9F9)
+    val figmaBackground = themedColor(light = Color(0xFFF9F9F9), dark = Color(0xFF1F1F1F))
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
 
@@ -139,7 +140,7 @@ fun StopReportsScreen(
                 centerContent = {
                     Text(
                         text = stringResource(R.string.str_4a9a9330),
-                        color = Color(0xFF676C70),
+                        color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -193,7 +194,7 @@ fun StopReportsScreen(
                     Icon(
                         imageVector = Icons.Default.Tune,
                         contentDescription = stringResource(R.string.str_68a2de5f),
-                        tint = Color(0xFF676C70)
+                        tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
                     )
                 }
             }
@@ -202,11 +203,11 @@ fun StopReportsScreen(
 
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF307EF3))
+                    CircularProgressIndicator(color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 }
             } else if (state.reports.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = stringResource(R.string.str_ed7c278e), color = Color.Gray, fontSize = 16.sp)
+                    Text(text = stringResource(R.string.str_ed7c278e), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 16.sp)
                 }
             } else {
                 LazyColumn(
@@ -279,7 +280,7 @@ fun StopReportsScreen(
                 snackbar = { data ->
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFDECEA)),
+                        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -289,12 +290,12 @@ fun StopReportsScreen(
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = null,
-                                tint = Color(0xFFE55353)
+                                tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = data.visuals.message,
-                                color = Color(0xFFE55353),
+                                color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -325,7 +326,7 @@ fun StopReportCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -335,19 +336,19 @@ fun StopReportCard(
                     Icon(
                         imageVector = Icons.Default.Timer,
                         contentDescription = null,
-                        tint = Color(0xFFE5B850),
+                        tint = themedColor(light = Color(0xFFE5B850), dark = Color(0xFF6F5210)),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.str_8b8d6508),
-                        color = Color.Gray,
+                        color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)),
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = report.duration,
-                        color = Color.Black,
+                        color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -361,21 +362,21 @@ fun StopReportCard(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 if (selectedColumns.contains("startTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = stringResource(R.string.str_8309a992), color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_8309a992), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = report.startTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.startTime, fontSize = 12.sp, color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)), fontWeight = FontWeight.Medium)
                         }
                     }
                 }
                 if (selectedColumns.contains("endTime")) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(text = stringResource(R.string.str_a80ac219), color = Color.Gray, fontSize = 10.sp)
+                        Text(text = stringResource(R.string.str_a80ac219), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 10.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = Color(0xFF307EF3), modifier = Modifier.size(14.dp))
+                            Icon(imageVector = Icons.Default.AccessTime, contentDescription = null, tint = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)), modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = report.endTime, fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                            Text(text = report.endTime, fontSize = 12.sp, color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)), fontWeight = FontWeight.Medium)
                         }
                     }
                 }
@@ -385,18 +386,18 @@ fun StopReportCard(
 
             if (selectedColumns.contains("engineHours")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.SettingsSuggest, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.SettingsSuggest, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "ساعات کارکرد موتور: ${report.engineHours}", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "ساعات کارکرد موتور: ${report.engineHours}", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
             
             if (selectedColumns.contains("spentFuel")) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(imageVector = Icons.Default.LocalGasStation, contentDescription = null, tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "سوخت مصرفی: ${report.spentFuel} لیتر", color = Color.DarkGray, fontSize = 12.sp)
+                    Text(text = "سوخت مصرفی: ${report.spentFuel} لیتر", color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -407,13 +408,13 @@ fun StopReportCard(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = Color.Gray,
+                        tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)),
                         modifier = Modifier.size(16.dp).padding(top = 2.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = addressText ?: "آدرس نامشخص",
-                        color = Color.DarkGray,
+                        color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)),
                         fontSize = 12.sp,
                         lineHeight = 18.sp
                     )
@@ -422,8 +423,6 @@ fun StopReportCard(
         }
     }
 }
-
-
 
 @Composable
 fun DeviceSelectTrigger(
@@ -435,7 +434,7 @@ fun DeviceSelectTrigger(
         modifier = modifier
             .height(44.dp)
             .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -444,12 +443,12 @@ fun DeviceSelectTrigger(
         Icon(
             imageVector = Icons.Default.DirectionsCar,
             contentDescription = "Car",
-            tint = Color.Black,
+            tint = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
             modifier = Modifier.size(width = 20.dp, height = 16.dp)
         )
         Text(
             text = text,
-            color = Color.Black,
+            color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
             fontSize = 14.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
@@ -463,7 +462,7 @@ fun DeviceSelectTrigger(
         Icon(
             imageVector = Icons.Default.KeyboardArrowDown,
             contentDescription = "Chevron Down",
-            tint = Color(0xFF1C262E),
+            tint = themedColor(light = Color(0xFF1C262E), dark = Color(0xFFC0CDD8)),
             modifier = Modifier.size(24.dp)
         )
     }
@@ -478,10 +477,10 @@ fun FilterChip(
     Box(
         modifier = Modifier
             .height(32.dp)
-            .background(if (isSelected) AppBlue else Color.White, RoundedCornerShape(8.dp))
+            .background(if (isSelected) UzradyabTheme.colors.primary else themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
             .border(
                 1.dp, 
-                if (isSelected) AppBlue else Color(0xFFE3E8EE), 
+                if (isSelected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), 
                 RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)
@@ -490,7 +489,7 @@ fun FilterChip(
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color.White else AppTextPrimary,
+            color = if (isSelected) themedColor(light = Color.White, dark = Color(0xFF27343F)) else UzradyabTheme.colors.textPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 1
@@ -513,7 +512,7 @@ fun CustomDateBottomSheet(
     androidx.compose.material3.ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFFF7F9FA)
+        containerColor = themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126))
     ) {
         androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Rtl) {
             if (showStartPicker) {
@@ -547,18 +546,18 @@ fun CustomDateBottomSheet(
                         text = stringResource(R.string.str_00a90073),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF384C5C),
+                        color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        androidx.compose.material3.Text(stringResource(R.string.str_cfde5abf), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.Text(stringResource(R.string.str_cfde5abf), fontSize = 14.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), modifier = Modifier.padding(bottom = 8.dp))
                         androidx.compose.material3.OutlinedButton(
                             onClick = { showStartPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)), contentColor = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
                         ) {
                             androidx.compose.material3.Text(
                                 if (customStart != null) "${customStart!!.year}/${customStart!!.month.toString().padStart(2, '0')}/${customStart!!.day.toString().padStart(2, '0')} ${customStart!!.hour.toString().padStart(2, '0')}:${customStart!!.minute.toString().padStart(2, '0')}".toPersianDigits() 
@@ -570,13 +569,13 @@ fun CustomDateBottomSheet(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                        androidx.compose.material3.Text(stringResource(R.string.str_bc542cf1), fontSize = 14.sp, color = Color(0xFF6A8BA5), modifier = Modifier.padding(bottom = 8.dp))
+                        androidx.compose.material3.Text(stringResource(R.string.str_bc542cf1), fontSize = 14.sp, color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), modifier = Modifier.padding(bottom = 8.dp))
                         androidx.compose.material3.OutlinedButton(
                             onClick = { showEndPicker = true },
                             modifier = Modifier.fillMaxWidth().height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = Color.White, contentColor = Color(0xFF384C5C)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFC0CDD8))
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)), contentColor = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
                         ) {
                             androidx.compose.material3.Text(
                                 if (customEnd != null) "${customEnd!!.year}/${customEnd!!.month.toString().padStart(2, '0')}/${customEnd!!.day.toString().padStart(2, '0')} ${customEnd!!.hour.toString().padStart(2, '0')}:${customEnd!!.minute.toString().padStart(2, '0')}".toPersianDigits() 
@@ -591,7 +590,7 @@ fun CustomDateBottomSheet(
                         androidx.compose.material3.Button(
                             onClick = onDismiss,
                             modifier = Modifier.weight(1f).height(48.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = Color(0xFFEFF3F5), contentColor = Color(0xFF6A8BA5)),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), contentColor = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3))),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             androidx.compose.material3.Text(stringResource(R.string.str_c8d2a1fb), fontSize = 16.sp)
@@ -603,7 +602,7 @@ fun CustomDateBottomSheet(
                                 }
                             },
                             modifier = Modifier.weight(1f).height(48.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AppBlue),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = UzradyabTheme.colors.primary),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             androidx.compose.material3.Text(stringResource(R.string.str_606f279a), fontSize = 16.sp)

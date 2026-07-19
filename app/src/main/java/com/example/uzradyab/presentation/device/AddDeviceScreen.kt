@@ -65,6 +65,7 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun AddDeviceRoute(
@@ -138,7 +139,7 @@ fun AddDeviceScreen(
     creditText: String,
     endCreditText: String,
 ) {
-    val figmaBackground = Color(0xFFF3F4F6)
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -153,14 +154,14 @@ fun AddDeviceScreen(
                         ) {
                             Text(
                                 text = if (isReadOnly) "مشخصات دستگاه" else if (isEditMode) "تنظیمات دستگاه" else "افزودن دستگاه",
-                                color = Color(0xFF676C70),
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                             )
                             Icon(
                                 imageVector = Icons.Default.DirectionsCar,
                                 contentDescription = null,
-                                tint = Color(0xFF676C70),
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -222,20 +223,20 @@ fun AddDeviceScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(54.dp)
-                                .background(Color(0xFF384C5C), RoundedCornerShape(8.dp))
+                                .background(themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
                                 text = endCreditText,
-                                color = Color(0xFFC0CDD8),
+                                color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Normal,
                             )
                             Text(
                                 text = creditText,
-                                color = Color.White,
+                                color = themedColor(light = Color.White, dark = Color.White),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal,
                             )
@@ -301,16 +302,16 @@ private fun AddDeviceBottomBar(
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF307EF3),
-                contentColor = Color.White,
-                disabledContainerColor = Color(0xFF307EF3).copy(alpha = 0.5f),
-                disabledContentColor = Color.White.copy(alpha = 0.8f)
+                containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
+                contentColor = themedColor(light = Color.White, dark = Color.White),
+                disabledContainerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)).copy(alpha = 0.5f),
+                disabledContentColor = themedColor(light = Color.White, dark = Color(0xFF27343F)).copy(alpha = 0.8f)
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    color = Color.White,
+                    color = themedColor(light = Color.White, dark = Color.White),
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 2.dp
                 )
@@ -345,9 +346,9 @@ private fun DeviceTextField(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     
-    val bgColor = if (enabled) Color.White else Color(0xFFE9ECEF)
-    val borderColor = if (!enabled) Color(0xFFBEC1C3) else if (isFocused) Color(0xFF307EF3) else Color(0xFFAEB1B4)
-    val textColor = if (enabled) Color(0xFF333638) else Color(0xFF676C70)
+    val bgColor = if (enabled) themedColor(light = Color.White, dark = Color(0xFF27343F)) else themedColor(light = Color(0xFFE9ECEF), dark = Color(0xFF1A1F23))
+    val borderColor = if (!enabled) themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)) else if (isFocused) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042))
+    val textColor = if (enabled) themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)) else themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -355,7 +356,7 @@ private fun DeviceTextField(
     ) {
         Text(
             text = label,
-            color = Color(0xFF333638),
+            color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
             fontSize = 14.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
@@ -404,7 +405,7 @@ private fun DeviceTextField(
                             if (value.isEmpty()) {
                                 Text(
                                     text = placeholder,
-                                    color = Color(0xFFBEC1C3),
+                                    color = themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF3D4042)),
                                     fontSize = 14.sp,
                                     lineHeight = 22.sp,
                                     textAlign = TextAlign.Right,
@@ -428,13 +429,13 @@ private fun DeviceTextField(
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = null,
-                tint = Color(0xFF676C70),
+                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = helperText,
-                color = Color(0xFF676C70),
+                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                 fontSize = 12.sp,
                 lineHeight = 22.sp,
                 textAlign = TextAlign.Right,

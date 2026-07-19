@@ -30,6 +30,7 @@ import com.example.uzradyab.presentation.components.LocalSnackbarController
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.themedColor
 
 @Composable
 fun RenewCreditRoute(
@@ -83,7 +84,7 @@ fun RenewCreditScreen(
                     centerContent = {
                         Text(
                             text = stringResource(R.string.str_96ad5971),
-                            color = Color(0xFF676C70),
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                         )
@@ -110,13 +111,13 @@ fun RenewCreditScreen(
                                 .height(48.dp),
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF307EF3),
-                                contentColor = Color.White,
-                                disabledContainerColor = Color(0xFF307EF3).copy(alpha = 0.5f),
+                                containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
+                                contentColor = themedColor(light = Color.White, dark = Color.White),
+                                disabledContainerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)).copy(alpha = 0.5f),
                             ),
                         ) {
                             if (state.isProcessing) {
-                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                                CircularProgressIndicator(color = themedColor(light = Color.White, dark = Color.White), modifier = Modifier.size(24.dp))
                             } else {
                                 val amountFormatted = formatPrice(selectedPlan.amount)
                                 Text(
@@ -129,11 +130,11 @@ fun RenewCreditScreen(
                     }
                 }
             },
-            containerColor = Color(0xFFF3F4F6)
+            containerColor = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
         ) { paddingValues ->
             if (state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF307EF3))
+                    CircularProgressIndicator(color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 }
             } else if (device != null) {
                 Column(
@@ -147,7 +148,7 @@ fun RenewCreditScreen(
                     // Device Info Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -155,7 +156,7 @@ fun RenewCreditScreen(
                                 text = device.name,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color.Black,
+                                color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
                             
@@ -163,9 +164,9 @@ fun RenewCreditScreen(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = Color.Gray)
+                                Text(stringResource(R.string.str_fa837aa3), fontSize = 14.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                    Text(device.uniqueId, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                                    Text(device.uniqueId, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)))
                                 }
                             }
                             
@@ -173,18 +174,18 @@ fun RenewCreditScreen(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = Color.Gray)
+                                Text(stringResource(R.string.str_be9638ce), fontSize = 14.sp, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)))
                                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                                    Text(device.phone ?: "—", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.DarkGray)
+                                    Text(device.phone ?: "—", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)))
                                 }
                             }
 
                             if (state.accountCharges.isEmpty()) {
-                                Text(stringResource(R.string.str_de13da6c), color = Color.Gray, modifier = Modifier.padding(vertical = 16.dp))
+                                Text(stringResource(R.string.str_de13da6c), color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), modifier = Modifier.padding(vertical = 16.dp))
                             } else {
                                 state.accountCharges.forEach { charge ->
                                     val isSelected = state.selectedPlanId == charge.id
-                                    val borderColor = if (isSelected) Color(0xFF93C5FD) else Color(0xFFE5E7EB)
+                                    val borderColor = if (isSelected) themedColor(light = Color(0xFF93C5FD), dark = Color(0xFF023C7D)) else themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23))
                                     val borderWidth = if (isSelected) 2.dp else 1.dp
 
                                     Row(
@@ -199,16 +200,16 @@ fun RenewCreditScreen(
                                         RadioButton(
                                             selected = isSelected,
                                             onClick = { onPlanSelect(charge.id) },
-                                            colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
+                                            colors = RadioButtonDefaults.colors(selectedColor = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(charge.period, color = Color(0xFF60A5FA), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                            Text(charge.period, color = themedColor(light = Color(0xFF60A5FA), dark = Color(0xFF043A7C)), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                             if (!charge.description.isNullOrEmpty()) {
-                                                Text(charge.description, color = Color.Gray, fontSize = 12.sp)
+                                                Text(charge.description, color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)), fontSize = 12.sp)
                                             }
                                         }
-                                        Text(formatPrice(charge.amount), color = Color.DarkGray, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                        Text(formatPrice(charge.amount), color = themedColor(light = Color.DarkGray, dark = Color(0xFFB0B0B0)), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                                     }
                                 }
                             }
@@ -219,33 +220,33 @@ fun RenewCreditScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color(0xFF384C5C), RoundedCornerShape(12.dp))
+                                .background(themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)), RoundedCornerShape(12.dp))
                                 .padding(16.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.str_e4276c68), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
-                                Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = Color.LightGray)
+                                Text(stringResource(R.string.str_e4276c68), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = themedColor(light = Color.LightGray, dark = Color(0xFF303030)))
+                                Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = themedColor(light = Color.LightGray, dark = Color(0xFF303030)))
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(stringResource(R.string.str_ee6d1b92), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.LightGray)
-                                Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = Color.White)
+                                Text(stringResource(R.string.str_ee6d1b92), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = themedColor(light = Color.LightGray, dark = Color(0xFF303030)))
+                                Text(formatPrice(selectedPlan.amount), fontSize = 14.sp, color = themedColor(light = Color.White, dark = Color.White))
                             }
 
                             // Gateway Selection
-                            Text(stringResource(R.string.str_0e1684cc), fontSize = 14.sp, color = Color.LightGray, modifier = Modifier.padding(bottom = 8.dp))
+                            Text(stringResource(R.string.str_0e1684cc), fontSize = 14.sp, color = themedColor(light = Color.LightGray, dark = Color(0xFF303030)), modifier = Modifier.padding(bottom = 8.dp))
                             
                             val isZarinpal = state.selectedGateway == "zarinpal"
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color.White, RoundedCornerShape(8.dp))
-                                    .border(if (isZarinpal) 2.dp else 1.dp, if (isZarinpal) Color(0xFF93C5FD) else Color.Transparent, RoundedCornerShape(8.dp))
+                                    .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
+                                    .border(if (isZarinpal) 2.dp else 1.dp, if (isZarinpal) themedColor(light = Color(0xFF93C5FD), dark = Color(0xFF023C7D)) else Color.Transparent, RoundedCornerShape(8.dp))
                                     .clickable { onGatewaySelect("zarinpal") }
                                     .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
@@ -253,10 +254,10 @@ fun RenewCreditScreen(
                                 RadioButton(
                                     selected = isZarinpal,
                                     onClick = { onGatewaySelect("zarinpal") },
-                                    colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF3B82F6))
+                                    colors = RadioButtonDefaults.colors(selectedColor = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)))
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.str_fe09ff34), color = Color(0xFF3B82F6), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(stringResource(R.string.str_fe09ff34), color = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE)), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             }
                         }
                     }

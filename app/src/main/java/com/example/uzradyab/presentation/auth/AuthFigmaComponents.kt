@@ -63,12 +63,11 @@ import com.example.uzradyab.core.designsystem.EyeIcon
 import com.example.uzradyab.core.designsystem.EyeOffIcon
 import com.example.uzradyab.core.designsystem.KeyIcon
 import com.example.uzradyab.core.designsystem.PhoneIcon
-import com.example.uzradyab.ui.theme.AppInputBorder
-import com.example.uzradyab.ui.theme.AppTextBody
-import com.example.uzradyab.ui.theme.AppTextMuted
-import com.example.uzradyab.ui.theme.AppTextPrimary
+
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import com.example.uzradyab.ui.theme.UzradyabTheme
+import com.example.uzradyab.ui.theme.themedColor
 
 internal val AuthPanelWidth = 327.dp
 internal val AuthControlWidth = 279.dp
@@ -92,6 +91,8 @@ internal fun AuthPanel(
             .widthIn(max = AuthPanelWidth)
             .height(height)
     ) {
+        val maskColor = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0))
+        val bgColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
         androidx.compose.foundation.Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -99,7 +100,7 @@ internal fun AuthPanel(
         ) {
             // Solid white background
             drawRoundRect(
-                color = Color.White,
+                color = bgColor,
                 size = size,
                 cornerRadius = CornerRadius(8.dp.toPx())
             )
@@ -115,7 +116,7 @@ internal fun AuthPanel(
             translate(left = -198f, top = -44f) {
                 drawPath(
                     path = scaledAndroidPath.asComposePath(),
-                    color = Color.Black,
+                    color = maskColor,
                     blendMode = BlendMode.Clear
                 )
             }
@@ -128,7 +129,7 @@ internal fun AuthPanel(
 internal fun AuthTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        color = AppTextPrimary,
+        color = UzradyabTheme.colors.textPrimary,
         fontSize = 20.sp,
         lineHeight = 35.sp,
         fontWeight = FontWeight.ExtraBold,
@@ -151,7 +152,7 @@ internal fun AuthTextField(
     rightIcon: (@Composable () -> Unit)? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else AppInputBorder
+    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else UzradyabTheme.colors.inputBorder
 
     Column(
         modifier = modifier.width(AuthControlWidth),
@@ -159,7 +160,7 @@ internal fun AuthTextField(
     ) {
         Text(
             text = label,
-            color = AppTextBody,
+            color = UzradyabTheme.colors.textBody,
             fontSize = 14.sp,
             lineHeight = 22.sp,
             textAlign = TextAlign.Right,
@@ -178,7 +179,7 @@ internal fun AuthTextField(
                 keyboardOptions = keyboardOptions,
                 visualTransformation = visualTransformation,
                 textStyle = TextStyle(
-                    color = AppTextBody,
+                    color = UzradyabTheme.colors.textBody,
                     fontSize = 14.sp,
                     lineHeight = 22.sp,
                     textDirection = inputTextDirection,
@@ -206,7 +207,7 @@ internal fun AuthTextField(
                             if (value.isEmpty()) {
                                 Text(
                                     text = placeholder,
-                                    color = AppTextMuted,
+                                    color = UzradyabTheme.colors.textMuted,
                                     fontSize = 14.sp,
                                     lineHeight = 22.sp,
                                     textAlign = TextAlign.Right,
@@ -245,9 +246,9 @@ internal fun AuthPrimaryButton(
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White,
+            contentColor = themedColor(light = Color.White, dark = Color.White),
             disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
-            disabledContentColor = Color.White.copy(alpha = 0.8f),
+            disabledContentColor = themedColor(light = Color.White, dark = Color(0xFF27343F)).copy(alpha = 0.8f),
         ),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
     ) {
@@ -290,7 +291,7 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(R.string.str_a0a519bd),
-            color = AppTextBody,
+            color = UzradyabTheme.colors.textBody,
             fontSize = 14.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.Medium,
@@ -303,7 +304,7 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .width(AuthControlWidth)
                     .height(48.dp)
-                    .border(1.dp, AppInputBorder, RoundedCornerShape(8.dp))
+                    .border(1.dp, UzradyabTheme.colors.inputBorder, RoundedCornerShape(8.dp))
                     .padding(horizontal = 16.dp)
                     .clickable(enabled = false) {},
                 verticalAlignment = Alignment.CenterVertically,
@@ -311,7 +312,7 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.str_66030b73),
-                    color = AppTextBody,
+                    color = UzradyabTheme.colors.textBody,
                     fontSize = 14.sp,
                     lineHeight = 24.sp,
                     fontWeight = FontWeight.Medium,
@@ -325,12 +326,12 @@ internal fun AuthLanguageField(modifier: Modifier = Modifier) {
 
 @Composable
 internal fun PhoneFieldIcon() {
-    PhoneIcon(color = Color(0xFFC0CDD8), modifier = Modifier.size(24.dp))
+    PhoneIcon(color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), modifier = Modifier.size(24.dp))
 }
 
 @Composable
 internal fun PasswordKeyIcon() {
-    KeyIcon(color = Color(0xFFC0CDD8), modifier = Modifier.size(24.dp))
+    KeyIcon(color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), modifier = Modifier.size(24.dp))
 }
 
 @Composable
@@ -344,36 +345,39 @@ internal fun PasswordEyeIcon(isVisible: Boolean, onClick: () -> Unit) {
     }
 }
 
-
-
 @Composable
 internal fun UserFieldIcon() {
     Icon(
         imageVector = Icons.Default.Person,
         contentDescription = "User",
-        tint = Color(0xFFC0CDD8),
+        tint = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)),
         modifier = Modifier.size(24.dp)
     )
 }
 
 @Composable
 private fun IranFlagIcon() {
+    val white = themedColor(light = Color.White, dark = Color(0xFF27343F))
+    val green = themedColor(light = Color(0xFF239F40), dark = Color(0xFF82E398))
+    val red = themedColor(light = Color(0xFFDA0000), dark = Color(0xFFF43232))
+    
+    val textColor = UzradyabTheme.colors.textBody
     Canvas(modifier = Modifier.size(width = 28.dp, height = 18.dp)) {
         drawRoundRect(
-            color = Color.White,
+            color = white,
             cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
         )
         drawRect(
-            color = Color(0xFF239F40),
+            color = green,
             size = androidx.compose.ui.geometry.Size(size.width, size.height / 3f),
         )
         drawRect(
-            color = Color(0xFFDA0000),
+            color = red,
             topLeft = Offset(0f, size.height * 2f / 3f),
             size = androidx.compose.ui.geometry.Size(size.width, size.height / 3f),
         )
         drawRoundRect(
-            color = AppTextBody,
+            color = textColor,
             cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
