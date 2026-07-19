@@ -273,6 +273,11 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onRenewDeviceClick = { deviceId ->
+                    navController.navigate("${AppRoute.RenewCredit.path}?deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                },
                 onDebugLogsClick = if (BuildConfig.DEBUG) ({
                     navController.navigate(AppRoute.DebugLog.path) {
                         launchSingleTop = true

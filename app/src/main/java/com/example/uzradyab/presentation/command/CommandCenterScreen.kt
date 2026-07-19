@@ -64,7 +64,7 @@ private val COMMAND_TYPES = listOf(
     CommandData("reset", "راه اندازی مجدد", "با ارسال این دستور دستگاه خاموش و مجدد راه اندازی می شود.", "RESET#"),
     CommandData("server", "تنظیم سرور", "ارسال این دستور سرور دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.", "SERVER,1,uzradyab.ir,5023,0#"),
     CommandData("time", "تنظیم زمان دستگاه", "ارسال این دستور زمان دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.", "GMT,E,0,0#"),
-    CommandData("lbs", "تنظیم LBS", "تنظیم LBS", "LBSON#")
+    CommandData("lbs", "تنظیم \u202ALBS\u202C", "تنظیم \u202ALBS\u202C", "LBSON#")
 )
 
 data class CommandData(val type: String, val title: String, val description: String, val command: String)

@@ -210,7 +210,7 @@ fun AddDeviceScreen(
                         onValueChange = onUniqueIdChange,
                         label = stringResource(R.string.str_bbf521c7),
                         placeholder = "مثلا: 123456789",
-                        helperText = "شماره سریال دستگاه با عنوان IEMI بر روی جعبه دستگاه ردیاب درج شده است.",
+                        helperText = "شماره سریال دستگاه با عنوان \u202AIMEI\u202C بر روی جعبه دستگاه ردیاب درج شده است.",
                         forceLtr = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         enabled = !isEditMode && !isReadOnly

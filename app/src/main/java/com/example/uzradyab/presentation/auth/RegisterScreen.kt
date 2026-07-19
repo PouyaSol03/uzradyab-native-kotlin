@@ -9,9 +9,11 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import com.example.uzradyab.ui.theme.AppBlue
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -386,7 +388,45 @@ private fun RegisterPasswordStep(
             },
             rightIcon = { PasswordKeyIcon() },
         )
-        Spacer(modifier = Modifier.height(48.dp))        
+        Spacer(modifier = Modifier.height(24.dp))
+        Row(
+            modifier = Modifier.width(AuthControlWidth),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            androidx.compose.material3.Checkbox(
+                checked = state.isPrivacyPolicyAccepted,
+                onCheckedChange = onPrivacyPolicyAcceptChange,
+                colors = androidx.compose.material3.CheckboxDefaults.colors(
+                    checkedColor = AppBlue,
+                    uncheckedColor = AppTextBody
+                )
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Row(
+                modifier = Modifier.clickable { showPrivacyPolicy = true },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "با ",
+                    color = AppTextPrimary,
+                    fontSize = 13.sp,
+                )
+                Text(
+                    text = stringResource(R.string.str_e59048e1),
+                    color = AppBlue,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                )
+                Text(
+                    text = " موافقم",
+                    color = AppTextPrimary,
+                    fontSize = 13.sp,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
         AuthPrimaryButton(
             text = if (state.isSubmitting) "در حال تکمیل..." else "تکمیل عضویت",
             onClick = onCompleteRegistrationClick,

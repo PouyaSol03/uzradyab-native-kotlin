@@ -336,7 +336,7 @@ fun TimeFilterBottomSheet(
     <string name="str_5a1a721d">دستگاه غیرفعال</string>
     <string name="str_32a81e55">ورود</string>
     <string name="str_55d482e1">ذخیره تغییرات</string>
-    <string name="str_b9c4b88d">با استفاده از فناوری GPS، می‌توان به صورت لحظه به لحظه از وضعیت خودرو مطلع بود.</string>
+    <string name="str_b9c4b88d">با استفاده از فناوری \u202AGPS\u202C، می‌توان به صورت لحظه به لحظه از وضعیت خودرو مطلع بود.</string>
     <string name="str_8109f957">خطا در ذخیره اطلاعات</string>
     <string name="str_e0e2a491">این دستورات به شما امکان می‌دهند دستگاه خود را از راه دور و از طریق پیامک یا اینترنت کنترل کنید.</string>
     <string name="str_f5b1f6c0">کد تایید</string>
@@ -395,7 +395,7 @@ fun TimeFilterBottomSheet(
     <string name="str_cb32d819">تاریخ انقضا</string>
     <string name="str_6bc54204">انتخاب تاریخ شروع</string>
     <string name="str_890666b5">شماره تلفن باید ۱۱ رقم باشد</string>
-    <string name="str_24b95075">لاگ‌های شبکه  [DEBUG]</string>
+    <string name="str_24b95075">لاگ‌های شبکه \u202A[DEBUG]\u202C</string>
     <string name="str_9a15d35b">و </string>
     <string name="str_a802ae5f">حساب کاربری</string>
     <string name="str_4a9a9330">گزارشات / توقف ها</string>
@@ -530,7 +530,7 @@ fun TimeFilterBottomSheet(
     <string name="str_2854007e">دریافت پیامک</string>
     <string name="str_57396a22">شروع کیلومترشمار</string>
     <string name="str_fde07dbe">در حال تکمیل...</string>
-    <string name="str_708b3c01">تنظیم LBS</string>
+    <string name="str_708b3c01">تنظیم \u202ALBS\u202C</string>
     <string name="str_07dff32f">موقعیت مبدا</string>
     <string name="str_eb5ed02e">وضعیت دستگاه</string>
     <string name="str_b8e8183e">%,d ریال</string>

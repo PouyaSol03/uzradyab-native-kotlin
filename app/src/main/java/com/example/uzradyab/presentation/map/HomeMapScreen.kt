@@ -64,6 +64,7 @@ fun HomeMapRoute(
     onAboutClick: () -> Unit,
     onContactSupportClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
+    onRenewDeviceClick: (Long) -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
@@ -98,6 +99,7 @@ fun HomeMapRoute(
         onToggleDeviceCard = viewModel::toggleDeviceCard,
         onManageDeviceClick = viewModel::openDeviceManagement,
         onCloseDeviceManagement = viewModel::closeDeviceManagement,
+        onRenewDeviceClick = onRenewDeviceClick,
         onTileHealthErrorConsumed = viewModel::consumeTileHealthError,
         onClearInfoMessage = viewModel::clearInfoMessage,
         onEventsClick = { onEventsClick(state.selectedDeviceId) },
@@ -130,6 +132,7 @@ fun HomeMapScreen(
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
+    onRenewDeviceClick: (Long) -> Unit,
     onTileHealthErrorConsumed: () -> Unit,
     onClearInfoMessage: () -> Unit,
     onEventsClick: () -> Unit,
@@ -301,6 +304,7 @@ fun HomeMapScreen(
                         selectedPosition = selectedPosition,
                         onDeviceSpecsClick = onDeviceSpecsClick,
                         onDeviceSettingsClick = onDeviceSettingsClick,
+                        onRenewDeviceClick = onRenewDeviceClick,
                         onReplayTripClick = onReplayTripClick,
                         onCommandsClick = onCommandsClick,
                         onReportsClick = onReportsClick,
@@ -357,6 +361,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     selectedPosition: com.example.uzradyab.domain.model.Position?,
     onDeviceSpecsClick: (Long) -> Unit,
     onDeviceSettingsClick: (Long) -> Unit,
+    onRenewDeviceClick: (Long) -> Unit,
     onReplayTripClick: (Long) -> Unit,
     onCommandsClick: (Long) -> Unit,
     onReportsClick: () -> Unit,
@@ -442,6 +447,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
                 expanded = deviceCardExpanded,
                 onToggleExpanded = onToggleDeviceCard,
                 onManageClick = onManageDeviceClick,
+                onRenewClick = { onRenewDeviceClick(selectedDevice.id) },
                 onReplayClick = { onReplayTripClick(selectedDevice.id) },
                 modifier = Modifier
                     .navigationBarsPadding()

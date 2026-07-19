@@ -72,6 +72,7 @@ fun SelectedDeviceStatusCard(
     expanded: Boolean,
     onToggleExpanded: () -> Unit,
     onManageClick: () -> Unit,
+    onRenewClick: () -> Unit,
     onReplayClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -145,6 +146,7 @@ fun SelectedDeviceStatusCard(
                     if (hasExpirationWarning) {
                         ExpirationRow(
                             daysRemaining = daysRemaining,
+                            onRenewClick = onRenewClick,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
@@ -276,6 +278,7 @@ private fun DistanceRow(
 @Composable
 private fun ExpirationRow(
     daysRemaining: Int?,
+    onRenewClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -290,7 +293,8 @@ private fun ExpirationRow(
             text = stringResource(R.string.str_b3da1036), 
             dark = false, 
             primaryText = true,
-            onClick = { /* TODO */ }
+            showIcon = false,
+            onClick = onRenewClick
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -314,6 +318,7 @@ private fun SecondaryActionPill(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     primaryText: Boolean = false,
+    showIcon: Boolean = true,
 ) {
     Row(
         modifier = modifier
@@ -335,8 +340,10 @@ private fun SecondaryActionPill(
             lineHeight = 21.sp,
             fontWeight = FontWeight.Medium,
         )
-        Spacer(modifier = Modifier.width(6.dp))
-        PlayCircleIcon(color = if (dark) Color.White else Color(0xFF384C5C), size = 16)
+        if (showIcon) {
+            Spacer(modifier = Modifier.width(6.dp))
+            PlayCircleIcon(color = if (dark) Color.White else Color(0xFF384C5C), size = 16)
+        }
     }
 }
 
