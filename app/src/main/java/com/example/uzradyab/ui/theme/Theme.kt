@@ -31,6 +31,8 @@ private val LightColorScheme = lightColorScheme(
 )
 
 object UzradyabTheme {
+    const val ENABLE_DARK_MODE = false // Hardcoded flag to enable/disable Dark Mode
+
     val colors: UzradyabColors
         @Composable
         @ReadOnlyComposable
@@ -39,7 +41,7 @@ object UzradyabTheme {
 
 @Composable
 fun UzradyabTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = UzradyabTheme.ENABLE_DARK_MODE && isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
