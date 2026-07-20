@@ -96,7 +96,8 @@ class ReplayViewModel @Inject constructor(
             val summaryResult = reportRepository.getSummaryReport(deviceId, fromTime, toTime)
 
             repository.getPositionsHistory(deviceId, fromTime, toTime)
-                .onSuccess { positions ->
+                .onSuccess { allPositions ->
+                    val positions = allPositions.takeLast(200)
                     val distanceMeters = summaryResult.getOrNull()?.firstOrNull()?.distance ?: 0.0
                     val distanceKm = distanceMeters / 1000.0
                     

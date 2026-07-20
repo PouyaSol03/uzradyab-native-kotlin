@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -221,6 +222,71 @@ fun ReplayTripScreen(
                     }
                 }
 
+                // Empty State Overlay
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = !state.isLoading && state.positions.items.isEmpty(),
+                    enter = androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.fadeOut(),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)).copy(alpha = 0.95f))
+                            .clickable(enabled = false) {}, // Intercept clicks
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(32.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .background(themedColor(light = Color(0xFFE8F0F6), dark = Color(0xFF11212C)), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Place,
+                                    contentDescription = null,
+                                    tint = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = "مسیری یافت نشد",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای یا موقعیتی برای این دستگاه ثبت نشده است.",
+                                fontSize = 14.sp,
+                                color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
+                                textAlign = TextAlign.Center,
+                                lineHeight = 22.sp
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Button(
+                                onClick = { showFilterSheet = true },
+                                colors = ButtonDefaults.buttonColors(containerColor = UzradyabTheme.colors.primary),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.height(48.dp)
+                            ) {
+                                Text(
+                                    text = "تغییر بازه زمانی",
+                                    color = themedColor(light = Color.White, dark = Color.White),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Overlay for Selected Node Detail
                 androidx.compose.animation.AnimatedVisibility(
                     visible = selectedPosition != null,
@@ -271,20 +337,27 @@ fun ReplayTripScreen(
                 }
                 */
                 // Bottom Panel
-                Box(
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = !state.isLoading && state.positions.items.isNotEmpty(),
+                    enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }) + androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it }) + androidx.compose.animation.fadeOut(),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(bottom = 16.dp),
-                    contentAlignment = Alignment.BottomCenter
+                        .padding(bottom = 16.dp)
                 ) {
-                    ReplayBottomPanel(
-                        state = state, 
-                        viewModel = viewModel, 
-                        onShowFilter = { showFilterSheet = true },
-                        onShowDetails = { showDetailsSheet = true }
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        ReplayBottomPanel(
+                            state = state, 
+                            viewModel = viewModel, 
+                            onShowFilter = { showFilterSheet = true },
+                            onShowDetails = { showDetailsSheet = true }
+                        )
+                    }
                 }
             }
         }
