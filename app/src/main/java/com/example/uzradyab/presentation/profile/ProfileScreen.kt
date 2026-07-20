@@ -125,8 +125,8 @@ fun ProfileScreen(
                         Text(
                             text = stringResource(R.string.str_a802ae5f), 
                             fontSize = 16.sp, 
-                            fontWeight = FontWeight.Bold,
-                            color = UzradyabTheme.colors.textPrimary
+                            fontWeight = FontWeight.Medium,
+                            color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
                         ) 
                     },
                     endContent = {

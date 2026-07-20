@@ -90,7 +90,7 @@ fun BackButton(
         Icon(
             imageVector = Icons.Default.ChevronLeft,
             contentDescription = "Back",
-            tint = UzradyabTheme.colors.textPrimary,
+            tint = themedColor(light = UzradyabTheme.colors.textPrimary, dark = UzradyabTheme.colors.primary),
             modifier = Modifier.size(24.dp)
         )
     }
