@@ -2,6 +2,7 @@ package com.example.uzradyab.domain.manager
 
 import com.example.uzradyab.data.remote.api.TraccarApi
 import com.example.uzradyab.domain.repository.AuthRepository
+import com.example.uzradyab.domain.repository.TokenRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.firstOrNull
@@ -13,7 +14,8 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class FcmTokenManager @Inject constructor(
     private val authRepository: AuthRepository,
-    private val traccarApi: TraccarApi
+    private val traccarApi: TraccarApi,
+    private val tokenRepository: TokenRepository
 ) {
     private suspend fun getCurrentToken(): String? = suspendCancellableCoroutine { cont ->
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
@@ -39,6 +41,9 @@ class FcmTokenManager @Inject constructor(
     }
 
     suspend fun syncToken(token: String): Result<Unit> = runCatching {
+        // Send to Django backend
+        tokenRepository.syncToken(token, withRetries = true).getOrThrow()
+        
         val session = authRepository.currentSession.firstOrNull() ?: return Result.success(Unit)
         
         // Fetch fresh session info from server to ensure we have latest attributes
