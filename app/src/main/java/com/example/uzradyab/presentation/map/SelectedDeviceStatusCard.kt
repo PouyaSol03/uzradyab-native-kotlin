@@ -537,7 +537,7 @@ private fun formatRelativeTime(value: String?): String {
     val hours = minutes / 60
     val days = hours / 24
     return when {
-        seconds < 60 -> "${seconds.toString().toPersianDigits()} ثانیه قبل"
+        minutes <= 10 -> "به تازگی"
         minutes < 60 -> "${minutes.toString().toPersianDigits()} دقیقه قبل"
         hours < 24 -> "${hours.toString().toPersianDigits()} ساعت قبل"
         else -> "${days.toString().toPersianDigits()} روز قبل"
