@@ -86,7 +86,7 @@ fun AppMenuDialog(
                 // Right side: Title
                 Text(
                     text = stringResource(R.string.str_ace11fd5),
-                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+                    color = themedColor(light = Color(0xFF333638), dark = Color.White),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Right,
@@ -99,7 +99,7 @@ fun AppMenuDialog(
                 ) {
                     Text(
                         text = stringResource(R.string.str_66030b73),
-                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+                        color = themedColor(light = Color(0xFF333638), dark = Color.White),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -120,7 +120,7 @@ fun AppMenuDialog(
             ) {
                 Text(
                     text = "پوسته برنامه",
-                    color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+                    color = themedColor(light = Color(0xFF333638), dark = Color.White),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Right,
@@ -273,7 +273,7 @@ fun AppMenuDialog(
 private fun MenuCardItem(
     label: String,
     icon: ImageVector,
-    color: Color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+    color: Color = themedColor(light = Color(0xFF333638), dark = Color.White),
     onClick: () -> Unit,
 ) {
     Row(
@@ -289,7 +289,7 @@ private fun MenuCardItem(
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = if (color == themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))) color else themedColor(light = Color(0xFFAEB1B4), dark = Color(0xFF3D4042)),
+            tint = if (color == themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))) color else themedColor(light = Color(0xFFAEB1B4), dark = Color.White),
             modifier = Modifier.size(24.dp)
         )
 

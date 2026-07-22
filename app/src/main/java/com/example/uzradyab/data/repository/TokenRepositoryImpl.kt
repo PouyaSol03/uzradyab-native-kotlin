@@ -33,20 +33,21 @@ class TokenRepositoryImpl @Inject constructor(
 
             for (attempt in 0..maxRetries) {
                 try {
+                    Log.d("TokenRepositoryImpl", "🚀 SENDING: Attempting to send FCM Token to endpoint... (UserId: $userId, Attempt: ${attempt + 1})")
                     val request = FcmRegisterRequestDto(fcmToken = token)
                     notificationApi.registerFcmToken(userId, request)
 
-                    Log.d("TokenRepositoryImpl", "✅ توکن با موفقیت در تلاش ${attempt + 1} ارسال شد. (UserId: $userId, Token: $token)")
+                    Log.d("TokenRepositoryImpl", "✅ SUCCESS: FCM Token successfully sent to endpoint! (UserId: $userId, Token: $token, Attempt: ${attempt + 1})")
                     return@withContext Result.success(Unit)
 
                 } catch (e: IOException) {
                     // این خطا یعنی کلاینت بی‌نقص عمل کرده اما اینترنت، DNS یا فایروال ISP مقصر است
-                    Log.e("TokenRepositoryImpl", "🌐 خطای شبکه/اینترنت در تلاش ${attempt + 1}: ${e.message}")
+                    Log.e("TokenRepositoryImpl", "🌐 ERROR: Network issue while sending FCM Token to endpoint (Attempt ${attempt + 1}): ${e.message}")
                     if (attempt == maxRetries) return@withContext Result.failure(e)
                     
                 } catch (e: Exception) {
                     // این خطا یعنی سرور در دسترس است اما ارور داده (مثل ارور ۵۰۰ یا مشکل بک‌اند)
-                    Log.e("TokenRepositoryImpl", "❌ خطای سرور/بک‌اند در تلاش ${attempt + 1}: ${e.message}")
+                    Log.e("TokenRepositoryImpl", "❌ ERROR: Server/Backend issue while sending FCM Token to endpoint (Attempt ${attempt + 1}): ${e.message}")
                     if (attempt == maxRetries) return@withContext Result.failure(e)
                 }
 

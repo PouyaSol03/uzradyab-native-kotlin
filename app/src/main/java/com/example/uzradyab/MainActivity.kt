@@ -23,13 +23,18 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.example.uzradyab.ui.theme.UzradyabTheme
 import androidx.fragment.app.FragmentActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.example.uzradyab.core.biometric.BiometricHelper
 import com.example.uzradyab.core.network.SessionEventBus
+import com.example.uzradyab.domain.manager.FcmTokenManager
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.AppConfigRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -51,6 +56,9 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var themeRepository: com.example.uzradyab.domain.repository.ThemeRepository
 
+    @Inject
+    lateinit var fcmTokenManager: FcmTokenManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -59,8 +67,19 @@ class MainActivity : FragmentActivity() {
             if (task.isSuccessful) {
                 val token = task.result
                 android.util.Log.d("FCM_TOKEN", "MainActivity OnCreate FCM Token: $token")
+                
+                lifecycleScope.launch {
+                    val session = authRepository.currentSession.firstOrNull()
+                    if (session != null && token != null) {
+                        android.util.Log.d("FCM_SYNC", "User is logged in (UserId: ${session.id}) and FCM token exists. Starting sync on launch...")
+                        fcmTokenManager.syncToken(token)
+                    } else {
+                        android.util.Log.e("FCM_SYNC", "Cannot sync FCM on launch: UserId is null (${session == null}) or Token is null (${token == null})")
+                    }
+                }
             } else {
                 android.util.Log.e("FCM_TOKEN", "MainActivity OnCreate FCM Token fetch failed", task.exception)
+                android.util.Log.e("FCM_SYNC", "Cannot sync FCM on launch: Token fetch failed")
             }
         }
 

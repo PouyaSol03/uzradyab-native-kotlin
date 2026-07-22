@@ -473,7 +473,7 @@ fun DeviceSelectDialog(
                                 .fillMaxWidth()
                                 .height(60.dp)
                                 .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
-                                .border(1.dp, themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(8.dp)),
+                                .border(1.dp, themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF384C5C)), RoundedCornerShape(8.dp)),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
@@ -500,7 +500,7 @@ private fun DeviceSelectRow(
             .fillMaxWidth()
             .height(60.dp)
             .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
-            .border(2.dp, if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), RoundedCornerShape(8.dp))
+            .border(2.dp, if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF384C5C)), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -513,7 +513,7 @@ private fun DeviceSelectRow(
             Box(
                 modifier = Modifier
                     .size(28.dp)
-                    .background(if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF171E26)), androidx.compose.foundation.shape.CircleShape),
+                    .background(if (selected) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE3E8EE), dark = Color(0xFF384C5C)), androidx.compose.foundation.shape.CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
@@ -524,7 +524,7 @@ private fun DeviceSelectRow(
             }
             Text(
                 text = device.name,
-                color = UzradyabTheme.colors.primary,
+                color = if (selected) UzradyabTheme.colors.primary else UzradyabTheme.colors.textPrimary,
                 fontSize = 14.sp,
                 lineHeight = 22.sp,
                 fontWeight = FontWeight.Bold,
@@ -534,7 +534,7 @@ private fun DeviceSelectRow(
         }
         Text(
             text = device.phone ?: "نامشخص",
-            color = themedColor(light = Color(0xFF68737D), dark = Color(0xFF999999)),
+            color = themedColor(light = Color(0xFF68737D), dark = Color(0xFFCCCCCC)),
             fontSize = 14.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

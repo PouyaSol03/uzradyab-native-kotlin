@@ -19,7 +19,7 @@ interface NotificationApi {
         @Path("key") key: String
     )
 
-    @POST("fcm/register/{userId}/")
+    @POST("handle_events/fcm/register/{userId}/")
     suspend fun registerFcmToken(
         @Path("userId") userId: String,
         @Body request: FcmRegisterRequestDto
