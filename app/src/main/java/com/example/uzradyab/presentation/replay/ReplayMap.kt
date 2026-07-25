@@ -67,6 +67,8 @@ fun ReplayMap(
                 val tileProvider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(it.applicationContext)
 
                 MapView(it, tileProvider).apply {
+                    isTilesScaledToDpi = false
+                    setTilesScaleFactor(3.5f)
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)

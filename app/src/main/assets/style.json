@@ -1,0 +1,107 @@
+{
+  "version": 8,
+  "name": "Uzradyab Vector Style",
+  "sources": {
+    "openmaptiles": {
+      "type": "vector",
+      "url": "https://tile.uzradyab.ir/data/v3.json"
+    }
+  },
+  "sprite": "https://tile.uzradyab.ir/sprites/sprite",
+  "glyphs": "https://tile.uzradyab.ir/fonts/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f8f4f0"
+      }
+    },
+    {
+      "id": "place_country",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "filter": ["==", "class", "country"],
+      "layout": {
+        "text-field": "{name_fa}",
+        "text-font": ["IRANSans-Bold"],
+        "text-size": 14
+      },
+      "paint": {
+        "text-color": "#333333",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.0
+      }
+    },
+    {
+      "id": "place_city",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "filter": ["==", "class", "city"],
+      "layout": {
+        "text-field": "{name_fa}",
+        "text-font": ["IRANSans-Regular"],
+        "text-size": {
+          "base": 1.2,
+          "stops": [
+            [7, 10],
+            [12, 14],
+            [16, 18]
+          ]
+        }
+      },
+      "paint": {
+        "text-color": "#222222",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "road_label",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "transportation_name",
+      "layout": {
+        "text-field": "{name_fa}",
+        "text-font": ["IRANSans-Medium"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          13,
+          9,
+          18,
+          15
+        ]
+      },
+      "paint": {
+        "text-color": "#444444",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.0
+      }
+    },
+    {
+      "id": "poi_label",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "poi",
+      "layout": {
+        "text-field": "{name_fa}",
+        "text-font": ["IRANSans-Regular"],
+        "text-size": {
+          "stops": [
+            [14, 9],
+            [19, 13]
+          ]
+        }
+      },
+      "paint": {
+        "text-color": "#666666",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.2
+      }
+    }
+  ]
+}

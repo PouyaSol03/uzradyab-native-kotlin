@@ -59,7 +59,6 @@ fun AppMenuDialog(
     onAboutClick: () -> Unit = {},
     onContactSupportClick: () -> Unit = {},
     onDebugLogsClick: (() -> Unit)? = null,
-    themeViewModel: com.example.uzradyab.presentation.theme.ThemeViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     modifier: Modifier = Modifier,
 ) {
     Dialog(
@@ -104,85 +103,6 @@ fun AppMenuDialog(
                         fontWeight = FontWeight.Medium,
                     )
                     IranFlagIcon()
-                }
-            }
-            
-            // Theme Toggle
-            val themeMode by themeViewModel.themeMode.collectAsStateWithLifecycle()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "پوسته برنامه",
-                    color = themedColor(light = Color(0xFF333638), dark = Color.White),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Right,
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val isDark = themeMode == com.example.uzradyab.domain.model.ThemeMode.DARK
-                    val offset by androidx.compose.animation.core.animateDpAsState(
-                        targetValue = if (isDark) 0.dp else 26.dp,
-                        animationSpec = androidx.compose.animation.core.tween(300),
-                        label = "themeSwitch"
-                    )
-
-                    Text(
-                        text = if (isDark) "تاریک" else "روشن",
-                        color = themedColor(light = UzradyabTheme.colors.primary, dark = UzradyabTheme.colors.primary),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .width(54.dp)
-                            .height(28.dp)
-                            .background(
-                                color = themedColor(light = Color(0xFFE9F0F8), dark = Color(0xFF1C262E)),
-                                shape = RoundedCornerShape(14.dp)
-                            )
-                            .clickable {
-                                themeViewModel.setThemeMode(
-                                    if (isDark) com.example.uzradyab.domain.model.ThemeMode.LIGHT
-                                    else com.example.uzradyab.domain.model.ThemeMode.DARK
-                                )
-                            }
-                            .padding(2.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .offset(x = offset)
-                                .background(
-                                    color = themedColor(light = Color.White, dark = Color(0xFF27343F)),
-                                    shape = CircleShape
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isDark) {
-                                Text(
-                                    text = "🌙",
-                                    fontSize = 12.sp,
-                                )
-                            } else {
-                                Text(
-                                    text = "☀️",
-                                    fontSize = 12.sp,
-                                )
-                            }
-                        }
-                    }
                 }
             }
 

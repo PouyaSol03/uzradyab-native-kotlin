@@ -26,6 +26,6 @@ object GoogleMapTileSource : ResilientTileSource(
 
     override fun buildTileUrl(zoom: Int, x: Int, y: Int): String {
         val server = nextBaseUrl()
-        return "$server/vt/lyrs=m&hl=fa&x=$x&y=$y&z=$zoom&s=Ga"
+        return "$server/vt/lyrs=m&hl=fa&x=$x&y=$y&z=$zoom&scale=2&s=Ga"
     }
 }

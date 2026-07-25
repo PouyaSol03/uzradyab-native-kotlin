@@ -27,11 +27,11 @@ class ThemeRepositoryImpl @Inject constructor(
     }
 
     private fun getSavedThemeMode(): ThemeMode {
-        val savedName = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
+        val savedName = prefs.getString(KEY_THEME_MODE, ThemeMode.LIGHT.name) ?: ThemeMode.LIGHT.name
         return try {
             ThemeMode.valueOf(savedName)
         } catch (e: Exception) {
-            ThemeMode.SYSTEM
+            ThemeMode.LIGHT
         }
     }
 

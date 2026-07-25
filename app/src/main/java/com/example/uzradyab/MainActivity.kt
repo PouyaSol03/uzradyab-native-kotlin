@@ -116,11 +116,7 @@ private fun UzradyabAppRoot(
     val themeMode by (themeRepository?.themeMode ?: kotlinx.coroutines.flow.flowOf(com.example.uzradyab.domain.model.ThemeMode.SYSTEM))
         .collectAsStateWithLifecycle(initialValue = com.example.uzradyab.domain.model.ThemeMode.SYSTEM)
 
-    val isDarkTheme = when (themeMode) {
-        com.example.uzradyab.domain.model.ThemeMode.LIGHT -> false
-        com.example.uzradyab.domain.model.ThemeMode.DARK -> true
-        com.example.uzradyab.domain.model.ThemeMode.SYSTEM -> isSystemInDarkTheme()
-    }
+    val isDarkTheme = false
 
     UzradyabTheme(darkTheme = isDarkTheme) {
         CompositionLocalProvider(

@@ -110,6 +110,8 @@ fun TrackingMap(
 
                 MapView(it, tileProvider).apply {
                     mapViewRef = this
+                    isTilesScaledToDpi = false
+                    setTilesScaleFactor(3.5f)
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)
