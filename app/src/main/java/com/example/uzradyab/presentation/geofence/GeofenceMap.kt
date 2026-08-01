@@ -32,7 +32,7 @@ fun GeofenceMap(
         OsmdroidConfig.configure(context)
         MapView(context).apply {
             isTilesScaledToDpi = false
-            setTilesScaleFactor(3.5f)
+            setTilesScaleFactor(2.5f)
             setMultiTouchControls(true)
             setBuiltInZoomControls(false)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)

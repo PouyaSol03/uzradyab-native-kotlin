@@ -4,11 +4,11 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://tile.uzradyab.ir/data/v3.json"
+      "url": "https://map.exirfirm.com/data/v3.json"
     }
   },
-  "sprite": "https://tile.uzradyab.ir/sprites/sprite",
-  "glyphs": "https://tile.uzradyab.ir/fonts/{fontstack}/{range}.pbf",
+  "sprite": "https://map.exirfirm.com/sprites/sprite",
+  "glyphs": "https://map.exirfirm.com/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",
@@ -32,7 +32,7 @@
         "text-font": [
           "IRANSans-Bold"
         ],
-        "text-size": 58.8
+        "text-size": 42
       },
       "paint": {
         "text-color": "#333333",
@@ -60,15 +60,15 @@
           "stops": [
             [
               7,
-              35
+              25
             ],
             [
               12,
-              49
+              35
             ],
             [
               16,
-              94.5
+              67.5
             ]
           ]
         }
@@ -98,9 +98,9 @@
             "zoom"
           ],
           13,
-          31.5,
+          22.5,
           18,
-          78.75
+          56.25
         ]
       },
       "paint": {
@@ -123,11 +123,11 @@
           "stops": [
             [
               14,
-              39.38
+              28.12
             ],
             [
               19,
-              68.25
+              48.75
             ]
           ]
         }

@@ -4,11 +4,11 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://tile.uzradyab.ir/data/v3.json"
+      "url": "https://map.exirfirm.com/data/v3.json"
     }
   },
-  "sprite": "https://tile.uzradyab.ir/sprites/sprite",
-  "glyphs": "https://tile.uzradyab.ir/fonts/{fontstack}/{range}.pbf",
+  "sprite": "https://map.exirfirm.com/sprites/sprite",
+  "glyphs": "https://map.exirfirm.com/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",

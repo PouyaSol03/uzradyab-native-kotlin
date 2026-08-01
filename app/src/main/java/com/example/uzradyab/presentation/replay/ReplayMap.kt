@@ -68,7 +68,7 @@ fun ReplayMap(
 
                 MapView(it, tileProvider).apply {
                     isTilesScaledToDpi = false
-                    setTilesScaleFactor(3.5f)
+                    setTilesScaleFactor(2.5f)
                     val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
                     setTileSource(resolvedSource)
                     setMultiTouchControls(true)
