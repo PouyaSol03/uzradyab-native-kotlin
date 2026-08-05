@@ -25,8 +25,8 @@ android {
         applicationId = "org.uzradyab.manager"
         minSdk = 24
         targetSdk = 36
-        versionCode = 49
-        versionName = "5.0.1"
+        versionCode = 51
+        versionName = "5.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
@@ -94,7 +94,8 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.gson)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.osmdroid.android)
+    implementation(libs.maplibre.android)
+    implementation(libs.maplibre.annotation)
     implementation(libs.androidx.biometric)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.play.services.auth.api.phone)

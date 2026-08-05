@@ -27,54 +27,58 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import android.util.Log
-import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.core.utils.ImmutableMapWrapper
-import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.map.OsmdroidConfig
-import com.example.uzradyab.map.tile.TileSourceRegistry
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
-import org.osmdroid.views.overlay.MapEventsOverlay
-import org.osmdroid.views.overlay.Polyline
+import com.example.uzradyab.map.MapLibreStyles
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
+import org.maplibre.android.maps.MapLibreMapOptions
+
+import org.maplibre.android.plugins.annotation.SymbolManager
+import org.maplibre.android.plugins.annotation.SymbolOptions
+import org.maplibre.android.plugins.annotation.LineManager
+import org.maplibre.android.plugins.annotation.LineOptions
+import org.maplibre.android.plugins.annotation.Symbol
+import org.maplibre.android.plugins.annotation.Line
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
-import android.view.MotionEvent
 import com.example.uzradyab.ui.theme.themedColor
 
-private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val SELECTED_DEVICE_MARKER = "selected-device-marker"
+private val Tehran = LatLng(35.6892, 51.3890)
+private const val SELECTED_DEVICE_MARKER_ID = "selected-device-marker"
 
 @Composable
 fun TrackingMap(
     latestPositions: ImmutableMapWrapper<Long, Position>,
     selectedDeviceId: Long?,
     mapStyle: String = "carto",
-    activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     isMapLocked: Boolean,
     onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     
+    // Initialize MapLibre exactly once before the MapView is created
+    remember {
+        MapLibre.getInstance(context)
+        true
+    }
+    
     val selectedPosition = latestPositions[selectedDeviceId]
-    val center = selectedPosition?.toGeoPoint()
-        ?: latestPositions.values.firstOrNull()?.toGeoPoint()
+    val center = selectedPosition?.toLatLng()
+        ?: latestPositions.values.firstOrNull()?.toLatLng()
         ?: Tehran
-    val centerKey = "${selectedDeviceId}:${center.latitude}:${center.longitude}"
 
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
     val currentIsMapLocked by rememberUpdatedState(isMapLocked)
-    var wasLocked by remember { mutableStateOf(isMapLocked) }
     
-    var tailPositions by remember { mutableStateOf<List<GeoPoint>>(emptyList()) }
+    var tailPositions by remember { mutableStateOf<List<LatLng>>(emptyList()) }
     var currentTailDeviceId by remember { mutableStateOf<Long?>(null) }
     
     val density = LocalDensity.current
@@ -86,15 +90,15 @@ fun TrackingMap(
             return@LaunchedEffect
         }
         
-        val geoPoint = selectedPosition.toGeoPoint()
+        val latLng = selectedPosition.toLatLng()
         
         if (selectedDeviceId != currentTailDeviceId) {
-            tailPositions = listOf(geoPoint)
+            tailPositions = listOf(latLng)
             currentTailDeviceId = selectedDeviceId
         } else {
             val newList = tailPositions.toMutableList()
-            if (newList.lastOrNull() != geoPoint) {
-                newList.add(geoPoint)
+            if (newList.lastOrNull() != latLng) {
+                newList.add(latLng)
                 if (newList.size > 20) {
                     newList.removeAt(0)
                 }
@@ -107,19 +111,29 @@ fun TrackingMap(
         var lastDeviceId: Long? = selectedDeviceId
         var hasInitialCentered: Boolean = false
         var lastPosition: Position? = null
-        var eventsReceiverAdded: Boolean = false
         var userInteracted: Boolean = false
+        var lastMapStyle: String? = null
+        var styleToken: Int = 0
     } }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    var mapLibreMapRef by remember { mutableStateOf<MapLibreMap?>(null) }
+    
+    var symbolManager by remember { mutableStateOf<SymbolManager?>(null) }
+    var lineManager by remember { mutableStateOf<LineManager?>(null) }
+    var deviceSymbol by remember { mutableStateOf<Symbol?>(null) }
+    var tailLine by remember { mutableStateOf<Line?>(null) }
     
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_START || event == Lifecycle.Event.ON_RESUME) {
-                mapViewRef?.onResume()
-            } else if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
-                mapViewRef?.onPause()
+            when (event) {
+                Lifecycle.Event.ON_START -> mapViewRef?.onStart()
+                Lifecycle.Event.ON_RESUME -> mapViewRef?.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapViewRef?.onPause()
+                Lifecycle.Event.ON_STOP -> mapViewRef?.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapViewRef?.onDestroy()
+                else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -136,84 +150,81 @@ fun TrackingMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                // Use centralised configuration instead of inline duplication
-                OsmdroidConfig.configure(it.applicationContext)
-                val tileProvider = TileProviderManager.getProvider(it.applicationContext)
-
-                MapView(it, tileProvider).apply {
+                val options = MapLibreMapOptions.createFromAttributes(it).textureMode(true)
+                MapView(it, options).apply {
                     mapViewRef = this
-                    isTilesScaledToDpi = false
-                    setTilesScaleFactor(2.5f)
-                    val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
-                    setTileSource(resolvedSource)
-                    setMultiTouchControls(true)
-                    setBuiltInZoomControls(false)
-                    zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-                    setMinZoomLevel(3.0)
-                    setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
-                    controller.setZoom(18.0)
-                    controller.setCenter(center)
-                    tag = centerKey
+                    onCreate(null)
                     
-                    // Force start rendering immediately (fixes blank map during enter animations)
-                    onResume()
-
-                    val rotationGestureOverlay = RotationGestureOverlay(this)
-                    rotationGestureOverlay.isEnabled = true
-                    overlays.add(rotationGestureOverlay)
-
-                    setOnTouchListener { _, event ->
-                        if (event.action == android.view.MotionEvent.ACTION_DOWN) {
-                            tracker.userInteracted = true
-                            currentOnMapInteraction()
+                    getMapAsync { map ->
+                        mapLibreMapRef = map
+                        
+                        map.uiSettings.isCompassEnabled = false
+                        map.uiSettings.isLogoEnabled = false
+                        map.uiSettings.isAttributionEnabled = false
+                        
+                        tracker.lastMapStyle = mapStyle
+                        tracker.styleToken++
+                        val currentToken = tracker.styleToken
+                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { style ->
+                            if (currentToken != tracker.styleToken) return@setStyle
+                            symbolManager = SymbolManager(this, map, style).apply {
+                                iconAllowOverlap = true
+                                iconIgnorePlacement = true
+                            }
+                            lineManager = LineManager(this, map, style)
+                            
+                            // Load initial map state
+                            map.cameraPosition = CameraPosition.Builder()
+                                .target(center)
+                                .zoom(16.0)
+                                .build()
                         }
                         
-                        if (currentIsMapLocked) {
-                            // Block any panning (ACTION_MOVE) or zooming (multi-touch)
-                            if (event.action == android.view.MotionEvent.ACTION_MOVE || event.pointerCount > 1) {
-                                currentOnMapInteraction()
-                                return@setOnTouchListener true
-                            }
-                        } else {
-                            if (event.action == android.view.MotionEvent.ACTION_MOVE) {
+                        map.addOnMoveListener(object : MapLibreMap.OnMoveListener {
+                            override fun onMoveBegin(detector: org.maplibre.android.gestures.MoveGestureDetector) {
+                                tracker.userInteracted = true
                                 currentOnMapInteraction()
                             }
-                        }
-                        false
+                            override fun onMove(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
+                            override fun onMoveEnd(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
+                        })
                     }
                 }
             },
             update = { mapView ->
-                val tileSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
-                if (mapView.tileProvider.tileSource != tileSource) {
-                    mapView.tileProvider.clearTileCache()
-                    mapView.setTileSource(tileSource)
-                    // Update max zoom to match the new source's limit
-                    mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
-                    // Force a full redraw so old tiles are immediately dropped from screen
-                    mapView.invalidate()
-                }
-
-                // Keep map interactive: always allow multi‑touch gestures (pinch, rotate, pan)
-                mapView.setMultiTouchControls(true)
+                val map = mapLibreMapRef ?: return@AndroidView
                 
-                // Toggle map rotation gesture based on map lock state
-                mapView.overlays.filterIsInstance<RotationGestureOverlay>().firstOrNull()?.let {
-                    it.isEnabled = !isMapLocked
+                // Style updates
+                if (tracker.lastMapStyle != mapStyle) {
+                    tracker.lastMapStyle = mapStyle
+                    tracker.styleToken++
+                    val currentToken = tracker.styleToken
+                    
+                    symbolManager?.onDestroy()
+                    lineManager?.onDestroy()
+                    deviceSymbol = null
+                    tailLine = null
+                    symbolManager = null
+                    lineManager = null
+                    
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { newStyle ->
+                        if (currentToken != tracker.styleToken) return@setStyle
+                        symbolManager = SymbolManager(mapView, map, newStyle).apply {
+                            iconAllowOverlap = true
+                            iconIgnorePlacement = true
+                        }
+                        lineManager = LineManager(mapView, map, newStyle)
+                    }
                 }
 
-                // Center map only when needed; we no longer disable interaction
+                // Handle gestures based on lock state
+                map.uiSettings.isScrollGesturesEnabled = !isMapLocked
+                map.uiSettings.isZoomGesturesEnabled = !isMapLocked
+                map.uiSettings.isRotateGesturesEnabled = !isMapLocked
+
                 if (isMapLocked) {
-                    // When locked, strictly center the map without disabling gestures
-                    if (mapView.width > 0 && mapView.height > 0) {
-                        mapView.controller.animateTo(center, 20.0, 500L)
-                    } else {
-                        mapView.controller.setZoom(20.0)
-                        mapView.controller.setCenter(center)
-                    }
-                    mapView.tag = centerKey
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0), 500)
                 }
-                wasLocked = isMapLocked
                 
                 if (tracker.lastDeviceId != selectedDeviceId) {
                     tracker.lastDeviceId = selectedDeviceId
@@ -223,122 +234,79 @@ fun TrackingMap(
                 
                 if (selectedPosition != null && !tracker.userInteracted) {
                     if (!tracker.hasInitialCentered) {
-                        mapView.controller.setZoom(18.0)
-                        mapView.controller.setCenter(center)
+                        map.cameraPosition = CameraPosition.Builder().target(center).zoom(16.0).build()
                         tracker.hasInitialCentered = true
                     } else if (selectedPosition != tracker.lastPosition) {
-                        if (mapView.width > 0 && mapView.height > 0) {
-                            mapView.controller.animateTo(center, 18.0, 1000L)
-                        }
+                        map.animateCamera(CameraUpdateFactory.newLatLng(center), 1000)
                     }
                 }
 
-                // Offset map center feature removed by user request
-
-                // Handle map clicks
-                if (!tracker.eventsReceiverAdded) {
-                    val eventsReceiver = object : MapEventsReceiver {
-                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                            currentOnMapInteraction()
-                            return true
-                        }
-                        override fun longPressHelper(p: GeoPoint?): Boolean {
-                            currentOnMapInteraction()
-                            return true
-                        }
-                    }
-                    mapView.overlays.add(0, MapEventsOverlay(eventsReceiver))
-                    tracker.eventsReceiverAdded = true
-                }
-
-                if (selectedPosition != tracker.lastPosition) {
-                    val existingMarker = mapView.overlays.find { 
-                        it is Marker && it.relatedObject == SELECTED_DEVICE_MARKER 
-                    } as? Marker
-
-                    if (selectedPosition == null) {
-                        existingMarker?.let { mapView.overlays.remove(it) }
-                    } else {
-                        val newGeoPoint = selectedPosition.toGeoPoint()
-                        val newRotation = selectedPosition.course.toFloat()
-                        val speedKmh = (selectedPosition.speed * 1.852).toInt()
-                        val newIcon = MarkerCache.getOrCreate(mapView.context, speedKmh)
-
-                        if (existingMarker == null) {
-                            mapView.overlays.add(
-                                Marker(mapView).apply {
-                                    this.position = newGeoPoint
-                                    // Marker should always be vertical (0f)
-                                    this.rotation = 0f
-                                    this.icon = newIcon
-                                    setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                                    relatedObject = SELECTED_DEVICE_MARKER
-                                    infoWindow = null
-                                }
-                            )
-                            if (isMapLocked) {
-                                // Rotate map so that the device marker stays upright based on its course
-                                mapView.mapOrientation = (360f - newRotation) % 360f
+                // Update UI Overlays
+                map.getStyle { style ->
+                    val sm = symbolManager ?: return@getStyle
+                    val lm = lineManager ?: return@getStyle
+                    
+                    if (selectedPosition != tracker.lastPosition || deviceSymbol == null) {
+                        if (selectedPosition == null) {
+                            deviceSymbol?.let { sm.delete(it) }
+                            deviceSymbol = null
+                        } else {
+                            val newLatLng = selectedPosition.toLatLng()
+                            val speedKmh = (selectedPosition.speed * 1.852).toInt()
+                            val iconId = "marker_$speedKmh"
+                            
+                            // Add image to style if missing
+                            if (style.getImage(iconId) == null) {
+                                style.addImage(iconId, createDeviceMarkerBitmap(context, speedKmh))
                             }
-                        } else {
-                            existingMarker.icon = newIcon
-                            MarkerAnimator.animateMarker(
-                                marker = existingMarker,
-                                mapView = mapView,
-                                endPosition = newGeoPoint,
-                                endCourse = newRotation,
-                                rotateMap = isMapLocked,
-                                durationMs = 300L
-                            )
+                            
+                            if (deviceSymbol == null) {
+                                deviceSymbol = sm.create(
+                                    SymbolOptions()
+                                        .withLatLng(newLatLng)
+                                        .withIconImage(iconId)
+                                        .withIconAnchor("bottom")
+                                        .withIconOffset(arrayOf(0f, 0f))
+                                )
+                            } else {
+                                deviceSymbol?.let {
+                                    it.latLng = newLatLng
+                                    it.iconImage = iconId
+                                    sm.update(it)
+                                }
+                            }
                         }
+                        tracker.lastPosition = selectedPosition
                     }
-                    tracker.lastPosition = selectedPosition
-                    mapView.invalidate()
-                }
-
-                // Draw Live Tail Polyline
-                var tailPolyline = mapView.overlays.find { it is Polyline && it.relatedObject == "live-tail" } as? Polyline
-                if (tailPositions.size > 1) {
-                    if (tailPolyline == null) {
-                        tailPolyline = Polyline(mapView).apply {
-                            outlinePaint.color = AndroidColor.parseColor("#2196F3") // Bright blue for better visibility against roads
-                            outlinePaint.strokeWidth = with(density) { 4.dp.toPx() }
-                            outlinePaint.strokeCap = Paint.Cap.ROUND
-                            outlinePaint.strokeJoin = Paint.Join.ROUND
-                            outlinePaint.isAntiAlias = true
-                            isGeodesic = true
-                            infoWindow = null
-                            relatedObject = "live-tail"
-                        }
-                        // Insert behind the car marker to keep it looking clean
-                        val markerIndex = mapView.overlays.indexOfFirst { it is Marker && it.relatedObject == SELECTED_DEVICE_MARKER }
-                        if (markerIndex >= 0) {
-                            mapView.overlays.add(markerIndex, tailPolyline)
+                    
+                    // Update Tail
+                    if (tailPositions.size > 1) {
+                        if (tailLine == null) {
+                            tailLine = lm.create(
+                                LineOptions()
+                                    .withLatLngs(tailPositions)
+                                    .withLineColor("#2196F3")
+                                    .withLineWidth(4f)
+                            )
                         } else {
-                            mapView.overlays.add(tailPolyline)
+                            tailLine?.let {
+                                it.latLngs = tailPositions
+                                lm.update(it)
+                            }
                         }
                     } else {
-                        // Ensure properties remain correct
-                        tailPolyline.outlinePaint.color = AndroidColor.parseColor("#2196F3")
-                        tailPolyline.outlinePaint.strokeWidth = with(density) { 4.dp.toPx() }
+                        tailLine?.let { lm.delete(it) }
+                        tailLine = null
                     }
-                    tailPolyline.setPoints(tailPositions)
-                } else {
-                    tailPolyline?.let { mapView.overlays.remove(it) }
                 }
-            },
-            onRelease = { mapView ->
-                // Clean up map resources to prevent memory leaks and database locks
-                mapView.tileProvider.detach()
-                mapView.onDetach()
             }
         )
     }
 }
 
-private fun Position.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
+private fun Position.toLatLng(): LatLng = LatLng(latitude, longitude)
 
-private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapDrawable {
+private fun createDeviceMarkerBitmap(context: Context, speedKmh: Int): Bitmap {
     val density = context.resources.displayMetrics.density
     fun dp(value: Float): Float = value * density
 
@@ -422,7 +390,7 @@ private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapD
     paint.textSize = if (speedKmh <= 0) 11f else 10f
     canvas.drawText(text, centerX, 17.8f, paint)
 
-    return BitmapDrawable(context.resources, bitmap)
+    return bitmap
 }
 
 private fun String.toPersianDigits(): String {
@@ -431,31 +399,5 @@ private fun String.toPersianDigits(): String {
         this@toPersianDigits.forEach { char ->
             append(if (char in '0'..'9') persianDigits[char - '0'] else char)
         }
-    }
-}
-
-// Cache to prevent allocating Bitmaps 1x per second on the UI thread
-object MarkerCache {
-    private val cache = android.util.LruCache<Int, BitmapDrawable>(60)
-
-    fun getOrCreate(context: Context, speedKmh: Int): BitmapDrawable {
-        return cache.get(speedKmh) ?: run {
-            val drawable = createDeviceMarkerDrawable(context, speedKmh)
-            cache.put(speedKmh, drawable)
-            drawable
-        }
-    }
-}
-
-// Singleton manager to prevent leaking TileProvider thread pools and SQLite locks
-// during rapid Compose navigation (where old MapViews are destroyed after new ones are created).
-object TileProviderManager {
-    private var provider: com.example.uzradyab.map.tile.UzradyabMapTileProvider? = null
-
-    fun getProvider(context: android.content.Context): com.example.uzradyab.map.tile.UzradyabMapTileProvider {
-        if (provider == null) {
-            provider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(context.applicationContext)
-        }
-        return provider!!
     }
 }

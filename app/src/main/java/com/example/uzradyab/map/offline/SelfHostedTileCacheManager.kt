@@ -4,7 +4,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.osmdroid.config.Configuration
+import java.io.File
 
 @Singleton
 class SelfHostedTileCacheManager @Inject constructor(
@@ -12,14 +12,12 @@ class SelfHostedTileCacheManager @Inject constructor(
 ) {
     suspend fun clearOfflineMapData(): Result<Unit> {
         return runCatching {
-            val prefs = context.getSharedPreferences(OSMDROID_PREFS, Context.MODE_PRIVATE)
-            Configuration.getInstance().load(context, prefs)
-            Configuration.getInstance().osmdroidTileCache?.deleteRecursively()
+            // MapLibre uses mbgl-cache.db in the cache directory
+            val mapLibreCacheFile = File(context.cacheDir, "mbgl-cache.db")
+            if (mapLibreCacheFile.exists()) {
+                mapLibreCacheFile.delete()
+            }
             Unit
         }
-    }
-
-    private companion object {
-        const val OSMDROID_PREFS = "osmdroid"
     }
 }

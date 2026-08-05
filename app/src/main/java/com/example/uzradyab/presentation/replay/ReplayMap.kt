@@ -8,33 +8,47 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
-import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import com.example.uzradyab.domain.model.Position
-import com.example.uzradyab.map.OsmdroidConfig
-import com.example.uzradyab.map.tile.TileSourceRegistry
-import com.example.uzradyab.presentation.map.MarkerAnimator
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polyline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.uzradyab.R
-import org.osmdroid.util.BoundingBox
+import com.example.uzradyab.domain.model.Position
+import com.example.uzradyab.map.MapLibreStyles
+import com.example.uzradyab.presentation.map.MarkerAnimator
 import com.example.uzradyab.ui.theme.themedColor
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.geometry.LatLngBounds
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
+import org.maplibre.android.maps.MapLibreMapOptions
+import org.maplibre.android.plugins.annotation.Line
+import org.maplibre.android.plugins.annotation.LineManager
+import org.maplibre.android.plugins.annotation.LineOptions
+import org.maplibre.android.plugins.annotation.Symbol
+import org.maplibre.android.plugins.annotation.SymbolManager
+import org.maplibre.android.plugins.annotation.SymbolOptions
 
-private val Tehran = GeoPoint(35.6892, 51.3890)
-private const val REPLAY_MARKER = "replay-marker"
+private val Tehran = LatLng(35.6892, 51.3890)
 
 @Composable
 fun ReplayMap(
@@ -42,7 +56,6 @@ fun ReplayMap(
     currentIndex: Int,
     mapStyle: String = "osm",
     playSpeed: Int = 1,
-    activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
@@ -51,8 +64,45 @@ fun ReplayMap(
     val density = LocalDensity.current
     val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
     
+    // Initialize MapLibre exactly once before the MapView is created
+    remember {
+        MapLibre.getInstance(context)
+        true
+    }
+
     val currentPosition = positions.getOrNull(currentIndex)
-    val center = currentPosition?.toGeoPoint() ?: Tehran
+    val center = currentPosition?.toLatLng() ?: Tehran
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    var mapLibreMapRef by remember { mutableStateOf<MapLibreMap?>(null) }
+    
+    var symbolManager by remember { mutableStateOf<SymbolManager?>(null) }
+    var lineManager by remember { mutableStateOf<LineManager?>(null) }
+    var deviceSymbol by remember { mutableStateOf<Symbol?>(null) }
+    var routeLine by remember { mutableStateOf<Line?>(null) }
+    
+    val tracker = remember { object {
+        var lastMapStyle: String? = null
+        var styleToken: Int = 0
+    } }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapViewRef?.onStart()
+                Lifecycle.Event.ON_RESUME -> mapViewRef?.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapViewRef?.onPause()
+                Lifecycle.Event.ON_STOP -> mapViewRef?.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapViewRef?.onDestroy()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Box(
         modifier = modifier
@@ -62,162 +112,167 @@ fun ReplayMap(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
-                // Use centralised configuration instead of inline duplication
-                OsmdroidConfig.configure(it.applicationContext)
-                val tileProvider = com.example.uzradyab.map.tile.UzradyabMapTileProvider(it.applicationContext)
-
-                MapView(it, tileProvider).apply {
-                    isTilesScaledToDpi = false
-                    setTilesScaleFactor(2.5f)
-                    val resolvedSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
-                    setTileSource(resolvedSource)
-                    setMultiTouchControls(true)
-                    setBuiltInZoomControls(false)
-                    zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-                    setMinZoomLevel(3.0)
-                    // Respect tile source's declared max zoom instead of hardcoded 23
-                    setMaxZoomLevel(resolvedSource.maximumZoomLevel.toDouble())
-                    controller.setZoom(12.0)
-                    controller.setCenter(Tehran)
+                val options = MapLibreMapOptions.createFromAttributes(it).textureMode(true)
+                MapView(it, options).apply {
+                    mapViewRef = this
+                    onCreate(null)
+                    
+                    getMapAsync { map ->
+                        mapLibreMapRef = map
+                        
+                        map.uiSettings.isCompassEnabled = false
+                        map.uiSettings.isLogoEnabled = false
+                        map.uiSettings.isAttributionEnabled = false
+                        
+                        tracker.lastMapStyle = mapStyle
+                        tracker.styleToken++
+                        val currentToken = tracker.styleToken
+                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { style ->
+                            if (currentToken != tracker.styleToken) return@setStyle
+                            symbolManager = SymbolManager(this, map, style).apply {
+                                iconAllowOverlap = true
+                                iconIgnorePlacement = true
+                            }
+                            lineManager = LineManager(this, map, style)
+                            
+                            map.cameraPosition = CameraPosition.Builder()
+                                .target(Tehran)
+                                .zoom(12.0)
+                                .build()
+                        }
+                    }
                 }
             },
             update = { mapView ->
-                val tileSource = activeTileSource ?: TileSourceRegistry.resolve(mapStyle)
-                if (mapView.tileProvider.tileSource != tileSource) {
-                    mapView.tileProvider.clearTileCache()
-                    mapView.setTileSource(tileSource)
-                    // Update max zoom to match the new source's limit
-                    mapView.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
-                    // Force a full redraw so old tiles are immediately dropped from screen
-                    mapView.invalidate()
+                val map = mapLibreMapRef ?: return@AndroidView
+                
+                // Style updates
+                if (tracker.lastMapStyle != mapStyle) {
+                    tracker.lastMapStyle = mapStyle
+                    tracker.styleToken++
+                    val currentToken = tracker.styleToken
+                    
+                    symbolManager?.onDestroy()
+                    lineManager?.onDestroy()
+                    deviceSymbol = null
+                    routeLine = null
+                    symbolManager = null
+                    lineManager = null
+                    
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { newStyle ->
+                        if (currentToken != tracker.styleToken) return@setStyle
+                        symbolManager = SymbolManager(mapView, map, newStyle).apply {
+                            iconAllowOverlap = true
+                            iconIgnorePlacement = true
+                        }
+                        lineManager = LineManager(mapView, map, newStyle)
+                    }
                 }
 
                 // Adjust for bottom panel padding
-                mapView.setMapCenterOffset(0, -bottomPaddingPx / 2)
+                map.uiSettings.setFocalPoint(
+                    android.graphics.PointF(
+                        (mapView.width / 2).toFloat(),
+                        (mapView.height / 2 - bottomPaddingPx / 2).toFloat()
+                    )
+                )
 
-                // First time zooming to bounds or tracking
+                // First time zooming to bounds
                 val isFirstLoad = mapView.tag == null
                 if (isFirstLoad && positions.isNotEmpty()) {
                     mapView.tag = "loaded"
-                    // Bound to route
                     val lats = positions.map { it.latitude }
                     val lons = positions.map { it.longitude }
-                    val boundingBox = BoundingBox(
-                        lats.maxOrNull() ?: 0.0,
-                        lons.maxOrNull() ?: 0.0,
-                        lats.minOrNull() ?: 0.0,
-                        lons.minOrNull() ?: 0.0
-                    )
-                    // Post to let MapView layout first
+                    val bounds = LatLngBounds.Builder()
+                        .include(LatLng(lats.maxOrNull() ?: 0.0, lons.maxOrNull() ?: 0.0))
+                        .include(LatLng(lats.minOrNull() ?: 0.0, lons.minOrNull() ?: 0.0))
+                        .build()
+                        
                     mapView.post {
-                        mapView.zoomToBoundingBox(boundingBox, false, 100)
+                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
                     }
                 }
 
-                if (positions.isNotEmpty()) {
-                    // Draw or Update Polyline
-                    var routePolyline = mapView.overlays.find { it is Polyline } as? Polyline
-                    if (routePolyline == null) {
-                        routePolyline = Polyline(mapView).apply {
-                            color = AndroidColor.parseColor("#A12887")
-                            width = with(density) { 4.dp.toPx() } // thickness
-                            isGeodesic = true
-                            infoWindow = null // Disable native infoWindow on click
-                        }
-                        mapView.overlays.add(0, routePolyline) // add at bottom
-                    }
-                    routePolyline.setPoints(positions.map { it.toGeoPoint() })
+                map.getStyle { style ->
+                    val sm = symbolManager ?: return@getStyle
+                    val lm = lineManager ?: return@getStyle
 
-                    // Draw current car marker
-                    currentPosition?.let { pos ->
-                        var currentMarker = mapView.overlays.find { it is Marker && it.relatedObject == REPLAY_MARKER } as? Marker
-                        val newGeoPoint = pos.toGeoPoint()
-                        val newRotation = pos.course.toFloat()
-                        val speedKmh = (pos.speed * 1.852).toInt()
-                        val newIcon = createDeviceMarkerDrawable(mapView.context, speedKmh)
-
-                        if (currentMarker == null) {
-                            mapView.overlays.add(
-                                Marker(mapView).apply {
-                                    this.position = newGeoPoint
-                                    this.rotation = 0f
-                                    this.icon = newIcon
-                                    setAnchor(Marker.ANCHOR_CENTER, 70f / 106f)
-                                    relatedObject = REPLAY_MARKER
-                                    infoWindow = null
-                                }
+                    if (positions.isNotEmpty()) {
+                        // Draw Route Polyline
+                        val routeLatLngs = positions.map { it.toLatLng() }
+                        if (routeLine == null) {
+                            routeLine = lm.create(
+                                LineOptions()
+                                    .withLatLngs(routeLatLngs)
+                                    .withLineColor("#A12887")
+                                    .withLineWidth(4f)
                             )
-                            // Initialize map orientation to match the course
-                            mapView.mapOrientation = (360f - newRotation) % 360f
                         } else {
-                            val animationDuration = if (playSpeed == 1) 1500L else 750L
-                            currentMarker.icon = newIcon
-                            MarkerAnimator.animateMarker(
-                                marker = currentMarker,
-                                mapView = mapView,
-                                endPosition = newGeoPoint,
-                                endCourse = newRotation,
-                                rotateMap = true,
-                                durationMs = animationDuration
-                            )
+                            routeLine?.let {
+                                if (it.latLngs != routeLatLngs) {
+                                    it.latLngs = routeLatLngs
+                                    lm.update(it)
+                                }
+                            }
                         }
-                    }
-                } else {
-                    mapView.overlays.clear()
-                }
 
-                mapView.invalidate()
-            },
-            onRelease = { mapView ->
-                mapView.tileProvider.detach()
-                mapView.onDetach()
+                        // Draw current car marker
+                        currentPosition?.let { pos ->
+                            val newLatLng = pos.toLatLng()
+                            val newRotation = pos.course.toFloat()
+                            val speedKmh = (pos.speed * 1.852).toInt()
+                            val iconId = "marker_$speedKmh"
+
+                            if (style.getImage(iconId) == null) {
+                                style.addImage(iconId, createDeviceMarkerBitmap(context, speedKmh))
+                            }
+
+                            if (deviceSymbol == null) {
+                                deviceSymbol = sm.create(
+                                    SymbolOptions()
+                                        .withLatLng(newLatLng)
+                                        .withIconImage(iconId)
+                                        .withIconAnchor("bottom")
+                                        .withIconOffset(arrayOf(0f, 0f))
+                                )
+                                map.moveCamera(CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition.Builder()
+                                        .target(newLatLng)
+                                        .bearing(newRotation.toDouble())
+                                        .build()
+                                ))
+                            } else {
+                                val animationDuration = if (playSpeed == 1) 1500L else 750L
+                                deviceSymbol?.iconImage = iconId
+                                deviceSymbol?.let {
+                                    MarkerAnimator.animateMarker(
+                                        symbol = it,
+                                        symbolManager = sm,
+                                        mapView = map,
+                                        endPosition = newLatLng,
+                                        endCourse = newRotation,
+                                        rotateMap = true,
+                                        durationMs = animationDuration
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        // Clear
+                        deviceSymbol?.let { sm.delete(it) }
+                        routeLine?.let { lm.delete(it) }
+                        deviceSymbol = null
+                        routeLine = null
+                    }
+                }
             }
         )
     }
 }
 
-private var cachedDotDrawable: BitmapDrawable? = null
+private fun Position.toLatLng(): LatLng = LatLng(latitude, longitude)
 
-private fun getCachedDotDrawable(context: Context): BitmapDrawable {
-    if (cachedDotDrawable == null) {
-        cachedDotDrawable = createImprovedDotDrawable(context, AndroidColor.parseColor("#A12887"))
-    }
-    return cachedDotDrawable!!
-}
-
-private fun createImprovedDotDrawable(context: Context, color: Int): BitmapDrawable {
-    val density = context.resources.displayMetrics.density
-    fun dp(value: Float): Float = value * density
-
-    val size = dp(16f) // Slightly larger for clickability
-    val bitmap = Bitmap.createBitmap(size.toInt(), size.toInt(), Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    
-    val center = size / 2f
-    
-    // Draw shadow and white border
-    paint.color = AndroidColor.WHITE
-    paint.style = Paint.Style.FILL
-    paint.setShadowLayer(dp(2f), 0f, dp(1f), AndroidColor.argb(60, 0, 0, 0))
-    canvas.drawCircle(center, center, dp(6f), paint)
-    
-    paint.clearShadowLayer()
-    
-    // Draw colored inner circle
-    paint.color = color
-    canvas.drawCircle(center, center, dp(4f), paint)
-    
-    // Draw tiny glossy center
-    paint.color = AndroidColor.WHITE
-    canvas.drawCircle(center, center, dp(1.5f), paint)
-
-    return BitmapDrawable(context.resources, bitmap)
-}
-
-private fun Position.toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
-
-private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapDrawable {
+private fun createDeviceMarkerBitmap(context: Context, speedKmh: Int): Bitmap {
     val density = context.resources.displayMetrics.density
     fun dp(value: Float): Float = value * density
 
@@ -301,7 +356,7 @@ private fun createDeviceMarkerDrawable(context: Context, speedKmh: Int): BitmapD
     paint.textSize = if (speedKmh <= 0) 11f else 10f
     canvas.drawText(text, centerX, 17.8f, paint)
 
-    return BitmapDrawable(context.resources, bitmap)
+    return bitmap
 }
 
 private fun String.toPersianDigits(): String {

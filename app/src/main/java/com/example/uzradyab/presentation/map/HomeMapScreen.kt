@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-import com.example.uzradyab.map.tile.TileHealthState
 import kotlinx.coroutines.launch
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
@@ -102,7 +101,6 @@ fun HomeMapRoute(
         onManageDeviceClick = viewModel::openDeviceManagement,
         onCloseDeviceManagement = viewModel::closeDeviceManagement,
         onRenewDeviceClick = onRenewDeviceClick,
-        onTileHealthErrorConsumed = viewModel::consumeTileHealthError,
         onClearInfoMessage = viewModel::clearInfoMessage,
         onEventsClick = { onEventsClick(state.selectedDeviceId) },
         onDevicesClick = onDevicesClick,
@@ -135,7 +133,6 @@ fun HomeMapScreen(
     onManageDeviceClick: () -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onRenewDeviceClick: (Long) -> Unit,
-    onTileHealthErrorConsumed: () -> Unit,
     onClearInfoMessage: () -> Unit,
     onEventsClick: () -> Unit,
     onDevicesClick: () -> Unit,
@@ -213,19 +210,6 @@ fun HomeMapScreen(
                     label = "mapBottomPadding",
                 )
 
-                // Show snackbar when tile health monitor reports unreachable
-                LaunchedEffect(state.tileHealth) {
-                    if (state.tileHealth == TileHealthState.Unreachable) {
-                        snackbarHostState.showSnackbar(
-                            message = "دریافت نقشه با مشکل مواجه شد. لطفا اینترنت یا منبع نقشه را بررسی کنید.",
-                            duration = androidx.compose.material3.SnackbarDuration.Long,
-                            actionLabel = "باشه"
-                        )
-                        // بعد از نمایش پیام، باید وضعیت رو به حالت نرمال برگردونیم
-                        // تا اگر کاربر اینترنت رو وصل کرد یا منبع نقشه درست شد، پیام دوباره تکرار نشه
-                        onTileHealthErrorConsumed()
-                    }
-                }
 
                 /*
                 LaunchedEffect(state.infoMessage) {
@@ -243,7 +227,6 @@ fun HomeMapScreen(
                     latestPositions = state.latestPositions,
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
-                    activeTileSource = state.activeTileSource,
                     isMapLocked = state.isMapLocked,
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {

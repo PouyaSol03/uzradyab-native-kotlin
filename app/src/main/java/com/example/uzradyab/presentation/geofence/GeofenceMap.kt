@@ -3,21 +3,59 @@ package com.example.uzradyab.presentation.geofence
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.uzradyab.map.OsmdroidConfig
-import com.example.uzradyab.map.tile.TileSourceRegistry
-import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.MapEventsOverlay
-import org.osmdroid.views.overlay.Polygon
-import org.osmdroid.views.overlay.Polyline
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.uzradyab.domain.model.GeofenceShape
+import com.example.uzradyab.map.MapLibreStyles
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapLibreMapOptions
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
+import org.maplibre.android.plugins.annotation.Circle
+import org.maplibre.android.plugins.annotation.CircleManager
+import org.maplibre.android.plugins.annotation.CircleOptions
+import org.maplibre.android.plugins.annotation.Fill
+import org.maplibre.android.plugins.annotation.FillManager
+import org.maplibre.android.plugins.annotation.FillOptions
+import org.maplibre.android.plugins.annotation.Line
+import org.maplibre.android.plugins.annotation.LineManager
+import org.maplibre.android.plugins.annotation.LineOptions
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+
+private fun createCirclePoints(centerLat: Double, centerLon: Double, radiusMeters: Double, points: Int = 64): List<LatLng> {
+    val earthRadius = 6371000.0 // meters
+    val lat = Math.toRadians(centerLat)
+    val lon = Math.toRadians(centerLon)
+    val d = radiusMeters / earthRadius
+
+    val result = mutableListOf<LatLng>()
+    for (i in 0..points) {
+        val bearing = 2 * PI * i / points
+        val targetLat = Math.asin(sin(lat) * cos(d) + cos(lat) * sin(d) * cos(bearing))
+        val targetLon = lon + Math.atan2(
+            sin(bearing) * sin(d) * cos(lat),
+            cos(d) - sin(lat) * sin(targetLat)
+        )
+        result.add(LatLng(Math.toDegrees(targetLat), Math.toDegrees(targetLon)))
+    }
+    return result
+}
 
 @Composable
 fun GeofenceMap(
@@ -26,178 +64,251 @@ fun GeofenceMap(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
-    // 1. Initialize the MapView ONCE
-    val mapView = remember {
-        OsmdroidConfig.configure(context)
-        MapView(context).apply {
-            isTilesScaledToDpi = false
-            setTilesScaleFactor(2.5f)
-            setMultiTouchControls(true)
-            setBuiltInZoomControls(false)
-            zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-
-            // Add MapEventsOverlay to intercept clicks
-            val mapEventsOverlay = MapEventsOverlay(object : MapEventsReceiver {
-                override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                    p?.let { onMapClick(it.latitude, it.longitude) }
-                    return true
-                }
-                override fun longPressHelper(p: GeoPoint?): Boolean {
-                    return false
-                }
-            })
-            overlays.add(mapEventsOverlay)
-        }
+    
+    // Initialize MapLibre exactly once before the MapView is created
+    remember {
+        MapLibre.getInstance(context)
+        true
     }
 
-    // 2. Set center on first load only
-    LaunchedEffect(state.devicePosition) {
-        if (mapView.tag == null && state.devicePosition != null) {
-            mapView.tag = "loaded"
-            mapView.controller.setZoom(14.0)
-            mapView.controller.setCenter(
-                GeoPoint(state.devicePosition.latitude, state.devicePosition.longitude)
-            )
-        }
-    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var mapViewRef by remember { mutableStateOf<MapView?>(null) }
+    var mapLibreMapRef by remember { mutableStateOf<MapLibreMap?>(null) }
 
-    // 3. Draw Shapes ONLY when relevant data changes (Fixes the Lag)
-    LaunchedEffect(
-        state.geofences,
-        state.addingMode,
-        state.activeDrawingPoints,
-        state.newGeofenceRadius,
-        state.drawMode
-    ) {
-        // Clear old polygons and polylines
-        mapView.overlays.removeAll { it is Polygon || it is Polyline }
+    var fillManager by remember { mutableStateOf<FillManager?>(null) }
+    var lineManager by remember { mutableStateOf<LineManager?>(null) }
+    var circleManager by remember { mutableStateOf<CircleManager?>(null) }
 
-        // Draw existing geofences
-        state.geofences.forEach { geofence ->
-            when (val shape = geofence.shape) {
-                is GeofenceShape.Circle -> {
-                    val circle = Polygon(mapView).apply {
-                        points = Polygon.pointsAsCircle(GeoPoint(shape.lat, shape.lon), shape.radius)
-                        fillPaint.color = AndroidColor.argb(25, 0, 150, 255)
-                        outlinePaint.color = AndroidColor.argb(200, 0, 150, 255)
-                        outlinePaint.strokeWidth = 2f
-                    }
-                    mapView.overlays.add(circle)
-                }
-                is GeofenceShape.Polygon -> {
-                    val poly = Polygon(mapView).apply {
-                        points = shape.points.map { GeoPoint(it.first, it.second) }
-                        fillPaint.color = AndroidColor.argb(25, 0, 150, 255)
-                        outlinePaint.color = AndroidColor.argb(200, 0, 150, 255)
-                        outlinePaint.strokeWidth = 2f
-                    }
-                    mapView.overlays.add(poly)
-                }
-                is GeofenceShape.LineString -> {
-                    val line = Polyline(mapView).apply {
-                        setPoints(shape.points.map { GeoPoint(it.first, it.second) })
-                        outlinePaint.color = AndroidColor.argb(200, 0, 150, 255)
-                        outlinePaint.strokeWidth = 4f
-                    }
-                    mapView.overlays.add(line)
-                }
+    var geofenceFills by remember { mutableStateOf<List<Fill>>(emptyList()) }
+    var geofenceLines by remember { mutableStateOf<List<Line>>(emptyList()) }
+    var geofenceCircles by remember { mutableStateOf<List<Circle>>(emptyList()) }
+    
+    val tracker = remember { object {
+        var lastMapStyle: String? = null
+        var styleToken: Int = 0
+    } }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapViewRef?.onStart()
+                Lifecycle.Event.ON_RESUME -> mapViewRef?.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapViewRef?.onPause()
+                Lifecycle.Event.ON_STOP -> mapViewRef?.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapViewRef?.onDestroy()
                 else -> {}
             }
         }
-
-        // Draw new active geofence
-        if (state.addingMode && state.activeDrawingPoints.isNotEmpty()) {
-            val activeGeoPoints = state.activeDrawingPoints.map { GeoPoint(it.first, it.second) }
-            when (state.drawMode) {
-                DrawMode.CIRCLE -> {
-                    val pt = activeGeoPoints.first()
-                    val newCircle = Polygon(mapView).apply {
-                        points = Polygon.pointsAsCircle(pt, state.newGeofenceRadius)
-                        fillPaint.color = AndroidColor.argb(35, 255, 0, 0)
-                        outlinePaint.color = AndroidColor.argb(200, 255, 0, 0)
-                        outlinePaint.strokeWidth = 3f
-                    }
-                    mapView.overlays.add(newCircle)
-                }
-                DrawMode.POLYGON -> {
-                    val poly = Polygon(mapView).apply {
-                        points = activeGeoPoints
-                        fillPaint.color = AndroidColor.argb(35, 255, 0, 0)
-                        outlinePaint.color = AndroidColor.argb(200, 255, 0, 0)
-                        outlinePaint.strokeWidth = 3f
-                    }
-                    mapView.overlays.add(poly)
-
-                    activeGeoPoints.forEach { pt ->
-                        val ptCircle = Polygon(mapView).apply {
-                            points = Polygon.pointsAsCircle(pt, 10.0)
-                            fillPaint.color = AndroidColor.RED
-                            outlinePaint.color = AndroidColor.WHITE
-                        }
-                        mapView.overlays.add(ptCircle)
-                    }
-                }
-                DrawMode.LINESTRING -> {
-                    val line = Polyline(mapView).apply {
-                        setPoints(activeGeoPoints)
-                        outlinePaint.color = AndroidColor.argb(200, 255, 0, 0)
-                        outlinePaint.strokeWidth = 5f
-                    }
-                    mapView.overlays.add(line)
-
-                    activeGeoPoints.forEach { pt ->
-                        val ptCircle = Polygon(mapView).apply {
-                            points = Polygon.pointsAsCircle(pt, 10.0)
-                            fillPaint.color = AndroidColor.RED
-                            outlinePaint.color = AndroidColor.WHITE
-                        }
-                        mapView.overlays.add(ptCircle)
-                    }
-                }
-            }
-        }
-
-
-        mapView.invalidate()
-    }
-
-    // 4. Animate to Selected Geofence
-    LaunchedEffect(state.selectedGeofenceId) {
-        val selectedId = state.selectedGeofenceId
-        if (selectedId != null) {
-            val targetGeofence = state.geofences.find { it.id == selectedId }
-
-            // Extract the center point based on the shape type
-            val targetPoint = when (val shape = targetGeofence?.shape) {
-                is GeofenceShape.Circle -> GeoPoint(shape.lat, shape.lon)
-                is GeofenceShape.Polygon -> shape.points.firstOrNull()?.let { GeoPoint(it.first, it.second) }
-                is GeofenceShape.LineString -> shape.points.firstOrNull()?.let { GeoPoint(it.first, it.second) }
-                else -> null
-            }
-
-            // If we found a valid point, animate the map to it
-            targetPoint?.let { point ->
-                // Mark map as loaded so device position initial centering doesn't override this
-                mapView.tag = "loaded"
-                // Set a better zoom in level
-                mapView.controller.setZoom(16.5)
-                mapView.controller.animateTo(point)
-            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
-    // 4. AndroidView purely for rendering the remembered instance
     AndroidView(
         modifier = modifier.fillMaxSize(),
-        factory = { mapView },
-        update = { view ->
-            // Keep Map Tile Source updates fast and simple here
-            val tileSource = TileSourceRegistry.resolve(state.mapStyle)
-            if (view.tileProvider.tileSource != tileSource) {
-                view.tileProvider.clearTileCache()
-                view.setTileSource(tileSource)
-                view.setMaxZoomLevel(tileSource.maximumZoomLevel.toDouble())
+        factory = {
+            val options = MapLibreMapOptions.createFromAttributes(it).textureMode(true)
+            MapView(it, options).apply {
+                mapViewRef = this
+                onCreate(null)
+                
+                getMapAsync { map ->
+                    mapLibreMapRef = map
+                    
+                    map.uiSettings.isCompassEnabled = false
+                    map.uiSettings.isLogoEnabled = false
+                    map.uiSettings.isAttributionEnabled = false
+                    
+                    tracker.lastMapStyle = state.mapStyle
+                    tracker.styleToken++
+                    val currentToken = tracker.styleToken
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle))) { style ->
+                        if (currentToken != tracker.styleToken) return@setStyle
+                        fillManager = FillManager(this, map, style)
+                        lineManager = LineManager(this, map, style)
+                        circleManager = CircleManager(this, map, style)
+                    }
+
+                    map.addOnMapClickListener { point ->
+                        onMapClick(point.latitude, point.longitude)
+                        true
+                    }
+                }
+            }
+        },
+        update = { mapView ->
+            val map = mapLibreMapRef ?: return@AndroidView
+            
+            // Style updates
+            if (tracker.lastMapStyle != state.mapStyle) {
+                tracker.lastMapStyle = state.mapStyle
+                tracker.styleToken++
+                val currentToken = tracker.styleToken
+                
+                fillManager?.onDestroy()
+                lineManager?.onDestroy()
+                circleManager?.onDestroy()
+                
+                geofenceFills = emptyList()
+                geofenceLines = emptyList()
+                geofenceCircles = emptyList()
+                fillManager = null
+                lineManager = null
+                circleManager = null
+                
+                map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle))) { newStyle ->
+                    if (currentToken != tracker.styleToken) return@setStyle
+                    fillManager = FillManager(mapView, map, newStyle)
+                    lineManager = LineManager(mapView, map, newStyle)
+                    circleManager = CircleManager(mapView, map, newStyle)
+                }
+            }
+
+            // Set center on first load only
+            val isFirstLoad = mapView.tag == null
+            if (isFirstLoad && state.devicePosition != null) {
+                mapView.tag = "loaded"
+                map.cameraPosition = CameraPosition.Builder()
+                    .target(LatLng(state.devicePosition.latitude, state.devicePosition.longitude))
+                    .zoom(14.0)
+                    .build()
+            }
+
+            // Animate to Selected Geofence
+            val selectedId = state.selectedGeofenceId
+            if (selectedId != null) {
+                val targetGeofence = state.geofences.find { it.id == selectedId }
+                val targetPoint = when (val shape = targetGeofence?.shape) {
+                    is GeofenceShape.Circle -> LatLng(shape.lat, shape.lon)
+                    is GeofenceShape.Polygon -> shape.points.firstOrNull()?.let { LatLng(it.first, it.second) }
+                    is GeofenceShape.LineString -> shape.points.firstOrNull()?.let { LatLng(it.first, it.second) }
+                    else -> null
+                }
+                targetPoint?.let { point ->
+                    mapView.tag = "loaded"
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 16.5))
+                }
+            }
+
+            // Draw Shapes
+            map.getStyle { _ ->
+                val fm = fillManager ?: return@getStyle
+                val lm = lineManager ?: return@getStyle
+                val cm = circleManager ?: return@getStyle
+                
+                // Clear old shapes
+                fm.deleteAll()
+                lm.deleteAll()
+                cm.deleteAll()
+                
+                val fills = mutableListOf<FillOptions>()
+                val lines = mutableListOf<LineOptions>()
+                val circles = mutableListOf<CircleOptions>()
+
+                // Draw existing geofences
+                state.geofences.forEach { geofence ->
+                    when (val shape = geofence.shape) {
+                        is GeofenceShape.Circle -> {
+                            val circlePoints = createCirclePoints(shape.lat, shape.lon, shape.radius)
+                            fills.add(FillOptions()
+                                .withLatLngs(listOf(circlePoints))
+                                .withFillColor("#0096FF")
+                                .withFillOpacity(0.1f)
+                            )
+                            lines.add(LineOptions()
+                                .withLatLngs(circlePoints)
+                                .withLineColor("#0096FF")
+                                .withLineWidth(2f)
+                            )
+                        }
+                        is GeofenceShape.Polygon -> {
+                            val polyPoints = shape.points.map { LatLng(it.first, it.second) }
+                            fills.add(FillOptions()
+                                .withLatLngs(listOf(polyPoints))
+                                .withFillColor("#0096FF")
+                                .withFillOpacity(0.1f)
+                            )
+                            lines.add(LineOptions()
+                                .withLatLngs(polyPoints)
+                                .withLineColor("#0096FF")
+                                .withLineWidth(2f)
+                            )
+                        }
+                        is GeofenceShape.LineString -> {
+                            val linePoints = shape.points.map { LatLng(it.first, it.second) }
+                            lines.add(LineOptions()
+                                .withLatLngs(linePoints)
+                                .withLineColor("#0096FF")
+                                .withLineWidth(4f)
+                            )
+                        }
+                        else -> {}
+                    }
+                }
+
+                // Draw new active geofence
+                if (state.addingMode && state.activeDrawingPoints.isNotEmpty()) {
+                    val activePoints = state.activeDrawingPoints.map { LatLng(it.first, it.second) }
+                    
+                    when (state.drawMode) {
+                        DrawMode.CIRCLE -> {
+                            val pt = activePoints.first()
+                            val circlePoints = createCirclePoints(pt.latitude, pt.longitude, state.newGeofenceRadius)
+                            fills.add(FillOptions()
+                                .withLatLngs(listOf(circlePoints))
+                                .withFillColor("#FF0000")
+                                .withFillOpacity(0.15f)
+                            )
+                            lines.add(LineOptions()
+                                .withLatLngs(circlePoints)
+                                .withLineColor("#FF0000")
+                                .withLineWidth(3f)
+                            )
+                        }
+                        DrawMode.POLYGON -> {
+                            fills.add(FillOptions()
+                                .withLatLngs(listOf(activePoints))
+                                .withFillColor("#FF0000")
+                                .withFillOpacity(0.15f)
+                            )
+                            lines.add(LineOptions()
+                                .withLatLngs(activePoints)
+                                .withLineColor("#FF0000")
+                                .withLineWidth(3f)
+                            )
+                            activePoints.forEach {
+                                circles.add(CircleOptions()
+                                    .withLatLng(it)
+                                    .withCircleColor("#FF0000")
+                                    .withCircleStrokeColor("#FFFFFF")
+                                    .withCircleStrokeWidth(2f)
+                                    .withCircleRadius(6f)
+                                )
+                            }
+                        }
+                        DrawMode.LINESTRING -> {
+                            lines.add(LineOptions()
+                                .withLatLngs(activePoints)
+                                .withLineColor("#FF0000")
+                                .withLineWidth(5f)
+                            )
+                            activePoints.forEach {
+                                circles.add(CircleOptions()
+                                    .withLatLng(it)
+                                    .withCircleColor("#FF0000")
+                                    .withCircleStrokeColor("#FFFFFF")
+                                    .withCircleStrokeWidth(2f)
+                                    .withCircleRadius(6f)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                fm.create(fills)
+                lm.create(lines)
+                cm.create(circles)
             }
         }
     )

@@ -9,13 +9,12 @@ import com.example.uzradyab.domain.model.Position
 import com.example.uzradyab.domain.model.TrackingConnectionState
 import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.AppConfigRepository
+import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.EventRepository
 import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.ReportRepository
 import com.example.uzradyab.domain.repository.TrackingRepository
 import com.example.uzradyab.domain.usecase.ObserveHomeSnapshotUseCase
-import com.example.uzradyab.map.tile.TileHealthMonitor
-import com.example.uzradyab.map.tile.TileHealthState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,8 +62,6 @@ data class HomeMapUiState(
     val mapSettingsOpen: Boolean = false,
     val mapStyle: String = "carto",
     val isAlternativeMapForced: Boolean = false,
-    val tileHealth: TileHealthState = TileHealthState.Unknown,
-    val activeTileSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null,
     val isMapLocked: Boolean = false,
     val infoMessage: String? = null,
     val connectionError: ConnectionErrorType = ConnectionErrorType.NONE,
@@ -85,27 +82,11 @@ class MapViewModel @Inject constructor(
     private val reportRepository: ReportRepository,
     private val trackingRepository: TrackingRepository,
     private val mapSettingsRepository: MapSettingsRepository,
-    private val tileHealthMonitor: TileHealthMonitor,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
     private val localState = MutableStateFlow(HomeMapUiState())
 
-    private var cachedAlternativeSourceUrl: String? = null
-    private var cachedAlternativeSource: org.osmdroid.tileprovider.tilesource.ITileSource? = null
-
-    private fun getAlternativeTileSource(url: String): org.osmdroid.tileprovider.tilesource.ITileSource {
-        if (url != cachedAlternativeSourceUrl || cachedAlternativeSource == null) {
-            cachedAlternativeSourceUrl = url
-            cachedAlternativeSource = org.osmdroid.tileprovider.tilesource.XYTileSource(
-                "alternative_forced",
-                1,
-                20,
-                256,
-                ".png",
-                arrayOf(if (url.endsWith("/")) url else "$url/")
-            )
-        }
-        return cachedAlternativeSource!!
-    }
+    // Removed Osmdroid alternative source tracking
 
     val uiState: StateFlow<HomeMapUiState> = combine(
         observeHomeSnapshot(),
@@ -117,7 +98,11 @@ class MapViewModel @Inject constructor(
             mapSettingsRepository.observeLastSelectedDeviceId(),
             appConfigRepository.currentConfig
         ) { style, lastId, config -> Triple(style, lastId, config) }
-    ) { snapshot, connection, local, recentEvents, (mapStyle, lastDeviceId, config) ->
+    ) { snapshot, connection, local, recentEvents, settings ->
+        val mapStyle = settings.first
+        val lastDeviceId = settings.second
+        val config = settings.third
+        
         val selected = local.selectedDeviceId 
             ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: snapshot.devices.firstOrNull()?.id
@@ -126,11 +111,10 @@ class MapViewModel @Inject constructor(
         
         Log.d("AlternativeMap", "AppConfig -> alternativeMap: ${config?.alternativeMap}, alternativeMapUrl: ${config?.alternativeMapUrl}, isForced: $isAlternativeForced")
 
-        val (finalMapStyle, finalTileSource) = if (isAlternativeForced) {
-            val overrideSource = getAlternativeTileSource(config!!.alternativeMapUrl!!)
-            "alternative_forced" to overrideSource
+        val finalMapStyle = if (isAlternativeForced) {
+            "alternative_forced"
         } else {
-            mapStyle to local.activeTileSource
+            mapStyle
         }
 
         local.copy(
@@ -139,7 +123,6 @@ class MapViewModel @Inject constructor(
             selectedDeviceId = selected,
             connectionState = connection,
             mapStyle = finalMapStyle,
-            activeTileSource = finalTileSource,
             isAlternativeMapForced = isAlternativeForced,
             latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
         )
@@ -149,8 +132,11 @@ class MapViewModel @Inject constructor(
         trackingRepository.start()
         observeSelectedDeviceDistance()
         observeSelectedDeviceLatestEvent()
-        observeTileHealth()
         startHealthCheckLoop()
+        
+        viewModelScope.launch {
+            deviceRepository.refreshDevices()
+        }
         
         viewModelScope.launch {
             uiState.map { it.selectedDeviceId }.distinctUntilChanged().collectLatest { deviceId ->
@@ -205,9 +191,7 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             mapSettingsRepository.setMapStyle(style)
         }
-        // Clear previous fallback and restart tile health monitoring for the new source
-        localState.update { it.copy(activeTileSource = null) }
-        tileHealthMonitor.startMonitoring(style)
+        // MapLibre style updates automatically based on the string.
         closeMapSettings()
     }
 
@@ -250,11 +234,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun consumeTileHealthError() {
-        localState.update { currentState ->
-            currentState.copy(
-                tileHealth = TileHealthState.Healthy
-            )
-        }
+        // No-op for MapLibre
     }
 
     private var lastServerDownTime = 0L
@@ -395,34 +375,8 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun observeTileHealth() {
-        viewModelScope.launch {
-            // Start monitoring whenever the map style changes
-            uiState
-                .map { it.mapStyle }
-                .distinctUntilChanged()
-                .collectLatest { style ->
-                    tileHealthMonitor.startMonitoring(style)
-                }
-        }
-        viewModelScope.launch {
-            tileHealthMonitor.state.collect { health ->
-                localState.update { it.copy(tileHealth = health) }
-            }
-        }
-        viewModelScope.launch {
-            tileHealthMonitor.suggestedFallback.collect { fallback ->
-                // Disable automatic map source switching to prevent overriding user's selection
-                // if (fallback != null) {
-                //     localState.update { it.copy(activeTileSource = fallback) }
-                // }
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
-        tileHealthMonitor.stopMonitoring()
     }
 }
 
