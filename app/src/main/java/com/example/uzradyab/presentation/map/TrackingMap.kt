@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -40,6 +41,7 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Polyline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -71,6 +73,36 @@ fun TrackingMap(
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
     val currentIsMapLocked by rememberUpdatedState(isMapLocked)
     var wasLocked by remember { mutableStateOf(isMapLocked) }
+    
+    var tailPositions by remember { mutableStateOf<List<GeoPoint>>(emptyList()) }
+    var currentTailDeviceId by remember { mutableStateOf<Long?>(null) }
+    
+    val density = LocalDensity.current
+
+    LaunchedEffect(selectedDeviceId, selectedPosition) {
+        if (selectedDeviceId == null || selectedPosition == null) {
+            tailPositions = emptyList()
+            currentTailDeviceId = selectedDeviceId
+            return@LaunchedEffect
+        }
+        
+        val geoPoint = selectedPosition.toGeoPoint()
+        
+        if (selectedDeviceId != currentTailDeviceId) {
+            tailPositions = listOf(geoPoint)
+            currentTailDeviceId = selectedDeviceId
+        } else {
+            val newList = tailPositions.toMutableList()
+            if (newList.lastOrNull() != geoPoint) {
+                newList.add(geoPoint)
+                if (newList.size > 20) {
+                    newList.removeAt(0)
+                }
+            }
+            tailPositions = newList
+        }
+    }
+
     val tracker = remember { object { 
         var lastDeviceId: Long? = selectedDeviceId
         var hasInitialCentered: Boolean = false
@@ -262,6 +294,37 @@ fun TrackingMap(
                     }
                     tracker.lastPosition = selectedPosition
                     mapView.invalidate()
+                }
+
+                // Draw Live Tail Polyline
+                var tailPolyline = mapView.overlays.find { it is Polyline && it.relatedObject == "live-tail" } as? Polyline
+                if (tailPositions.size > 1) {
+                    if (tailPolyline == null) {
+                        tailPolyline = Polyline(mapView).apply {
+                            outlinePaint.color = AndroidColor.parseColor("#2196F3") // Bright blue for better visibility against roads
+                            outlinePaint.strokeWidth = with(density) { 4.dp.toPx() }
+                            outlinePaint.strokeCap = Paint.Cap.ROUND
+                            outlinePaint.strokeJoin = Paint.Join.ROUND
+                            outlinePaint.isAntiAlias = true
+                            isGeodesic = true
+                            infoWindow = null
+                            relatedObject = "live-tail"
+                        }
+                        // Insert behind the car marker to keep it looking clean
+                        val markerIndex = mapView.overlays.indexOfFirst { it is Marker && it.relatedObject == SELECTED_DEVICE_MARKER }
+                        if (markerIndex >= 0) {
+                            mapView.overlays.add(markerIndex, tailPolyline)
+                        } else {
+                            mapView.overlays.add(tailPolyline)
+                        }
+                    } else {
+                        // Ensure properties remain correct
+                        tailPolyline.outlinePaint.color = AndroidColor.parseColor("#2196F3")
+                        tailPolyline.outlinePaint.strokeWidth = with(density) { 4.dp.toPx() }
+                    }
+                    tailPolyline.setPoints(tailPositions)
+                } else {
+                    tailPolyline?.let { mapView.overlays.remove(it) }
                 }
             },
             onRelease = { mapView ->
