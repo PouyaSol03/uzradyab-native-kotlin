@@ -60,7 +60,7 @@ data class HomeMapUiState(
     val latestEvent: MapLatestEventItem? = null,
     val latestEventsMap: ImmutableMapWrapper<Long, MapLatestEventItem> = emptyImmutableMap(),
     val mapSettingsOpen: Boolean = false,
-    val mapStyle: String = "carto",
+    val mapStyle: String = "osm",
     val isAlternativeMapForced: Boolean = false,
     val isMapLocked: Boolean = false,
     val infoMessage: String? = null,

@@ -64,12 +64,6 @@ fun ReplayMap(
     val density = LocalDensity.current
     val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
     
-    // Initialize MapLibre exactly once before the MapView is created
-    remember {
-        MapLibre.getInstance(context)
-        true
-    }
-
     val currentPosition = positions.getOrNull(currentIndex)
     val center = currentPosition?.toLatLng() ?: Tehran
 
@@ -103,6 +97,8 @@ fun ReplayMap(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+    
+    val isDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
 
     Box(
         modifier = modifier
@@ -127,7 +123,7 @@ fun ReplayMap(
                         tracker.lastMapStyle = mapStyle
                         tracker.styleToken++
                         val currentToken = tracker.styleToken
-                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { style ->
+                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
@@ -159,7 +155,7 @@ fun ReplayMap(
                     symbolManager = null
                     lineManager = null
                     
-                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { newStyle ->
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true

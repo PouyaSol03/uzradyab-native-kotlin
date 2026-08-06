@@ -2,6 +2,7 @@ package com.example.uzradyab.presentation.geofence
 
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -10,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -63,14 +63,6 @@ fun GeofenceMap(
     onMapClick: (Double, Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    
-    // Initialize MapLibre exactly once before the MapView is created
-    remember {
-        MapLibre.getInstance(context)
-        true
-    }
-
     val lifecycleOwner = LocalLifecycleOwner.current
     var mapViewRef by remember { mutableStateOf<MapView?>(null) }
     var mapLibreMapRef by remember { mutableStateOf<MapLibreMap?>(null) }
@@ -105,6 +97,8 @@ fun GeofenceMap(
         }
     }
 
+    val isDarkTheme = isSystemInDarkTheme()
+
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = {
@@ -123,7 +117,7 @@ fun GeofenceMap(
                     tracker.lastMapStyle = state.mapStyle
                     tracker.styleToken++
                     val currentToken = tracker.styleToken
-                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle))) { style ->
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle, isDarkTheme))) { style ->
                         if (currentToken != tracker.styleToken) return@setStyle
                         fillManager = FillManager(this, map, style)
                         lineManager = LineManager(this, map, style)
@@ -157,7 +151,7 @@ fun GeofenceMap(
                 lineManager = null
                 circleManager = null
                 
-                map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle))) { newStyle ->
+                map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle, isDarkTheme))) { newStyle ->
                     if (currentToken != tracker.styleToken) return@setStyle
                     fillManager = FillManager(mapView, map, newStyle)
                     lineManager = LineManager(mapView, map, newStyle)

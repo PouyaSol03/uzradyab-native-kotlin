@@ -57,18 +57,12 @@ private const val SELECTED_DEVICE_MARKER_ID = "selected-device-marker"
 fun TrackingMap(
     latestPositions: ImmutableMapWrapper<Long, Position>,
     selectedDeviceId: Long?,
-    mapStyle: String = "carto",
+    mapStyle: String = "osm",
     isMapLocked: Boolean,
     onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    
-    // Initialize MapLibre exactly once before the MapView is created
-    remember {
-        MapLibre.getInstance(context)
-        true
-    }
     
     val selectedPosition = latestPositions[selectedDeviceId]
     val center = selectedPosition?.toLatLng()
@@ -141,6 +135,8 @@ fun TrackingMap(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+    
+    val isDarkTheme = androidx.compose.foundation.isSystemInDarkTheme()
 
     Box(
         modifier = modifier
@@ -165,7 +161,7 @@ fun TrackingMap(
                         tracker.lastMapStyle = mapStyle
                         tracker.styleToken++
                         val currentToken = tracker.styleToken
-                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { style ->
+                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
@@ -207,7 +203,7 @@ fun TrackingMap(
                     symbolManager = null
                     lineManager = null
                     
-                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle))) { newStyle ->
+                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
