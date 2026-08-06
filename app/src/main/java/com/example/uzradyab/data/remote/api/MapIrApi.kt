@@ -10,6 +10,8 @@ interface MapIrApi {
     suspend fun getReverseGeocode(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
-        @Query("key") apiKey: String
+        @Query("format") format: String = "json",
+        @Query("accept-language") lang: String = "fa",
+        @Query("key") apiKey: String? = null
     ): JsonObject
 }

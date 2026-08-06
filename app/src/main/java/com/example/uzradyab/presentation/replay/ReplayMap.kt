@@ -228,7 +228,7 @@ fun ReplayMap(
                                     SymbolOptions()
                                         .withLatLng(newLatLng)
                                         .withIconImage(iconId)
-                                        .withIconAnchor("bottom")
+                                        .withIconAnchor("center")
                                         .withIconOffset(arrayOf(0f, 0f))
                                 )
                                 map.moveCamera(CameraUpdateFactory.newCameraPosition(
@@ -272,7 +272,7 @@ private fun createDeviceMarkerBitmap(context: Context, speedKmh: Int): Bitmap {
     val density = context.resources.displayMetrics.density
     fun dp(value: Float): Float = value * density
 
-    val bitmap = Bitmap.createBitmap(dp(72f).toInt(), dp(106f).toInt(), Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(dp(72f).toInt(), dp(140f).toInt(), Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     canvas.scale(density, density)
 

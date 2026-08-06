@@ -45,11 +45,7 @@ class GeocoderRepositoryImpl @Inject constructor(
             val response = api.getReverseGeocode(lat = lat, lon = lon, apiKey = API_KEY)
             val jsonString = response.toString()
 
-            com.example.uzradyab.core.debug.AppLogger.log(
-                level = com.example.uzradyab.core.debug.LogLevel.INFO,
-                tag = "GeocoderRepo",
-                message = "New Geocode Response: $jsonString"
-            )
+            android.util.Log.d("GeocoderRepo", "New Geocode Response: $jsonString")
 
             val newAddress = try {
                 val addressObj = response.getAsJsonObject("address")
@@ -79,7 +75,7 @@ class GeocoderRepositoryImpl @Inject constructor(
 
             newAddress
         } catch (e: Exception) {
-            android.util.Log.e("GeocoderRepo", "خطا در دریافت آدرس", e)
+            android.util.Log.e("GeocoderRepo", "Geocode Error for $lat,$lon: ${e.message}", e)
             // اگر قبلاً دیتایی در کش بود (حتی منقضی شده)، در صورت قطعی اینترنت همان را نشان بده
             cachedData?.address ?: "آدرس در دسترس نیست"
         }

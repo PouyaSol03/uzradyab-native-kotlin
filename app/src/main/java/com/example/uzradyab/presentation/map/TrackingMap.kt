@@ -184,6 +184,11 @@ fun TrackingMap(
                             override fun onMove(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
                             override fun onMoveEnd(detector: org.maplibre.android.gestures.MoveGestureDetector) {}
                         })
+                        
+                        map.addOnMapClickListener {
+                            currentOnMapInteraction()
+                            false
+                        }
                     }
                 }
             },
@@ -261,7 +266,7 @@ fun TrackingMap(
                                     SymbolOptions()
                                         .withLatLng(newLatLng)
                                         .withIconImage(iconId)
-                                        .withIconAnchor("bottom")
+                                        .withIconAnchor("center")
                                         .withIconOffset(arrayOf(0f, 0f))
                                 )
                             } else {
@@ -306,7 +311,7 @@ private fun createDeviceMarkerBitmap(context: Context, speedKmh: Int): Bitmap {
     val density = context.resources.displayMetrics.density
     fun dp(value: Float): Float = value * density
 
-    val bitmap = Bitmap.createBitmap(dp(72f).toInt(), dp(106f).toInt(), Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(dp(72f).toInt(), dp(140f).toInt(), Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     canvas.scale(density, density)
 

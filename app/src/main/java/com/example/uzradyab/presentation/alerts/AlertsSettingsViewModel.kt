@@ -25,6 +25,9 @@ class AlertsSettingsViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
+    var isMaintenanceMode by mutableStateOf(false)
+        private set
+
     fun clearError() {
         errorMessage = null
     }
@@ -67,7 +70,12 @@ class AlertsSettingsViewModel @Inject constructor(
                     notificationStates[key] = prefs[key] ?: true
                 }
             } else {
-                errorMessage = result.exceptionOrNull()?.localizedMessage ?: "خطا در دریافت تنظیمات"
+                val exception = result.exceptionOrNull()
+                if (exception is retrofit2.HttpException && exception.code() in 502..504) {
+                    isMaintenanceMode = true
+                } else {
+                    errorMessage = exception?.localizedMessage ?: "خطا در دریافت تنظیمات"
+                }
             }
             
             isLoading = false
@@ -87,7 +95,12 @@ class AlertsSettingsViewModel @Inject constructor(
             if (result.isFailure) {
                 // Revert on failure
                 notificationStates[key] = currentState
-                errorMessage = result.exceptionOrNull()?.localizedMessage ?: "خطا در بروزرسانی تنظیمات"
+                val exception = result.exceptionOrNull()
+                if (exception is retrofit2.HttpException && exception.code() in 502..504) {
+                    isMaintenanceMode = true
+                } else {
+                    errorMessage = exception?.localizedMessage ?: "خطا در بروزرسانی تنظیمات"
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -111,7 +113,24 @@ fun SelectedDeviceStatusCard(
         modifier = modifier
             .fillMaxWidth(0.914f)
             .widthIn(max = 343.dp)
-            .height(cardHeight),
+            .height(cardHeight)
+            .pointerInput(expanded) {
+                var totalDrag = 0f
+                detectVerticalDragGestures(
+                    onDragStart = { totalDrag = 0f },
+                    onDragEnd = {
+                        if (totalDrag < -40f && !expanded) {
+                            onToggleExpanded()
+                        } else if (totalDrag > 40f && expanded) {
+                            onToggleExpanded()
+                        }
+                    },
+                    onDragCancel = { totalDrag = 0f },
+                    onVerticalDrag = { change, dragAmount ->
+                        totalDrag += dragAmount
+                    }
+                )
+            },
         contentAlignment = Alignment.BottomCenter,
     ) {
         Card(

@@ -34,6 +34,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import com.example.uzradyab.presentation.components.LocalSnackbarController
+import com.example.uzradyab.presentation.components.MaintenanceWrapper
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
 
@@ -84,6 +85,7 @@ fun AlertsSettingsRoute(
 ) {
     AlertsSettingsScreen(
         isLoading = viewModel.isLoading,
+        isMaintenanceMode = viewModel.isMaintenanceMode,
         errorMessage = viewModel.errorMessage,
         notificationStates = viewModel.notificationStates,
         onTogglePreference = viewModel::togglePreference,
@@ -96,6 +98,7 @@ fun AlertsSettingsRoute(
 @Composable
 fun AlertsSettingsScreen(
     isLoading: Boolean,
+    isMaintenanceMode: Boolean,
     errorMessage: String?,
     notificationStates: androidx.compose.runtime.snapshots.SnapshotStateMap<String, Boolean>,
     onTogglePreference: (String) -> Unit,
@@ -113,7 +116,8 @@ fun AlertsSettingsScreen(
     }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        Scaffold(
+        MaintenanceWrapper(isMaintenanceMode = isMaintenanceMode) {
+            Scaffold(
             topBar = {
                 AppTopToolbar(
                     startContent = { BackButton(onClick = onBackClick) },
@@ -171,6 +175,7 @@ fun AlertsSettingsScreen(
             }
         }
     }
+        }
     }
 }
 
