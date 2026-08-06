@@ -210,11 +210,11 @@ fun TrackingMap(
                     
                     map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
+                        lineManager = LineManager(mapView, map, newStyle)
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
                             iconIgnorePlacement = true
                         }
-                        lineManager = LineManager(mapView, map, newStyle)
                     }
                 }
 
@@ -286,7 +286,7 @@ fun TrackingMap(
                             tailLine = lm.create(
                                 LineOptions()
                                     .withLatLngs(tailPositions)
-                                    .withLineColor("#2196F3")
+                                    .withLineColor(if (mapStyle.lowercase().contains("google")) "#E53935" else "#2196F3")
                                     .withLineWidth(4f)
                             )
                         } else {

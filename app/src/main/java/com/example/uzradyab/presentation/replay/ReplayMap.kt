@@ -157,11 +157,11 @@ fun ReplayMap(
                     
                     map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
+                        lineManager = LineManager(mapView, map, newStyle)
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
                             iconIgnorePlacement = true
                         }
-                        lineManager = LineManager(mapView, map, newStyle)
                     }
                 }
 
