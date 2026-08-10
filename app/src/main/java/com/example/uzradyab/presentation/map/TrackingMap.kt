@@ -46,6 +46,7 @@ import org.maplibre.android.plugins.annotation.LineOptions
 import org.maplibre.android.plugins.annotation.Symbol
 import org.maplibre.android.plugins.annotation.Line
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.uzradyab.R
 import com.example.uzradyab.ui.theme.themedColor
@@ -59,6 +60,7 @@ fun TrackingMap(
     selectedDeviceId: Long?,
     mapStyle: String = "osm",
     isMapLocked: Boolean,
+    mapBottomPadding: Dp = 0.dp,
     onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -163,11 +165,11 @@ fun TrackingMap(
                         val currentToken = tracker.styleToken
                         map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
+                            lineManager = LineManager(this, map, style)
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
                                 iconIgnorePlacement = true
                             }
-                            lineManager = LineManager(this, map, style)
                             
                             // Load initial map state
                             map.cameraPosition = CameraPosition.Builder()
@@ -217,6 +219,15 @@ fun TrackingMap(
                         }
                     }
                 }
+
+                // Adjust for bottom panel padding
+                val bottomPaddingPx = with(density) { mapBottomPadding.roundToPx() }
+                map.uiSettings.setFocalPoint(
+                    android.graphics.PointF(
+                        (mapView.width / 2).toFloat(),
+                        (mapView.height / 2 - bottomPaddingPx / 2).toFloat()
+                    )
+                )
 
                 // Handle gestures based on lock state
                 map.uiSettings.isScrollGesturesEnabled = !isMapLocked
@@ -271,9 +282,13 @@ fun TrackingMap(
                                 )
                             } else {
                                 deviceSymbol?.let {
-                                    it.latLng = newLatLng
+                                    MarkerAnimator.animateMarker(
+                                        symbol = it,
+                                        symbolManager = sm,
+                                        endPosition = newLatLng,
+                                        durationMs = 1000L
+                                    )
                                     it.iconImage = iconId
-                                    sm.update(it)
                                 }
                             }
                         }

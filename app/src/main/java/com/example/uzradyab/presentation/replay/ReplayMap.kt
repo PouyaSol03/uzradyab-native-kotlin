@@ -125,11 +125,11 @@ fun ReplayMap(
                         val currentToken = tracker.styleToken
                         map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
+                            lineManager = LineManager(this, map, style)
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
                                 iconIgnorePlacement = true
                             }
-                            lineManager = LineManager(this, map, style)
                             
                             map.cameraPosition = CameraPosition.Builder()
                                 .target(Tehran)
@@ -238,19 +238,21 @@ fun ReplayMap(
                                         .build()
                                 ))
                             } else {
-                                val animationDuration = if (playSpeed == 1) 1500L else 750L
+                                val animationDuration = if (playSpeed == 1) 500L else 250L
                                 deviceSymbol?.iconImage = iconId
                                 deviceSymbol?.let {
                                     MarkerAnimator.animateMarker(
                                         symbol = it,
                                         symbolManager = sm,
-                                        mapView = map,
                                         endPosition = newLatLng,
-                                        endCourse = newRotation,
-                                        rotateMap = true,
                                         durationMs = animationDuration
                                     )
                                 }
+                                val cameraPosition = CameraPosition.Builder()
+                                    .target(newLatLng)
+                                    .bearing(newRotation.toDouble())
+                                    .build()
+                                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), animationDuration.toInt())
                             }
                         }
                     } else {

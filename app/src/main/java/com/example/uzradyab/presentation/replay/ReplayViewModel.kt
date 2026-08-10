@@ -97,7 +97,7 @@ class ReplayViewModel @Inject constructor(
 
             repository.getPositionsHistory(deviceId, fromTime, toTime)
                 .onSuccess { allPositions ->
-                    val positions = allPositions.takeLast(200)
+                    val positions = allPositions
                     val distanceMeters = summaryResult.getOrNull()?.firstOrNull()?.distance ?: 0.0
                     val distanceKm = distanceMeters / 1000.0
                     
@@ -166,7 +166,7 @@ class ReplayViewModel @Inject constructor(
                 
                 if (currentState.currentIndex < currentState.positions.items.lastIndex) {
                     _state.update { it.copy(currentIndex = it.currentIndex + 1) }
-                    val delayMs = if (currentState.playSpeed == 1) 1500L else 750L
+                    val delayMs = if (currentState.playSpeed == 1) 500L else 250L
                     delay(delayMs)
                 } else {
                     _state.update { it.copy(isPlaying = false) }

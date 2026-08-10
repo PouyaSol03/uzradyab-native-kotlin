@@ -228,6 +228,7 @@ fun HomeMapScreen(
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
                     isMapLocked = state.isMapLocked,
+                    mapBottomPadding = mapBottomPadding,
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {
                             onCloseDeviceManagement()
