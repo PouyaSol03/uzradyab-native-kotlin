@@ -24,9 +24,10 @@ class UzradyabApplication : Application(), Configuration.Provider {
         // Initialize MapLibre globally
         MapLibre.getInstance(this)
         
-        // Increase ambient cache for offline maps to 250MB for better road trip caching
+        // Set ambient cache for offline maps to 100MB
+        // MapLibre automatically uses LRU (Least Recently Used) to remove older tiles when the limit is reached
         OfflineManager.getInstance(this).setMaximumAmbientCacheSize(
-            250 * 1024 * 1024L,
+            100 * 1024 * 1024L,
             object : OfflineManager.FileSourceCallback {
                 override fun onSuccess() {}
                 override fun onError(message: String) {}

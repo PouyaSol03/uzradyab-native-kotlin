@@ -56,6 +56,7 @@ fun ReplayMap(
     currentIndex: Int,
     mapStyle: String = "osm",
     playSpeed: Int = 1,
+    isPlaying: Boolean = false,
     onNodeClick: (Position) -> Unit = {},
     mapBottomPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
@@ -161,6 +162,7 @@ fun ReplayMap(
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
                             iconIgnorePlacement = true
+                            iconRotationAlignment = org.maplibre.android.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT
                         }
                     }
                 }
@@ -241,18 +243,27 @@ fun ReplayMap(
                                 val animationDuration = if (playSpeed == 1) 500L else 250L
                                 deviceSymbol?.iconImage = iconId
                                 deviceSymbol?.let {
+                                    val isPlayingVal = isPlaying
+                                    val targetBearing = newRotation.toDouble()
+                                    val startBearing = map.cameraPosition.bearing
+                                    var delta = (targetBearing - startBearing) % 360.0
+                                    if (delta > 180.0) delta -= 360.0
+                                    if (delta < -180.0) delta += 360.0
+
                                     MarkerAnimator.animateMarker(
                                         symbol = it,
                                         symbolManager = sm,
                                         endPosition = newLatLng,
-                                        durationMs = animationDuration
+                                        durationMs = animationDuration,
+                                        onUpdate = { fraction, currentLatLng ->
+                                            val cameraBuilder = CameraPosition.Builder().target(currentLatLng)
+                                            if (isPlayingVal) {
+                                                cameraBuilder.bearing(startBearing + delta * fraction)
+                                            }
+                                            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraBuilder.build()))
+                                        }
                                     )
                                 }
-                                val cameraPosition = CameraPosition.Builder()
-                                    .target(newLatLng)
-                                    .bearing(newRotation.toDouble())
-                                    .build()
-                                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), animationDuration.toInt())
                             }
                         }
                     } else {

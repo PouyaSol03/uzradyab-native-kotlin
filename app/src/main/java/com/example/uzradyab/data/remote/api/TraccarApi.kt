@@ -70,7 +70,7 @@ interface TraccarApi {
     @GET("api/positions")
     suspend fun getPositions(): List<PositionDto>
 
-    @GET("api/positions")
+    @GET("api/reports/route")
     suspend fun getPositionsHistory(
         @Query("deviceId") deviceId: Long,
         @Query("from") from: String,

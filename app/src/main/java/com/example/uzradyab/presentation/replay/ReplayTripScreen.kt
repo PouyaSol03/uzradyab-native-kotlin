@@ -168,6 +168,7 @@ fun ReplayTripScreen(
                     currentIndex = state.currentIndex,
                     mapStyle = state.mapStyle,
                     playSpeed = state.playSpeed,
+                    isPlaying = state.isPlaying,
                     onNodeClick = { selectedPosition = it },
                     mapBottomPadding = 200.dp, // Space for the bottom panel
                     modifier = Modifier.fillMaxSize()

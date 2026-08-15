@@ -16,7 +16,8 @@ object MarkerAnimator {
         symbol: Symbol,
         symbolManager: SymbolManager,
         endPosition: LatLng,
-        durationMs: Long = 1000L
+        durationMs: Long = 1000L,
+        onUpdate: ((fraction: Float, currentLatLng: LatLng) -> Unit)? = null
     ) {
         // Cancel any ongoing animation for this marker
         animators[symbol]?.cancel()
@@ -33,9 +34,12 @@ object MarkerAnimator {
             // Interpolate position
             val lat = startPosition.latitude + (endPosition.latitude - startPosition.latitude) * fraction
             val lon = startPosition.longitude + (endPosition.longitude - startPosition.longitude) * fraction
+            val currentLatLng = LatLng(lat, lon)
             
-            symbol.latLng = LatLng(lat, lon)
+            symbol.latLng = currentLatLng
             symbolManager.update(symbol)
+            
+            onUpdate?.invoke(fraction, currentLatLng)
         }
         
         animators[symbol] = animator

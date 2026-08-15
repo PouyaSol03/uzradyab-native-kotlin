@@ -216,6 +216,7 @@ fun TrackingMap(
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
                             iconIgnorePlacement = true
+                            iconRotationAlignment = org.maplibre.android.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT
                         }
                     }
                 }
@@ -234,22 +235,34 @@ fun TrackingMap(
                 map.uiSettings.isZoomGesturesEnabled = !isMapLocked
                 map.uiSettings.isRotateGesturesEnabled = !isMapLocked
 
-                if (isMapLocked) {
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0), 500)
-                }
-                
+                val rawBearing = selectedPosition?.course ?: 0.0
+                val currentBearing = map.cameraPosition.bearing
+                var delta = (rawBearing - currentBearing) % 360.0
+                if (delta > 180.0) delta -= 360.0
+                if (delta < -180.0) delta += 360.0
+                val bearing = currentBearing + delta
+
                 if (tracker.lastDeviceId != selectedDeviceId) {
                     tracker.lastDeviceId = selectedDeviceId
                     tracker.hasInitialCentered = false
                     tracker.userInteracted = false
                 }
                 
-                if (selectedPosition != null && !tracker.userInteracted) {
+                if (selectedPosition != null && selectedPosition.deviceId == selectedDeviceId) {
                     if (!tracker.hasInitialCentered) {
-                        map.cameraPosition = CameraPosition.Builder().target(center).zoom(16.0).build()
+                        val builder = CameraPosition.Builder().target(center).zoom(16.0)
+                        if (isMapLocked) builder.bearing(bearing)
+                        val newCameraPos = builder.build()
+                        
+                        map.moveCamera(CameraUpdateFactory.newCameraPosition(newCameraPos))
                         tracker.hasInitialCentered = true
-                    } else if (selectedPosition != tracker.lastPosition) {
-                        map.animateCamera(CameraUpdateFactory.newLatLng(center), 1000)
+                    } else if (isMapLocked && selectedPosition == tracker.lastPosition) {
+                        val cameraPosition = CameraPosition.Builder()
+                            .target(center)
+                            .zoom(16.0)
+                            .bearing(bearing)
+                            .build()
+                        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 500)
                     }
                 }
 
@@ -272,21 +285,53 @@ fun TrackingMap(
                                 style.addImage(iconId, createDeviceMarkerBitmap(context, speedKmh))
                             }
                             
-                            if (deviceSymbol == null) {
-                                deviceSymbol = sm.create(
-                                    SymbolOptions()
-                                        .withLatLng(newLatLng)
-                                        .withIconImage(iconId)
-                                        .withIconAnchor("center")
-                                        .withIconOffset(arrayOf(0f, 0f))
-                                )
+                            if (deviceSymbol == null || tracker.lastPosition?.deviceId != selectedPosition.deviceId) {
+                                if (deviceSymbol == null) {
+                                    deviceSymbol = sm.create(
+                                        SymbolOptions()
+                                            .withLatLng(newLatLng)
+                                            .withIconImage(iconId)
+                                            .withIconAnchor("center")
+                                            .withIconOffset(arrayOf(0f, 0f))
+                                    )
+                                } else {
+                                    deviceSymbol?.let {
+                                        it.latLng = newLatLng
+                                        it.iconImage = iconId
+                                        sm.update(it)
+                                    }
+                                }
                             } else {
                                 deviceSymbol?.let {
+                                    val shouldFollow = !tracker.userInteracted
+                                    val isLocked = isMapLocked
+                                    
                                     MarkerAnimator.animateMarker(
                                         symbol = it,
                                         symbolManager = sm,
                                         endPosition = newLatLng,
-                                        durationMs = 1000L
+                                        durationMs = 1000L,
+                                        onUpdate = { fraction, currentLatLng ->
+                                            if (shouldFollow) {
+                                                val builder = CameraPosition.Builder().target(currentLatLng)
+                                                if (isLocked) {
+                                                    val startBearing = map.cameraPosition.bearing
+                                                    var deltaRot = (bearing - startBearing) % 360.0
+                                                    if (deltaRot > 180.0) deltaRot -= 360.0
+                                                    if (deltaRot < -180.0) deltaRot += 360.0
+                                                    builder.bearing(startBearing + deltaRot * fraction)
+                                                }
+                                                map.moveCamera(CameraUpdateFactory.newCameraPosition(builder.build()))
+                                            }
+                                            tailLine?.let { line ->
+                                                val points = line.latLngs?.toMutableList() ?: return@let
+                                                if (points.isNotEmpty()) {
+                                                    points[points.size - 1] = currentLatLng
+                                                    line.latLngs = points
+                                                    lm.update(line)
+                                                }
+                                            }
+                                        }
                                     )
                                     it.iconImage = iconId
                                 }
@@ -298,15 +343,23 @@ fun TrackingMap(
                     // Update Tail
                     if (tailPositions.size > 1) {
                         if (tailLine == null) {
+                            val initialPoints = tailPositions.toMutableList()
+                            if (initialPoints.isNotEmpty() && deviceSymbol != null) {
+                                initialPoints[initialPoints.size - 1] = deviceSymbol!!.latLng
+                            }
                             tailLine = lm.create(
                                 LineOptions()
-                                    .withLatLngs(tailPositions)
+                                    .withLatLngs(initialPoints)
                                     .withLineColor(if (mapStyle.lowercase().contains("google")) "#E53935" else "#2196F3")
                                     .withLineWidth(4f)
                             )
                         } else {
                             tailLine?.let {
-                                it.latLngs = tailPositions
+                                val points = tailPositions.toMutableList()
+                                if (points.isNotEmpty() && deviceSymbol != null) {
+                                    points[points.size - 1] = deviceSymbol!!.latLng
+                                }
+                                it.latLngs = points
                                 lm.update(it)
                             }
                         }
