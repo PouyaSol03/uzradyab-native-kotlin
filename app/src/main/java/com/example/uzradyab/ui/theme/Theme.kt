@@ -47,6 +47,17 @@ fun UzradyabTheme(
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val customColors = if (darkTheme) darkUzradyabColors else lightUzradyabColors
 
+    val view = androidx.compose.ui.platform.LocalView.current
+    if (!view.isInEditMode) {
+        androidx.compose.runtime.SideEffect {
+            val window = (view.context as android.app.Activity).window
+            androidx.core.view.WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
+    }
+
     CompositionLocalProvider(
         LocalUzradyabColors provides customColors,
         LocalIsDarkTheme provides darkTheme

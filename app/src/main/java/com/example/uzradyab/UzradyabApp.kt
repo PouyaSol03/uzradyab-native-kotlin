@@ -122,7 +122,7 @@ fun UzradyabApp(
     }
 
     CompositionLocalProvider(LocalSnackbarController provides snackbarController) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
             NavHost(
                 navController = navController,
                 startDestination = AppRoute.Startup.path,
@@ -197,6 +197,69 @@ fun UzradyabApp(
             )
         }
         composable(AppRoute.Home.path) {
+            var showExitDialog by remember { mutableStateOf(false) }
+
+            androidx.activity.compose.BackHandler {
+                showExitDialog = true
+            }
+
+            if (showExitDialog) {
+                androidx.compose.material3.ModalBottomSheet(
+                    onDismissRequest = { showExitDialog = false },
+                    containerColor = UzradyabTheme.colors.background,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                    dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() }
+                ) {
+                    androidx.compose.foundation.layout.Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        androidx.compose.material3.Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Warning,
+                            contentDescription = "Warning",
+                            tint = UzradyabTheme.colors.primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "آیا برای خروج از برنامه مطمئن هستید؟",
+                            color = UzradyabTheme.colors.textPrimary,
+                            fontSize = 18.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(32.dp))
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+                        ) {
+                            androidx.compose.material3.Button(
+                                onClick = { (context as? android.app.Activity)?.finish() },
+                                modifier = Modifier.weight(1f),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = UzradyabTheme.colors.primary
+                                ),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                            ) {
+                                Text("خروج", color = androidx.compose.ui.graphics.Color.White, fontSize = 16.sp)
+                            }
+                            
+                            androidx.compose.material3.OutlinedButton(
+                                onClick = { showExitDialog = false },
+                                modifier = Modifier.weight(1f),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, UzradyabTheme.colors.primary),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                            ) {
+                                Text("انصراف", color = UzradyabTheme.colors.primary, fontSize = 16.sp)
+                            }
+                        }
+                        androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+            }
+            
             HomeMapRoute(
                 onSignedOut = {
                     navController.navigate(AppRoute.SignIn.path) {
@@ -600,7 +663,6 @@ fun UzradyabApp(
                 hostState = snackbarHostState,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
             )
 
             if (config != null && config.newRelease == true && !config.newReleaseCode.isNullOrEmpty()) {
