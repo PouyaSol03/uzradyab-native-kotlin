@@ -188,6 +188,9 @@ class ReplayViewModel @Inject constructor(
 
     fun toggleSpeed() {
         _state.update { it.copy(playSpeed = if (it.playSpeed == 1) 2 else 1) }
+        if (_state.value.isPlaying) {
+            startPlayback()
+        }
     }
 
     fun setIndex(index: Int) {

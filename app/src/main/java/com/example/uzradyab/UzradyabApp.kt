@@ -518,6 +518,7 @@ fun UzradyabApp(
                 navArgument("deviceId") {
                     type = NavType.StringType
                     nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->

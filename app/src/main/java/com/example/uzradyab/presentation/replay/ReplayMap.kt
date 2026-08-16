@@ -253,19 +253,24 @@ fun ReplayMap(
                                         endPosition = newLatLng,
                                         durationMs = animationDuration,
                                         onUpdate = { fraction, currentLatLng ->
-                                            if (isPlayingVal && wasPlayingVal) {
-                                                val cameraBuilder = CameraPosition.Builder().target(currentLatLng)
-                                                val startBearing = map.cameraPosition.bearing
-                                                var deltaRot = (targetBearing - startBearing) % 360.0
-                                                if (deltaRot > 180.0) deltaRot -= 360.0
-                                                if (deltaRot < -180.0) deltaRot += 360.0
-                                                cameraBuilder.bearing(startBearing + deltaRot * fraction.toDouble())
-                                                map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraBuilder.build()))
-                                            }
+                                            // Disabled constant camera tracking to prevent motion sickness
                                         }
                                     )
                                     
-                                    if (isPlayingVal && !wasPlayingVal) {
+                                    if (!isPlayingVal && wasPlayingVal && currentIndex == 0 && positions.isNotEmpty()) {
+                                        // User pressed Stop -> Reset to full trip bounds
+                                        val lats = positions.map { p -> p.latitude }
+                                        val lons = positions.map { p -> p.longitude }
+                                        val bounds = LatLngBounds.Builder()
+                                            .include(LatLng(lats.maxOrNull() ?: 0.0, lons.maxOrNull() ?: 0.0))
+                                            .include(LatLng(lats.minOrNull() ?: 0.0, lons.minOrNull() ?: 0.0))
+                                            .build()
+                                        mapView.post {
+                                            try {
+                                                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100), 1000)
+                                            } catch (e: Exception) {}
+                                        }
+                                    } else if (isPlayingVal && !wasPlayingVal) {
                                         // Smooth zoom and pan to the current position when playback starts
                                         val builder = CameraPosition.Builder()
                                             .target(newLatLng)

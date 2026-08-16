@@ -12,12 +12,17 @@ class SelfHostedTileCacheManager @Inject constructor(
 ) {
     suspend fun clearOfflineMapData(): Result<Unit> {
         return runCatching {
-            // MapLibre uses mbgl-cache.db in the cache directory
-            val mapLibreCacheFile = File(context.cacheDir, "mbgl-cache.db")
-            if (mapLibreCacheFile.exists()) {
-                mapLibreCacheFile.delete()
+            kotlin.coroutines.suspendCoroutine<Unit> { continuation ->
+                org.maplibre.android.offline.OfflineManager.getInstance(context)
+                    .clearAmbientCache(object : org.maplibre.android.offline.OfflineManager.FileSourceCallback {
+                        override fun onSuccess() {
+                            continuation.resumeWith(Result.success(Unit))
+                        }
+                        override fun onError(message: String) {
+                            continuation.resumeWith(Result.failure(Exception(message)))
+                        }
+                    })
             }
-            Unit
         }
     }
 }
