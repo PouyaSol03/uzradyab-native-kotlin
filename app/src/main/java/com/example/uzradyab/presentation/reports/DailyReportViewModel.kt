@@ -42,7 +42,8 @@ data class DailyReportUiState(
     val distance: String = "۰.۰",
     val spentFuel: String = "۰.۰",
     val startOdometer: String = "۰.۰",
-    val endOdometer: String = "۰.۰"
+    val endOdometer: String = "۰.۰",
+    val deviceStatusText: String = "نامشخص"
 )
 
 @HiltViewModel
@@ -50,8 +51,12 @@ class DailyReportViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val reportRepository: ReportRepository,
     private val mapSettingsRepository: MapSettingsRepository,
-    private val geocoderRepository: GeocoderRepository
+    private val geocoderRepository: GeocoderRepository,
+    private val positionRepository: com.example.uzradyab.domain.repository.PositionRepository,
+    savedStateHandle: androidx.lifecycle.SavedStateHandle
 ) : ViewModel() {
+
+    private val navDeviceId = savedStateHandle.get<String>("deviceId")?.toLongOrNull()
 
     private val _uiState = MutableStateFlow(DailyReportUiState())
     val uiState: StateFlow<DailyReportUiState> = _uiState.asStateFlow()
@@ -64,7 +69,7 @@ class DailyReportViewModel @Inject constructor(
             val lastId = mapSettingsRepository.observeLastSelectedDeviceId().firstOrNull()
             deviceRepository.observeDevices().collect { devicesList ->
                 _uiState.update { current ->
-                    val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
+                    val newSelectedId = current.selectedDeviceId ?: navDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
                         devices = devicesList.toImmutable(),
                         selectedDeviceId = newSelectedId
@@ -143,6 +148,10 @@ class DailyReportViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null, startAddressResolved = "—", endAddressResolved = "—", summaryReport = null) }
+
+            val selectedPosition = positionRepository.getLatestPosition(deviceId)
+            val statusText = calculateDeviceStatus(selectedPosition)
+            _uiState.update { it.copy(deviceStatusText = statusText) }
 
             reportRepository.getSummaryReport(
                 deviceId = deviceId,
@@ -227,5 +236,22 @@ class DailyReportViewModel @Inject constructor(
         val toTime = sdf.format(cal.time)
 
         return Pair(fromTime, toTime)
+    }
+
+    private fun calculateDeviceStatus(position: com.example.uzradyab.domain.model.Position?): String {
+        if (position == null) return "نامشخص"
+        return try {
+            val json = org.json.JSONObject(position.attributesJson)
+            val ignition = json.optBoolean("ignition", false)
+            val motion = json.optBoolean("motion", false)
+            when {
+                !ignition -> "خاموش"
+                ignition && motion -> "روشن | در حال حرکت"
+                ignition && !motion -> "روشن | متوقف"
+                else -> "نامشخص"
+            }
+        } catch (e: Exception) {
+            "نامشخص"
+        }
     }
 }

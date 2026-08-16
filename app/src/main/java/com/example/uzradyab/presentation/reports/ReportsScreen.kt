@@ -50,7 +50,7 @@ fun ReportsRoute(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
-    onNavigateToDailyReport: () -> Unit,
+    onNavigateToDailyReport: (Long?) -> Unit,
     onNavigateToStopReports: () -> Unit,
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
@@ -86,7 +86,7 @@ fun ReportsScreen(
     onAddDeviceClick: () -> Unit,
     onDeviceSelected: (Long) -> Unit,
     onNavigateToDeviceStatus: () -> Unit,
-    onNavigateToDailyReport: () -> Unit,
+    onNavigateToDailyReport: (Long?) -> Unit,
     onNavigateToStopReports: () -> Unit,
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
@@ -169,7 +169,7 @@ fun ReportsScreen(
                             if (reportType == "وضعیت دستگاه") {
                                 onNavigateToDeviceStatus()
                             } else if (reportType == "وضعیت روزانه") {
-                                onNavigateToDailyReport()
+                                onNavigateToDailyReport(state.selectedDeviceId)
                             } else if (reportType == "توقف‌ها") {
                                 onNavigateToStopReports()
                             } else if (reportType == "بازپخش مسیر") {

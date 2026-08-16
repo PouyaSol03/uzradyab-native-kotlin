@@ -460,8 +460,9 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToDailyReport = {
-                    navController.navigate(AppRoute.DailyReport.path) {
+                onNavigateToDailyReport = { deviceId ->
+                    val path = if (deviceId != null) "${AppRoute.DailyReport.path}?deviceId=$deviceId" else AppRoute.DailyReport.path
+                    navController.navigate(path) {
                         launchSingleTop = true
                     }
                 },
@@ -511,7 +512,16 @@ fun UzradyabApp(
                 }
             )
         }
-        composable(AppRoute.DailyReport.path) {
+        composable(
+            route = "${AppRoute.DailyReport.path}?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getString("deviceId")
             com.example.uzradyab.presentation.reports.DailyReportRoute(
                 onBackClick = {
                     navController.safePopBackStack()
@@ -527,8 +537,9 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onTraveledPathsClick = {
-                    navController.navigate(AppRoute.ReplayTrip.path) {
+                onTraveledPathsClick = { currentDeviceId ->
+                    val path = if (currentDeviceId != null) "${AppRoute.ReplayTrip.path}?deviceId=$currentDeviceId" else AppRoute.ReplayTrip.path
+                    navController.navigate(path) {
                         launchSingleTop = true
                     }
                 }

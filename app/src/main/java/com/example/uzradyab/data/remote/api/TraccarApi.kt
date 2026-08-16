@@ -70,6 +70,7 @@ interface TraccarApi {
     @GET("api/positions")
     suspend fun getPositions(): List<PositionDto>
 
+    @retrofit2.http.Headers("Accept: application/json")
     @GET("api/reports/route")
     suspend fun getPositionsHistory(
         @Query("deviceId") deviceId: Long,

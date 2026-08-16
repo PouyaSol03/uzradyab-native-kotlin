@@ -80,6 +80,8 @@ fun ReplayMap(
     val tracker = remember { object {
         var lastMapStyle: String? = null
         var styleToken: Int = 0
+        var lastFirstPositionTime: String? = null
+        var wasPlaying: Boolean = false
     } }
 
     DisposableEffect(lifecycleOwner) {
@@ -175,10 +177,10 @@ fun ReplayMap(
                     )
                 )
 
-                // First time zooming to bounds
-                val isFirstLoad = mapView.tag == null
-                if (isFirstLoad && positions.isNotEmpty()) {
-                    mapView.tag = "loaded"
+                // Zoom to bounds when a new route is loaded
+                val currentFirstTime = positions.firstOrNull()?.fixTime
+                if (tracker.lastFirstPositionTime != currentFirstTime && positions.isNotEmpty()) {
+                    tracker.lastFirstPositionTime = currentFirstTime
                     val lats = positions.map { it.latitude }
                     val lons = positions.map { it.longitude }
                     val bounds = LatLngBounds.Builder()
@@ -187,7 +189,11 @@ fun ReplayMap(
                         .build()
                         
                     mapView.post {
-                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+                        try {
+                            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+                        } catch (e: Exception) {
+                            // Ignore if bounds are invalid (e.g. all points are identical)
+                        }
                     }
                 }
 
@@ -217,7 +223,7 @@ fun ReplayMap(
                         // Draw current car marker
                         currentPosition?.let { pos ->
                             val newLatLng = pos.toLatLng()
-                            val newRotation = pos.course.toFloat()
+                            val newRotation = pos.course.toDouble()
                             val speedKmh = (pos.speed * 1.852).toInt()
                             val iconId = "marker_$speedKmh"
 
@@ -233,36 +239,40 @@ fun ReplayMap(
                                         .withIconAnchor("center")
                                         .withIconOffset(arrayOf(0f, 0f))
                                 )
-                                map.moveCamera(CameraUpdateFactory.newCameraPosition(
-                                    CameraPosition.Builder()
-                                        .target(newLatLng)
-                                        .bearing(newRotation.toDouble())
-                                        .build()
-                                ))
                             } else {
                                 val animationDuration = if (playSpeed == 1) 500L else 250L
                                 deviceSymbol?.iconImage = iconId
                                 deviceSymbol?.let {
                                     val isPlayingVal = isPlaying
-                                    val targetBearing = newRotation.toDouble()
-                                    val startBearing = map.cameraPosition.bearing
-                                    var delta = (targetBearing - startBearing) % 360.0
-                                    if (delta > 180.0) delta -= 360.0
-                                    if (delta < -180.0) delta += 360.0
-
+                                    val targetBearing = newRotation
+                                    val wasPlayingVal = tracker.wasPlaying
+                                    
                                     MarkerAnimator.animateMarker(
                                         symbol = it,
                                         symbolManager = sm,
                                         endPosition = newLatLng,
                                         durationMs = animationDuration,
                                         onUpdate = { fraction, currentLatLng ->
-                                            val cameraBuilder = CameraPosition.Builder().target(currentLatLng)
-                                            if (isPlayingVal) {
-                                                cameraBuilder.bearing(startBearing + delta * fraction)
+                                            if (isPlayingVal && wasPlayingVal) {
+                                                val cameraBuilder = CameraPosition.Builder().target(currentLatLng)
+                                                val startBearing = map.cameraPosition.bearing
+                                                var deltaRot = (targetBearing - startBearing) % 360.0
+                                                if (deltaRot > 180.0) deltaRot -= 360.0
+                                                if (deltaRot < -180.0) deltaRot += 360.0
+                                                cameraBuilder.bearing(startBearing + deltaRot * fraction.toDouble())
+                                                map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraBuilder.build()))
                                             }
-                                            map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraBuilder.build()))
                                         }
                                     )
+                                    
+                                    if (isPlayingVal && !wasPlayingVal) {
+                                        // Smooth zoom and pan to the current position when playback starts
+                                        val builder = CameraPosition.Builder()
+                                            .target(newLatLng)
+                                            .bearing(targetBearing)
+                                            .zoom(16.0)
+                                        map.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 1000)
+                                    }
                                 }
                             }
                         }
@@ -274,6 +284,7 @@ fun ReplayMap(
                         routeLine = null
                     }
                 }
+                tracker.wasPlaying = isPlaying
             }
         )
     }

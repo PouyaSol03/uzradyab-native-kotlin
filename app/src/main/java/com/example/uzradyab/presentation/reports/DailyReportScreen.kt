@@ -43,7 +43,7 @@ fun DailyReportRoute(
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
-    onTraveledPathsClick: () -> Unit,
+    onTraveledPathsClick: (Long?) -> Unit,
     viewModel: DailyReportViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -53,7 +53,7 @@ fun DailyReportRoute(
         onBackClick = onBackClick,
         onLogoutClick = onLogoutClick,
         onAddDeviceClick = onAddDeviceClick,
-        onTraveledPathsClick = onTraveledPathsClick,
+        onTraveledPathsClick = { onTraveledPathsClick(state.selectedDeviceId) },
         onDeviceSelected = viewModel::onDeviceSelected,
         onFilterSelected = viewModel::onDateFilterSelected,
         onCustomDateApply = viewModel::applyCustomDateRange,
@@ -120,6 +120,10 @@ fun DailyReportScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
+                    val selectedDevice = remember(state.devices, state.selectedDeviceId) {
+                        state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                    }
+
                     // Search and Filter section
                     Column(
                         modifier = Modifier
@@ -127,9 +131,6 @@ fun DailyReportScreen(
                             .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                             .padding(16.dp)
                     ) {
-                        val selectedDevice = remember(state.devices, state.selectedDeviceId) {
-                            state.devices.firstOrNull { it.id == state.selectedDeviceId }
-                        }
                         DeviceSelectTrigger(
                             text = selectedDevice?.name ?: "انتخاب دستگاه",
                             onClick = { deviceSelectorOpen = true },
@@ -163,12 +164,10 @@ fun DailyReportScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
 
                         // Status card
-                        val deviceStatusText = "روشن" // Defaulting to on, as summary is just daily aggregated data
-                        val statusColor = themedColor(light = Color(0xFF14B8A6), dark = Color(0xFF3BDDCB)) // Green color for online
+                        val deviceStatusText = state.deviceStatusText
+                        val statusColor = themedColor(light = Color(0xFF9B26B6), dark = Color(0xFFB959CF))
 
                         Box(
                             modifier = Modifier
