@@ -26,8 +26,8 @@ android {
         applicationId = "org.uzradyab.manager"
         minSdk = 24
         targetSdk = 36
-        versionCode = 51
-        versionName = "5.0.3"
+        versionCode = 52
+        versionName = "5.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(

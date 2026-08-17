@@ -20,3 +20,7 @@ local.properties
 
 # Environment Variables
 .env
+
+# Build outputs
+/app/release/
+/app/build/
