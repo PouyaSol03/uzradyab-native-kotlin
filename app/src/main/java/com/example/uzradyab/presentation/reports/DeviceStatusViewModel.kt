@@ -102,24 +102,30 @@ class DeviceStatusViewModel @Inject constructor(
             // ۱. دریافت موقعیت جاری دستگاه
             val currentPosition: Position? = positionRepository.getLatestPosition(deviceId)
 
-            // TODO: برای موقعیت مبدأ باید اولین پوزیشن امروز یا پوزیشن شروع حرکت را دریافت کنید
-            // فعلاً از پوزیشن فعلی استفاده می‌کنیم تا منطق دقیق پیاده شود
-            val startPosition: Position? = currentPosition
-
             // ۲. وضعیت فعلی دستگاه (روشن/خاموش)
             val statusText = calculateDeviceStatus(currentPosition)
 
-            // ۳. دریافت آدرس‌ها (استفاده از کش و API نقشه)
-            val currentAddressText = currentPosition?.let { 
-                getAddressFromCoordinates(it.latitude, it.longitude) 
-            } ?: "موقعیت نامشخص"
-            
-            val startAddressText = startPosition?.let { 
-                getAddressFromCoordinates(it.latitude, it.longitude) 
-            } ?: "موقعیت نامشخص"
-
             // ۴. فراخوانی API خلاصه گزارش برای آمارها
             val (fromIso, toIso) = getTodayIsoRange()
+
+            // TODO: برای موقعیت مبدأ اولین پوزیشن امروز را دریافت کنید
+            val historyResult = positionRepository.getPositionsHistory(deviceId, fromIso, toIso)
+            val positions = historyResult.getOrNull() ?: emptyList()
+            val startPosition: Position? = positions.firstOrNull()
+
+            // ۳. دریافت آدرس‌ها (استفاده از کش و API نقشه)
+            val currentAddressText = try {
+                currentPosition?.let { getAddressFromCoordinates(it.latitude, it.longitude) } ?: "موقعیت نامشخص"
+            } catch (e: Exception) {
+                "موقعیت نامشخص"
+            }
+            
+            val startAddressText = try {
+                startPosition?.let { getAddressFromCoordinates(it.latitude, it.longitude) } ?: "موقعیت نامشخص"
+            } catch (e: Exception) {
+                "موقعیت نامشخص"
+            }
+
             AppLogger.log(LogLevel.REQUEST, "Report", "Fetching summary for device $deviceId from $fromIso to $toIso")
             val summaryResult = reportRepository.getSummaryReport(
                 deviceId = deviceId,

@@ -159,8 +159,24 @@ class DailyReportViewModel @Inject constructor(
                 to = currentState.toDateIso
             ).onSuccess { data ->
                 val summary = data.firstOrNull()
-                val startAddr = summary?.startAddress ?: "—"
-                val endAddr = summary?.endAddress ?: "—"
+                
+                var startAddr = summary?.startAddress
+                var endAddr = summary?.endAddress
+                
+                if (startAddr.isNullOrBlank() || startAddr == "—" || startAddr == "-") {
+                    try {
+                        val positionsResult = positionRepository.getPositionsHistory(deviceId, currentState.fromDateIso, currentState.toDateIso)
+                        val positions = positionsResult.getOrNull() ?: emptyList()
+                        val firstPos = positions.firstOrNull()
+                        val lastPos = positions.lastOrNull()
+                        
+                        startAddr = firstPos?.let { geocoderRepository.getAddress(it.latitude, it.longitude) } ?: "نامشخص"
+                        endAddr = lastPos?.let { geocoderRepository.getAddress(it.latitude, it.longitude) } ?: "نامشخص"
+                    } catch (e: Exception) {
+                        startAddr = "نامشخص"
+                        endAddr = "نامشخص"
+                    }
+                }
                 
                 val engineHoursMs = summary?.engineHours ?: 0L
                 val ignitionDur = FormatUtils.formatDoublePersian(engineHoursMs / 3600000.0) + " ساعت"
@@ -170,8 +186,8 @@ class DailyReportViewModel @Inject constructor(
                     it.copy(
                         isLoading = false, 
                         summaryReport = summary, 
-                        startAddressResolved = startAddr, 
-                        endAddressResolved = endAddr,
+                        startAddressResolved = startAddr ?: "نامشخص", 
+                        endAddressResolved = endAddr ?: "نامشخص",
                         ignitionDuration = ignitionDur,
                         jalaliStartTime = jStart,
                         averageSpeed = FormatUtils.formatDoublePersian((summary?.averageSpeed ?: 0.0) * 1.852),

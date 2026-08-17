@@ -311,7 +311,7 @@ fun TripReportCard(
 
     androidx.compose.runtime.LaunchedEffect(report, showStartAddress) {
         if (showStartAddress) {
-            if (startAddressText.isNullOrEmpty() || startAddressText == "نامشخص") {
+            if (startAddressText.isNullOrEmpty() || startAddressText == "نامشخص" || startAddressText == "-" || startAddressText == "—") {
                 startAddressText = "در حال دریافت..."
                 startAddressText = onResolveAddress(report.startLat, report.startLon)
             }
@@ -320,7 +320,7 @@ fun TripReportCard(
 
     androidx.compose.runtime.LaunchedEffect(report, showEndAddress) {
         if (showEndAddress) {
-            if (endAddressText.isNullOrEmpty() || endAddressText == "نامشخص") {
+            if (endAddressText.isNullOrEmpty() || endAddressText == "نامشخص" || endAddressText == "-" || endAddressText == "—") {
                 endAddressText = "در حال دریافت..."
                 endAddressText = onResolveAddress(report.endLat, report.endLon)
             }

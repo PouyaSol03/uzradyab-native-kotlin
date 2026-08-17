@@ -317,7 +317,7 @@ fun StopReportCard(
     var addressText by remember(report) { mutableStateOf(report.address) }
 
     androidx.compose.runtime.LaunchedEffect(report) {
-        if (addressText.isNullOrEmpty() || addressText == "نامشخص") {
+        if (addressText.isNullOrEmpty() || addressText == "نامشخص" || addressText == "-" || addressText == "—") {
             addressText = "در حال دریافت..."
             addressText = onResolveAddress(report.latitude, report.longitude)
         }
