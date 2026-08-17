@@ -82,6 +82,7 @@ fun ReplayMap(
         var styleToken: Int = 0
         var lastFirstPositionTime: String? = null
         var wasPlaying: Boolean = false
+        var lastIndex: Int = 0
     } }
 
     DisposableEffect(lifecycleOwner) {
@@ -190,6 +191,8 @@ fun ReplayMap(
                         
                     mapView.post {
                         try {
+                            map.moveCamera(CameraUpdateFactory.bearingTo(0.0))
+                            map.moveCamera(CameraUpdateFactory.tiltTo(0.0))
                             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
                         } catch (e: Exception) {
                             // Ignore if bounds are invalid (e.g. all points are identical)
@@ -257,7 +260,7 @@ fun ReplayMap(
                                         }
                                     )
                                     
-                                    if (!isPlayingVal && wasPlayingVal && currentIndex == 0 && positions.isNotEmpty()) {
+                                    if (currentIndex == 0 && tracker.lastIndex != 0 && positions.isNotEmpty()) {
                                         // User pressed Stop -> Reset to full trip bounds
                                         val lats = positions.map { p -> p.latitude }
                                         val lons = positions.map { p -> p.longitude }
@@ -267,16 +270,29 @@ fun ReplayMap(
                                             .build()
                                         mapView.post {
                                             try {
+                                                map.moveCamera(CameraUpdateFactory.bearingTo(0.0))
+                                                map.moveCamera(CameraUpdateFactory.tiltTo(0.0))
                                                 map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100), 1000)
                                             } catch (e: Exception) {}
                                         }
-                                    } else if (isPlayingVal && !wasPlayingVal) {
-                                        // Smooth zoom and pan to the current position when playback starts
+                                    } else if (isPlayingVal) {
+                                        // Track the car during playback
                                         val builder = CameraPosition.Builder()
                                             .target(newLatLng)
                                             .bearing(targetBearing)
-                                            .zoom(16.0)
-                                        map.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 1000)
+                                        
+                                        if (!wasPlayingVal) {
+                                            builder.zoom(16.0)
+                                            map.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 1000)
+                                        } else {
+                                            map.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), animationDuration.toInt())
+                                        }
+                                    } else if (!isPlayingVal && !wasPlayingVal && currentIndex > 0) {
+                                        // Track the car during manual scrubbing
+                                        val builder = CameraPosition.Builder()
+                                            .target(newLatLng)
+                                            .bearing(targetBearing)
+                                        map.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 250)
                                     }
                                 }
                             }
@@ -290,6 +306,7 @@ fun ReplayMap(
                     }
                 }
                 tracker.wasPlaying = isPlaying
+                tracker.lastIndex = currentIndex
             }
         )
     }
