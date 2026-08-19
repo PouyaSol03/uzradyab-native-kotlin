@@ -373,10 +373,10 @@ private fun DateFilters(
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
     ) {
         val filters = listOf(
-            EventDateFilter.CurrentMonth to "ماه جاری",
-            EventDateFilter.CurrentWeek to "هفته جاری",
+            EventDateFilter.Today to "امروز",
             EventDateFilter.Yesterday to "دیروز",
-            EventDateFilter.Today to "امروز"
+            EventDateFilter.CurrentWeek to "هفته جاری",
+            EventDateFilter.CurrentMonth to "ماه جاری"
         )
         
         filters.forEach { (filter, label) ->
