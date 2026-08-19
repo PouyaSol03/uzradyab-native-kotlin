@@ -383,3 +383,49 @@ private fun IranFlagIcon() {
         )
     }
 }
+
+@Composable
+internal fun PasswordRules(rules: PasswordRuleState) {
+    Column(
+        modifier = Modifier.width(AuthControlWidth),
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.Start,
+    ) {
+        PasswordRule(text = stringResource(R.string.str_62ad2446), isMet = rules.hasMinimumLength)
+        PasswordRule(text = stringResource(R.string.str_7037fc5a), isMet = rules.hasDigit)
+        PasswordRule(text = stringResource(R.string.str_7be2abc0), isMet = rules.hasSpecialCharacter)
+    }
+}
+
+@Composable
+internal fun PasswordRule(text: String, isMet: Boolean) {
+    val color = if (isMet) MaterialTheme.colorScheme.primary else UzradyabTheme.colors.textBody
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Canvas(modifier = Modifier.size(10.dp)) {
+            drawCircle(
+                color = color,
+                radius = 4.dp.toPx(),
+                style = if (isMet) androidx.compose.ui.graphics.drawscope.Fill else Stroke(width = 1.dp.toPx()),
+            )
+        }
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = text,
+            color = color,
+            fontSize = 10.sp,
+            lineHeight = 18.sp,
+            textAlign = TextAlign.Right,
+        )
+    }
+}
+
+internal fun formatOtpRemaining(seconds: Int): String {
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    return "$minutes:${remainingSeconds.toString().padStart(2, '0')}"
+}

@@ -105,14 +105,31 @@ fun LoginRoute(
         }
     }
 
-    LoginScreen(
-        state = state,
-        onPhoneNumberChange = viewModel::onPhoneNumberChange,
-        onPasswordChange = viewModel::onPasswordChange,
-        onLoginClick = viewModel::login,
-        onRegisterClick = onRegisterClick,
-        onBiometricClick = { viewModel.onBiometricClicked(triggerPrompt = triggerBiometric) },
-    )
+    if (state.authFlow == AuthFlow.ForgotPassword) {
+        ForgotPasswordScreen(
+            state = state,
+            onPhoneNumberChange = viewModel::onPhoneNumberChange,
+            onPasswordChange = viewModel::onPasswordChange,
+            onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
+            onOtpChange = viewModel::onOtpChange,
+            onSendOtpClick = viewModel::sendForgotPasswordOtpSubmit,
+            onVerifyOtpClick = viewModel::verifyForgotPasswordOtpSubmit,
+            onChangePasswordClick = viewModel::submitNewPassword,
+            onResendOtpClick = viewModel::resendOtp,
+            onChangePhoneClick = viewModel::changePhone,
+            onBackToLoginClick = { viewModel.setAuthFlow(AuthFlow.Login) }
+        )
+    } else {
+        LoginScreen(
+            state = state,
+            onPhoneNumberChange = viewModel::onPhoneNumberChange,
+            onPasswordChange = viewModel::onPasswordChange,
+            onLoginClick = viewModel::login,
+            onRegisterClick = onRegisterClick,
+            onForgotPasswordClick = { viewModel.setAuthFlow(AuthFlow.ForgotPassword) },
+            onBiometricClick = { viewModel.onBiometricClicked(triggerPrompt = triggerBiometric) },
+        )
+    }
 }
 
 @Composable
@@ -122,6 +139,7 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
     onBiometricClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -178,7 +196,7 @@ fun LoginScreen(
                     ) {
                         AuthTextLink(
                             text = "فراموشی رمز عبور",
-                            onClick = {},
+                            onClick = onForgotPasswordClick,
                             fontSize = 12,
                         )
                     }

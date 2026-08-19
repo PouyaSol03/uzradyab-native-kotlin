@@ -123,10 +123,10 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named(AUTH_HELPER_RETROFIT)
-    fun provideAuthHelperRetrofit(client: OkHttpClient, gson: Gson): Retrofit {
+    fun provideAuthHelperRetrofit(@Named(BARE_CLIENT) bareClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
             .baseUrl(AUTH_HELPER_URL)
-            .client(client)
+            .client(bareClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }

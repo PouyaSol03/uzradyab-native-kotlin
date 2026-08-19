@@ -10,4 +10,7 @@ interface RegistrationRepository {
         phoneNumber: String,
         password: String,
     ): Result<UserSession>
+
+    suspend fun checkUserExists(phoneNumber: String): Result<Boolean>
+    suspend fun changePassword(phoneNumber: String, password: String): Result<Unit>
 }

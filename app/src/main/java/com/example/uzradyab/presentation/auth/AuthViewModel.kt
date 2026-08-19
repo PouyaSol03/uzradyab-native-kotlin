@@ -18,9 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.Dispatchers
+
 
 private const val RegisterOtpLength = 6
 private const val RegisterOtpDurationSeconds = 90
@@ -31,7 +29,21 @@ enum class RegisterStep {
     Password,
 }
 
+enum class AuthFlow {
+    Login,
+    Register,
+    ForgotPassword
+}
+
+enum class ForgotPasswordStep {
+    Phone,
+    Otp,
+    NewPassword
+}
+
 data class AuthUiState(
+    val authFlow: AuthFlow = AuthFlow.Login,
+    val forgotPasswordStep: ForgotPasswordStep = ForgotPasswordStep.Phone,
     val phoneNumber: String = "",
     val password: String = "",
     val name: String = "",
@@ -88,6 +100,22 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun setAuthFlow(flow: AuthFlow) {
+        otpTimerJob?.cancel()
+        _uiState.update {
+            it.copy(
+                authFlow = flow,
+                errorMessage = null,
+                infoMessage = null,
+                registerStep = RegisterStep.Details,
+                forgotPasswordStep = ForgotPasswordStep.Phone,
+                otp = "",
+                remainingOtpSeconds = RegisterOtpDurationSeconds,
+                canResendOtp = false
+            )
+        }
+    }
+
     fun clearMessages() {
         _uiState.update { it.copy(errorMessage = null, infoMessage = null) }
     }
@@ -136,7 +164,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                     
                     // Run slow sync tasks in the background so they don't block navigation
-                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                    viewModelScope.launch {
                         fcmTokenManager.syncCurrentToken()
                         deviceRepository.refreshDevices()
                         positionRepository.refreshLatestPositions()
@@ -179,7 +207,7 @@ class AuthViewModel @Inject constructor(
                         .onSuccess {
                             _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                             
-                            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                            viewModelScope.launch {
                                 fcmTokenManager.syncCurrentToken()
                                 deviceRepository.refreshDevices()
                                 positionRepository.refreshLatestPositions()
@@ -281,7 +309,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun resendRegisterOtp() {
+    fun resendOtp() {
         val state = _uiState.value
         if (!state.canResendOtp || state.isSubmitting) return
 
@@ -310,11 +338,12 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun changeRegisterPhone() {
+    fun changePhone() {
         otpTimerJob?.cancel()
         _uiState.update {
             it.copy(
                 registerStep = RegisterStep.Details,
+                forgotPasswordStep = ForgotPasswordStep.Phone,
                 otp = "",
                 remainingOtpSeconds = RegisterOtpDurationSeconds,
                 canResendOtp = false,
@@ -348,7 +377,7 @@ class AuthViewModel @Inject constructor(
                             current.copy(isSubmitting = false, isSignedIn = true)
                         }
                         
-                        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                        viewModelScope.launch {
                             fcmTokenManager.syncCurrentToken()
                             deviceRepository.refreshDevices()
                             positionRepository.refreshLatestPositions()
@@ -377,6 +406,124 @@ class AuthViewModel @Inject constructor(
                         remainingOtpSeconds = next,
                         canResendOtp = next == 0,
                     )
+                }
+            }
+        }
+    }
+
+    fun sendForgotPasswordOtpSubmit() {
+        val state = _uiState.value
+        if (!isValidIranPhoneNumber(state.phoneNumber)) {
+            _uiState.update { it.copy(errorMessage = "شماره تلفن باید ۱۱ رقم باشد") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+            
+            // 1. Check if user exists
+            val existsResult = registrationRepository.checkUserExists(state.phoneNumber)
+            if (existsResult.isFailure || existsResult.getOrNull() == false) {
+                _uiState.update { current ->
+                    current.copy(
+                        isSubmitting = false,
+                        errorMessage = "کاربری با این شماره تلفن یافت نشد"
+                    )
+                }
+                return@launch
+            }
+
+            // 2. Send OTP
+            registrationRepository.sendOtp(state.phoneNumber)
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isSubmitting = false,
+                            forgotPasswordStep = ForgotPasswordStep.Otp,
+                            otp = "",
+                            remainingOtpSeconds = RegisterOtpDurationSeconds,
+                            canResendOtp = false,
+                        )
+                    }
+                    startOtpTimer()
+                }
+                .onFailure {
+                    _uiState.update { current ->
+                        current.copy(
+                            isSubmitting = false,
+                            errorMessage = "ارسال کد تایید با خطا مواجه شد",
+                        )
+                    }
+                }
+        }
+    }
+
+    fun verifyForgotPasswordOtpSubmit() {
+        val state = _uiState.value
+        if (state.otp.length != RegisterOtpLength) {
+            _uiState.update { it.copy(errorMessage = "کد تایید باید ۶ رقم باشد") }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+            registrationRepository.verifyOtp(state.phoneNumber, state.otp)
+                .onSuccess {
+                    otpTimerJob?.cancel()
+                    _uiState.update { current ->
+                        current.copy(
+                            isSubmitting = false,
+                            forgotPasswordStep = ForgotPasswordStep.NewPassword,
+                            password = "",
+                            confirmPassword = "",
+                            passwordRules = PasswordRuleState(),
+                        )
+                    }
+                }
+                .onFailure {
+                    _uiState.update { current ->
+                        current.copy(
+                            isSubmitting = false,
+                            errorMessage = "کد تایید نادرست است",
+                        )
+                    }
+                }
+        }
+    }
+
+    fun submitNewPassword() {
+        val state = _uiState.value
+        when {
+            !state.passwordRules.isValid -> {
+                _uiState.update { it.copy(errorMessage = "رمز عبور باید شرایط امنیتی را داشته باشد") }
+            }
+            state.password != state.confirmPassword -> {
+                _uiState.update { it.copy(errorMessage = "رمز عبور و تایید آن یکسان نیست") }
+            }
+            else -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
+                    registrationRepository.changePassword(
+                        phoneNumber = state.phoneNumber,
+                        password = state.password,
+                    ).onSuccess {
+                        _uiState.update { current ->
+                            current.copy(
+                                isSubmitting = false,
+                                authFlow = AuthFlow.Login,
+                                password = "",
+                                confirmPassword = "",
+                                infoMessage = "رمز عبور با موفقیت تغییر یافت"
+                            )
+                        }
+                    }.onFailure {
+                        _uiState.update { current ->
+                            current.copy(
+                                isSubmitting = false,
+                                errorMessage = "تغییر رمز عبور با خطا مواجه شد",
+                            )
+                        }
+                    }
                 }
             }
         }

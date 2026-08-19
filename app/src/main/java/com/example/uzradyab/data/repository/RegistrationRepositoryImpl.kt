@@ -42,4 +42,17 @@ class RegistrationRepositoryImpl @Inject constructor(
         userSessionDao.upsert(entity)
         entity.toDomain()
     }
+
+    override suspend fun checkUserExists(phoneNumber: String): Result<Boolean> = runCatching {
+        authHelperApi.checkUserExists(phoneNumber).exists
+    }
+
+    override suspend fun changePassword(phoneNumber: String, password: String): Result<Unit> = runCatching {
+        authHelperApi.changePassword(
+            com.example.uzradyab.data.remote.dto.ChangePasswordRequestDto(
+                phone = phoneNumber,
+                password = password
+            )
+        )
+    }
 }
