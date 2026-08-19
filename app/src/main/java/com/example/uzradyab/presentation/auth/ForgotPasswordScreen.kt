@@ -86,13 +86,10 @@ fun ForgotPasswordScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
-                            AuthTextField(
+                            OtpInputField(
                                 value = state.otp,
                                 onValueChange = onOtpChange,
-                                label = "کد تایید",
-                                placeholder = "کد ۶ رقمی را وارد کنید",
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                inputTextDirection = TextDirection.Ltr,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
                             Spacer(modifier = Modifier.height(24.dp))
                             AuthPrimaryButton(

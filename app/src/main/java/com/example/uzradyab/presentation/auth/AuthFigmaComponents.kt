@@ -1,5 +1,8 @@
 package com.example.uzradyab.presentation.auth
 
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,7 +43,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -429,3 +431,61 @@ internal fun formatOtpRemaining(seconds: Int): String {
     val remainingSeconds = seconds % 60
     return "$minutes:${remainingSeconds.toString().padStart(2, '0')}"
 }
+
+
+@Composable
+internal fun OtpInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    otpCount: Int = 6,
+) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        BasicTextField(
+            value = value,
+            onValueChange = {
+                if (it.length <= otpCount && it.all { char -> char.isDigit() }) {
+                    onValueChange(it)
+                }
+            },
+            modifier = modifier.width(AuthControlWidth),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            decorationBox = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    repeat(otpCount) { index ->
+                        val char = when {
+                            index >= value.length -> ""
+                            else -> value[index].toString()
+                        }
+                        val isFocused = value.length == index || (index == otpCount - 1 && value.length == otpCount)
+                        val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else UzradyabTheme.colors.inputBorder
+
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(48.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Transparent)
+                                .border(1.dp, borderColor, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = char,
+                                color = UzradyabTheme.colors.textBody,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
+
+
+
