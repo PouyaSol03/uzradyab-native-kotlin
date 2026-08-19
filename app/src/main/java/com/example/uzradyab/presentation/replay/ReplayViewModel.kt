@@ -49,7 +49,7 @@ class ReplayViewModel @Inject constructor(
 
     private val deviceId: Long = savedStateHandle.get<String>("deviceId")?.toLongOrNull() ?: -1L
 
-    private val _state = MutableStateFlow(ReplayUiState())
+    private val _state = MutableStateFlow(ReplayUiState(mapStyle = mapSettingsRepository.getMapStyleSync()))
     val state: StateFlow<ReplayUiState> = _state.asStateFlow()
 
     private var playbackJob: Job? = null

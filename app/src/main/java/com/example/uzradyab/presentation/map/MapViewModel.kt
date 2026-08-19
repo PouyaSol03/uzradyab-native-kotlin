@@ -84,7 +84,7 @@ class MapViewModel @Inject constructor(
     private val mapSettingsRepository: MapSettingsRepository,
     private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
-    private val localState = MutableStateFlow(HomeMapUiState())
+    private val localState = MutableStateFlow(HomeMapUiState(mapStyle = mapSettingsRepository.getMapStyleSync()))
 
     // Removed Osmdroid alternative source tracking
 

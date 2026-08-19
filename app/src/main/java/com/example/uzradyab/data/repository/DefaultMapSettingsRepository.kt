@@ -30,6 +30,10 @@ class DefaultMapSettingsRepository @Inject constructor(
         emit(prefs.getString(KEY_MAP_STYLE, DEFAULT_STYLE) ?: DEFAULT_STYLE)
     }.conflate()
 
+    override fun getMapStyleSync(): String {
+        return prefs.getString(KEY_MAP_STYLE, DEFAULT_STYLE) ?: DEFAULT_STYLE
+    }
+
     override suspend fun setMapStyle(style: String) {
         prefs.edit().putString(KEY_MAP_STYLE, style).apply()
     }

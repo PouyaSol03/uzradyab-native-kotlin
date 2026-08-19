@@ -45,7 +45,7 @@ class GeofenceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(GeofenceState())
+    private val _state = MutableStateFlow(GeofenceState(mapStyle = mapSettingsRepository.getMapStyleSync()))
     val state = _state.asStateFlow()
 
     init {
