@@ -55,6 +55,8 @@ fun AppMenuDialog(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onReportsClick: () -> Unit = {},
+    onGeofencesClick: () -> Unit = {},
+    onMaintenanceClick: () -> Unit = {},
     onAlertsSettingsClick: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onContactSupportClick: () -> Unit = {},
@@ -122,7 +124,10 @@ fun AppMenuDialog(
                 MenuCardItem(
                     label = stringResource(R.string.str_c2d21116),
                     icon = Icons.Default.Assignment,
-                    onClick = onDismiss
+                    onClick = {
+                        onMaintenanceClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = stringResource(R.string.str_036f8b42),
@@ -135,7 +140,10 @@ fun AppMenuDialog(
                 MenuCardItem(
                     label = stringResource(R.string.str_6dca01e2),
                     icon = Icons.Default.Layers,
-                    onClick = onDismiss
+                    onClick = {
+                        onGeofencesClick()
+                        onDismiss()
+                    }
                 )
                 MenuCardItem(
                     label = stringResource(R.string.str_34260011),

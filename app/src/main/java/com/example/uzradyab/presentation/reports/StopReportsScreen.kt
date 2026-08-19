@@ -177,8 +177,15 @@ fun StopReportsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onOpenColumnSelector) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = stringResource(R.string.str_68a2de5f),
+                        tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
+                    )
+                }
+
                 Row(
-                    modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     listOf("امروز", "دیروز", "تاریخ سفارشی").forEach { filter ->
@@ -188,14 +195,6 @@ fun StopReportsScreen(
                             onClick = { onDateFilterSelected(filter) }
                         )
                     }
-                }
-                
-                IconButton(onClick = onOpenColumnSelector) {
-                    Icon(
-                        imageVector = Icons.Default.Tune,
-                        contentDescription = stringResource(R.string.str_68a2de5f),
-                        tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
-                    )
                 }
             }
 
@@ -216,8 +215,7 @@ fun StopReportsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(
-                        items = state.reports,
-                        key = { report -> report.startTime }
+                        items = state.reports
                     ) { report ->
                         StopReportCard(
                             report = report,

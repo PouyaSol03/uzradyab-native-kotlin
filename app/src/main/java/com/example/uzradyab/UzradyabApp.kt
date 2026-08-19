@@ -318,6 +318,16 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onGeofencesClick = {
+                    navController.navigate(AppRoute.Geofence.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onMaintenanceClick = {
+                    navController.navigate("maintenance") {
+                        launchSingleTop = true
+                    }
+                },
                 onAlertsSettingsClick = {
                     navController.navigate("alerts_settings") {
                         launchSingleTop = true
@@ -452,6 +462,21 @@ fun UzradyabApp(
                 },
                 onAddDeviceClick = {
                     navController.navigate(AppRoute.AddDevice.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToEvents = {
+                    navController.navigate(AppRoute.Events.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToGeofences = {
+                    navController.navigate(AppRoute.Geofence.path) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToMaintenance = {
+                    navController.navigate("maintenance") {
                         launchSingleTop = true
                     }
                 },
@@ -667,6 +692,11 @@ fun UzradyabApp(
             com.example.uzradyab.presentation.support.ContactSupportScreen(
                 onBackClick = { navController.safePopBackStack() },
                 onMenuClick = { navController.safePopBackStack() }
+            )
+        }
+        composable("maintenance") {
+            com.example.uzradyab.presentation.maintenance.MaintenanceScreen(
+                onBackClick = { navController.safePopBackStack() }
             )
         }
     }

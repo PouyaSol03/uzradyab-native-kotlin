@@ -55,6 +55,8 @@ fun ReportsRoute(
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToTripReports: () -> Unit,
+    onNavigateToGeofences: () -> Unit = {},
+    onNavigateToMaintenance: () -> Unit = {},
     onAboutClick: () -> Unit = {},
     onContactSupportClick: () -> Unit = {},
     viewModel: ReportsViewModel = hiltViewModel()
@@ -73,6 +75,8 @@ fun ReportsRoute(
         onNavigateToReplayTrip = onNavigateToReplayTrip,
         onNavigateToEvents = onNavigateToEvents,
         onNavigateToTripReports = onNavigateToTripReports,
+        onNavigateToGeofences = onNavigateToGeofences,
+        onNavigateToMaintenance = onNavigateToMaintenance,
         onAboutClick = onAboutClick,
         onContactSupportClick = onContactSupportClick,
     )
@@ -91,6 +95,8 @@ fun ReportsScreen(
     onNavigateToReplayTrip: (Long?) -> Unit,
     onNavigateToEvents: () -> Unit,
     onNavigateToTripReports: () -> Unit,
+    onNavigateToGeofences: () -> Unit,
+    onNavigateToMaintenance: () -> Unit,
     onAboutClick: () -> Unit,
     onContactSupportClick: () -> Unit
 ) {
@@ -192,6 +198,8 @@ fun ReportsScreen(
                         onDismiss = { menuOpen = false },
                         onLogoutClick = onLogoutClick,
                         onAddDeviceClick = onAddDeviceClick,
+                        onGeofencesClick = onNavigateToGeofences,
+                        onMaintenanceClick = onNavigateToMaintenance,
                         onAboutClick = onAboutClick,
                         onContactSupportClick = onContactSupportClick,
                     )
@@ -407,7 +415,6 @@ private fun OtherReportsSection(onItemClick: (String) -> Unit) {
         val reportMenuItems = listOf(
             "وضعیت دستگاه",
             "توقف‌ها",
-            "وضعیت روزانه",
             "بازپخش مسیر",
             "رویدادها",
             "مسافت‌ها"

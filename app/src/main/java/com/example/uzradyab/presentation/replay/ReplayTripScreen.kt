@@ -1037,12 +1037,12 @@ fun TripDetailsBottomSheet(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     DetailsCard(
                         title = "زمان شروع",
-                        value = state.positions.items.firstOrNull()?.fixTime?.let { "${formatDateOnly(it)} - ${formatTimeOnly(it)}" } ?: "--:--",
+                        value = state.positions.items.firstOrNull()?.fixTime?.let { "\u200E${formatDateOnly(it)} - ${formatTimeOnly(it)}\u200E" } ?: "--:--",
                         modifier = Modifier.weight(1f)
                     )
                     DetailsCard(
                         title = "زمان پایان",
-                        value = state.positions.items.lastOrNull()?.fixTime?.let { "${formatDateOnly(it)} - ${formatTimeOnly(it)}" } ?: "--:--",
+                        value = state.positions.items.lastOrNull()?.fixTime?.let { "\u200E${formatDateOnly(it)} - ${formatTimeOnly(it)}\u200E" } ?: "--:--",
                         modifier = Modifier.weight(1f)
                     )
                 }

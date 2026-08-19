@@ -498,7 +498,7 @@ private fun formatEventTime(value: String?): String? {
         timeZone = TimeZone.getTimeZone("Asia/Tehran")
     }.format(parsed)
 
-    return "${jDate[0]}/${String.format(Locale.US, "%02d", jDate[1])}/${String.format(Locale.US, "%02d", jDate[2])} - $timeStr".toPersianDigits()
+    return "\u200E${jDate[0]}/${String.format(Locale.US, "%02d", jDate[1])}/${String.format(Locale.US, "%02d", jDate[2])} - $timeStr\u200E".toPersianDigits()
 }
 
 private fun String.toPersianDigits(): String {

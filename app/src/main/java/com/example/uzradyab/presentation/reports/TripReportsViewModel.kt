@@ -74,6 +74,7 @@ class TripReportsViewModel @Inject constructor(
         viewModelScope.launch {
             val lastId = mapSettingsRepository.observeLastSelectedDeviceId().firstOrNull()
             deviceRepository.observeDevices().collect { devicesList ->
+                val previousSelectedId = _uiState.value.selectedDeviceId
                 _uiState.update { current ->
                     val newSelectedId = current.selectedDeviceId ?: lastId ?: devicesList.firstOrNull()?.id
                     current.copy(
@@ -81,7 +82,8 @@ class TripReportsViewModel @Inject constructor(
                         selectedDeviceId = newSelectedId
                     )
                 }
-                if (_uiState.value.selectedDeviceId != null && _uiState.value.reports.isEmpty()) {
+                val newSelectedId = _uiState.value.selectedDeviceId
+                if (newSelectedId != null && previousSelectedId != newSelectedId) {
                     fetchReports()
                 }
             }
@@ -255,7 +257,7 @@ class TripReportsViewModel @Inject constructor(
         val m = jDate[1].toString().padStart(2, '0')
         val d = jDate[2].toString().padStart(2, '0')
         
-        return "$h:$min | $y/$m/$d".map { char ->
+        return "\u200E$y/$m/$d - $h:$min\u200E".map { char ->
             if (char in '0'..'9') {
                 charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')[char - '0']
             } else char
