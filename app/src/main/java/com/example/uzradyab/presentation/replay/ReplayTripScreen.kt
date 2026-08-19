@@ -917,14 +917,16 @@ fun TimeFilterBottomSheet(
                     
                     val ranges = listOf("امروز", "دیروز", "هفته جاری", "ماه جاری")
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            QuickRangeButton(text = ranges[0], isSelected = selectedRange == ranges[0], onClick = { selectedRange = ranges[0]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
-                            QuickRangeButton(text = ranges[1], isSelected = selectedRange == ranges[1], onClick = { selectedRange = ranges[1]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            QuickRangeButton(text = ranges[2], isSelected = selectedRange == ranges[2], onClick = { selectedRange = ranges[2]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
-                            QuickRangeButton(text = ranges[3], isSelected = selectedRange == ranges[3], onClick = { selectedRange = ranges[3]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                QuickRangeButton(text = ranges[1], isSelected = selectedRange == ranges[1], onClick = { selectedRange = ranges[1]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
+                                QuickRangeButton(text = ranges[0], isSelected = selectedRange == ranges[0], onClick = { selectedRange = ranges[0]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                QuickRangeButton(text = ranges[3], isSelected = selectedRange == ranges[3], onClick = { selectedRange = ranges[3]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
+                                QuickRangeButton(text = ranges[2], isSelected = selectedRange == ranges[2], onClick = { selectedRange = ranges[2]; customStart = null; customEnd = null }, modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                     
