@@ -9,8 +9,6 @@ import android.media.RingtoneManager
 import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.text.BidiFormatter
-import androidx.core.text.TextDirectionHeuristicsCompat
 import com.example.uzradyab.MainActivity
 import com.example.uzradyab.R
 import com.example.uzradyab.domain.manager.FcmTokenManager
@@ -64,9 +62,8 @@ class FcmService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
         )
 
-        val bidiFormatter = BidiFormatter.getInstance()
-        val rtlTitle = bidiFormatter.unicodeWrap(title, TextDirectionHeuristicsCompat.RTL)
-        val rtlBody = bidiFormatter.unicodeWrap(messageBody, TextDirectionHeuristicsCompat.RTL)
+        val rtlTitle = "\u200F$title"
+        val rtlBody = "\u200F$messageBody"
 
         val channelId = "uzradyab_notifications"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
@@ -74,7 +71,7 @@ class FcmService : FirebaseMessagingService() {
         val appLogo = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher) // Fallback or transparent icon
+            .setSmallIcon(R.drawable.ic_launcher_foreground) // Uses vector path for proper white silhouette
             .setLargeIcon(appLogo)
             .setContentTitle(rtlTitle)
             .setContentText(rtlBody)
