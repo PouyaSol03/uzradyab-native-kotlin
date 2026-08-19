@@ -502,9 +502,7 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
-                onNavigateToEvents = {
-                    navController.navigate(AppRoute.Events.path) { launchSingleTop = true }
-                },
+
                 onNavigateToTripReports = {
                     navController.navigate(AppRoute.TripReports.path) { launchSingleTop = true }
                 },

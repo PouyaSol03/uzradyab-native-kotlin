@@ -25,9 +25,16 @@ fun MaintenanceScreen(
             .background(themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23)))
     ) {
         AppTopToolbar(
-            title = "سرویس های دوره ای",
-            onBackClick = onBackClick,
-            modifier = Modifier.statusBarsPadding()
+            modifier = Modifier.statusBarsPadding(),
+            startContent = { com.example.uzradyab.presentation.map.BackButton(onClick = onBackClick) },
+            centerContent = {
+                Text(
+                    text = "سرویس های دوره ای",
+                    color = themedColor(light = Color(0xFF333638), dark = Color.White),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         )
         Box(
             modifier = Modifier.fillMaxSize(),

@@ -118,6 +118,8 @@ fun HomeMapRoute(
         onAboutClick = onAboutClick,
         onContactSupportClick = onContactSupportClick,
         onGeofenceClick = onGeofenceClick,
+        onGeofencesClick = onGeofencesClick,
+        onMaintenanceClick = onMaintenanceClick,
         onToggleMapLock = viewModel::toggleMapLock,
         onDismissServerDown = viewModel::dismissServerDown,
     )
@@ -149,6 +151,8 @@ fun HomeMapScreen(
     onAlertsSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
     onContactSupportClick: () -> Unit,
+    onGeofencesClick: () -> Unit,
+    onMaintenanceClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
     onToggleMapLock: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
