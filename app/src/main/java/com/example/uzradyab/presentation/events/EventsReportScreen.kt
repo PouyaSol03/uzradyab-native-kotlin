@@ -147,19 +147,21 @@ fun EventsReportScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        Text(
-            text = state.filterText,
-            color = UzradyabTheme.colors.textPrimary,
-            fontSize = 12.sp,
-            lineHeight = 20.sp,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Right,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .background(themedColor(light = Color(0xFFE7EEF5), dark = Color(0xFF121F2B)), RoundedCornerShape(12.dp))
-                .padding(vertical = 6.dp, horizontal = 12.dp)
-        )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            Text(
+                text = state.filterText,
+                color = UzradyabTheme.colors.textPrimary,
+                fontSize = 12.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Right,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .background(themedColor(light = Color(0xFFE7EEF5), dark = Color(0xFF121F2B)), RoundedCornerShape(12.dp))
+                    .padding(vertical = 6.dp, horizontal = 12.dp)
+            )
+        }
 
         LazyColumn(
             modifier = Modifier

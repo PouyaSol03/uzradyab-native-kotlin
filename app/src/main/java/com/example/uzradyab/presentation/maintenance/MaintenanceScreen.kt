@@ -14,38 +14,70 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.ui.theme.themedColor
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 
 @Composable
 fun MaintenanceScreen(
     onBackClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23)))
-    ) {
-        AppTopToolbar(
-            modifier = Modifier.statusBarsPadding(),
-            startContent = { com.example.uzradyab.presentation.map.BackButton(onClick = onBackClick) },
-            centerContent = {
+    val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
+
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        Scaffold(
+            containerColor = figmaBackground,
+            topBar = {
+                AppTopToolbar(
+                    startContent = { com.example.uzradyab.presentation.map.BackButton(onClick = onBackClick) },
+                    centerContent = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "سرویس های دوره ای",
+                                color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Build,
+                                contentDescription = null,
+                                tint = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .height(64.dp)
+                )
+            }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = "سرویس های دوره ای",
+                    text = "به زودی...",
                     color = themedColor(light = Color(0xFF333638), dark = Color.White),
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
-        )
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "به زودی...",
-                color = themedColor(light = Color(0xFF333638), dark = Color.White),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }
