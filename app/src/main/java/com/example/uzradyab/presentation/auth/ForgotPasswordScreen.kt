@@ -15,6 +15,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.core.designsystem.AuthBackground
 import com.example.uzradyab.ui.theme.UzradyabTheme
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.google.android.gms.auth.api.phone.SmsRetriever
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
 
 @Composable
 fun ForgotPasswordScreen(
@@ -78,6 +90,53 @@ fun ForgotPasswordScreen(
                             )
                         }
                         ForgotPasswordStep.Otp -> {
+                            val context = LocalContext.current
+                            val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                                if (result.resultCode == Activity.RESULT_OK) {
+                                    val message = result.data?.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
+                                    message?.let {
+                                        val otpPattern = "\\d{6}".toRegex()
+                                        val match = otpPattern.find(it)
+                                        if (match != null) {
+                                            onOtpChange(match.value)
+                                        }
+                                    }
+                                }
+                            }
+
+                            LaunchedEffect(Unit) {
+                                val client = SmsRetriever.getClient(context)
+                                client.startSmsUserConsent(null) // Listen for any sender
+                            }
+
+                            DisposableEffect(context) {
+                                val receiver = object : BroadcastReceiver() {
+                                    override fun onReceive(context: Context, intent: Intent) {
+                                        if (SmsRetriever.SMS_RETRIEVED_ACTION == intent.action) {
+                                            val extras = intent.extras
+                                            val status = extras?.get(SmsRetriever.EXTRA_STATUS) as? Status
+                                            if (status?.statusCode == CommonStatusCodes.SUCCESS) {
+                                                val consentIntent = extras.getParcelable<Intent>(SmsRetriever.EXTRA_CONSENT_INTENT)
+                                                consentIntent?.let {
+                                                    launcher.launch(it)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                val intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
+                                ContextCompat.registerReceiver(
+                                    context,
+                                    receiver,
+                                    intentFilter,
+                                    ContextCompat.RECEIVER_EXPORTED
+                                )
+
+                                onDispose {
+                                    context.unregisterReceiver(receiver)
+                                }
+                            }
+
                             Text(
                                 text = "کد تایید به شماره ${state.phoneNumber} پیامک شد",
                                 color = UzradyabTheme.colors.textBody,

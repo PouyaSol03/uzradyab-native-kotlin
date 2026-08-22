@@ -394,8 +394,6 @@ internal fun PasswordRules(rules: PasswordRuleState) {
         horizontalAlignment = Alignment.Start,
     ) {
         PasswordRule(text = stringResource(R.string.str_62ad2446), isMet = rules.hasMinimumLength)
-        PasswordRule(text = stringResource(R.string.str_7037fc5a), isMet = rules.hasDigit)
-        PasswordRule(text = stringResource(R.string.str_7be2abc0), isMet = rules.hasSpecialCharacter)
     }
 }
 

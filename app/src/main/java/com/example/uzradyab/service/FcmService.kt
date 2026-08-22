@@ -71,7 +71,7 @@ class FcmService : FirebaseMessagingService() {
         val appLogo = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
 
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Uses vector path for proper white silhouette
+            .setSmallIcon(R.drawable.ic_notification) // Uses the new large scaled vector
             .setLargeIcon(appLogo)
             .setContentTitle(rtlTitle)
             .setContentText(rtlBody)
