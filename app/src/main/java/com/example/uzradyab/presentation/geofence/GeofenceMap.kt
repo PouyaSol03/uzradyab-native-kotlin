@@ -169,10 +169,10 @@ fun GeofenceMap(
                         .zoom(14.0)
                         .build()
                 } else {
-                    // Center of Iran
+                    // Center of Tehran
                     map.cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(32.4279, 53.6880))
-                        .zoom(5.0)
+                        .target(LatLng(35.6892, 51.3890))
+                        .zoom(11.0)
                         .build()
                 }
             }
