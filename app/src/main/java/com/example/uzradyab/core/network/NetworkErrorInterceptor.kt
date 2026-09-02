@@ -19,6 +19,9 @@ class NetworkErrorInterceptor @Inject constructor(
             if (!isCanceled && (e is UnknownHostException || e is ConnectException || e is SocketTimeoutException || e is IOException)) {
                 networkEventBus.emitError()
             }
+            if (e is SocketTimeoutException) {
+                throw IOException("پاسخی از سمت سرور دریافت نشد، زمان اتصال پایان یافت (Timeout).")
+            }
             throw e
         }
     }

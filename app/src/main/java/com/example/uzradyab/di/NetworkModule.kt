@@ -77,8 +77,9 @@ object NetworkModule {
             .addInterceptor(networkErrorInterceptor)
             .addInterceptor(unauthorizedInterceptor)
             .connectionPool(ConnectionPool(8, 3, TimeUnit.MINUTES)) // Component 2 Optimization
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(NetworkLogInterceptor())
@@ -97,8 +98,9 @@ object NetworkModule {
     fun provideBareOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectionPool(ConnectionPool(4, 2, TimeUnit.MINUTES)) // Lightweight pool for third-party
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             
         if (BuildConfig.DEBUG) {
             builder.addInterceptor(NetworkLogInterceptor())

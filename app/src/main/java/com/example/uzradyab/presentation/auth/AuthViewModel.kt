@@ -161,6 +161,9 @@ class AuthViewModel @Inject constructor(
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
                     biometricHelper.saveCredentials(state.phoneNumber, state.password)
+                    if (biometricHelper.isBiometricAvailable()) {
+                        biometricHelper.setBiometricEnabled(true)
+                    }
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                     
                     // Run slow sync tasks in the background so they don't block navigation

@@ -92,12 +92,16 @@ class AddDeviceViewModel @Inject constructor(
     fun onUniqueIdChange(newValue: String) {
         // IMEI shouldn't be edited in edit mode
         if (!isEditMode) {
-            uniqueId = newValue
+            if (newValue.isEmpty() || (newValue.all { it.isDigit() } && newValue.length <= 15)) {
+                uniqueId = newValue
+            }
         }
     }
 
     fun onPhoneChange(newValue: String) {
-        phone = newValue
+        if (newValue.isEmpty() || (newValue.all { it.isDigit() } && newValue.length <= 11)) {
+            phone = newValue
+        }
     }
 
     fun onCurrentKilometersChange(newValue: String) {
@@ -107,7 +111,12 @@ class AddDeviceViewModel @Inject constructor(
     }
 
     val isFormValid: Boolean
-        get() = name.isNotBlank() && uniqueId.isNotBlank()
+        get() {
+            val isNameValid = name.isNotBlank()
+            val isUniqueIdValid = uniqueId.length in 10..15 && uniqueId.all { it.isDigit() }
+            val isPhoneValid = phone.isEmpty() || Regex("^09\\d{9}\$").matches(phone)
+            return isNameValid && isUniqueIdValid && isPhoneValid
+        }
 
     fun saveDevice() {
         if (!isFormValid) return

@@ -210,22 +210,11 @@ fun ProfileScreen(
                                 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
-                                // Email
+                                // Email / Phone Number
                                 UzradyabInput(
                                     value = email,
                                     onValueChange = { email = it },
-                                    label = stringResource(R.string.str_6505762a),
-                                    placeholder = "example@test.com",
-                                    inputTextDirection = TextDirection.Ltr
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-                                
-                                // Phone
-                                UzradyabInput(
-                                    value = phone,
-                                    onValueChange = { phone = it },
-                                    label = stringResource(R.string.str_1d020430),
+                                    label = "شماره موبایل",
                                     placeholder = "09123456789",
                                     inputTextDirection = TextDirection.Ltr
                                 )

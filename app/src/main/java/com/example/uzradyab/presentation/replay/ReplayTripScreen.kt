@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.*
@@ -73,17 +75,27 @@ fun ReplayTripScreen(
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     var showDetailsSheet by remember { mutableStateOf(false) }
 
-    /*
-    LaunchedEffect(state.error) {
-        state.error?.let { msg ->
+    LaunchedEffect(state.fetchSuccessMessage) {
+        state.fetchSuccessMessage?.let { msg ->
             snackbarHostState.showSnackbar(
                 message = msg,
                 duration = androidx.compose.material3.SnackbarDuration.Short
             )
-            viewModel.clearError()
+            viewModel.clearMessages()
         }
     }
-    */
+
+    LaunchedEffect(state.error) {
+        state.error?.let { msg ->
+            if (msg != "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد.") {
+                snackbarHostState.showSnackbar(
+                    message = msg,
+                    duration = androidx.compose.material3.SnackbarDuration.Short
+                )
+                viewModel.clearError()
+            }
+        }
+    }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Column(
@@ -242,29 +254,35 @@ fun ReplayTripScreen(
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.padding(32.dp)
                         ) {
+                            val isNetworkError = state.isNetworkError
                             Box(
                                 modifier = Modifier
                                     .size(80.dp)
-                                    .background(themedColor(light = Color(0xFFE8F0F6), dark = Color(0xFF11212C)), CircleShape),
+                                    .background(
+                                        if (isNetworkError) themedColor(light = Color(0xFFFFEBEE), dark = Color(0xFF421C1C)) 
+                                        else themedColor(light = Color(0xFFFFF3E0), dark = Color(0xFF3E2723)), 
+                                        CircleShape
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Place,
+                                    imageVector = if (isNetworkError) androidx.compose.material.icons.Icons.Default.Warning else androidx.compose.material.icons.Icons.Default.Info,
                                     contentDescription = null,
-                                    tint = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
+                                    tint = if (isNetworkError) themedColor(light = Color(0xFFE53935), dark = Color(0xFFEF5350)) else themedColor(light = Color(0xFFFF9800), dark = Color(0xFFFFCC80)),
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             Text(
-                                text = "مسیری یافت نشد",
+                                text = if (isNetworkError) "خطا در برقراری ارتباط" else "موقعیتی ثبت نشده است",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                text = "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای یا موقعیتی برای این دستگاه ثبت نشده است.",
+                                text = if (isNetworkError) "امکان دریافت اطلاعات از سرور وجود ندارد. لطفا اتصال اینترنت خود را بررسی کرده و در صورت روشن بودن VPN، آن را قطع کنید." 
+                                       else "در بازه زمانی انتخاب شده، دستگاه شما روشن نبوده و یا موقعیتی ارسال نکرده است.",
                                 fontSize = 14.sp,
                                 color = themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)),
                                 textAlign = TextAlign.Center,
@@ -278,7 +296,7 @@ fun ReplayTripScreen(
                                 modifier = Modifier.height(48.dp)
                             ) {
                                 Text(
-                                    text = "تغییر بازه زمانی",
+                                    text = if (isNetworkError) "تلاش مجدد" else "تغییر بازه زمانی",
                                     color = themedColor(light = Color.White, dark = Color.White),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
@@ -300,8 +318,7 @@ fun ReplayTripScreen(
                     }
                 }
 
-                // Custom Error Snackbar
-                /*
+                // Custom Snackbar
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -310,9 +327,13 @@ fun ReplayTripScreen(
                     androidx.compose.material3.SnackbarHost(
                         hostState = snackbarHostState,
                         snackbar = { data ->
+                            val isSuccess = data.visuals.message.contains("موفق")
+                            val bgColor = if (isSuccess) themedColor(light = Color(0xFFE8F5E9), dark = Color(0xFF1B5E20)) else themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))
+                            val contentColor = if (isSuccess) themedColor(light = Color(0xFF2E7D32), dark = Color(0xFF81C784)) else themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
+                            val icon = if (isSuccess) Icons.Default.CheckCircle else Icons.Default.Info
                             Card(
                                 shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = themedColor(light = Color(0xFFFDECEA), dark = Color(0xFF380B05))),
+                                colors = CardDefaults.cardColors(containerColor = bgColor),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Row(
@@ -320,14 +341,14 @@ fun ReplayTripScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Info,
+                                        imageVector = icon,
                                         contentDescription = null,
-                                        tint = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111))
+                                        tint = contentColor
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(
                                         text = data.visuals.message,
-                                        color = themedColor(light = Color(0xFFE55353), dark = Color(0xFF6F1111)),
+                                        color = contentColor,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -336,7 +357,6 @@ fun ReplayTripScreen(
                         }
                     )
                 }
-                */
                 // Bottom Panel
                 androidx.compose.animation.AnimatedVisibility(
                     visible = !state.isLoading && state.positions.items.isNotEmpty(),
@@ -491,8 +511,8 @@ fun ReplayTimelineInfo(state: ReplayUiState, onShowFilter: () -> Unit) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(46.dp)
-                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), RoundedCornerShape(8.dp)),
+                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)), RoundedCornerShape(8.dp))
+                            .padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -721,9 +741,10 @@ fun TimeBalloon(time: String, date: String? = null) {
         }
         Column(
             modifier = Modifier
-                .width(if (date != null) 72.dp else 49.dp)
-                .height(if (date != null) 40.dp else 28.dp)
-                .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), RoundedCornerShape(8.dp)),
+                .widthIn(min = if (date != null) 72.dp else 49.dp)
+                .wrapContentHeight()
+                .background(themedColor(light = Color(0xFFEFF3F5), dark = Color(0xFF182126)), RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

@@ -71,7 +71,7 @@ interface TraccarApi {
     suspend fun getPositions(): List<PositionDto>
 
     @retrofit2.http.Headers("Accept: application/json")
-    @GET("api/reports/route")
+    @GET("api/positions")
     suspend fun getPositionsHistory(
         @Query("deviceId") deviceId: Long,
         @Query("from") from: String,

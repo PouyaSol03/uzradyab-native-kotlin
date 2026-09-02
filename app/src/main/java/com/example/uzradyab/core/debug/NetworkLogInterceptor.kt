@@ -51,6 +51,8 @@ class NetworkLogInterceptor : Interceptor {
         try {
             response = chain.proceed(request)
         } catch (e: IOException) {
+            val durationMs = (System.nanoTime() - startNs) / 1_000_000L
+            android.util.Log.e("API_FETCH", "Network Error (including Timeout) after ${durationMs}ms for $method $url: ${e.message}")
             AppLogger.log(
                 level = LogLevel.ERROR,
                 tag = "$method $shortUrl",
@@ -61,6 +63,8 @@ class NetworkLogInterceptor : Interceptor {
 
         val durationMs = (System.nanoTime() - startNs) / 1_000_000L
         val code = response.code
+        
+        android.util.Log.d("API_FETCH", "Response time: ${durationMs}ms for $method $url (Status: $code)")
 
         // ── Log response ──────────────────────────────────────────────────────
         val respBodySnippet = runCatching {

@@ -161,12 +161,20 @@ fun GeofenceMap(
 
             // Set center on first load only
             val isFirstLoad = mapView.tag == null
-            if (isFirstLoad && state.devicePosition != null) {
+            if (isFirstLoad) {
                 mapView.tag = "loaded"
-                map.cameraPosition = CameraPosition.Builder()
-                    .target(LatLng(state.devicePosition.latitude, state.devicePosition.longitude))
-                    .zoom(14.0)
-                    .build()
+                if (state.devicePosition != null) {
+                    map.cameraPosition = CameraPosition.Builder()
+                        .target(LatLng(state.devicePosition.latitude, state.devicePosition.longitude))
+                        .zoom(14.0)
+                        .build()
+                } else {
+                    // Center of Iran
+                    map.cameraPosition = CameraPosition.Builder()
+                        .target(LatLng(32.4279, 53.6880))
+                        .zoom(5.0)
+                        .build()
+                }
             }
 
             // Animate to Selected Geofence
@@ -181,7 +189,7 @@ fun GeofenceMap(
                 }
                 targetPoint?.let { point ->
                     mapView.tag = "loaded"
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 16.5))
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 14.5))
                 }
             }
 

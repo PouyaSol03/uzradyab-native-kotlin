@@ -36,6 +36,8 @@ data class ReplayUiState(
     val mapStyle: String = "osm",
     val startAddress: String? = null,
     val endAddress: String? = null,
+    val fetchSuccessMessage: String? = null,
+    val isNetworkError: Boolean = false,
 )
 
 @HiltViewModel
@@ -90,7 +92,7 @@ class ReplayViewModel @Inject constructor(
 
     fun fetchRouteForDateRange(fromTime: String, toTime: String, filterLabel: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null, dateFilterText = filterLabel) }
+            _state.update { it.copy(isLoading = true, error = null, isNetworkError = false, dateFilterText = filterLabel) }
 
             // Fetch summary for distance calculation
             val summaryResult = reportRepository.getSummaryReport(deviceId, fromTime, toTime)
@@ -113,7 +115,10 @@ class ReplayViewModel @Inject constructor(
                         totalDistanceText = persianDistance,
                         error = if (positions.isEmpty()) "در بازه زمانی انتخاب شده، هیچ مسیر پیموده‌ای برای این دستگاه یافت نشد." else null,
                         startAddress = null,
-                        endAddress = null
+
+                        endAddress = null,
+                        isNetworkError = false,
+                        fetchSuccessMessage = if (positions.isNotEmpty()) "مسیرها با موفقیت دریافت شد" else null
                     ) }
                     
                     if (positions.isNotEmpty()) {
@@ -132,13 +137,17 @@ class ReplayViewModel @Inject constructor(
                     playbackJob?.cancel()
                 }
                 .onFailure { err ->
-                    _state.update { it.copy(isLoading = false, error = err.localizedMessage) }
+                    _state.update { it.copy(isLoading = false, error = err.localizedMessage, isNetworkError = true) }
                 }
         }
     }
 
     fun clearError() {
         _state.update { it.copy(error = null) }
+    }
+
+    fun clearMessages() {
+        _state.update { it.copy(error = null, fetchSuccessMessage = null) }
     }
 
     fun togglePlayback() {
