@@ -138,7 +138,7 @@ fun MapTopControls(
 }
 
 @Composable
-private fun DeviceSelectTrigger(
+fun DeviceSelectTrigger(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

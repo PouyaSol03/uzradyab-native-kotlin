@@ -692,7 +692,16 @@ fun UzradyabApp(
                 onMenuClick = { navController.safePopBackStack() }
             )
         }
-        composable("maintenance") {
+        composable(
+            route = "maintenance?deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("deviceId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) {
             com.example.uzradyab.presentation.maintenance.MaintenanceScreen(
                 onBackClick = { navController.safePopBackStack() }
             )
@@ -804,6 +813,7 @@ private enum class AppRoute(val path: String) {
     TripReports("/trip-reports"),
     AboutExir("/about-exir"),
     ContactSupport("/contact-support"),
+    Maintenance("maintenance"),
 }
 
 private fun isVersionGreater(v1: String, v2: String): Boolean {

@@ -10,6 +10,7 @@ import com.example.uzradyab.data.remote.dto.CombinedReportDto
 import com.example.uzradyab.data.remote.dto.EventDto
 import com.example.uzradyab.data.remote.dto.GeofenceDto
 import com.example.uzradyab.data.remote.dto.PermissionDto
+import com.example.uzradyab.data.remote.dto.MaintenanceDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
@@ -142,4 +143,16 @@ interface TraccarApi {
 
     @retrofit2.http.HTTP(method = "DELETE", path = "api/permissions", hasBody = true)
     suspend fun unlinkPermission(@Body permission: PermissionDto)
+
+    @GET("api/maintenance")
+    suspend fun getMaintenances(@Query("deviceId") deviceId: Long? = null): List<MaintenanceDto>
+
+    @POST("api/maintenance")
+    suspend fun createMaintenance(@Body maintenance: MaintenanceDto): MaintenanceDto
+
+    @PUT("api/maintenance/{id}")
+    suspend fun updateMaintenance(@Path("id") id: Long, @Body maintenance: MaintenanceDto): MaintenanceDto
+
+    @DELETE("api/maintenance/{id}")
+    suspend fun deleteMaintenance(@Path("id") id: Long)
 }

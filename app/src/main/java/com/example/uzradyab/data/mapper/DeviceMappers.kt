@@ -19,7 +19,7 @@ fun DeviceDto.toEntity(): DeviceEntity = DeviceEntity(
 
 fun DeviceEntity.toDomain(): Device {
     val km = try {
-        val regex = "\"currentKilometers\"\\s*:\\s*(\\d+(?:\\.\\d+)?)".toRegex()
+        val regex = "\"currentKilometers\"\\s*:\\s*\"?(\\d+(?:\\.\\d+)?)\"?".toRegex()
         regex.find(attributesJson)?.groupValues?.get(1) ?: ""
     } catch (e: Exception) {
         ""

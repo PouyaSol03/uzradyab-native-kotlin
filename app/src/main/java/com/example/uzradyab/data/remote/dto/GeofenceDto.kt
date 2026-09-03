@@ -13,5 +13,6 @@ data class PermissionDto(
     val deviceId: Long? = null,
     val geofenceId: Long? = null,
     val groupId: Long? = null,
-    val userId: Long? = null
+    val userId: Long? = null,
+    val maintenanceId: Long? = null
 )

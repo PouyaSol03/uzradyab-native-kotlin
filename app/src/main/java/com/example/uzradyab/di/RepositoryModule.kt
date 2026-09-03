@@ -91,4 +91,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindThemeRepository(impl: com.example.uzradyab.data.repository.ThemeRepositoryImpl): com.example.uzradyab.domain.repository.ThemeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMaintenanceRepository(impl: com.example.uzradyab.data.repository.MaintenanceRepositoryImpl): com.example.uzradyab.domain.repository.MaintenanceRepository
 }

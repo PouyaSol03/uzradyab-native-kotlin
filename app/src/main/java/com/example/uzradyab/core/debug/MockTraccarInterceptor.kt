@@ -28,6 +28,13 @@ class MockTraccarInterceptor : Interceptor {
                 }
             }
             uri.contains("api/reports/summary") -> SUMMARY_REPORT_JSON
+            uri.contains("api/maintenance") -> {
+                when (chain.request().method) {
+                    "DELETE" -> ""
+                    "POST", "PUT" -> """{"id":1,"name":"تعویض روغن موتور","type":"totalDistance","start":10000000.0,"period":5000000.0,"attributes":{}}"""
+                    else -> MAINTENANCES_JSON
+                }
+            }
             else -> return chain.proceed(chain.request())
         }
 
@@ -163,6 +170,27 @@ class MockTraccarInterceptor : Interceptor {
                     "distance": 25.0,
                     "spentFuel": 2.5,
                     "engineHours": 7200000
+                }
+            ]
+        """
+
+        private const val MAINTENANCES_JSON = """
+            [
+                {
+                    "id": 1,
+                    "name": "تعویض روغن موتور",
+                    "type": "totalDistance",
+                    "start": 10000000.0,
+                    "period": 5000000.0,
+                    "attributes": {}
+                },
+                {
+                    "id": 2,
+                    "name": "تعویض لنت ترمز",
+                    "type": "totalDistance",
+                    "start": 5000000.0,
+                    "period": 30000000.0,
+                    "attributes": {}
                 }
             ]
         """
