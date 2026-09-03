@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.example.uzradyab.core.security.SecureCredentialManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.Executor
 import javax.inject.Inject
@@ -15,7 +16,8 @@ import javax.inject.Singleton
 
 @Singleton
 class BiometricHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val credentialManager: SecureCredentialManager = SecureCredentialManager(context)
 ) {
     private val prefs: SharedPreferences by lazy {
         val encryptedPrefs = try {
@@ -69,18 +71,15 @@ class BiometricHelper @Inject constructor(
     }
 
     fun saveCredentials(phone: String, pass: String) {
-        prefs.edit()
-            .putString("saved_phone", phone)
-            .putString("saved_pass", pass)
-            .apply()
+        credentialManager.saveCredentials(phone, pass)
     }
 
     fun getSavedPhone(): String? {
-        return prefs.getString("saved_phone", null)
+        return credentialManager.getSavedPhone()
     }
 
     fun getSavedPassword(): String? {
-        return prefs.getString("saved_pass", null)
+        return credentialManager.getSavedPassword()
     }
 
     fun showBiometricPrompt(

@@ -672,4 +672,5 @@ fun TimeFilterBottomSheet(
     <string name="str_50c44a23">دستگاه آفلاین</string>
     <string name="str_9be99371">آدرس مبدأ</string>
     <string name="str_0506f810">کاربر تست</string>
+    <string name="remember_me">مرا به خاطر بسپار</string>
 </resources>

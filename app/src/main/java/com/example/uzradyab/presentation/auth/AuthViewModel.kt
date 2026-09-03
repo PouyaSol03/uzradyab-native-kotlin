@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
+import com.example.uzradyab.core.security.SecureCredentialManager
+
 private const val RegisterOtpLength = 6
 private const val RegisterOtpDurationSeconds = 90
 
@@ -60,6 +62,7 @@ data class AuthUiState(
     val infoMessage: String? = null,
     val canUseBiometric: Boolean = false,
     val shouldAutoTriggerBiometric: Boolean = false,
+    val rememberMe: Boolean = true,
 )
 
 @HiltViewModel
@@ -70,6 +73,7 @@ class AuthViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val positionRepository: PositionRepository,
     private val biometricHelper: com.example.uzradyab.core.biometric.BiometricHelper,
+    private val credentialManager: SecureCredentialManager,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -83,15 +87,27 @@ class AuthViewModel @Inject constructor(
             hasActiveSession = session != null
             val biometricAvailable = biometricHelper.isBiometricAvailable()
             val biometricEnabled = biometricHelper.isBiometricEnabled()
-            val hasSavedCredentials = biometricHelper.getSavedPhone() != null && biometricHelper.getSavedPassword() != null
             
-            _uiState.update { 
-                it.copy(
+            val isRememberMe = credentialManager.isRememberMeEnabled()
+            val savedPhone = credentialManager.getSavedPhone()
+            val savedPassword = credentialManager.getSavedPassword()
+            val hasSavedCredentials = !savedPhone.isNullOrBlank() && !savedPassword.isNullOrBlank()
+            
+            _uiState.update { current ->
+                current.copy(
+                    phoneNumber = if (isRememberMe && hasSavedCredentials) savedPhone ?: current.phoneNumber else current.phoneNumber,
+                    password = if (isRememberMe && hasSavedCredentials) savedPassword ?: current.password else current.password,
+                    rememberMe = isRememberMe,
                     canUseBiometric = biometricAvailable,
                     shouldAutoTriggerBiometric = hasSavedCredentials && biometricAvailable && biometricEnabled
                 ) 
             }
         }
+    }
+
+    fun onRememberMeChange(value: Boolean) {
+        _uiState.update { it.copy(rememberMe = value) }
+        credentialManager.setRememberMeEnabled(value)
     }
 
     fun onPhoneNumberChange(value: String) {
@@ -160,9 +176,14 @@ class AuthViewModel @Inject constructor(
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null, infoMessage = null) }
             authRepository.login(state.phoneNumber, state.password)
                 .onSuccess {
-                    biometricHelper.saveCredentials(state.phoneNumber, state.password)
-                    if (biometricHelper.isBiometricAvailable()) {
-                        biometricHelper.setBiometricEnabled(true)
+                    if (state.rememberMe) {
+                        credentialManager.saveCredentials(state.phoneNumber, state.password, rememberMe = true)
+                        if (biometricHelper.isBiometricAvailable()) {
+                            biometricHelper.setBiometricEnabled(true)
+                        }
+                    } else {
+                        credentialManager.clearCredentials()
+                        biometricHelper.setBiometricEnabled(false)
                     }
                     _uiState.update { current -> current.copy(isSubmitting = false, isSignedIn = true) }
                     
@@ -376,6 +397,10 @@ class AuthViewModel @Inject constructor(
                         phoneNumber = state.phoneNumber,
                         password = state.password,
                     ).onSuccess {
+                        credentialManager.saveCredentials(state.phoneNumber, state.password, rememberMe = true)
+                        if (biometricHelper.isBiometricAvailable()) {
+                            biometricHelper.setBiometricEnabled(true)
+                        }
                         _uiState.update { current ->
                             current.copy(isSubmitting = false, isSignedIn = true)
                         }
@@ -510,11 +535,14 @@ class AuthViewModel @Inject constructor(
                         phoneNumber = state.phoneNumber,
                         password = state.password,
                     ).onSuccess {
+                        if (credentialManager.isRememberMeEnabled()) {
+                            credentialManager.saveCredentials(state.phoneNumber, state.password, rememberMe = true)
+                        }
                         _uiState.update { current ->
                             current.copy(
                                 isSubmitting = false,
                                 authFlow = AuthFlow.Login,
-                                password = "",
+                                password = if (current.rememberMe) state.password else "",
                                 confirmPassword = "",
                                 infoMessage = "رمز عبور با موفقیت تغییر یافت"
                             )

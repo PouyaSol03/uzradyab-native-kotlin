@@ -38,8 +38,17 @@ import com.example.uzradyab.core.designsystem.AuthBackground
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import com.example.uzradyab.presentation.components.LocalSnackbarController
-
 import com.example.uzradyab.presentation.startup.findActivity
 import com.example.uzradyab.ui.theme.UzradyabTheme
 
@@ -124,6 +133,7 @@ fun LoginRoute(
             state = state,
             onPhoneNumberChange = viewModel::onPhoneNumberChange,
             onPasswordChange = viewModel::onPasswordChange,
+            onRememberMeChange = viewModel::onRememberMeChange,
             onLoginClick = viewModel::login,
             onRegisterClick = onRegisterClick,
             onForgotPasswordClick = { viewModel.setAuthFlow(AuthFlow.ForgotPassword) },
@@ -137,6 +147,7 @@ fun LoginScreen(
     state: AuthUiState,
     onPhoneNumberChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onRememberMeChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
@@ -189,11 +200,35 @@ fun LoginScreen(
                         rightIcon = { PasswordKeyIcon() },
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    androidx.compose.foundation.layout.Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                    Row(
+                        modifier = Modifier.width(AuthControlWidth),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { onRememberMeChange(!state.rememberMe) }
+                        ) {
+                            Checkbox(
+                                checked = state.rememberMe,
+                                onCheckedChange = onRememberMeChange,
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = MaterialTheme.colorScheme.primary,
+                                    uncheckedColor = UzradyabTheme.colors.textBody,
+                                    checkmarkColor = Color.White
+                                ),
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.remember_me),
+                                color = UzradyabTheme.colors.textBody,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                         AuthTextLink(
                             text = "فراموشی رمز عبور",
                             onClick = onForgotPasswordClick,
