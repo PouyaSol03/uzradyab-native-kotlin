@@ -91,6 +91,12 @@ class StopReportsViewModel @Inject constructor(
         fetchReports()
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     suspend fun resolveAddress(lat: Double, lon: Double): String {
         return geocoderRepository.getAddress(lat, lon)
     }

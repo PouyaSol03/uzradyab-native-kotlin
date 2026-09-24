@@ -54,7 +54,8 @@ fun DeviceStatusRoute(
         onAddDeviceClick = onAddDeviceClick,
         onDeviceSelect = viewModel::selectDevice,
         onTraveledPathsClick = onTraveledPathsClick,
-        onExportClick = { /* TODO: Export logic */ }
+        onExportClick = { /* TODO: Export logic */ },
+        onLoadMoreDevices = viewModel::loadMoreDevices
     )
 }
 
@@ -66,7 +67,8 @@ fun DeviceStatusScreen(
     onAddDeviceClick: () -> Unit,
     onDeviceSelect: (Long) -> Unit,
     onTraveledPathsClick: () -> Unit,
-    onExportClick: () -> Unit
+    onExportClick: () -> Unit,
+    onLoadMoreDevices: () -> Unit = {}
 ) {
     val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
@@ -291,7 +293,8 @@ fun DeviceStatusScreen(
                             onDeviceSelect(deviceId)
                             deviceSelectorOpen = false
                         },
-                        onDismiss = { deviceSelectorOpen = false }
+                        onDismiss = { deviceSelectorOpen = false },
+                        onLoadMore = onLoadMoreDevices
                     )
                 }
             }

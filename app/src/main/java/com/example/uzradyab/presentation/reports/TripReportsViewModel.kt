@@ -96,6 +96,12 @@ class TripReportsViewModel @Inject constructor(
         fetchReports()
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     fun onDateFilterSelected(filter: String) {
         if (filter == "تاریخ سفارشی") {
             _uiState.update { it.copy(selectedDateFilter = filter, showCustomDatePicker = true) }

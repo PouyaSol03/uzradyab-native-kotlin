@@ -96,6 +96,12 @@ class MaintenanceViewModel @Inject constructor(
         _uiState.value.selectedDeviceId?.let { loadMaintenances(it) }
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     private fun loadMaintenances(deviceId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }

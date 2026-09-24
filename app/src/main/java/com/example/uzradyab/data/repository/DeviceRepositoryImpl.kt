@@ -16,11 +16,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+
 class DeviceRepositoryImpl @Inject constructor(
     private val api: TraccarApi,
     private val deviceDao: DeviceDao,
     private val userSessionDao: UserSessionDao,
 ) : DeviceRepository {
+
+    private val pagingMutex = Mutex()
+    private var currentOffset = 0
+    private var hasMoreDevices = true
+    private var isFetchingMore = false
+
     override fun observeDevices(): Flow<List<Device>> {
         return userSessionDao.observeCurrentSession().flatMapLatest { session ->
             if (session == null) flowOf(emptyList())
@@ -28,15 +37,59 @@ class DeviceRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshDevices(): Result<Unit> = runCatching {
-        val session = userSessionDao.getCurrentSession() ?: return@runCatching
-        val devices = api.getDevices()
-        val entities = devices.map { it.toEntity() }
-        deviceDao.upsertAll(entities)
-        
-        val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
-        deviceDao.upsertUserDeviceCrossRefs(crossRefs)
-        deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
+    override suspend fun refreshDevices(limit: Int, offset: Int): Result<Unit> = runCatching {
+        pagingMutex.withLock {
+            val session = userSessionDao.getCurrentSession() ?: return@runCatching
+            val devices = api.getDevices(limit = limit, offset = offset)
+            val entities = devices.map { it.toEntity() }
+            deviceDao.upsertAll(entities)
+            
+            val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
+            deviceDao.upsertUserDeviceCrossRefs(crossRefs)
+            
+            if (offset == 0) {
+                currentOffset = devices.size
+                hasMoreDevices = devices.size >= limit
+                deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
+            } else {
+                currentOffset += devices.size
+                hasMoreDevices = devices.size >= limit
+            }
+        }
+    }
+
+    override suspend fun loadMoreDevices(limit: Int): Result<Int> = runCatching {
+        pagingMutex.withLock {
+            android.util.Log.d("DevicePaging", "loadMoreDevices called: hasMore=$hasMoreDevices, isFetchingMore=$isFetchingMore, offset=$currentOffset")
+            if (!hasMoreDevices || isFetchingMore) return@runCatching 0
+            isFetchingMore = true
+            try {
+                val session = userSessionDao.getCurrentSession() ?: return@runCatching 0
+                val devices = api.getDevices(limit = limit, offset = currentOffset)
+                android.util.Log.d("DevicePaging", "loadMoreDevices received ${devices.size} items at offset $currentOffset")
+                if (devices.isEmpty()) {
+                    hasMoreDevices = false
+                    return@runCatching 0
+                }
+                
+                val entities = devices.map { it.toEntity() }
+                deviceDao.upsertAll(entities)
+                
+                val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
+                deviceDao.upsertUserDeviceCrossRefs(crossRefs)
+                
+                currentOffset += devices.size
+                if (devices.size < limit) {
+                    hasMoreDevices = false
+                }
+                devices.size
+            } catch (e: Exception) {
+                android.util.Log.e("DevicePaging", "loadMoreDevices failed", e)
+                throw e
+            } finally {
+                isFetchingMore = false
+            }
+        }
     }
 
     override suspend fun addDevice(
@@ -125,16 +178,7 @@ class DeviceRepositoryImpl @Inject constructor(
             android.util.Log.e("DeviceUpdate", "Update failed: code=${updateResponse.code()} body=$errorBody")
             throw Exception("Failed to update device: ${updateResponse.code()}")
         }
-
-        // Fetch fresh data from server to reflect changes
-        val devices = api.getDevices()
-        deviceDao.upsertAll(devices.map { it.toEntity() })
-        
-        val session = userSessionDao.getCurrentSession()
-        if (session != null) {
-            val crossRefs = devices.map { UserDeviceCrossRef(session.id, it.id) }
-            deviceDao.upsertUserDeviceCrossRefs(crossRefs)
-            deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
-        }
+        val limitToRefresh = pagingMutex.withLock { currentOffset.coerceAtLeast(30) }
+        refreshDevices(limit = limitToRefresh, offset = 0)
     }
 }

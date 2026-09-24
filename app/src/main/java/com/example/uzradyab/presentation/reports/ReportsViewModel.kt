@@ -91,6 +91,12 @@ class ReportsViewModel @Inject constructor(
         fetchDeviceData(deviceId)
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     private fun fetchDeviceData(deviceId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, currentAddress = "در حال دریافت آدرس...") }

@@ -79,6 +79,7 @@ fun ReportsRoute(
         onNavigateToMaintenance = onNavigateToMaintenance,
         onAboutClick = onAboutClick,
         onContactSupportClick = onContactSupportClick,
+        onLoadMoreDevices = viewModel::loadMoreDevices,
     )
 }
 
@@ -89,6 +90,7 @@ fun ReportsScreen(
     onLogoutClick: () -> Unit,
     onAddDeviceClick: () -> Unit,
     onDeviceSelected: (Long) -> Unit,
+    onLoadMoreDevices: () -> Unit = {},
     onNavigateToDeviceStatus: () -> Unit,
     onNavigateToDailyReport: (Long?) -> Unit,
     onNavigateToStopReports: () -> Unit,
@@ -213,7 +215,8 @@ fun ReportsScreen(
                             onDeviceSelected(deviceId)
                             deviceSelectorOpen = false
                         },
-                        onDismiss = { deviceSelectorOpen = false }
+                        onDismiss = { deviceSelectorOpen = false },
+                        onLoadMore = onLoadMoreDevices
                     )
                 }
             }

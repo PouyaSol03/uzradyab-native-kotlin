@@ -58,7 +58,8 @@ fun DailyReportRoute(
         onFilterSelected = viewModel::onDateFilterSelected,
         onCustomDateApply = viewModel::applyCustomDateRange,
         onCustomDateDismiss = viewModel::dismissCustomDatePicker,
-        onClearError = viewModel::clearError
+        onClearError = viewModel::clearError,
+        onLoadMoreDevices = viewModel::loadMoreDevices
     )
 }
 
@@ -73,7 +74,8 @@ fun DailyReportScreen(
     onFilterSelected: (String) -> Unit,
     onCustomDateApply: (com.example.uzradyab.presentation.components.JalaliDateTime?, com.example.uzradyab.presentation.components.JalaliDateTime?) -> Unit,
     onCustomDateDismiss: () -> Unit,
-    onClearError: () -> Unit
+    onClearError: () -> Unit,
+    onLoadMoreDevices: () -> Unit = {}
 ) {
     val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
     var menuOpen by remember { mutableStateOf(false) }
@@ -349,7 +351,8 @@ fun DailyReportScreen(
                             onDeviceSelected(deviceId)
                             deviceSelectorOpen = false
                         },
-                        onDismiss = { deviceSelectorOpen = false }
+                        onDismiss = { deviceSelectorOpen = false },
+                        onLoadMore = onLoadMoreDevices
                     )
                 }
                 

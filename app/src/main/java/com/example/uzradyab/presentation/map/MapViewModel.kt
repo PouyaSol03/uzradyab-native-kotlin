@@ -171,6 +171,12 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices(limit = 30)
+        }
+    }
+
     fun clearInfoMessage() {
         localState.update { it.copy(infoMessage = null) }
     }

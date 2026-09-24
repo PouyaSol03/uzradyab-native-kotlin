@@ -14,20 +14,35 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.uzradyab.domain.model.Device
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -105,6 +120,7 @@ fun GeofenceScreen(
     fun closeListSheet(after: () -> Unit = {}) {
         scope.launch { listSheetState.hide() }.invokeOnCompletion {
             showListSheet = false
+            viewModel.closeConnections()
             after()
         }
     }
@@ -275,12 +291,19 @@ fun GeofenceScreen(
             val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.92f).dp
 
             ModalBottomSheet(
-                onDismissRequest = { showListSheet = false },
+                onDismissRequest = {
+                    showListSheet = false
+                    viewModel.closeConnections()
+                },
                 sheetState = listSheetState,
                 containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
                 shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                 dragHandle = { BottomSheetDefaults.DragHandle() }
             ) {
+                BackHandler(enabled = state.connectionsGeofence != null) {
+                    viewModel.closeConnections()
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -289,15 +312,51 @@ fun GeofenceScreen(
                         .padding(bottom = 24.dp)
                         .navigationBarsPadding()
                 ) {
-                    GeofenceListPanel(
-                        geofences = state.geofences,
-                        onAddClick = { closeListSheet { viewModel.toggleAddingMode() } },
-                        onDeleteClick = { viewModel.deleteGeofence(it) },
-                        onItemClick = { id ->
-                            viewModel.selectGeofence(id)
-                            closeListSheet()
+                    AnimatedContent(
+                        targetState = state.connectionsGeofence,
+                        transitionSpec = {
+                            if (targetState != null) {
+                                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { width -> width } + fadeOut()
+                                )
+                            } else {
+                                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                                    slideOutHorizontally { width -> -width } + fadeOut()
+                                )
+                            }
+                        },
+                        label = "SheetContentTransition"
+                    ) { targetGeofence ->
+                        if (targetGeofence == null) {
+                            GeofenceListPanel(
+                                geofences = state.geofences,
+                                onAddClick = { closeListSheet { viewModel.toggleAddingMode() } },
+                                onDeleteClick = { viewModel.deleteGeofence(it) },
+                                onItemClick = { id ->
+                                    viewModel.selectGeofence(id)
+                                    closeListSheet()
+                                },
+                                onConnectionsClick = { geofence ->
+                                    viewModel.openConnections(geofence)
+                                }
+                            )
+                        } else {
+                            GeofenceConnectionsPanel(
+                                geofence = targetGeofence,
+                                state = state,
+                                onBackClick = { viewModel.closeConnections() },
+                                onToggleDevice = { deviceId, shouldLink ->
+                                    viewModel.toggleDeviceConnection(targetGeofence.id, deviceId, shouldLink)
+                                },
+                                onToggleAll = { linkAll ->
+                                    viewModel.toggleAllDeviceConnections(targetGeofence.id, linkAll)
+                                },
+                                onSearchQueryChange = { viewModel.updateConnectionsSearchQuery(it) },
+                                onRefresh = { viewModel.refreshConnections() },
+                                onLoadMore = { viewModel.loadMoreConnectionsDevices() }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
@@ -538,7 +597,8 @@ fun GeofenceListPanel(
     geofences: List<Geofence>,
     onAddClick: () -> Unit,
     onDeleteClick: (Long) -> Unit,
-    onItemClick: (Long) -> Unit
+    onItemClick: (Long) -> Unit,
+    onConnectionsClick: (Geofence) -> Unit
 ) {
     val geofenceToDelete = remember { mutableStateOf<Geofence?>(null) }
 
@@ -610,7 +670,8 @@ fun GeofenceListPanel(
                     GeofenceItem(
                         geofence = geofence,
                         onClick = { onItemClick(geofence.id) },
-                        onDeleteClick = { geofenceToDelete.value = geofence }
+                        onDeleteClick = { geofenceToDelete.value = geofence },
+                        onConnectionsClick = { onConnectionsClick(geofence) }
                     )
                 }
             }
@@ -633,7 +694,8 @@ fun GeofenceListPanel(
 fun GeofenceItem(
     geofence: Geofence,
     onClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onConnectionsClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -663,12 +725,29 @@ fun GeofenceItem(
                 )
             }
         }
-        IconButton(onClick = onDeleteClick) {
-            Icon(
-                Icons.Default.Delete,
-                contentDescription = "Delete",
-                tint = themedColor(light = Color.Red, dark = Color(0xFFEF5350)).copy(alpha = 0.7f)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = onConnectionsClick,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Link,
+                    contentDescription = "اتصال دستگاه‌ها",
+                    tint = UzradyabTheme.colors.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            IconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = themedColor(light = Color.Red, dark = Color(0xFFEF5350)).copy(alpha = 0.7f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -762,6 +841,411 @@ fun DeleteGeofenceDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun GeofenceConnectionsPanel(
+    geofence: Geofence,
+    state: GeofenceState,
+    onBackClick: () -> Unit,
+    onToggleDevice: (Long, Boolean) -> Unit,
+    onToggleAll: (Boolean) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onRefresh: () -> Unit,
+    onLoadMore: () -> Unit = {}
+) {
+    val allDevices = state.connectionsDevices.items
+    val query = state.connectionsSearchQuery
+    val filteredDevices = remember(allDevices, query) {
+        if (query.isBlank()) allDevices
+        else allDevices.filter {
+            it.name.contains(query, ignoreCase = true) ||
+            it.uniqueId.contains(query, ignoreCase = true)
+        }
+    }
+    val linkedCount = remember(allDevices, state.linkedDeviceIds) {
+        allDevices.count { it.id in state.linkedDeviceIds }
+    }
+    val allSelected = allDevices.isNotEmpty() && linkedCount == allDevices.size
+
+    var isLocallyLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(state.connectionsLoading, allDevices.size) {
+        if (!state.connectionsLoading) {
+            isLocallyLoading = false
+        }
+    }
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, query, allDevices.size, state.connectionsLoading, isLocallyLoading) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val total = layoutInfo.totalItemsCount
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            total >= 10 && lastVisible >= total - 3
+        }.collect { nearBottom ->
+            if (nearBottom && query.isBlank() && !state.connectionsLoading && !isLocallyLoading) {
+                isLocallyLoading = true
+                onLoadMore()
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // 1. Header Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF1E2830)))
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "بازگشت",
+                    tint = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "اتصال دستگاه‌ها",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5))
+                )
+                Text(
+                    text = "محدوده: ${geofence.name}",
+                    fontSize = 12.sp,
+                    color = UzradyabTheme.colors.primary,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            IconButton(
+                onClick = onRefresh,
+                enabled = !state.connectionsLoading,
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF1E2830)))
+            ) {
+                if (state.connectionsLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = UzradyabTheme.colors.primary
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "بروزرسانی",
+                        tint = themedColor(light = Color(0xFF384C5C), dark = Color(0xFFA0B5C5)),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        // 2. Search Box
+        OutlinedTextField(
+            value = query,
+            onValueChange = onSearchQueryChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            placeholder = {
+                Text(
+                    text = "جستجوی نام یا شناسه دستگاه...",
+                    fontSize = 13.sp,
+                    color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "جستجو",
+                    tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)),
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "پاک کردن",
+                            tint = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0)),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)),
+                unfocusedContainerColor = themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)),
+                focusedBorderColor = UzradyabTheme.colors.primary,
+                unfocusedBorderColor = Color.Transparent
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 3. Stats & Quick Action Bar
+        if (allDevices.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(UzradyabTheme.colors.primary.copy(alpha = 0.1f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "$linkedCount از ${allDevices.size} دستگاه متصل است",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = UzradyabTheme.colors.primary
+                    )
+                }
+
+                TextButton(
+                    onClick = { onToggleAll(!allSelected) },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = if (allSelected) "لغو همه" else "انتخاب همه",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = UzradyabTheme.colors.primary
+                    )
+                }
+            }
+        }
+
+        // 4. Error Message Banner if any
+        if (state.connectionsError != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFFFFEBEE))
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = state.connectionsError,
+                    fontSize = 12.sp,
+                    color = Color(0xFFD32F2F),
+                    lineHeight = 18.sp
+                )
+            }
+        }
+
+        // 5. Device Items / Loading / Empty
+        if (state.connectionsLoading && allDevices.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(
+                        color = UzradyabTheme.colors.primary,
+                        modifier = Modifier.size(36.dp)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "در حال دریافت دستگاه‌ها از سرور...",
+                        fontSize = 13.sp,
+                        color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
+                    )
+                }
+            }
+        } else if (filteredDevices.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 36.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = Icons.Default.DirectionsCar,
+                        contentDescription = null,
+                        tint = themedColor(light = Color.LightGray, dark = Color(0xFF4A5568)),
+                        modifier = Modifier.size(44.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = if (query.isNotBlank()) "دستگاهی مطابق با جستجو یافت نشد" else "هیچ دستگاهی ثبت نشده است",
+                        fontSize = 13.sp,
+                        color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false),
+                contentPadding = PaddingValues(top = 4.dp, bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                itemsIndexed(
+                    items = filteredDevices,
+                    key = { _, device -> device.id }
+                ) { index, device ->
+                    if (index >= filteredDevices.size - 3 && query.isBlank() && !state.connectionsLoading && !isLocallyLoading && filteredDevices.size >= 10) {
+                        LaunchedEffect(filteredDevices.size) {
+                            isLocallyLoading = true
+                            onLoadMore()
+                        }
+                    }
+
+                    val isLinked = device.id in state.linkedDeviceIds
+                    val isPending = device.id in state.pendingDeviceIds
+
+                    DeviceConnectionItem(
+                        device = device,
+                        isLinked = isLinked,
+                        isPending = isPending,
+                        onToggle = { shouldLink -> onToggleDevice(device.id, shouldLink) }
+                    )
+                }
+
+                if ((state.connectionsLoading || isLocallyLoading) && allDevices.isNotEmpty()) {
+                    item(key = "loading_more_connections_indicator") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(28.dp),
+                                strokeWidth = 3.dp,
+                                color = UzradyabTheme.colors.primary
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DeviceConnectionItem(
+    device: Device,
+    isLinked: Boolean,
+    isPending: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    val isOnline = device.status.equals("online", ignoreCase = true)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(themedColor(light = Color(0xFFF7F9FA), dark = Color(0xFF182126)))
+            .clickable(enabled = !isPending) { onToggle(!isLinked) }
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Vehicle icon box
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(
+                    if (isLinked) UzradyabTheme.colors.primary.copy(alpha = 0.12f)
+                    else themedColor(light = Color(0xFFE9EDF0), dark = Color(0xFF27343F))
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.DirectionsCar,
+                contentDescription = null,
+                tint = if (isLinked) UzradyabTheme.colors.primary
+                else themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
+                modifier = Modifier.size(22.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Device info
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = device.name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = themedColor(light = Color(0xFF1E2830), dark = Color(0xFFF0F4F8))
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                // Online/Offline status dot
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(if (isOnline) Color(0xFF4CAF50) else Color(0xFF9E9E9E))
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Unique ID / Plate - forced LTR as per Persian RTL rules
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Text(
+                    text = device.uniqueId,
+                    fontSize = 12.sp,
+                    color = themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Switch or Progress Indicator
+        if (isPending) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp,
+                color = UzradyabTheme.colors.primary
+            )
+        } else {
+            Switch(
+                checked = isLinked,
+                onCheckedChange = onToggle,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = themedColor(light = Color.White, dark = Color.White),
+                    checkedTrackColor = UzradyabTheme.colors.primary
+                )
+            )
         }
     }
 }

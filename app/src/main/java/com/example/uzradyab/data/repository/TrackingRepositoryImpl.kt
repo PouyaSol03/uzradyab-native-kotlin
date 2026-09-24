@@ -68,7 +68,7 @@ class TrackingRepositoryImpl @Inject constructor(
         // Fast-path: instantly fetch devices and positions via REST API to populate empty cache quickly
         scope.launch {
             runCatching {
-                val devices = api.getDevices()
+                val devices = api.getDevices(limit = 30, offset = 0)
                 if (devices.isNotEmpty()) {
                     deviceDao.upsertAll(devices.map { it.toEntity() })
                 }

@@ -90,6 +90,12 @@ class DailyReportViewModel @Inject constructor(
         fetchReports()
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     fun onDateFilterSelected(filter: String) {
         val (from, to) = getIsoRangeForFilter(filter)
         

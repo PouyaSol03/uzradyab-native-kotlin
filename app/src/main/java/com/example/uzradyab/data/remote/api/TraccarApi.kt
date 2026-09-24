@@ -48,7 +48,13 @@ interface TraccarApi {
     suspend fun logout()
 
     @GET("api/devices")
-    suspend fun getDevices(): List<DeviceDto>
+    suspend fun getDevices(
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null,
+        @Query("keyword") keyword: String? = null,
+        @Query("all") all: Boolean? = null,
+        @Query("geofenceId") geofenceId: Long? = null
+    ): List<DeviceDto>
 
     @POST("api/devices")
     suspend fun addDevice(@Body request: AddDeviceRequestDto): DeviceDto

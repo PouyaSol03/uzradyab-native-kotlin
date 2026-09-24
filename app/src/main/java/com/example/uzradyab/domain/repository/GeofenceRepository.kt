@@ -7,5 +7,7 @@ interface GeofenceRepository {
     suspend fun createGeofence(name: String, area: String, description: String? = null): Result<Geofence>
     suspend fun updateGeofence(id: Long, name: String, area: String, description: String? = null): Result<Geofence>
     suspend fun deleteGeofence(id: Long): Result<Unit>
-    // Removed linkGeofenceToDevice and unlinkGeofenceFromDevice
+    suspend fun getDeviceGeofences(deviceId: Long): Result<List<Geofence>>
+    suspend fun linkDeviceToGeofence(deviceId: Long, geofenceId: Long): Result<Unit>
+    suspend fun unlinkDeviceFromGeofence(deviceId: Long, geofenceId: Long): Result<Unit>
 }

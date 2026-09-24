@@ -93,7 +93,8 @@ fun StopReportsRoute(
         onOpenColumnSelector = viewModel::openColumnSelector,
         onDismissColumnSelector = viewModel::dismissColumnSelector,
         onToggleColumn = viewModel::toggleColumn,
-        onClearError = viewModel::clearError
+        onClearError = viewModel::clearError,
+        onLoadMoreDevices = viewModel::loadMoreDevices
     )
 }
 
@@ -113,7 +114,8 @@ fun StopReportsScreen(
     onOpenColumnSelector: () -> Unit,
     onDismissColumnSelector: () -> Unit,
     onToggleColumn: (String) -> Unit,
-    onClearError: () -> Unit
+    onClearError: () -> Unit,
+    onLoadMoreDevices: () -> Unit = {}
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     var deviceSelectorOpen by remember { mutableStateOf(false) }
@@ -246,7 +248,8 @@ fun StopReportsScreen(
                     deviceSelectorOpen = false
                     onDeviceSelect(deviceId)
                 },
-                onDismiss = { deviceSelectorOpen = false }
+                onDismiss = { deviceSelectorOpen = false },
+                onLoadMore = onLoadMoreDevices
             )
         }
         

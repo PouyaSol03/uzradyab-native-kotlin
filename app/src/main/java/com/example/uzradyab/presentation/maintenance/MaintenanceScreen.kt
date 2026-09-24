@@ -283,7 +283,8 @@ fun MaintenanceScreen(
                     viewModel.selectDevice(deviceId)
                     showDeviceSelector = false
                 },
-                onDismiss = { showDeviceSelector = false }
+                onDismiss = { showDeviceSelector = false },
+                onLoadMore = viewModel::loadMoreDevices
             )
         }
 

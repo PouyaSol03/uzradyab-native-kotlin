@@ -61,6 +61,33 @@ class GeofenceRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getDeviceGeofences(deviceId: Long): Result<List<Geofence>> {
+        return try {
+            val dtos = api.getGeofences(deviceId = deviceId)
+            Result.success(dtos.map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun linkDeviceToGeofence(deviceId: Long, geofenceId: Long): Result<Unit> {
+        return try {
+            api.linkPermission(PermissionDto(deviceId = deviceId, geofenceId = geofenceId))
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun unlinkDeviceFromGeofence(deviceId: Long, geofenceId: Long): Result<Unit> {
+        return try {
+            api.unlinkPermission(PermissionDto(deviceId = deviceId, geofenceId = geofenceId))
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private fun GeofenceDto.toDomain(): Geofence {
         val shape = Geofence.parseArea(this.area)
         val isCircle = shape is GeofenceShape.Circle

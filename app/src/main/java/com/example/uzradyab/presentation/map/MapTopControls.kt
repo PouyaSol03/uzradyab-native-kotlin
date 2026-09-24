@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -39,8 +40,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -400,6 +404,8 @@ fun DeviceSelectDialog(
     selectedDeviceId: Long?,
     onDeviceClick: (Long) -> Unit,
     onDismiss: () -> Unit,
+    onLoadMore: () -> Unit = {},
+    isLoadingMore: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     var search by rememberSaveable { mutableStateOf("") }
@@ -410,6 +416,26 @@ fun DeviceSelectDialog(
         devices.filter { device ->
             listOf(device.name, device.uniqueId, device.status)
                 .any { value -> value.contains(query, ignoreCase = true) }
+        }
+    }
+
+    var isLocallyLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(devices.size) {
+        isLocallyLoading = false
+    }
+
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val total = listState.layoutInfo.totalItemsCount
+            total > 0 && lastVisible >= total - 3
+        }
+    }
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore && query.isBlank() && !isLoadingMore && !isLocallyLoading) {
+            isLocallyLoading = true
+            onLoadMore()
         }
     }
 
@@ -453,6 +479,7 @@ fun DeviceSelectDialog(
                     .border(2.dp, UzradyabTheme.colors.primary, RoundedCornerShape(8.dp)),
             )
             LazyColumn(
+                state = listState,
                 modifier = Modifier.weight(1f, fill = false),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 0.dp)
@@ -480,6 +507,22 @@ fun DeviceSelectDialog(
                                 text = stringResource(R.string.str_69c5b430),
                                 color = UzradyabTheme.colors.textMuted,
                                 fontSize = 14.sp,
+                            )
+                        }
+                    }
+                }
+                if ((isLoadingMore || isLocallyLoading) && filteredDevices.isNotEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.5.dp,
+                                color = UzradyabTheme.colors.primary,
                             )
                         }
                     }

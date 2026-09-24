@@ -95,6 +95,12 @@ class DeviceStatusViewModel @Inject constructor(
         fetchDeviceStatusData(deviceId)
     }
 
+    fun loadMoreDevices() {
+        viewModelScope.launch {
+            deviceRepository.loadMoreDevices()
+        }
+    }
+
     private fun fetchDeviceStatusData(deviceId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }

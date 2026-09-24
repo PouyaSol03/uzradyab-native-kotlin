@@ -122,6 +122,7 @@ fun HomeMapRoute(
         onMaintenanceClick = onMaintenanceClick,
         onToggleMapLock = viewModel::toggleMapLock,
         onDismissServerDown = viewModel::dismissServerDown,
+        onLoadMoreDevices = viewModel::loadMoreDevices,
     )
 }
 
@@ -130,6 +131,7 @@ fun HomeMapScreen(
     state: HomeMapUiState,
     onDeviceClick: (Long) -> Unit,
     onToggleDevices: () -> Unit,
+    onLoadMoreDevices: () -> Unit = {},
     onOpenMapSettings: () -> Unit,
     onCloseMapSettings: () -> Unit,
     onMapStyleSelected: (String) -> Unit,
@@ -266,6 +268,7 @@ fun HomeMapScreen(
                         selectedDeviceId = state.selectedDeviceId,
                         onDeviceClick = onDeviceClick,
                         onDismiss = onToggleDevices,
+                        onLoadMore = onLoadMoreDevices,
                     )
                 }
                 if (state.mapSettingsOpen) {

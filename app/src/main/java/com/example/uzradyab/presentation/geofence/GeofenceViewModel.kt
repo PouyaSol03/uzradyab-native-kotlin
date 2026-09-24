@@ -3,14 +3,20 @@ package com.example.uzradyab.presentation.geofence
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.domain.model.Geofence
 import com.example.uzradyab.domain.model.Position
+import com.example.uzradyab.domain.repository.DeviceRepository
 import com.example.uzradyab.domain.repository.GeofenceRepository
 import com.example.uzradyab.domain.repository.MapSettingsRepository
 import com.example.uzradyab.domain.repository.PositionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,12 +40,20 @@ data class GeofenceState(
     val activeDrawingPoints: ImmutableListWrapper<Pair<Double, Double>> = emptyImmutableList(),
     val newGeofenceRadius: Double = 500.0,
     val selectedGeofenceId: Long? = null,
-    val mapStyle: String = "osm"
+    val mapStyle: String = "osm",
+    val connectionsGeofence: Geofence? = null,
+    val connectionsLoading: Boolean = false,
+    val connectionsDevices: ImmutableListWrapper<Device> = emptyImmutableList(),
+    val linkedDeviceIds: Set<Long> = emptySet(),
+    val pendingDeviceIds: Set<Long> = emptySet(),
+    val connectionsSearchQuery: String = "",
+    val connectionsError: String? = null
 )
 
 @HiltViewModel
 class GeofenceViewModel @Inject constructor(
     private val geofenceRepository: GeofenceRepository,
+    private val deviceRepository: DeviceRepository,
     private val positionRepository: PositionRepository,
     private val mapSettingsRepository: MapSettingsRepository,
     savedStateHandle: SavedStateHandle
@@ -139,7 +153,7 @@ class GeofenceViewModel @Inject constructor(
         _state.update { state ->
             val current = state.activeDrawingPoints.items.toMutableList()
             if (current.isNotEmpty()) {
-                current.removeLast()
+                current.removeAt(current.lastIndex)
             }
             state.copy(activeDrawingPoints = current.toImmutable())
         }
@@ -199,6 +213,203 @@ class GeofenceViewModel @Inject constructor(
             }.onFailure { e ->
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }
+        }
+    }
+
+    fun openConnections(geofence: Geofence) {
+        isFetchingMoreConnections = false
+        _state.update {
+            it.copy(
+                connectionsGeofence = geofence,
+                connectionsLoading = true,
+                connectionsError = null,
+                connectionsSearchQuery = "",
+                connectionsDevices = emptyImmutableList(),
+                linkedDeviceIds = emptySet(),
+                pendingDeviceIds = emptySet()
+            )
+        }
+        viewModelScope.launch {
+            try {
+                // Fresh fetch from server for currently logged in user
+                deviceRepository.refreshDevices(limit = 30, offset = 0)
+                val devices = try {
+                    deviceRepository.observeDevices().first()
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                _state.update { it.copy(connectionsDevices = devices.toImmutable()) }
+
+                if (devices.isEmpty()) {
+                    _state.update { it.copy(connectionsLoading = false) }
+                    return@launch
+                }
+
+                // Accurate per-device geofence lookup in parallel
+                val linkedIds = coroutineScope {
+                    devices.map { device ->
+                        async {
+                            val res = geofenceRepository.getDeviceGeofences(device.id)
+                            val isLinked = res.getOrNull()?.any { it.id == geofence.id } == true
+                            if (isLinked) device.id else null
+                        }
+                    }.awaitAll().filterNotNull().toSet()
+                }
+                _state.update {
+                    it.copy(
+                        connectionsLoading = false,
+                        linkedDeviceIds = linkedIds
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(
+                        connectionsLoading = false,
+                        connectionsError = e.message ?: "خطا در دریافت وضعیت اتصالات دستگاه‌ها"
+                    )
+                }
+            }
+        }
+    }
+
+    fun refreshConnections() {
+        val geofence = _state.value.connectionsGeofence ?: return
+        openConnections(geofence)
+    }
+
+    private var isFetchingMoreConnections = false
+
+    fun loadMoreConnectionsDevices() {
+        val geofence = _state.value.connectionsGeofence ?: return
+        if (isFetchingMoreConnections) return
+        isFetchingMoreConnections = true
+        _state.update { it.copy(connectionsLoading = true) }
+        viewModelScope.launch {
+            try {
+                val previousIds = _state.value.connectionsDevices.items.map { it.id }.toSet()
+                val loadedCount = deviceRepository.loadMoreDevices(limit = 30).getOrDefault(0)
+                if (loadedCount > 0) {
+                    val allDevices = try { deviceRepository.observeDevices().first() } catch (e: Exception) { emptyList() }
+                    // Immediately show the new devices in UI
+                    _state.update { it.copy(connectionsDevices = allDevices.toImmutable()) }
+
+                    // Only query permissions for newly added devices
+                    val newlyAdded = allDevices.filter { it.id !in previousIds }
+                    if (newlyAdded.isNotEmpty()) {
+                        val newLinkedIds = coroutineScope {
+                            newlyAdded.map { device ->
+                                async {
+                                    val res = geofenceRepository.getDeviceGeofences(device.id)
+                                    val isLinked = res.getOrNull()?.any { it.id == geofence.id } == true
+                                    if (isLinked) device.id else null
+                                }
+                            }.awaitAll().filterNotNull().toSet()
+                        }
+                        _state.update { it.copy(linkedDeviceIds = it.linkedDeviceIds + newLinkedIds) }
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GeofenceViewModel", "Failed to load more devices: ${e.message}", e)
+            } finally {
+                _state.update { it.copy(connectionsLoading = false) }
+                isFetchingMoreConnections = false
+            }
+        }
+    }
+
+    fun closeConnections() {
+        isFetchingMoreConnections = false
+        _state.update {
+            it.copy(
+                connectionsGeofence = null,
+                connectionsLoading = false,
+                connectionsError = null,
+                connectionsSearchQuery = "",
+                pendingDeviceIds = emptySet()
+            )
+        }
+    }
+
+    fun updateConnectionsSearchQuery(query: String) {
+        _state.update { it.copy(connectionsSearchQuery = query) }
+    }
+
+    fun toggleDeviceConnection(geofenceId: Long, deviceId: Long, shouldLink: Boolean) {
+        val currentState = _state.value
+        if (currentState.pendingDeviceIds.contains(deviceId)) return
+
+        val currentLinked = currentState.linkedDeviceIds
+        val newLinked = if (shouldLink) currentLinked + deviceId else currentLinked - deviceId
+
+        _state.update {
+            it.copy(
+                linkedDeviceIds = newLinked,
+                pendingDeviceIds = it.pendingDeviceIds + deviceId,
+                connectionsError = null
+            )
+        }
+
+        viewModelScope.launch {
+            val result = if (shouldLink) {
+                geofenceRepository.linkDeviceToGeofence(deviceId, geofenceId)
+            } else {
+                geofenceRepository.unlinkDeviceFromGeofence(deviceId, geofenceId)
+            }
+
+            _state.update { state ->
+                val updatedPending = state.pendingDeviceIds - deviceId
+                if (result.isSuccess) {
+                    state.copy(pendingDeviceIds = updatedPending)
+                } else {
+                    state.copy(
+                        linkedDeviceIds = currentLinked,
+                        pendingDeviceIds = updatedPending,
+                        connectionsError = result.exceptionOrNull()?.message ?: "خطا در تغییر اتصال دستگاه"
+                    )
+                }
+            }
+        }
+    }
+
+    fun toggleAllDeviceConnections(geofenceId: Long, linkAll: Boolean) {
+        val currentState = _state.value
+        val allDevices = currentState.connectionsDevices.items
+        if (allDevices.isEmpty()) return
+
+        val targetDevices = if (linkAll) {
+            allDevices.filter { it.id !in currentState.linkedDeviceIds }
+        } else {
+            allDevices.filter { it.id in currentState.linkedDeviceIds }
+        }
+        if (targetDevices.isEmpty()) return
+
+        val targetIds = targetDevices.map { it.id }.toSet()
+        val currentLinked = currentState.linkedDeviceIds
+        val newLinked = if (linkAll) currentLinked + targetIds else currentLinked - targetIds
+
+        _state.update {
+            it.copy(
+                linkedDeviceIds = newLinked,
+                pendingDeviceIds = it.pendingDeviceIds + targetIds,
+                connectionsError = null
+            )
+        }
+
+        viewModelScope.launch {
+            coroutineScope {
+                targetDevices.map { device ->
+                    async {
+                        val res = if (linkAll) {
+                            geofenceRepository.linkDeviceToGeofence(device.id, geofenceId)
+                        } else {
+                            geofenceRepository.unlinkDeviceFromGeofence(device.id, geofenceId)
+                        }
+                        device.id to res.isSuccess
+                    }
+                }.awaitAll()
+            }
+
+            _state.update { it.copy(pendingDeviceIds = it.pendingDeviceIds - targetIds) }
         }
     }
 }
