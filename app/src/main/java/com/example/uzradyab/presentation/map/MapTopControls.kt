@@ -318,10 +318,12 @@ fun MapSettingsDialog(
 ) {
     var selectedStyle by rememberSaveable { mutableStateOf(currentStyle) }
     val options = listOf(
-        MapStyleOption("osm", "نقشه"),
+        MapStyleOption("neshan", "نقشه نشان"),
+        MapStyleOption("neshanDark", "نشان (حالت شب)"),
         MapStyleOption("googleSatellite", "ماهواره‌ای گوگل"),
         MapStyleOption("googleRoad", "جاده گوگل"),
         MapStyleOption("carto", "اکسیر"),
+        MapStyleOption("osm", "استاندارد (OSM)"),
     )
 
     Dialog(onDismissRequest = onDismiss) {
@@ -701,11 +703,11 @@ private fun MapStyleCard(
                 .clip(RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)),
         ) {
             val imageRes = when (option.id) {
-                "osm" -> com.example.uzradyab.R.drawable.preview_osm
+                "neshan", "neshanDark", "osm" -> com.example.uzradyab.R.drawable.preview_osm
                 "googleSatellite" -> com.example.uzradyab.R.drawable.preview_satellite
                 "googleRoad" -> com.example.uzradyab.R.drawable.preview_road
                 "carto" -> com.example.uzradyab.R.drawable.preview_exir
-                else -> null
+                else -> com.example.uzradyab.R.drawable.preview_osm
             }
             if (imageRes != null) {
                 androidx.compose.foundation.Image(
@@ -750,6 +752,7 @@ private data class MapStyleOption(
 
 @Composable
 private fun mapPreviewColor(id: String): Color = when (id) {
+    "neshanDark" -> themedColor(light = Color(0xFF27343F), dark = Color(0xFF171E26))
     "googleSatellite" -> themedColor(light = Color(0xFF51604A), dark = Color(0xFFAFBCA9))
     "googleRoad" -> themedColor(light = Color(0xFFE9E5D7), dark = Color(0xFF312C1B))
     "carto" -> themedColor(light = Color(0xFFE7EEF5), dark = Color(0xFF121F2B))

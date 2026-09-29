@@ -127,8 +127,9 @@ fun ReplayMap(
                         tracker.lastMapStyle = mapStyle
                         tracker.styleToken++
                         val currentToken = tracker.styleToken
-                        map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { style ->
+                        map.setStyle(MapLibreStyles.getStyleBuilder(mapStyle, isDarkTheme)) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
+                            style.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
                             lineManager = LineManager(this, map, style)
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
@@ -159,8 +160,9 @@ fun ReplayMap(
                     symbolManager = null
                     lineManager = null
                     
-                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(mapStyle, isDarkTheme))) { newStyle ->
+                    map.setStyle(MapLibreStyles.getStyleBuilder(mapStyle, isDarkTheme)) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
+                        newStyle.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
                         lineManager = LineManager(mapView, map, newStyle)
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true

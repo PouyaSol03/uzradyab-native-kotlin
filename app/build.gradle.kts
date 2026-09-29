@@ -18,6 +18,15 @@ if (envFile.exists()) {
     envProperties.load(FileInputStream(envFile))
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val neshanApiKey: String = localProperties.getProperty("NESHAN_API_KEY")
+    ?: envProperties.getProperty("NESHAN_API_KEY", "")
+    ?: ""
+
 android {
     namespace = "com.example.uzradyab"
     compileSdk = 36
@@ -26,10 +35,14 @@ android {
         applicationId = "org.uzradyab.manager"
         minSdk = 24
         targetSdk = 36
-        versionCode = 54
-        versionName = "5.0.6"
+        versionCode = 55
+        versionName = "5.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        manifestPlaceholders["NESHAN_API_KEY"] = neshanApiKey
+        buildConfigField("String", "NESHAN_API_KEY", "\"${neshanApiKey}\"")
+
         buildConfigField(
             "String",
             "EXIR_TILE_BASE_URL",
@@ -63,6 +76,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs = freeCompilerArgs + listOf("-Xskip-metadata-version-check")
     }
     buildFeatures {
         compose = true
@@ -95,8 +109,10 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.gson)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.maplibre.android)
-    implementation(libs.maplibre.annotation)
+    implementation(libs.neshan.maplibre.android)
+    implementation(libs.maplibre.annotation) {
+        exclude(group = "org.maplibre.gl", module = "android-sdk")
+    }
     implementation(libs.androidx.biometric)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.play.services.auth.api.phone)
@@ -118,3 +134,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xskip-metadata-version-check")
+    }
+}
+

@@ -117,8 +117,9 @@ fun GeofenceMap(
                     tracker.lastMapStyle = state.mapStyle
                     tracker.styleToken++
                     val currentToken = tracker.styleToken
-                    map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle, isDarkTheme))) { style ->
+                    map.setStyle(MapLibreStyles.getStyleBuilder(state.mapStyle, isDarkTheme)) { style ->
                         if (currentToken != tracker.styleToken) return@setStyle
+                        style.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
                         fillManager = FillManager(this, map, style)
                         lineManager = LineManager(this, map, style)
                         circleManager = CircleManager(this, map, style)
@@ -151,8 +152,9 @@ fun GeofenceMap(
                 lineManager = null
                 circleManager = null
                 
-                map.setStyle(Style.Builder().fromJson(MapLibreStyles.getStyleJson(state.mapStyle, isDarkTheme))) { newStyle ->
+                map.setStyle(MapLibreStyles.getStyleBuilder(state.mapStyle, isDarkTheme)) { newStyle ->
                     if (currentToken != tracker.styleToken) return@setStyle
+                    newStyle.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
                     fillManager = FillManager(mapView, map, newStyle)
                     lineManager = LineManager(mapView, map, newStyle)
                     circleManager = CircleManager(mapView, map, newStyle)
