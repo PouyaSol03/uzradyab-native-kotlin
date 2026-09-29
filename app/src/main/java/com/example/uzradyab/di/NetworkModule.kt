@@ -15,6 +15,7 @@ import com.example.uzradyab.data.remote.api.MapIrApi
 import com.example.uzradyab.data.remote.api.NotificationApi
 import com.example.uzradyab.data.remote.api.AppConfigApi
 import com.example.uzradyab.data.remote.api.TraccarApi
+import com.example.uzradyab.data.remote.api.NeshanApi
 import com.example.uzradyab.data.repository.GeocoderRepositoryImpl
 import com.example.uzradyab.domain.repository.GeocoderRepository
 import com.google.gson.Gson
@@ -189,6 +190,17 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(MapIrApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNeshanApi(@Named(BARE_CLIENT) bareClient: OkHttpClient): NeshanApi {
+        return Retrofit.Builder()
+            .baseUrl("https://api.neshan.org/")
+            .client(bareClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NeshanApi::class.java)
     }
 
     @Provides

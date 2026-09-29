@@ -27,6 +27,10 @@ val neshanApiKey: String = localProperties.getProperty("NESHAN_API_KEY")
     ?: envProperties.getProperty("NESHAN_API_KEY", "")
     ?: ""
 
+val neshanServiceApiKey: String = localProperties.getProperty("NESHAN_SERVICE_API_KEY")
+    ?: envProperties.getProperty("NESHAN_SERVICE_API_KEY", "")
+    ?: ""
+
 android {
     namespace = "com.example.uzradyab"
     compileSdk = 36
@@ -42,6 +46,9 @@ android {
         
         manifestPlaceholders["NESHAN_API_KEY"] = neshanApiKey
         buildConfigField("String", "NESHAN_API_KEY", "\"${neshanApiKey}\"")
+        
+        manifestPlaceholders["NESHAN_SERVICE_API_KEY"] = neshanServiceApiKey
+        buildConfigField("String", "NESHAN_SERVICE_API_KEY", "\"${neshanServiceApiKey}\"")
 
         buildConfigField(
             "String",

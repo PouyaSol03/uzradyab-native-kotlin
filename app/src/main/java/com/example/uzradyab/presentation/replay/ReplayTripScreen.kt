@@ -178,6 +178,7 @@ fun ReplayTripScreen(
                 ReplayMap(
                     positions = state.positions,
                     currentIndex = state.currentIndex,
+                    snappedPoints = state.snappedPoints,
                     mapStyle = state.mapStyle,
                     playSpeed = state.playSpeed,
                     isPlaying = state.isPlaying,

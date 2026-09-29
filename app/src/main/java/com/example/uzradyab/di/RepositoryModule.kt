@@ -95,4 +95,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMaintenanceRepository(impl: com.example.uzradyab.data.repository.MaintenanceRepositoryImpl): com.example.uzradyab.domain.repository.MaintenanceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNeshanRepository(impl: com.example.uzradyab.data.repository.NeshanRepositoryImpl): com.example.uzradyab.domain.repository.NeshanRepository
 }

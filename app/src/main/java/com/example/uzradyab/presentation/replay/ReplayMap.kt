@@ -54,6 +54,7 @@ private val Tehran = LatLng(35.6892, 51.3890)
 fun ReplayMap(
     positions: List<Position>,
     currentIndex: Int,
+    snappedPoints: List<LatLng>? = null,
     mapStyle: String = "osm",
     playSpeed: Int = 1,
     isPlaying: Boolean = false,
@@ -208,7 +209,7 @@ fun ReplayMap(
 
                     if (positions.isNotEmpty()) {
                         // Draw Route Polyline
-                        val routeLatLngs = positions.map { it.toLatLng() }
+                        val routeLatLngs = snappedPoints ?: positions.map { it.toLatLng() }
                         if (routeLine == null) {
                             routeLine = lm.create(
                                 LineOptions()

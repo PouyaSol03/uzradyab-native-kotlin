@@ -27,6 +27,7 @@ import com.example.uzradyab.core.utils.toImmutable
 data class ReplayUiState(
     val isLoading: Boolean = false,
     val positions: ImmutableListWrapper<Position> = emptyImmutableList(),
+    val snappedPoints: List<org.maplibre.android.geometry.LatLng>? = null,
     val currentIndex: Int = 0,
     val isPlaying: Boolean = false,
     val playSpeed: Int = 1, // 1x or 2x
@@ -46,6 +47,7 @@ class ReplayViewModel @Inject constructor(
     private val reportRepository: com.example.uzradyab.domain.repository.ReportRepository,
     private val mapSettingsRepository: com.example.uzradyab.domain.repository.MapSettingsRepository,
     private val geocoderRepository: com.example.uzradyab.domain.repository.GeocoderRepository,
+    private val neshanRepository: com.example.uzradyab.domain.repository.NeshanRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -106,9 +108,16 @@ class ReplayViewModel @Inject constructor(
                     val decimalFormat = java.text.DecimalFormat("#.##", java.text.DecimalFormatSymbols(Locale.US))
                     val formattedDistance = decimalFormat.format(distanceKm) + " کیلومتر"
                     val persianDistance = com.example.uzradyab.core.utils.JalaliUtils.run { formattedDistance.toPersianDigits() }
+                    
+                    val snappedResult = if (positions.isNotEmpty()) {
+                        neshanRepository.getSnappedRoute(positions).getOrNull()
+                    } else {
+                        null
+                    }
 
                     _state.update { it.copy(
                         positions = positions.toImmutable(), 
+                        snappedPoints = snappedResult,
                         currentIndex = 0,
                         isPlaying = false,
                         isLoading = false,
