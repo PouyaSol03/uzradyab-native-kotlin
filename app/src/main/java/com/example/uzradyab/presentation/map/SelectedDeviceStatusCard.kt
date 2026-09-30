@@ -64,9 +64,12 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import org.json.JSONObject
 import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import com.example.uzradyab.ui.theme.UzradyabTheme
 import com.example.uzradyab.ui.theme.themedColor
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun SelectedDeviceStatusCard(
     device: Device,
@@ -77,9 +80,11 @@ fun SelectedDeviceStatusCard(
     onManageClick: () -> Unit,
     onRenewClick: () -> Unit,
     onReplayClick: () -> Unit,
+    onDirectionClick: (lat: Double, lng: Double) -> Unit = {_,_ -> },
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    var showDirectionSheet by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val daysRemaining = daysUntilExpiration(device.expirationTime)
     val hasExpirationWarning = daysRemaining != null && daysRemaining < 10
     val targetCardHeight = when {
@@ -178,10 +183,8 @@ fun SelectedDeviceStatusCard(
                     ActionRow(
                         onManageClick = onManageClick,
                         onDirectionClick = {
-                            position?.let {
-                                val uri = android.net.Uri.parse("geo:${it.latitude},${it.longitude}?q=${it.latitude},${it.longitude}(${android.net.Uri.encode(device.name)})")
-                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
-                                runCatching { context.startActivity(intent) }
+                            if (position != null) {
+                                showDirectionSheet = true
                             }
                         },
                         onShareClick = {
@@ -209,6 +212,89 @@ fun SelectedDeviceStatusCard(
             onClick = onToggleExpanded,
             modifier = Modifier.align(Alignment.TopCenter),
         )
+    }
+    if (showDirectionSheet) {
+        val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { showDirectionSheet = false },
+            sheetState = sheetState,
+            containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
+            dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() },
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(
+                    text = "انتخاب مسیریاب",
+                    color = UzradyabTheme.colors.textPrimary,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Option 1: External Apps
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF171E26)), RoundedCornerShape(12.dp))
+                        .clickable {
+                            showDirectionSheet = false
+                            position?.let {
+                                val uri = android.net.Uri.parse("geo:${it.latitude},${it.longitude}?q=${it.latitude},${it.longitude}(${android.net.Uri.encode(device.name)})")
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri)
+                                runCatching { context.startActivity(intent) }
+                            }
+                        }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NearMe, // Fallback icon for external map
+                        contentDescription = null,
+                        tint = UzradyabTheme.colors.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "مسیریابی با اپلیکیشنهای گوشی",
+                        color = UzradyabTheme.colors.textPrimary,
+                        fontSize = 16.sp
+                    )
+                }
+
+                // Option 2: In-App Navigation
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(themedColor(light = Color(0xFFF0F4F8), dark = Color(0xFF171E26)), RoundedCornerShape(12.dp))
+                        .clickable {
+                            showDirectionSheet = false
+                            position?.let {
+                                onDirectionClick(it.latitude, it.longitude)
+                            }
+                        }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NearMe,
+                        contentDescription = null,
+                        tint = UzradyabTheme.colors.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "مسیریابی داخل اپلیکیشن",
+                        color = UzradyabTheme.colors.textPrimary,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+        }
     }
 }
 

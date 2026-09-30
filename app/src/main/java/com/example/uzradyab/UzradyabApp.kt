@@ -328,6 +328,11 @@ fun UzradyabApp(
                         launchSingleTop = true
                     }
                 },
+                onNavigateToRoute = { deviceId, lat, lng ->
+                    navController.navigate("${AppRoute.Navigation.path}?lat=$lat&lng=$lng&deviceId=$deviceId") {
+                        launchSingleTop = true
+                    }
+                },
                 onAlertsSettingsClick = {
                     navController.navigate("alerts_settings") {
                         launchSingleTop = true
@@ -706,6 +711,35 @@ fun UzradyabApp(
                 onBackClick = { navController.safePopBackStack() }
             )
         }
+        composable(
+            route = "${AppRoute.Navigation.path}?lat={lat}&lng={lng}&deviceId={deviceId}",
+            arguments = listOf(
+                navArgument("lat") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("lng") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+                navArgument("deviceId") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                }
+            )
+        ) {
+            com.example.uzradyab.presentation.navigation.NavigationRoute(
+                onNavigateUp = { navController.safePopBackStack() },
+                onManageDevice = { deviceId ->
+                    navController.safePopBackStack()
+                    navController.navigate("${AppRoute.AddDevice.path}?deviceId=$deviceId&isReadOnly=false") {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
     }
             
             GlobalSnackbarHost(
@@ -814,6 +848,7 @@ private enum class AppRoute(val path: String) {
     AboutExir("/about-exir"),
     ContactSupport("/contact-support"),
     Maintenance("maintenance"),
+    Navigation("/navigation"),
 }
 
 private fun isVersionGreater(v1: String, v2: String): Boolean {

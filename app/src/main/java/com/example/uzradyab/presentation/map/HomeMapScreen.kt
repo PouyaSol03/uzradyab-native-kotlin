@@ -68,6 +68,7 @@ fun HomeMapRoute(
     onMaintenanceClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
     onRenewDeviceClick: (Long) -> Unit,
+    onNavigateToRoute: (deviceId: Long, lat: Double, lng: Double) -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
@@ -126,6 +127,7 @@ fun HomeMapRoute(
         onTrafficToggleClick = viewModel::toggleTraffic,
         onDismissServerDown = viewModel::dismissServerDown,
         onLoadMoreDevices = viewModel::loadMoreDevices,
+        onDirectionClick = onNavigateToRoute,
     )
 }
 
@@ -141,6 +143,7 @@ fun HomeMapScreen(
     onMapStyleSelected: (String) -> Unit,
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
+    onDirectionClick: (deviceId: Long, lat: Double, lng: Double) -> Unit,
     onCloseDeviceManagement: () -> Unit,
     onRenewDeviceClick: (Long) -> Unit,
     onClearInfoMessage: () -> Unit,
@@ -323,6 +326,7 @@ fun HomeMapScreen(
                         onCloseDeviceManagement = onCloseDeviceManagement,
                         onToggleDeviceCard = onToggleDeviceCard,
                         onManageDeviceClick = onManageDeviceClick,
+                        onDirectionClick = onDirectionClick,
                     )
                 }
 
@@ -380,6 +384,7 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
     onCloseDeviceManagement: () -> Unit,
     onToggleDeviceCard: () -> Unit,
     onManageDeviceClick: () -> Unit,
+    onDirectionClick: (deviceId: Long, lat: Double, lng: Double) -> Unit,
 ) {
     AnimatedVisibility(
         visible = deviceManagementOpen,
@@ -447,19 +452,22 @@ private fun androidx.compose.foundation.layout.BoxScope.BottomPanels(
             .fillMaxWidth()
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
-            SelectedDeviceStatusCard(
-                device = selectedDevice,
-                position = selectedPosition,
-                todayDistanceText = todayDistanceText,
-                expanded = deviceCardExpanded,
-                onToggleExpanded = onToggleDeviceCard,
-                onManageClick = onManageDeviceClick,
-                onRenewClick = { onRenewDeviceClick(selectedDevice.id) },
-                onReplayClick = { onReplayTripClick(selectedDevice.id) },
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .padding(bottom = 16.dp),
-            )
+            if (selectedDevice != null) {
+                SelectedDeviceStatusCard(
+                    device = selectedDevice,
+                    position = selectedPosition,
+                    todayDistanceText = todayDistanceText,
+                    expanded = deviceCardExpanded,
+                    onToggleExpanded = onToggleDeviceCard,
+                    onManageClick = onManageDeviceClick,
+                    onRenewClick = { onRenewDeviceClick(selectedDevice.id) },
+                    onReplayClick = { onReplayTripClick(selectedDevice.id) },
+                    onDirectionClick = { lat, lng -> onDirectionClick(selectedDevice.id, lat, lng) },
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .padding(bottom = 16.dp),
+                )
+            }
         }
     }
 }
