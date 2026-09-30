@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Traffic
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -78,11 +79,13 @@ fun MapTopControls(
     selectedDeviceId: Long?,
     latestEvent: MapLatestEventItem?,
     isMapLocked: Boolean,
+    isTrafficEnabled: Boolean,
     showLockWarning: Boolean,
     onDeviceSelectorClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onEventsClick: () -> Unit,
     onLockToggleClick: () -> Unit,
+    onTrafficToggleClick: () -> Unit,
     isSettingsEnabled: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
@@ -126,16 +129,21 @@ fun MapTopControls(
             )
             NotificationButton(onClick = onEventsClick)
         }
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .widthIn(max = 343.dp),
-            horizontalArrangement = Arrangement.End,
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             LockButton(
                 isLocked = isMapLocked,
                 showWarning = showLockWarning,
                 onClick = onLockToggleClick
+            )
+            TrafficButton(
+                isTrafficEnabled = isTrafficEnabled,
+                onClick = onTrafficToggleClick
             )
         }
     }
@@ -306,6 +314,28 @@ private fun LockButton(isLocked: Boolean, showWarning: Boolean, onClick: () -> U
                 modifier = Modifier.size(20.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun TrafficButton(isTrafficEnabled: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .shadow(18.dp, RoundedCornerShape(8.dp), clip = false)
+            .background(if (isTrafficEnabled) UzradyabTheme.colors.primary else themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(8.dp))
+            .clickable {
+                android.util.Log.d("MapTraffic", "TrafficButton clicked")
+                onClick()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = Icons.Default.Traffic,
+            contentDescription = "Toggle Traffic",
+            tint = if (isTrafficEnabled) themedColor(light = Color.White, dark = Color.White) else UzradyabTheme.colors.primary,
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 

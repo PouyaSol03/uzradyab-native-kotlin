@@ -72,6 +72,7 @@ fun HomeMapRoute(
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val isTrafficEnabled by viewModel.isTrafficEnabled.collectAsStateWithLifecycle()
 
     // Permission launcher for Push Notifications (Android 13+)
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -94,6 +95,7 @@ fun HomeMapRoute(
 
     HomeMapScreen(
         state = state,
+        isTrafficEnabled = isTrafficEnabled,
         onDeviceClick = viewModel::selectDevice,
         onToggleDevices = viewModel::toggleDevices,
         onOpenMapSettings = viewModel::openMapSettings,
@@ -121,6 +123,7 @@ fun HomeMapRoute(
         onGeofencesClick = onGeofencesClick,
         onMaintenanceClick = onMaintenanceClick,
         onToggleMapLock = viewModel::toggleMapLock,
+        onTrafficToggleClick = viewModel::toggleTraffic,
         onDismissServerDown = viewModel::dismissServerDown,
         onLoadMoreDevices = viewModel::loadMoreDevices,
     )
@@ -129,6 +132,7 @@ fun HomeMapRoute(
 @Composable
 fun HomeMapScreen(
     state: HomeMapUiState,
+    isTrafficEnabled: Boolean,
     onDeviceClick: (Long) -> Unit,
     onToggleDevices: () -> Unit,
     onLoadMoreDevices: () -> Unit = {},
@@ -157,6 +161,7 @@ fun HomeMapScreen(
     onMaintenanceClick: () -> Unit,
     onGeofenceClick: (Long) -> Unit,
     onToggleMapLock: () -> Unit,
+    onTrafficToggleClick: () -> Unit,
     onDebugLogsClick: (() -> Unit)? = null,
     onDismissServerDown: () -> Unit,
     modifier: Modifier = Modifier,
@@ -164,6 +169,8 @@ fun HomeMapScreen(
     val selectedDevice = remember(state.devices, state.selectedDeviceId) { 
         state.devices.firstOrNull { it.id == state.selectedDeviceId } 
     }
+    
+    android.util.Log.d("MapTraffic", "HomeMapScreen composed. isTrafficEnabled: $isTrafficEnabled")
     
     androidx.compose.runtime.LaunchedEffect(Unit) {
         android.util.Log.d("LoginPerformance", "HomeMapScreen launched at ${System.currentTimeMillis()}")
@@ -236,6 +243,7 @@ fun HomeMapScreen(
                     selectedDeviceId = state.selectedDeviceId,
                     mapStyle = state.mapStyle,
                     isMapLocked = state.isMapLocked,
+                    isTrafficEnabled = isTrafficEnabled,
                     mapBottomPadding = mapBottomPadding,
                     onMapInteraction = {
                         if (state.deviceManagementOpen) {
@@ -252,11 +260,13 @@ fun HomeMapScreen(
                     selectedDeviceId = state.selectedDeviceId,
                     latestEvent = state.latestEvent,
                     isMapLocked = state.isMapLocked,
+                    isTrafficEnabled = isTrafficEnabled,
                     showLockWarning = showLockWarning,
                     onDeviceSelectorClick = onToggleDevices,
                     onSettingsClick = onOpenMapSettings,
                     onEventsClick = onEventsClick,
                     onLockToggleClick = onToggleMapLock,
+                    onTrafficToggleClick = onTrafficToggleClick,
                     isSettingsEnabled = !state.isAlternativeMapForced,
                     modifier = Modifier
                         .align(Alignment.TopCenter)

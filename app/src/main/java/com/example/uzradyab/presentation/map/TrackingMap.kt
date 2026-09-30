@@ -60,6 +60,7 @@ fun TrackingMap(
     selectedDeviceId: Long?,
     mapStyle: String = "osm",
     isMapLocked: Boolean,
+    isTrafficEnabled: Boolean = false,
     mapBottomPadding: Dp = 0.dp,
     onMapInteraction: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -73,6 +74,7 @@ fun TrackingMap(
 
     val currentOnMapInteraction by rememberUpdatedState(onMapInteraction)
     val currentIsMapLocked by rememberUpdatedState(isMapLocked)
+    val currentIsTrafficEnabled by rememberUpdatedState(isTrafficEnabled)
     
     var tailPositions by remember { mutableStateOf<List<LatLng>>(emptyList()) }
     var currentTailDeviceId by remember { mutableStateOf<Long?>(null) }
@@ -110,6 +112,7 @@ fun TrackingMap(
         var userInteracted: Boolean = false
         var lastMapStyle: String? = null
         var styleToken: Int = 0
+        var isTrafficEnabled: Boolean? = null
     } }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -166,6 +169,25 @@ fun TrackingMap(
                         map.setStyle(MapLibreStyles.getStyleBuilder(mapStyle, isDarkTheme)) { style ->
                             if (currentToken != tracker.styleToken) return@setStyle
                             style.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
+                            
+                            val visibility = if (currentIsTrafficEnabled) {
+                                org.maplibre.android.style.layers.Property.VISIBLE
+                            } else {
+                                org.maplibre.android.style.layers.Property.NONE
+                            }
+                            android.util.Log.d("MapTraffic", "setStyle: Setting traffic visibility to $visibility for mapStyle=$mapStyle")
+                            var foundLayers = 0
+                            listOf("traffic-minor", "traffic-primary", "traffic-highway").forEach { layerId ->
+                                val layer = style.getLayer(layerId)
+                                if (layer != null) {
+                                    foundLayers++
+                                    layer.setProperties(
+                                        org.maplibre.android.style.layers.PropertyFactory.visibility(visibility)
+                                    )
+                                }
+                            }
+                            android.util.Log.d("MapTraffic", "setStyle: Found $foundLayers/3 traffic layers in style")
+                            
                             lineManager = LineManager(this, map, style)
                             symbolManager = SymbolManager(this, map, style).apply {
                                 iconAllowOverlap = true
@@ -214,12 +236,57 @@ fun TrackingMap(
                     map.setStyle(MapLibreStyles.getStyleBuilder(mapStyle, isDarkTheme)) { newStyle ->
                         if (currentToken != tracker.styleToken) return@setStyle
                         newStyle.getLayer("points")?.setProperties(org.maplibre.android.style.layers.PropertyFactory.visibility(org.maplibre.android.style.layers.Property.VISIBLE))
+                        
+                        val visibility = if (currentIsTrafficEnabled) {
+                            org.maplibre.android.style.layers.Property.VISIBLE
+                        } else {
+                            org.maplibre.android.style.layers.Property.NONE
+                        }
+                        android.util.Log.d("MapTraffic", "Update: Setting traffic visibility to $visibility for mapStyle=$mapStyle")
+                        var foundLayers = 0
+                        listOf("traffic-minor", "traffic-primary", "traffic-highway").forEach { layerId ->
+                            val layer = newStyle.getLayer(layerId)
+                            if (layer != null) {
+                                foundLayers++
+                                layer.setProperties(
+                                    org.maplibre.android.style.layers.PropertyFactory.visibility(visibility)
+                                )
+                            }
+                        }
+                        android.util.Log.d("MapTraffic", "Update: Found $foundLayers/3 traffic layers in style")
+                        
                         lineManager = LineManager(mapView, map, newStyle)
                         symbolManager = SymbolManager(mapView, map, newStyle).apply {
                             iconAllowOverlap = true
                             iconIgnorePlacement = true
                             iconRotationAlignment = org.maplibre.android.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT
                         }
+                    }
+                }
+
+                // Traffic updates
+                if (tracker.isTrafficEnabled != currentIsTrafficEnabled) {
+                    android.util.Log.d("MapTraffic", "isTrafficEnabled state changed to: $currentIsTrafficEnabled")
+                    tracker.isTrafficEnabled = currentIsTrafficEnabled
+                    map.style?.let { style ->
+                        val visibility = if (currentIsTrafficEnabled) {
+                            org.maplibre.android.style.layers.Property.VISIBLE
+                        } else {
+                            org.maplibre.android.style.layers.Property.NONE
+                        }
+                        var foundLayers = 0
+                        listOf("traffic-minor", "traffic-primary", "traffic-highway").forEach { layerId ->
+                            val layer = style.getLayer(layerId)
+                            if (layer != null) {
+                                foundLayers++
+                                layer.setProperties(
+                                    org.maplibre.android.style.layers.PropertyFactory.visibility(visibility)
+                                )
+                            }
+                        }
+                        android.util.Log.d("MapTraffic", "StateUpdate: Found $foundLayers/3 traffic layers in style. source=${style.getSource("traffic") != null}")
+                    } ?: run {
+                        android.util.Log.d("MapTraffic", "StateUpdate: map.style is null!")
                     }
                 }
 

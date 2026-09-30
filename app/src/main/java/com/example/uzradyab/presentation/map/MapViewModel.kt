@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -85,6 +86,9 @@ class MapViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
     private val localState = MutableStateFlow(HomeMapUiState(mapStyle = mapSettingsRepository.getMapStyleSync()))
+    
+    private val _isTrafficEnabled = MutableStateFlow<Boolean>(false)
+    val isTrafficEnabled: StateFlow<Boolean> = _isTrafficEnabled.asStateFlow()
 
     // Removed Osmdroid alternative source tracking
 
@@ -117,7 +121,7 @@ class MapViewModel @Inject constructor(
             mapStyle
         }
 
-        local.copy(
+        val result = local.copy(
             devices = snapshot.devices.toImmutable(),
             latestPositions = snapshot.latestPositions.toImmutable(),
             selectedDeviceId = selected,
@@ -126,6 +130,7 @@ class MapViewModel @Inject constructor(
             isAlternativeMapForced = isAlternativeForced,
             latestEvent = selected?.let { id -> local.latestEventsMap[id] ?: latestEventForDevice(recentEvents, id) },
         )
+        result
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeMapUiState())
 
     init {
@@ -307,6 +312,11 @@ class MapViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun toggleTraffic() {
+        android.util.Log.d("MapTraffic", "ViewModel.toggleTraffic called. Current: ${_isTrafficEnabled.value}")
+        _isTrafficEnabled.value = !_isTrafficEnabled.value
     }
 
     private fun observeSelectedDeviceDistance() {
