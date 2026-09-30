@@ -5,4 +5,5 @@ import org.maplibre.android.geometry.LatLng
 
 interface NeshanRepository {
     suspend fun getSnappedRoute(rawPoints: List<Position>): Result<List<LatLng>>
+    suspend fun getRoute(origin: LatLng, dest: LatLng): Result<List<com.example.uzradyab.domain.model.RouteDomainModel>>
 }

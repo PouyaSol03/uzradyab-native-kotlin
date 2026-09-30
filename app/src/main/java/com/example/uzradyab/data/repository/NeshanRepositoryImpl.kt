@@ -140,4 +140,98 @@ class NeshanRepositoryImpl @Inject constructor(
         }
         return list
     }
+
+    override suspend fun getRoute(origin: LatLng, dest: LatLng): Result<List<com.example.uzradyab.domain.model.RouteDomainModel>> = runCatching {
+        val originStr = "${origin.latitude},${origin.longitude}"
+        val destStr = "${dest.latitude},${dest.longitude}"
+        val response = api.getDirection(type = "car", origin = originStr, destination = destStr)
+        android.util.Log.d("NavigationFlow", "Neshan Response: ${com.google.gson.Gson().toJson(response)}")
+
+        val routes = response.routes ?: throw Exception("No route found")
+        if (routes.isEmpty()) throw Exception("No route found")
+
+        routes.map { route ->
+            val polylineStr = route.overview_polyline?.points ?: throw Exception("No polyline found")
+            val leg = route.legs?.firstOrNull() ?: throw Exception("No leg info found")
+            val steps = leg.steps.orEmpty().mapNotNull(::toRouteStep)
+
+            // The overview polyline is simplified and cuts across blocks; step polylines follow the road.
+            val detailedPoints = mutableListOf<LatLng>()
+            steps.forEach { step ->
+                step.points.forEach { point ->
+                    if (detailedPoints.lastOrNull() != point) detailedPoints.add(point)
+                }
+            }
+
+            com.example.uzradyab.domain.model.RouteDomainModel(
+                points = if (detailedPoints.size >= 2) detailedPoints else decodePolyline(polylineStr),
+                distanceText = leg.distance?.text ?: "",
+                durationText = leg.duration?.text ?: "",
+                summaryText = leg.summary ?: "",
+                distanceMeters = leg.distance?.value ?: 0,
+                durationSeconds = leg.duration?.value ?: 0,
+                steps = steps
+            )
+        }
+    }
+
+    private fun toRouteStep(step: com.example.uzradyab.data.remote.dto.NeshanStep): com.example.uzradyab.domain.model.RouteStep? {
+        val points = step.polyline?.let(::decodePolyline).orEmpty()
+        val start = step.start_location
+            ?.takeIf { it.size >= 2 }
+            ?.let { LatLng(it[1], it[0]) }
+            ?: points.firstOrNull()
+            ?: return null
+
+        return com.example.uzradyab.domain.model.RouteStep(
+            instruction = step.instruction.orEmpty(),
+            streetName = step.name.orEmpty(),
+            distanceMeters = step.distance?.value ?: 0,
+            durationSeconds = step.duration?.value ?: 0,
+            distanceText = step.distance?.text.orEmpty(),
+            maneuver = com.example.uzradyab.domain.model.Maneuver(
+                type = step.type.orEmpty(),
+                modifier = step.modifier.orEmpty()
+            ),
+            startLocation = start,
+            bearingAfter = step.bearing_after,
+            rotaryExit = step.exit,
+            rotaryName = step.rotaryName,
+            points = points
+        )
+    }
+
+    private fun decodePolyline(encoded: String): List<LatLng> {
+        val poly = mutableListOf<LatLng>()
+        var index = 0
+        val len = encoded.length
+        var lat = 0
+        var lng = 0
+
+        while (index < len) {
+            var b: Int
+            var shift = 0
+            var result = 0
+            do {
+                b = encoded[index++].code - 63
+                result = result or (b and 0x1f shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val dlat = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lat += dlat
+
+            shift = 0
+            result = 0
+            do {
+                b = encoded[index++].code - 63
+                result = result or (b and 0x1f shl shift)
+                shift += 5
+            } while (b >= 0x20)
+            val dlng = if (result and 1 != 0) (result shr 1).inv() else result shr 1
+            lng += dlng
+
+            poly.add(LatLng(lat.toDouble() / 1E5, lng.toDouble() / 1E5))
+        }
+        return poly
+    }
 }

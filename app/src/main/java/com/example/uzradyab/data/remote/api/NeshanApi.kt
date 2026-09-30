@@ -19,4 +19,13 @@ interface NeshanApi {
         @Query("lng") lng: Double,
         @Header("Api-Key") apiKey: String = BuildConfig.NESHAN_SERVICE_API_KEY
     ): JsonObject
+
+    @GET("v4/direction")
+    suspend fun getDirection(
+        @Query("type") type: String,
+        @Query("origin") origin: String,
+        @Query("destination") destination: String,
+        @Query("alternative") alternative: Boolean = true,
+        @Header("Api-Key") apiKey: String = BuildConfig.NESHAN_SERVICE_API_KEY
+    ): com.example.uzradyab.data.remote.dto.NeshanDirectionResponse
 }
