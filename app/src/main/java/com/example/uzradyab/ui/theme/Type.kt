@@ -9,7 +9,11 @@ import androidx.compose.ui.unit.sp
 import com.example.uzradyab.R
 
 val Vazirmatn = FontFamily(
-    Font(R.font.vazirmatn_regular, FontWeight.Normal)
+    Font(R.font.vazirmatn_regular, FontWeight.Normal),
+    Font(R.font.vazirmatn_medium, FontWeight.Medium),
+    Font(R.font.vazirmatn_semibold, FontWeight.SemiBold),
+    Font(R.font.vazirmatn_bold, FontWeight.Bold),
+    Font(R.font.vazirmatn_extrabold, FontWeight.ExtraBold)
 )
 
 val Typography = Typography(
