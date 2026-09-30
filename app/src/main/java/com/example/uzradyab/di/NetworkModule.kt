@@ -205,7 +205,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGeocoderRepository(api: MapIrApi): GeocoderRepository {
-        return GeocoderRepositoryImpl(api)
+    fun provideGeocoderRepository(exirApi: MapIrApi, neshanApi: NeshanApi): GeocoderRepository {
+        return GeocoderRepositoryImpl(exirApi, neshanApi)
     }
 }

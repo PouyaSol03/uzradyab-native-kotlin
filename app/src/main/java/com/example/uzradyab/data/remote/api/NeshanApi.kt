@@ -12,4 +12,11 @@ interface NeshanApi {
         @Query("path") path: String,
         @Header("Api-Key") apiKey: String = BuildConfig.NESHAN_SERVICE_API_KEY
     ): JsonObject
+
+    @GET("v5/reverse")
+    suspend fun getReverseGeocode(
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double,
+        @Header("Api-Key") apiKey: String = BuildConfig.NESHAN_SERVICE_API_KEY
+    ): JsonObject
 }

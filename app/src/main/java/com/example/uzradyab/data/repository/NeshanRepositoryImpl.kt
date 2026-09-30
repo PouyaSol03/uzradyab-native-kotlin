@@ -9,6 +9,8 @@ import org.maplibre.android.geometry.LatLng
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import com.example.uzradyab.domain.repository.GeocoderRepository
+
 @Singleton
 class NeshanRepositoryImpl @Inject constructor(
     private val api: NeshanApi

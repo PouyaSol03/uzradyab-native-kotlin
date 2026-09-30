@@ -1,6 +1,7 @@
 package com.example.uzradyab.data.repository
 
 import com.example.uzradyab.data.remote.api.MapIrApi
+import com.example.uzradyab.data.remote.api.NeshanApi
 import com.example.uzradyab.domain.repository.GeocoderRepository
 import java.util.Collections
 import java.util.LinkedHashMap
@@ -9,7 +10,8 @@ import javax.inject.Singleton
 
 @Singleton
 class GeocoderRepositoryImpl @Inject constructor(
-    private val api: MapIrApi
+    private val exirApi: MapIrApi,
+    private val neshanApi: NeshanApi
 ) : GeocoderRepository {
 
     // ساختار کش شامل آدرس و زمان ثبت آن
@@ -42,10 +44,25 @@ class GeocoderRepositoryImpl @Inject constructor(
         }
 
         return try {
-            val response = api.getReverseGeocode(lat = lat, lon = lon, apiKey = API_KEY)
+            // Try Neshan API first
+            try {
+                val neshanResponse = neshanApi.getReverseGeocode(lat, lon)
+                if (neshanResponse.has("formatted_address")) {
+                    val address = neshanResponse.get("formatted_address").asString
+                    if (address.isNotBlank()) {
+                        cache[cacheKey] = CacheEntry(address = address, timestamp = currentTime)
+                        return address
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("GeocoderRepo", "Neshan Geocode Error: ${e.message}")
+            }
+
+            // Fallback to Exir API
+            val response = exirApi.getReverseGeocode(lat = lat, lon = lon, apiKey = API_KEY)
             val jsonString = response.toString()
 
-            android.util.Log.d("GeocoderRepo", "New Geocode Response: $jsonString")
+            android.util.Log.d("GeocoderRepo", "New Geocode Response (Exir): $jsonString")
 
             val newAddress = try {
                 val addressObj = response.getAsJsonObject("address")
