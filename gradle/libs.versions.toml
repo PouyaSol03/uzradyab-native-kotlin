@@ -73,6 +73,7 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version = "21.3.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
