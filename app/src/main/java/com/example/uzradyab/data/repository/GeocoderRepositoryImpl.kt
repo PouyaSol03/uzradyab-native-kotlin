@@ -50,6 +50,7 @@ class GeocoderRepositoryImpl @Inject constructor(
                 if (neshanResponse.has("formatted_address")) {
                     val address = neshanResponse.get("formatted_address").asString
                     if (address.isNotBlank()) {
+                        android.util.Log.d("Geocoder", "[Provider: Neshan] Successfully fetched address for $lat,$lon -> $address")
                         cache[cacheKey] = CacheEntry(address = address, timestamp = currentTime)
                         return address
                     }
@@ -61,8 +62,6 @@ class GeocoderRepositoryImpl @Inject constructor(
             // Fallback to Exir API
             val response = exirApi.getReverseGeocode(lat = lat, lon = lon, apiKey = API_KEY)
             val jsonString = response.toString()
-
-            android.util.Log.d("GeocoderRepo", "New Geocode Response (Exir): $jsonString")
 
             val newAddress = try {
                 val addressObj = response.getAsJsonObject("address")
@@ -88,6 +87,7 @@ class GeocoderRepositoryImpl @Inject constructor(
             }
 
             // ذخیره در کش
+            android.util.Log.d("Geocoder", "[Provider: Exir/MapIr] Successfully fetched address for $lat,$lon -> $newAddress")
             cache[cacheKey] = CacheEntry(address = newAddress, timestamp = currentTime)
 
             newAddress
