@@ -339,6 +339,7 @@ private fun TrafficButton(isTrafficEnabled: Boolean, onClick: () -> Unit) {
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MapSettingsDialog(
     currentStyle: String,
@@ -349,82 +350,82 @@ fun MapSettingsDialog(
     var selectedStyle by rememberSaveable { mutableStateOf(currentStyle) }
     val options = listOf(
         MapStyleOption("neshan", "نقشه نشان"),
-        MapStyleOption("neshanDark", "نشان (حالت شب)"),
         MapStyleOption("googleSatellite", "ماهواره‌ای گوگل"),
         MapStyleOption("googleRoad", "جاده گوگل"),
         MapStyleOption("carto", "اکسیر"),
-        MapStyleOption("osm", "استاندارد (OSM)"),
     )
 
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
+    val sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F)),
+        dragHandle = { androidx.compose.material3.BottomSheetDefaults.DragHandle() },
+    ) {
+        Column(
             modifier = modifier
                 .fillMaxWidth()
-                .widthIn(max = 420.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            horizontalAlignment = Alignment.Start,
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SettingsGearIcon(size = 22, color = UzradyabTheme.colors.textMuted)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.str_c9c1b29c),
-                        color = UzradyabTheme.colors.textPrimary,
-                        fontSize = 18.sp,
-                        lineHeight = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                Spacer(modifier = Modifier.height(20.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(R.string.str_eab3008b),
+                    text = stringResource(R.string.str_c9c1b29cB),
                     color = UzradyabTheme.colors.textPrimary,
-                    fontSize = 14.sp,
-                    lineHeight = 24.sp,
-                    textAlign = TextAlign.Right,
-                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 20.sp,
+                    lineHeight = 30.sp,
+                    fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    options.chunked(2).forEach { rowOptions ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        ) {
-                            rowOptions.forEach { option ->
-                                MapStyleCard(
-                                    option = option,
-                                    selected = option.id == selectedStyle,
-                                    onClick = { selectedStyle = option.id },
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            // Text(
+            //     text = stringResource(R.string.str_eab3008b),
+            //     color = UzradyabTheme.colors.textPrimary,
+            //     fontSize = 14.sp,
+            //     lineHeight = 24.sp,
+            //     textAlign = TextAlign.Right,
+            //     modifier = Modifier.fillMaxWidth(),
+            // )
+            // Spacer(modifier = Modifier.height(16.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                options.chunked(2).forEach { rowOptions ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        rowOptions.forEach { option ->
+                            MapStyleCard(
+                                option = option,
+                                selected = option.id == selectedStyle,
+                                onClick = { selectedStyle = option.id },
+                                modifier = Modifier.weight(1f),
+                            )
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    DialogTextButton(
-                        text = stringResource(R.string.str_c8d2a1fb),
-                        primary = false,
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                    )
-                    DialogTextButton(
-                        text = stringResource(R.string.str_55d482e1),
-                        primary = true,
-                        onClick = { onSaveStyle(selectedStyle) },
-                        modifier = Modifier.weight(1f),
-                    )
-                }
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                DialogTextButton(
+                    text = stringResource(R.string.str_c8d2a1fb),
+                    primary = false,
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f),
+                )
+                DialogTextButton(
+                    text = stringResource(R.string.str_55d482e1),
+                    primary = true,
+                    onClick = { 
+                        onSaveStyle(selectedStyle) 
+                        onDismiss()
+                    },
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
