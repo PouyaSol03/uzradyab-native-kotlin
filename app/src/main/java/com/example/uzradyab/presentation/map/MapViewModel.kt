@@ -22,6 +22,7 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import android.util.Log
+import com.example.uzradyab.core.utils.EventLabels
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.core.utils.ImmutableMapWrapper
 import com.example.uzradyab.core.utils.emptyImmutableList
@@ -433,32 +434,8 @@ private fun com.example.uzradyab.domain.model.LatestNotificationEvent.toTickerIt
     )
 }
 
-private fun formatEventText(event: Event): String {
-    return when (event.type) {
-        "all" -> "همه رویدادها"
-        "deviceOnline" -> "وضعیت آنلاین"
-        "deviceUnknown" -> "وضعیت نامعلوم"
-        "deviceOffline" -> "وضعیت آفلاین"
-        "deviceInactive" -> "دستگاه غیرفعال"
-        "queuedCommandSent" -> "Queued command sent"
-        "deviceMoving" -> "حرکت دستگاه"
-        "deviceStopped" -> "دستگاه متوقف شد"
-        "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
-        "deviceFuelDrop" -> "افت سوخت"
-        "deviceFuelIncrease" -> "افزایش سوخت"
-        "commandResult" -> "نتیجه ارسال دستور"
-        "geofenceEnter" -> "ورود محدوده جغرافیایی"
-        "geofenceExit" -> "خروج محدوده جغرافیایی"
-        "alarm" -> "هشدار"
-        "ignitionOn" -> "سویچ روشن"
-        "ignitionOff" -> "سوئیچ خاموش"
-        "maintenance" -> "نیاز به تعمیر"
-        "textMessage" -> "پیامک دریافت شد"
-        "driverChanged" -> "تعویض راننده"
-        "media" -> "مدیا"
-        else -> if (event.type.isBlank()) "رویداد جدید" else event.type
-    }
-}
+private fun formatEventText(event: Event): String =
+    EventLabels.titleFromAttributesJson(event.type, event.attributesJson)
 
 fun daysUntilExpiration(value: String?): Int? {
     if (value == null) return null

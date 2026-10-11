@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import com.example.uzradyab.core.utils.EventLabels
 import com.example.uzradyab.core.utils.FormatUtils
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.core.utils.emptyImmutableList
@@ -147,40 +148,13 @@ class EventsReportViewModel @Inject constructor(
     }
 
     private fun eventToItem(event: Event): EventUiModel {
-        val title = eventTitle(event.type)
+        val title = EventLabels.titleFromAttributesJson(event.type, event.attributesJson)
         return EventUiModel(
             id = event.id,
             title = title,
-            description = eventTitle(event.type),
+            description = title,
             time = FormatUtils.formatEventTimeJalali(event.eventTime),
         )
-    }
-
-    private fun eventTitle(type: String): String {
-        return when (type) {
-            "all" -> "همه رویدادها"
-            "deviceOnline" -> "وضعیت آنلاین"
-            "deviceUnknown" -> "وضعیت نامعلوم"
-            "deviceOffline" -> "وضعیت آفلاین"
-            "deviceInactive" -> "دستگاه غیرفعال"
-            "queuedCommandSent" -> "Queued command sent"
-            "deviceMoving" -> "حرکت دستگاه"
-            "deviceStopped" -> "دستگاه متوقف شد"
-            "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
-            "deviceFuelDrop" -> "افت سوخت"
-            "deviceFuelIncrease" -> "افزایش سوخت"
-            "commandResult" -> "نتیجه ارسال دستور"
-            "geofenceEnter" -> "ورود محدوده جغرافیایی"
-            "geofenceExit" -> "خروج محدوده جغرافیایی"
-            "alarm" -> "هشدار"
-            "ignitionOn" -> "سویچ روشن"
-            "ignitionOff" -> "سوئیچ خاموش"
-            "maintenance" -> "نیاز به تعمیر"
-            "textMessage" -> "پیامک دریافت شد"
-            "driverChanged" -> "تعویض راننده"
-            "media" -> "مدیا"
-            else -> if (type.isBlank()) "رویداد جدید" else type
-        }
     }
 
     private fun getRange(filter: EventDateFilter): Pair<String, String> {

@@ -2,6 +2,7 @@ package com.example.uzradyab.data.repository
 
 import com.example.uzradyab.core.debug.AppLogger
 import com.example.uzradyab.core.debug.LogLevel
+import com.example.uzradyab.core.utils.EventLabels
 import com.example.uzradyab.data.local.dao.EventDao
 import com.example.uzradyab.data.mapper.toDomain
 import com.example.uzradyab.data.remote.api.TraccarApi
@@ -50,7 +51,7 @@ class EventRepositoryImpl @Inject constructor(
                 listOf(
                     LatestNotificationEvent(
                         id = latest.id.toString(),
-                        text = formatEventType(latest.type ?: ""),
+                        text = EventLabels.title(latest.type ?: "", latest.attributes),
                         time = latest.eventTime
                     )
                 )
@@ -76,32 +77,5 @@ class EventRepositoryImpl @Inject constructor(
         result
     }.onFailure { e ->
         AppLogger.log(LogLevel.ERROR, "EventReport", "Failed to fetch events: ${e.message}")
-    }
-
-    private fun formatEventType(type: String): String {
-        return when (type) {
-            "all" -> "همه رویدادها"
-            "deviceOnline" -> "وضعیت آنلاین"
-            "deviceUnknown" -> "وضعیت نامعلوم"
-            "deviceOffline" -> "وضعیت آفلاین"
-            "deviceInactive" -> "دستگاه غیرفعال"
-            "queuedCommandSent" -> "Queued command sent"
-            "deviceMoving" -> "حرکت دستگاه"
-            "deviceStopped" -> "دستگاه متوقف شد"
-            "deviceOverspeed" -> "سرعت از حد مجاز فراتر رفت"
-            "deviceFuelDrop" -> "افت سوخت"
-            "deviceFuelIncrease" -> "افزایش سوخت"
-            "commandResult" -> "نتیجه ارسال دستور"
-            "geofenceEnter" -> "ورود محدوده جغرافیایی"
-            "geofenceExit" -> "خروج محدوده جغرافیایی"
-            "alarm" -> "هشدار"
-            "ignitionOn" -> "سویچ روشن"
-            "ignitionOff" -> "سوئیچ خاموش"
-            "maintenance" -> "نیاز به تعمیر"
-            "textMessage" -> "پیامک دریافت شد"
-            "driverChanged" -> "تعویض راننده"
-            "media" -> "مدیا"
-            else -> if (type.isBlank()) "رویداد جدید" else type
-        }
     }
 }
