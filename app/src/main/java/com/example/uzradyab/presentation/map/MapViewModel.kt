@@ -67,6 +67,7 @@ data class HomeMapUiState(
     val infoMessage: String? = null,
     val connectionError: ConnectionErrorType = ConnectionErrorType.NONE,
     val isCheckingServer: Boolean = false,
+    val isLoadingMoreDevices: Boolean = false,
 )
 
 data class MapLatestEventItem(
@@ -173,8 +174,14 @@ class MapViewModel @Inject constructor(
     }
 
     fun loadMoreDevices() {
+        if (localState.value.isLoadingMoreDevices) return
+        localState.update { it.copy(isLoadingMoreDevices = true) }
         viewModelScope.launch {
-            deviceRepository.loadMoreDevices(limit = 30)
+            try {
+                deviceRepository.loadMoreDevices(limit = 30)
+            } finally {
+                localState.update { it.copy(isLoadingMoreDevices = false) }
+            }
         }
     }
 

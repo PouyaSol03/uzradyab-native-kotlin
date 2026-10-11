@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.uzradyab.core.utils.DeviceSearch
 import com.example.uzradyab.domain.model.Device
 import com.example.uzradyab.presentation.map.AppTopToolbar
 import com.example.uzradyab.presentation.map.BackButton
@@ -46,12 +48,19 @@ fun DevicesRoute(
     onMenuClick: () -> Unit,
     onEditDeviceClick: (Long) -> Unit,
     onRenewCreditClick: (Long) -> Unit,
-    viewModel: MapViewModel = hiltViewModel()
+    viewModel: MapViewModel = hiltViewModel(),
+    searchViewModel: DeviceSearchViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    
+    val searchState by searchViewModel.uiState.collectAsStateWithLifecycle()
+
     DevicesScreen(
         devices = state.devices,
+        remoteSearchResults = searchState.results,
+        isSearching = searchState.isSearching,
+        isLoadingMore = state.isLoadingMoreDevices,
+        onSearchQueryChange = searchViewModel::onQueryChange,
+        onLoadMore = viewModel::loadMoreDevices,
         onAddDeviceClick = onAddDeviceClick,
         onBackClick = onMenuClick,
         onEditDeviceClick = onEditDeviceClick,
@@ -66,20 +75,23 @@ fun DevicesScreen(
     onAddDeviceClick: () -> Unit,
     onBackClick: () -> Unit,
     onEditDeviceClick: (Long) -> Unit,
-    onRenewCreditClick: (Long) -> Unit
+    onRenewCreditClick: (Long) -> Unit,
+    remoteSearchResults: List<Device> = emptyList(),
+    isSearching: Boolean = false,
+    isLoadingMore: Boolean = false,
+    onSearchQueryChange: (String) -> Unit = {},
+    onLoadMore: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf(DeviceFilter.ALL) }
     var showFilterSheet by remember { mutableStateOf(false) }
-    
-    val filteredDevices = remember(searchQuery, selectedFilter, devices) {
-        devices.filter { device ->
-            val matchesSearch = if (searchQuery.isBlank()) true else {
-                device.name.contains(searchQuery, ignoreCase = true) || 
-                device.uniqueId.contains(searchQuery, ignoreCase = true) ||
-                (device.phone?.contains(searchQuery) == true)
-            }
-            
+
+    LaunchedEffect(searchQuery) { onSearchQueryChange(searchQuery.trim()) }
+
+    val filteredDevices = remember(searchQuery, selectedFilter, devices, remoteSearchResults) {
+        val searched = if (searchQuery.isBlank()) devices
+        else DeviceSearch.merge(devices, remoteSearchResults, searchQuery)
+        searched.filter { device ->
             val daysRemaining = daysUntilExpiration(device.expirationTime)
             val isExpired = daysRemaining != null && daysRemaining <= 0
             
@@ -88,8 +100,26 @@ fun DevicesScreen(
                 DeviceFilter.ACTIVE -> !isExpired
                 DeviceFilter.EXPIRED -> isExpired
             }
-            
-            matchesSearch && matchesFilter
+
+            matchesFilter
+        }
+    }
+
+    // Load the next page when the end of the list is reached. Keyed on the device count
+    // too, so a short filtered list keeps paging until it fills the screen or runs out.
+    val listState = rememberLazyListState()
+    val isNearEnd by remember {
+        derivedStateOf {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val total = listState.layoutInfo.totalItemsCount
+            total > 0 && lastVisible >= total - 3
+        }
+    }
+    // Not keyed on isLoadingMore: once the server has no more pages the count stops
+    // changing, so this does not re-request in a loop.
+    LaunchedEffect(isNearEnd, devices.size, searchQuery) {
+        if (isNearEnd && !isLoadingMore && searchQuery.isBlank()) {
+            onLoadMore()
         }
     }
 
@@ -207,16 +237,33 @@ fun DevicesScreen(
 
                 // Devices List
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 100.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(filteredDevices) { device ->
+                    items(filteredDevices, key = { it.id }) { device ->
                         DeviceListCard(
                             device = device,
                             onEditClick = { onEditDeviceClick(device.id) },
                             onRenewClick = { onRenewCreditClick(device.id) }
                         )
+                    }
+                    if (isLoadingMore || (isSearching && searchQuery.isNotBlank())) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.5.dp,
+                                    color = themedColor(light = Color(0xFF3B82F6), dark = Color(0xFF5D94EE))
+                                )
+                            }
+                        }
                     }
                 }
             }

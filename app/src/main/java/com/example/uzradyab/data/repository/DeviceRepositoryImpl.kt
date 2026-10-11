@@ -92,6 +92,16 @@ class DeviceRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun searchDevices(keyword: String, limit: Int): Result<List<Device>> = runCatching {
+        val session = userSessionDao.getCurrentSession() ?: return@runCatching emptyList()
+        val devices = api.getDevices(limit = limit, offset = 0, keyword = keyword)
+        val entities = devices.map { it.toEntity() }
+        // Store results so a device picked from search is available to the screens that read the local cache.
+        deviceDao.upsertAll(entities)
+        deviceDao.upsertUserDeviceCrossRefs(devices.map { UserDeviceCrossRef(session.id, it.id) })
+        entities.map { it.toDomain() }
+    }
+
     override suspend fun addDevice(
         name: String,
         uniqueId: String,

@@ -64,7 +64,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.uzradyab.core.utils.DeviceSearch
 import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.presentation.device.DeviceSearchViewModel
 import com.example.uzradyab.domain.model.Device
 
 import com.example.uzradyab.R
@@ -407,16 +411,15 @@ fun DeviceSelectDialog(
     onLoadMore: () -> Unit = {},
     isLoadingMore: Boolean = false,
     modifier: Modifier = Modifier,
+    searchViewModel: DeviceSearchViewModel = hiltViewModel(),
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     val query = search.trim()
-    val filteredDevices = if (query.isBlank()) {
-        devices
-    } else {
-        devices.filter { device ->
-            listOf(device.name, device.uniqueId, device.status)
-                .any { value -> value.contains(query, ignoreCase = true) }
-        }
+    val searchState by searchViewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(query) { searchViewModel.onQueryChange(query) }
+    val filteredDevices = remember(devices, searchState.results, query) {
+        if (query.isBlank()) devices.items
+        else DeviceSearch.merge(devices.items, searchState.results.items, query)
     }
 
     var isLocallyLoading by remember { mutableStateOf(false) }
@@ -493,7 +496,22 @@ fun DeviceSelectDialog(
                         },
                     )
                 }
-                if (filteredDevices.isEmpty()) {
+                if (filteredDevices.isEmpty() && searchState.isSearching) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.5.dp,
+                                color = UzradyabTheme.colors.primary,
+                            )
+                        }
+                    }
+                } else if (filteredDevices.isEmpty()) {
                     item {
                         Box(
                             modifier = Modifier
