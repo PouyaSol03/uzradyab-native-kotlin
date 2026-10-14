@@ -145,17 +145,19 @@ fun TripReportsScreen(
                         .padding(innerPadding)
                 ) {
                 // Device Selector
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
-                    DeviceSelectTrigger(
-                        text = selectedDevice?.name ?: "انتخاب دستگاه",
-                        onClick = { deviceSelectorOpen = true },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                if (!com.example.uzradyab.presentation.map.isSingleDeviceAccount(state.devices, state.selectedDeviceId)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        val selectedDevice = state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                        DeviceSelectTrigger(
+                            text = selectedDevice?.name ?: "انتخاب دستگاه",
+                            onClick = { deviceSelectorOpen = true },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
 
                 // Date Filters & Column Selector

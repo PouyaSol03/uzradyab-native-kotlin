@@ -182,11 +182,13 @@ fun MaintenanceScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    DeviceSelectTrigger(
-                        text = selectedDevice?.name ?: "انتخاب دستگاه",
-                        onClick = { showDeviceSelector = true },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    if (!com.example.uzradyab.presentation.map.isSingleDeviceAccount(state.devices, state.selectedDeviceId)) {
+                        DeviceSelectTrigger(
+                            text = selectedDevice?.name ?: "انتخاب دستگاه",
+                            onClick = { showDeviceSelector = true },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     // Current Vehicle Odometer card
                     Row(

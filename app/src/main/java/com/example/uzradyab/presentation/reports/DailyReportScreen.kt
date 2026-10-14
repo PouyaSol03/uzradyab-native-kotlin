@@ -133,13 +133,15 @@ fun DailyReportScreen(
                             .background(themedColor(light = Color.White, dark = Color(0xFF27343F)))
                             .padding(16.dp)
                     ) {
-                        DeviceSelectTrigger(
-                            text = selectedDevice?.name ?: "انتخاب دستگاه",
-                            onClick = { deviceSelectorOpen = true },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
+                        if (!com.example.uzradyab.presentation.map.isSingleDeviceAccount(state.devices, state.selectedDeviceId)) {
+                            DeviceSelectTrigger(
+                                text = selectedDevice?.name ?: "انتخاب دستگاه",
+                                onClick = { deviceSelectorOpen = true },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
 
                         Row(
                             modifier = Modifier

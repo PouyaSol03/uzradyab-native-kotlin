@@ -144,20 +144,24 @@ fun ReportsScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(figmaBackground)
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                    ) {
-                        val selectedDevice = remember(state.devices, state.selectedDeviceId) {
-                            state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                    if (!com.example.uzradyab.presentation.map.isSingleDeviceAccount(state.devices, state.selectedDeviceId)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(figmaBackground)
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                        ) {
+                            val selectedDevice = remember(state.devices, state.selectedDeviceId) {
+                                state.devices.firstOrNull { it.id == state.selectedDeviceId }
+                            }
+                            DeviceSelectTrigger(
+                                text = selectedDevice?.name ?: "انتخاب دستگاه",
+                                onClick = { deviceSelectorOpen = true },
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
-                        DeviceSelectTrigger(
-                            text = selectedDevice?.name ?: "انتخاب دستگاه",
-                            onClick = { deviceSelectorOpen = true },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
 
                     Column(
