@@ -21,10 +21,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Notifications
@@ -67,14 +69,25 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.utils.DeviceSearch
+import com.example.uzradyab.core.utils.FormatUtils
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.presentation.device.DeviceSearchViewModel
 import com.example.uzradyab.domain.model.Device
+import com.example.uzradyab.domain.model.Position
+import kotlin.math.roundToInt
 
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
 import com.example.uzradyab.ui.theme.UzradyabTheme
 import com.example.uzradyab.ui.theme.themedColor
+
+/**
+ * Accounts with exactly one device (already selected) don't need a device picker.
+ * The first devices page holds up to 30 items, so a size of 1 means the account has a single device.
+ * A stale selection keeps the picker visible so the user can still fix it.
+ */
+fun isSingleDeviceAccount(devices: List<Device>, selectedDeviceId: Long?): Boolean =
+    devices.size == 1 && devices.first().id == selectedDeviceId
 
 @Composable
 fun MapTopControls(
@@ -88,9 +101,26 @@ fun MapTopControls(
     onEventsClick: () -> Unit,
     onLockToggleClick: () -> Unit,
     isSettingsEnabled: Boolean = true,
+    selectedPosition: Position? = null,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = devices.firstOrNull { it.id == selectedDeviceId }
+
+    if (isSingleDeviceAccount(devices, selectedDeviceId) && selectedDevice != null) {
+        SingleDeviceTopControls(
+            device = selectedDevice,
+            position = selectedPosition,
+            latestEvent = latestEvent,
+            isMapLocked = isMapLocked,
+            showLockWarning = showLockWarning,
+            onSettingsClick = onSettingsClick,
+            onEventsClick = onEventsClick,
+            onLockToggleClick = onLockToggleClick,
+            isSettingsEnabled = isSettingsEnabled,
+            modifier = modifier,
+        )
+        return
+    }
 
     Column(
         modifier = modifier
@@ -140,6 +170,276 @@ fun MapTopControls(
                 isLocked = isMapLocked,
                 showWarning = showLockWarning,
                 onClick = onLockToggleClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun SingleDeviceTopControls(
+    device: Device,
+    position: Position?,
+    latestEvent: MapLatestEventItem?,
+    isMapLocked: Boolean,
+    showLockWarning: Boolean,
+    onSettingsClick: () -> Unit,
+    onEventsClick: () -> Unit,
+    onLockToggleClick: () -> Unit,
+    isSettingsEnabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        SingleDeviceIdentityCard(
+            device = device,
+            position = position,
+            latestEvent = latestEvent,
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 343.dp),
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 343.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            // In RTL the first child sits on the right, so the warning chip appears beside the rail's lock button.
+            AnimatedVisibility(
+                visible = showLockWarning,
+                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandHorizontally(),
+                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkHorizontally(),
+            ) {
+                Text(
+                    text = stringResource(R.string.str_00215df2),
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .padding(end = 8.dp, bottom = 10.dp)
+                        .background(UzradyabTheme.colors.primary, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+            SingleDeviceActionRail(
+                onSettingsClick = onSettingsClick,
+                onEventsClick = onEventsClick,
+                isMapLocked = isMapLocked,
+                onLockToggleClick = onLockToggleClick,
+                isSettingsEnabled = isSettingsEnabled,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SingleDeviceIdentityCard(
+    device: Device,
+    position: Position?,
+    latestEvent: MapLatestEventItem?,
+    modifier: Modifier = Modifier,
+) {
+    val avatarColor = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD))
+    val speedKmh = position?.let { (it.speed * 1.852).roundToInt() }
+
+    Row(
+        modifier = modifier
+            .shadow(18.dp, RoundedCornerShape(16.dp), clip = false)
+            .background(themedColor(light = Color.White, dark = Color(0xFF27343F)), RoundedCornerShape(16.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .background(avatarColor.copy(alpha = 0.16f), CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .background(avatarColor, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DirectionsCar,
+                    contentDescription = null,
+                    tint = themedColor(light = Color.White, dark = Color(0xFF27343F)),
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = device.name,
+                    color = UzradyabTheme.colors.textPrimary,
+                    fontSize = 16.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (speedKmh != null) {
+                    MotionPill(speedKmh = speedKmh, color = avatarColor)
+                }
+                DeviceStatusLabel(status = device.status)
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                EventPulseDot()
+                Text(
+                    text = latestEvent?.text ?: "داده‌ای موجود نیست",
+                    color = themedColor(light = Color(0xFF4B5563), dark = Color(0xFFC0CDD8)),
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                latestEvent?.timeText?.let { time ->
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                        Text(
+                            text = time,
+                            color = UzradyabTheme.colors.primary,
+                            fontSize = 11.sp,
+                            lineHeight = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MotionPill(speedKmh: Int, color: Color) {
+    val text = if (speedKmh <= 0) "متوقف" else with(FormatUtils) { "${speedKmh.toString().toPersianDigits()} km/h" }
+    Text(
+        text = text,
+        color = color,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        modifier = Modifier
+            .background(color.copy(alpha = 0.12f), RoundedCornerShape(50))
+            .padding(horizontal = 8.dp, vertical = 2.dp),
+    )
+}
+
+@Composable
+private fun DeviceStatusLabel(status: String) {
+    val color = when (status) {
+        "online" -> themedColor(light = Color(0xFF22A566), dark = Color(0xFF00C89B))
+        "offline" -> themedColor(light = Color(0xFFE45353), dark = Color(0xFFE55353))
+        else -> themedColor(light = Color(0xFF8A98A8), dark = Color(0xFF97ADBF))
+    }
+    val text = when (status) {
+        "online" -> stringResource(R.string.str_6104d0f3)
+        "offline" -> stringResource(R.string.str_7717f8af)
+        else -> stringResource(R.string.str_807fb3de)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .background(color, CircleShape),
+        )
+        Text(
+            text = text,
+            color = color,
+            fontSize = 11.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+private fun SingleDeviceActionRail(
+    onSettingsClick: () -> Unit,
+    onEventsClick: () -> Unit,
+    isMapLocked: Boolean,
+    onLockToggleClick: () -> Unit,
+    isSettingsEnabled: Boolean,
+) {
+    val railShape = RoundedCornerShape(12.dp)
+    val surfaceColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
+    val dividerColor = themedColor(light = Color(0xFFEEF0F3), dark = Color(0xFF384C5C))
+    Column(
+        modifier = Modifier
+            .width(48.dp)
+            .shadow(18.dp, railShape, clip = false)
+            .background(surfaceColor, railShape)
+            .clip(railShape),
+    ) {
+        val settingsBackground = if (isSettingsEnabled) UzradyabTheme.colors.primary else themedColor(light = Color(0xFFE0E0E0), dark = Color(0xFF262626))
+        val settingsTint = if (isSettingsEnabled) Color.White else themedColor(light = Color.Gray, dark = Color(0xFFA0A0A0))
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(settingsBackground)
+                .let { if (isSettingsEnabled) it.clickable(onClick = onSettingsClick) else it },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Layers,
+                contentDescription = stringResource(R.string.str_c9c1b29c),
+                tint = settingsTint,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clickable(onClick = onEventsClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            NotificationBellIcon(color = UzradyabTheme.colors.primary, size = 24)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(dividerColor),
+        )
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(if (isMapLocked) UzradyabTheme.colors.primary else surfaceColor)
+                .clickable(onClick = onLockToggleClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = if (isMapLocked) Icons.Default.Lock else Icons.Default.LockOpen,
+                contentDescription = "Lock Map",
+                tint = if (isMapLocked) Color.White else UzradyabTheme.colors.primary,
+                modifier = Modifier.size(22.dp),
             )
         }
     }
@@ -815,11 +1115,11 @@ private fun SettingsGearIcon(size: Int, color: Color = themedColor(light = Color
 }
 
 @Composable
-private fun NotificationBellIcon(color: Color = themedColor(light = Color.White, dark = Color.White)) {
+private fun NotificationBellIcon(color: Color = themedColor(light = Color.White, dark = Color.White), size: Int = 28) {
     Icon(
         imageVector = Icons.Default.Notifications,
         contentDescription = "Notifications",
         tint = color,
-        modifier = Modifier.size(28.dp)
+        modifier = Modifier.size(size.dp)
     )
 }
