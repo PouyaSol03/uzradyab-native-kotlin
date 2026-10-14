@@ -258,7 +258,6 @@ fun HomeMapScreen(
                     onEventsClick = onEventsClick,
                     onLockToggleClick = onToggleMapLock,
                     isSettingsEnabled = !state.isAlternativeMapForced,
-                    selectedPosition = selectedPosition,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),

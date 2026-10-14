@@ -69,12 +69,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uzradyab.core.utils.DeviceSearch
-import com.example.uzradyab.core.utils.FormatUtils
 import com.example.uzradyab.core.utils.ImmutableListWrapper
 import com.example.uzradyab.presentation.device.DeviceSearchViewModel
 import com.example.uzradyab.domain.model.Device
-import com.example.uzradyab.domain.model.Position
-import kotlin.math.roundToInt
 
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
@@ -101,7 +98,6 @@ fun MapTopControls(
     onEventsClick: () -> Unit,
     onLockToggleClick: () -> Unit,
     isSettingsEnabled: Boolean = true,
-    selectedPosition: Position? = null,
     modifier: Modifier = Modifier,
 ) {
     val selectedDevice = devices.firstOrNull { it.id == selectedDeviceId }
@@ -109,7 +105,6 @@ fun MapTopControls(
     if (isSingleDeviceAccount(devices, selectedDeviceId) && selectedDevice != null) {
         SingleDeviceTopControls(
             device = selectedDevice,
-            position = selectedPosition,
             latestEvent = latestEvent,
             isMapLocked = isMapLocked,
             showLockWarning = showLockWarning,
@@ -178,7 +173,6 @@ fun MapTopControls(
 @Composable
 private fun SingleDeviceTopControls(
     device: Device,
-    position: Position?,
     latestEvent: MapLatestEventItem?,
     isMapLocked: Boolean,
     showLockWarning: Boolean,
@@ -197,7 +191,6 @@ private fun SingleDeviceTopControls(
     ) {
         SingleDeviceIdentityCard(
             device = device,
-            position = position,
             latestEvent = latestEvent,
             modifier = Modifier
                 .fillMaxWidth()
@@ -242,12 +235,10 @@ private fun SingleDeviceTopControls(
 @Composable
 private fun SingleDeviceIdentityCard(
     device: Device,
-    position: Position?,
     latestEvent: MapLatestEventItem?,
     modifier: Modifier = Modifier,
 ) {
     val avatarColor = themedColor(light = Color(0xFFA12887), dark = Color(0xFFE184CD))
-    val speedKmh = position?.let { (it.speed * 1.852).roundToInt() }
 
     Row(
         modifier = modifier
@@ -295,9 +286,6 @@ private fun SingleDeviceIdentityCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                if (speedKmh != null) {
-                    MotionPill(speedKmh = speedKmh, color = avatarColor)
-                }
                 DeviceStatusLabel(status = device.status)
             }
             Row(
@@ -330,22 +318,6 @@ private fun SingleDeviceIdentityCard(
             }
         }
     }
-}
-
-@Composable
-private fun MotionPill(speedKmh: Int, color: Color) {
-    val text = if (speedKmh <= 0) "متوقف" else with(FormatUtils) { "${speedKmh.toString().toPersianDigits()} km/h" }
-    Text(
-        text = text,
-        color = color,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        fontWeight = FontWeight.Bold,
-        maxLines = 1,
-        modifier = Modifier
-            .background(color.copy(alpha = 0.12f), RoundedCornerShape(50))
-            .padding(horizontal = 8.dp, vertical = 2.dp),
-    )
 }
 
 @Composable
