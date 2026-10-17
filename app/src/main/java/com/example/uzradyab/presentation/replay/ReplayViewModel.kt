@@ -33,6 +33,8 @@ data class ReplayUiState(
     val error: String? = null,
     val totalDistanceText: String = "۰ کیلومتر",
     val dateFilterText: String = "",
+    /** Start of the requested range (UTC ISO), shown as «زمان شروع» even if the first position is later. */
+    val rangeFrom: String? = null,
     val mapStyle: String = "osm",
     val startAddress: String? = null,
     val endAddress: String? = null,
@@ -89,7 +91,7 @@ class ReplayViewModel @Inject constructor(
 
     fun fetchRouteForDateRange(fromTime: String, toTime: String, filterLabel: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null, isNetworkError = false, dateFilterText = filterLabel) }
+            _state.update { it.copy(isLoading = true, error = null, isNetworkError = false, dateFilterText = filterLabel, rangeFrom = fromTime) }
 
             // Fetch summary for distance calculation
             val summaryResult = reportRepository.getSummaryReport(deviceId, fromTime, toTime)
