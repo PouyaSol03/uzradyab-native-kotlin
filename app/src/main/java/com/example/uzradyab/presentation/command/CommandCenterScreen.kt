@@ -57,19 +57,6 @@ import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
 import com.example.uzradyab.ui.theme.themedColor
 
-private val COMMAND_TYPES = listOf(
-    CommandData("status", "وضعیت دستگاه", "با ارسال این دستور دستگاه وضعیت کلی خود را پاسخ می‌دهد.", "STATUS#"),
-    CommandData("admin", "تعریف مدیر", "تعریف شماره خاص جهت دستور به دستگاه.", "SOS,A,{EMAIL}#"),
-    CommandData("start", "فعال کردن رله سوخت", "ارسال دستور وصل کردن سوخت خودرو در صورتی که سوخت از قبل توسط رله قطع شده باشد.", "RELAY,0#"),
-    CommandData("stop", "غیر فعال کردن رله سوخت", "ارسال دستور قطع سوخت خودرو توسط رله در صورتی که سرعت خودرو کمتر از 10 کیلومتر باشد.", "RELAY,1#"),
-    CommandData("reset", "راه اندازی مجدد", "با ارسال این دستور دستگاه خاموش و مجدد راه اندازی می شود.", "RESET#"),
-    CommandData("server", "تنظیم سرور", "ارسال این دستور سرور دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.", "SERVER,1,uzradyab.ir,5023,0#"),
-    CommandData("time", "تنظیم زمان دستگاه", "ارسال این دستور زمان دستگاه را تنظیم کرده و مناسب است برای زمانی که دستگاه تازه فعال می‌شود.", "GMT,E,0,0#"),
-    CommandData("lbs", "تنظیم \u202ALBS\u202C", "تنظیم \u202ALBS\u202C", "LBSON#")
-)
-
-data class CommandData(val type: String, val title: String, val description: String, val command: String)
-
 @Composable
 fun CommandCenterRoute(
     onBackClick: () -> Unit,
