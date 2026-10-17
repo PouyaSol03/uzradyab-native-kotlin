@@ -56,12 +56,8 @@ class ReplayViewModel @Inject constructor(
 
     private var playbackJob: Job? = null
 
-    private companion object {
-        const val LAST_24_HOURS_LABEL = "۲۴ ساعت گذشته"
-    }
-
     init {
-        _state.update { it.copy(dateFilterText = LAST_24_HOURS_LABEL) }
+        _state.update { it.copy(dateFilterText = com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString()) }
         if (deviceId != -1L) {
             fetchRoute()
         } else {
@@ -75,17 +71,20 @@ class ReplayViewModel @Inject constructor(
         }
     }
 
-    /** Default range when the screen opens: the 24 hours up to now. */
+    /** Default range when the screen opens: today from 00:00 Tehran time until now. */
     private fun fetchRoute() {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }
         val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))
         val toTime = sdf.format(cal.time)
-        cal.add(Calendar.HOUR_OF_DAY, -24)
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
         val fromTime = sdf.format(cal.time)
 
-        fetchRouteForDateRange(fromTime, toTime, LAST_24_HOURS_LABEL)
+        fetchRouteForDateRange(fromTime, toTime, com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString())
     }
 
     fun fetchRouteForDateRange(fromTime: String, toTime: String, filterLabel: String) {
