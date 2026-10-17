@@ -46,4 +46,40 @@ object CommandValidation {
 
     fun allValid(params: List<CommandParam>, values: Map<String, String>): Boolean =
         params.all { isValid(it, values[it.key].orEmpty()) }
+
+    /**
+     * Step-by-step unlocking: a field is locked until every field above it is valid, and a phone
+     * also waits for the previous phone to be filled. The first unlocked empty/invalid field is
+     * highlighted, except an empty optional phone.
+     */
+    fun evaluateFields(params: List<CommandParam>, values: Map<String, String>): List<FieldUiState> {
+        var previousValid = true
+        var previousPhoneFilled = true
+        var highlightTaken = false
+        return params.map { param ->
+            val value = values[param.key].orEmpty()
+            val valid = isValid(param, value)
+            val locked = !previousValid || (param is PhoneParam && !previousPhoneFilled)
+            val optionalEmptyPhone = param is PhoneParam && !param.required && value.isBlank()
+            val highlighted = !highlightTaken && !locked && (value.isBlank() || !valid) && !optionalEmptyPhone
+            if (highlighted) highlightTaken = true
+            previousValid = previousValid && valid
+            if (param is PhoneParam) previousPhoneFilled = value.isNotBlank()
+            FieldUiState(
+                param = param,
+                value = value,
+                locked = locked,
+                highlighted = highlighted,
+                error = if (locked) null else errorFor(param, value),
+            )
+        }
+    }
 }
+
+data class FieldUiState(
+    val param: CommandParam,
+    val value: String,
+    val locked: Boolean,
+    val highlighted: Boolean,
+    val error: String?,
+)
