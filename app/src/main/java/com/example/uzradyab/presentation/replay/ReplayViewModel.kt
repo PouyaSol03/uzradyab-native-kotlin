@@ -56,8 +56,12 @@ class ReplayViewModel @Inject constructor(
 
     private var playbackJob: Job? = null
 
+    private companion object {
+        const val LAST_24_HOURS_LABEL = "۲۴ ساعت گذشته"
+    }
+
     init {
-        _state.update { it.copy(dateFilterText = com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString()) }
+        _state.update { it.copy(dateFilterText = LAST_24_HOURS_LABEL) }
         if (deviceId != -1L) {
             fetchRoute()
         } else {
@@ -71,24 +75,17 @@ class ReplayViewModel @Inject constructor(
         }
     }
 
+    /** Default range when the screen opens: the 24 hours up to now. */
     private fun fetchRoute() {
-        // Day boundaries are Tehran local time; the formatters below convert them to UTC for the API.
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
         val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        val fromTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply { 
-            timeZone = TimeZone.getTimeZone("UTC") 
-        }.format(cal.time)
-        
-        cal.set(Calendar.HOUR_OF_DAY, 23)
-        cal.set(Calendar.MINUTE, 59)
-        cal.set(Calendar.SECOND, 59)
-        val toTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply { 
-            timeZone = TimeZone.getTimeZone("UTC") 
-        }.format(cal.time)
+        val toTime = sdf.format(cal.time)
+        cal.add(Calendar.HOUR_OF_DAY, -24)
+        val fromTime = sdf.format(cal.time)
 
-        fetchRouteForDateRange(fromTime, toTime, com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString())
+        fetchRouteForDateRange(fromTime, toTime, LAST_24_HOURS_LABEL)
     }
 
     fun fetchRouteForDateRange(fromTime: String, toTime: String, filterLabel: String) {
