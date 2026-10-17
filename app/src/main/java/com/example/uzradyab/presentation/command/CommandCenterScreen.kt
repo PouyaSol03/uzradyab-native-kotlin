@@ -201,106 +201,26 @@ fun CommandCenterScreen(
         }
 
         if (showModal) {
-            ModalBottomSheet(
-                onDismissRequest = { showModal = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = themedColor(light = Color.White, dark = Color(0xFF27343F))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                ) {
-                    Text(
-                        text = "ارسال دستور \"${selectedCommand.title}\"",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.str_de7ae3ed),
-                        fontSize = 14.sp,
-                        color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Internet Method
-                    MethodSelection(
-                        method = "internet",
-                        title = stringResource(R.string.str_a85af005),
-                        description = stringResource(R.string.str_5ea43f41),
-                        selectedMethod = commandMethod,
-                        onMethodSelect = { commandMethod = it }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // SMS Method
-                    MethodSelection(
-                        method = "sms",
-                        title = stringResource(R.string.str_02b42328),
-                        description = stringResource(R.string.str_5da6626b),
-                        selectedMethod = commandMethod,
-                        onMethodSelect = { commandMethod = it }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                val cmdString = commandText.replace("{EMAIL}", userEmail)
-                                if (commandMethod == "sms") {
-                                    val uri = Uri.parse("smsto:$phoneNumber")
-                                    val intent = Intent(Intent.ACTION_SENDTO, uri)
-                                    intent.putExtra("sms_body", cmdString)
-                                    context.startActivity(intent)
-                                    showModal = false
-                                } else {
-                                    onSendInternet(selectedCommand.type, cmdString)
-                                    showModal = false
-                                }
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
-                        ) {
-                            if (isSending) {
-                                CircularProgressIndicator(color = themedColor(light = Color.White, dark = Color.White), modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                            } else {
-                                Text(stringResource(R.string.str_968581ce), fontSize = 14.sp)
-                            }
-                        }
-                        
-                        Button(
-                            onClick = { showModal = false },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))
-                            ),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF455A64)))
-                        ) {
-                            Text(stringResource(R.string.str_c8d2a1fb), fontSize = 14.sp)
-                        }
+            SendMethodSheet(
+                commandTitle = selectedCommand.title,
+                selectedMethod = commandMethod,
+                isSending = isSending,
+                onMethodSelect = { commandMethod = it },
+                onConfirm = {
+                    val cmdString = commandText.replace("{EMAIL}", userEmail)
+                    if (commandMethod == "sms") {
+                        val uri = Uri.parse("smsto:$phoneNumber")
+                        val intent = Intent(Intent.ACTION_SENDTO, uri)
+                        intent.putExtra("sms_body", cmdString)
+                        context.startActivity(intent)
+                        showModal = false
+                    } else {
+                        onSendInternet(selectedCommand.type, cmdString)
+                        showModal = false
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
+                },
+                onDismiss = { showModal = false },
+            )
         }
     }
 }
