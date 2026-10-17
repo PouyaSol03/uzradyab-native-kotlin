@@ -72,7 +72,8 @@ class ReplayViewModel @Inject constructor(
     }
 
     private fun fetchRoute() {
-        val cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        // Day boundaries are Tehran local time; the formatters below convert them to UTC for the API.
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran"))
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
         cal.set(Calendar.SECOND, 0)
@@ -217,9 +218,9 @@ class ReplayViewModel @Inject constructor(
         val currentGDay = now.get(java.util.Calendar.DAY_OF_MONTH)
         val jDate = com.example.uzradyab.core.utils.JalaliUtils.gregorianToJalali(currentGYear, currentGMonth, currentGDay)
         
-        val fromCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
-        val toCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
-        
+        val fromCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran"))
+        val toCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran"))
+
         val label = when (range) {
             "امروز" -> com.example.uzradyab.core.utils.JalaliUtils.run { "امروز | ${jDate[2]} ${com.example.uzradyab.core.utils.JalaliUtils.getMonthName(jDate[1])} ${jDate[0]}".toPersianDigits() }
             "دیروز" -> {
@@ -266,11 +267,12 @@ class ReplayViewModel @Inject constructor(
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
         
         val startG = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(start.year, start.month, start.day)
-        val fromCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+        // The picked date and time are Tehran local time.
+        val fromCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran")).apply {
             set(startG[0], startG[1] - 1, startG[2], start.hour, start.minute, 0)
         }
-        
-        val toCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+
+        val toCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Tehran"))
         if (end != null) {
             val endG = com.example.uzradyab.core.utils.JalaliUtils.jalaliToGregorian(end.year, end.month, end.day)
             toCal.set(endG[0], endG[1] - 1, endG[2], end.hour, end.minute, 59)
