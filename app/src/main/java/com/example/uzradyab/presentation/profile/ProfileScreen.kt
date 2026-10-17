@@ -1,5 +1,6 @@
 package com.example.uzradyab.presentation.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,6 +50,7 @@ import com.example.uzradyab.presentation.map.BackButton
 import com.example.uzradyab.presentation.map.MenuGridButton
 import com.example.uzradyab.R
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.uzradyab.ui.theme.UzradyabTheme
@@ -111,6 +113,7 @@ fun ProfileScreen(
     val phone = state.sessionDto?.phone ?: ""
 
     var isBiometricEnabled by remember { mutableStateOf(biometricHelper.isBiometricEnabled()) }
+    var showLogoutConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.saveSuccess) {
         if (state.saveSuccess) {
@@ -229,8 +232,89 @@ fun ProfileScreen(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    LogoutRow(onClick = onLogoutClick)
+                    LogoutRow(onClick = { showLogoutConfirm = true })
                     Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+
+        if (showLogoutConfirm) {
+            LogoutConfirmSheet(
+                onConfirm = {
+                    showLogoutConfirm = false
+                    onLogoutClick()
+                },
+                onDismiss = { showLogoutConfirm = false },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LogoutConfirmSheet(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val danger = themedColor(light = Color(0xFFD93025), dark = Color(0xFFF28B82))
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = profileCardColor(),
+        scrimColor = Color.Black.copy(alpha = 0.32f),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(themedColor(light = Color(0xFFFDECEC), dark = Color(0xFF3A1F1F))),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(imageVector = Icons.Outlined.Logout, contentDescription = null, tint = danger, modifier = Modifier.size(24.dp))
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.profile_logout_title),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6)),
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.profile_logout_message),
+                fontSize = 13.sp,
+                lineHeight = 22.sp,
+                color = profileGreyText(),
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Button(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = danger, contentColor = Color.White),
+                ) {
+                    Text(text = stringResource(R.string.str_60806661), fontSize = 14.sp)
+                }
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, themedColor(light = Color(0xFFBEC1C3), dark = Color(0xFF455A64))),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = themedColor(light = Color(0xFF333638), dark = Color(0xFFAFB3B6))),
+                ) {
+                    Text(text = stringResource(R.string.str_c8d2a1fb), fontSize = 14.sp)
                 }
             }
         }

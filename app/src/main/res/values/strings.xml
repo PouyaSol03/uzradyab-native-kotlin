@@ -683,6 +683,8 @@ fun TimeFilterBottomSheet(
     <string name="profile_logout">خروج از حساب</string>
     <string name="profile_save">ذخیره تغییرات</string>
     <string name="profile_saving">در حال ذخیره…</string>
+    <string name="profile_logout_title">خروج از حساب کاربری</string>
+    <string name="profile_logout_message">برای استفاده دوباره باید با شماره موبایل و رمز عبور وارد شوید.</string>
     <string name="event_reply_show_more">نمایش کامل</string>
     <string name="event_reply_show_less">بستن</string>
 </resources>
