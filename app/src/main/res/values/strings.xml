@@ -674,4 +674,8 @@ fun TimeFilterBottomSheet(
     <string name="str_0506f810">کاربر تست</string>
     <string name="remember_me">مرا به خاطر بسپار</string>
     <string name="command_continue">ادامه</string>
+    <string name="event_reply_received">پاسخ دریافت شد</string>
+    <string name="event_reply_empty">بدون متن پاسخ</string>
+    <string name="event_reply_show_more">نمایش کامل</string>
+    <string name="event_reply_show_less">بستن</string>
 </resources>

@@ -308,6 +308,10 @@ private fun NotificationSettingsRow(onClick: () -> Unit) {
 
 @Composable
 private fun EventCard(event: EventUiModel) {
+    if (event.isCommandResult) {
+        CommandResultEventCard(event = event)
+        return
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
