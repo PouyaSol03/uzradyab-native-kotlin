@@ -70,7 +70,7 @@ fun CommandResultEventCard(event: EventUiModel, modifier: Modifier = Modifier) {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Row(verticalAlignment = Alignment.Top) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -86,19 +86,16 @@ fun CommandResultEventCard(event: EventUiModel, modifier: Modifier = Modifier) {
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = event.title,
-                        color = UzradyabTheme.colors.textPrimary,
-                        fontSize = 14.sp,
-                        lineHeight = 22.sp,
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    ReplyStatusPill(hasReply = reply != null)
-                }
+                Text(
+                    text = event.title,
+                    color = UzradyabTheme.colors.textPrimary,
+                    fontSize = 14.sp,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "$LRM${event.time}",
@@ -108,7 +105,20 @@ fun CommandResultEventCard(event: EventUiModel, modifier: Modifier = Modifier) {
                 )
             }
 
-            if (reply != null) {
+            if (reply == null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = stringResource(R.string.event_reply_none),
+                    color = greyText,
+                    fontSize = 12.sp,
+                    lineHeight = 20.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(softSurface)
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                )
+            } else {
                 Spacer(modifier = Modifier.height(10.dp))
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     Text(
@@ -140,22 +150,6 @@ fun CommandResultEventCard(event: EventUiModel, modifier: Modifier = Modifier) {
             }
         }
     }
-}
-
-@Composable
-private fun ReplyStatusPill(hasReply: Boolean) {
-    val background = if (hasReply) themedColor(light = Color(0xFFE6F4EA), dark = Color(0xFF1B3A26)) else themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
-    val textColor = if (hasReply) themedColor(light = Color(0xFF1E8E3E), dark = Color(0xFF81C995)) else themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292))
-    Text(
-        text = stringResource(if (hasReply) R.string.event_reply_received else R.string.event_reply_empty),
-        color = textColor,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(background)
-            .padding(horizontal = 8.dp, vertical = 2.dp),
-    )
 }
 
 /** Centred pill that expands or collapses the reply text. */
