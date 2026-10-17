@@ -341,16 +341,6 @@ private fun EventCard(event: EventUiModel) {
                     textAlign = TextAlign.Right,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Text(
-                    text = event.description,
-                    color = themedColor(light = Color(0xFF8F99A3), dark = Color(0xFFA6A6A6)),
-                    fontSize = 12.sp,
-                    lineHeight = 20.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Right,
-                    modifier = Modifier.fillMaxWidth(),
-                )
             }
             Text(
                 // Leading LRM keeps the "date - time" order when rendered in an RTL layout.

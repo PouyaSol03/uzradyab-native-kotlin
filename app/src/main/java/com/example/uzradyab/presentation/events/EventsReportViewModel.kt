@@ -149,11 +149,13 @@ class EventsReportViewModel @Inject constructor(
 
     private fun eventToItem(event: Event): EventUiModel {
         val title = EventLabels.titleFromAttributesJson(event.type, event.attributesJson)
+        val isCommandResult = event.type == "commandResult"
         return EventUiModel(
             id = event.id,
             title = title,
-            description = title,
             time = FormatUtils.formatEventTimeJalali(event.eventTime),
+            isCommandResult = isCommandResult,
+            commandResult = if (isCommandResult) EventLabels.commandResultFromAttributesJson(event.attributesJson) else null,
         )
     }
 

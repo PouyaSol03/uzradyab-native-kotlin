@@ -110,6 +110,16 @@ object EventLabels {
         return title(type, attributes)
     }
 
+    /** Device reply text of a `commandResult` event (`attributes.result`), or null if empty. */
+    fun commandResultFromAttributesJson(attributesJson: String?): String? {
+        if (attributesJson.isNullOrBlank()) return null
+        val attributes = runCatching {
+            JsonParser.parseString(attributesJson).takeIf { it.isJsonObject }?.asJsonObject
+        }.getOrNull() ?: return null
+        val element = attributes.get("result") ?: return null
+        return if (element.isJsonPrimitive) element.asString.trim().takeIf { it.isNotEmpty() } else null
+    }
+
     private fun JsonObject.alarmValue(): String? {
         val element = get("alarm") ?: return null
         return if (element.isJsonPrimitive) element.asString else null
