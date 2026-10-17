@@ -85,6 +85,8 @@ fun CommandCenterRoute(
         isSending = viewModel.isSending,
         phoneNumber = viewModel.phoneNumber,
         userEmail = viewModel.userEmail,
+        selectedCommand = viewModel.selectedCommand,
+        onSelectCommand = viewModel::selectCommand,
         onSendInternet = viewModel::sendCommandInternet,
         onBackClick = onBackClick
     )
@@ -97,11 +99,12 @@ fun CommandCenterScreen(
     isSending: Boolean,
     phoneNumber: String,
     userEmail: String,
+    selectedCommand: CommandData,
+    onSelectCommand: (CommandData) -> Unit,
     onSendInternet: (String, String) -> Unit,
     onBackClick: () -> Unit,
 ) {
     val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
-    var selectedCommand by remember { mutableStateOf(COMMAND_TYPES.first()) }
     var showModal by remember { mutableStateOf(false) }
     var commandMethod by remember { mutableStateOf("internet") }
     
@@ -159,65 +162,16 @@ fun CommandCenterScreen(
                     CircularProgressIndicator(color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)))
                 }
             } else {
-                Column(
+                CommandGrid(
+                    commands = COMMAND_TYPES,
+                    selectedType = selectedCommand.type,
+                    onSelect = onSelectCommand,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(themedColor(light = Color(0xFF6A8BA5), dark = Color(0xFF99A7B3)))
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.str_e0e2a491),
-                            color = themedColor(light = Color.White, dark = Color.White),
-                            fontSize = 12.sp,
-                            lineHeight = 22.sp,
-                            textAlign = TextAlign.Right
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    COMMAND_TYPES.forEach { command ->
-                        val isSelected = selectedCommand.type == command.type
-                        val bgColor = if (isSelected) themedColor(light = Color(0xFFF1F6FE), dark = Color(0xFF041839)) else themedColor(light = Color.White, dark = Color(0xFF27343F))
-                        val borderColor = if (isSelected) themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)) else themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF1B1D23))
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 10.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(bgColor)
-                                .border(1.dp, borderColor, RoundedCornerShape(8.dp))
-                                .clickable { selectedCommand = command }
-                                .padding(16.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = command.title,
-                                    color = themedColor(light = Color(0xFF307EF3), dark = Color(0xFF5F98EC)),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = command.description,
-                                    color = themedColor(light = Color(0xFF676C70), dark = Color(0xFF929292)),
-                                    fontSize = 12.sp,
-                                    lineHeight = 22.sp
-                                )
-                            }
-                        }
-                    }
-                }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                )
             }
         }
 
