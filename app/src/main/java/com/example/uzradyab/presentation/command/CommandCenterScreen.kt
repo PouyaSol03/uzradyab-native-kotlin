@@ -87,6 +87,10 @@ fun CommandCenterRoute(
         userEmail = viewModel.userEmail,
         selectedCommand = viewModel.selectedCommand,
         onSelectCommand = viewModel::selectCommand,
+        fields = viewModel.fieldStates,
+        canContinue = viewModel.canContinue,
+        onValueChange = viewModel::updateValue,
+        commandText = viewModel.selectedCommandText(),
         onSendInternet = viewModel::sendCommandInternet,
         onBackClick = onBackClick
     )
@@ -101,10 +105,15 @@ fun CommandCenterScreen(
     userEmail: String,
     selectedCommand: CommandData,
     onSelectCommand: (CommandData) -> Unit,
+    fields: List<FieldUiState>,
+    canContinue: Boolean,
+    onValueChange: (String, String) -> Unit,
+    commandText: String,
     onSendInternet: (String, String) -> Unit,
     onBackClick: () -> Unit,
 ) {
     val figmaBackground = themedColor(light = Color(0xFFF3F4F6), dark = Color(0xFF1A1D23))
+    var showValues by remember { mutableStateOf(false) }
     var showModal by remember { mutableStateOf(false) }
     var commandMethod by remember { mutableStateOf("internet") }
     
@@ -137,7 +146,9 @@ fun CommandCenterScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Button(
-                        onClick = { showModal = true },
+                        onClick = {
+                            if (selectedCommand.needsValues) showValues = true else showModal = true
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
@@ -173,6 +184,20 @@ fun CommandCenterScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
             }
+        }
+
+        if (showValues) {
+            CommandValuesSheet(
+                command = selectedCommand,
+                fields = fields,
+                canContinue = canContinue,
+                onValueChange = onValueChange,
+                onContinue = {
+                    showValues = false
+                    showModal = true
+                },
+                onDismiss = { showValues = false },
+            )
         }
 
         if (showModal) {
@@ -233,7 +258,7 @@ fun CommandCenterScreen(
                     ) {
                         Button(
                             onClick = {
-                                val cmdString = selectedCommand.command.replace("{EMAIL}", userEmail)
+                                val cmdString = commandText.replace("{EMAIL}", userEmail)
                                 if (commandMethod == "sms") {
                                     val uri = Uri.parse("smsto:$phoneNumber")
                                     val intent = Intent(Intent.ACTION_SENDTO, uri)
