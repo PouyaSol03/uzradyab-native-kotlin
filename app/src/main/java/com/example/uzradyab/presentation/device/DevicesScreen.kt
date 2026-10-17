@@ -411,21 +411,26 @@ fun DeviceListCard(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Label keeps its natural width; the date and days pill share the rest without wrapping.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(stringResource(R.string.str_f2f0dded), fontSize = 14.sp, color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatEndDate(device.expirationTime), fontSize = 14.sp, color = themedColor(light = Color.White, dark = Color.White), fontWeight = FontWeight.Medium)
-                            Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.str_f2f0dded), fontSize = 14.sp, color = themedColor(light = Color(0xFFC0CDD8), dark = Color(0xFF31414F)), maxLines = 1, softWrap = false)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(formatEndDate(device.expirationTime), fontSize = 14.sp, color = themedColor(light = Color.White, dark = Color.White), fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false)
+                            Spacer(modifier = Modifier.width(6.dp))
                             Box(
                                 modifier = Modifier
                                     .background(themedColor(light = Color(0xFF8B9CAE), dark = Color(0xFF343F4B)), RoundedCornerShape(16.dp))
-                                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                                    .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
-                                Text("${daysRemaining.toString().toPersianDigits()} روز باقیمانده", fontSize = 12.sp, color = themedColor(light = Color.White, dark = Color.White))
+                                Text("${daysRemaining.toString().toPersianDigits()} روز باقیمانده", fontSize = 12.sp, color = themedColor(light = Color.White, dark = Color.White), maxLines = 1, softWrap = false)
                             }
                         }
                     }
