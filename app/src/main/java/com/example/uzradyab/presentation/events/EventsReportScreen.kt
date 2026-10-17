@@ -353,7 +353,8 @@ private fun EventCard(event: EventUiModel) {
                 )
             }
             Text(
-                text = event.time,
+                // Leading LRM keeps the "date - time" order when rendered in an RTL layout.
+                text = "\u200E${event.time}",
                 color = themedColor(light = Color.Black, dark = Color(0xFFE0E0E0)),
                 fontSize = 12.sp,
                 lineHeight = 20.sp,
