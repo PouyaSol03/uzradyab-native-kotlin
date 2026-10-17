@@ -20,10 +20,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -36,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,20 +45,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uzradyab.ui.theme.themedColor
-import kotlin.math.roundToInt
 
 private val OptionShape = RoundedCornerShape(8.dp)
+private val OptionHeight = 44.dp
+private val OptionGap = 8.dp
 
 /** Stiffness 500 / damping 35 (mass 1) expressed as a damping ratio. */
 internal fun <T> highlightSpring(): SpringSpec<T> = spring(dampingRatio = 0.78f, stiffness = 500f)
@@ -82,26 +80,7 @@ fun NotificationOptionGroup(
         option.value to animateFloatAsState(if (pressed) 0.95f else 1f, label = "optionPress").value
     }
 
-    var container by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val optionCoordinates = remember(param) { mutableStateMapOf<String, LayoutCoordinates>() }
-    val target: Rect? = selectedValue?.let { value ->
-        val parent = container
-        val child = optionCoordinates[value]
-        if (parent != null && child != null && parent.isAttached && child.isAttached) parent.localBoundingBoxOf(child) else null
-    }
-
-    val highlight = remember { Animatable(Rect.Zero, Rect.VectorConverter) }
-    var highlightPlaced by remember { mutableStateOf(false) }
-    LaunchedEffect(target) {
-        when {
-            target == null -> highlightPlaced = false
-            !highlightPlaced -> {
-                highlight.snapTo(target)
-                highlightPlaced = true
-            }
-            else -> highlight.animateTo(target, highlightSpring())
-        }
-    }
+    val selectedIndex = param.options.indexOfFirst { it.value == selectedValue }
 
     val baseBorder = when {
         field.locked -> themedColor(light = Color(0xFFE5E7EB), dark = Color(0xFF455A64))
@@ -116,15 +95,31 @@ fun NotificationOptionGroup(
     Column(modifier = Modifier.alpha(if (field.locked) 0.5f else 1f)) {
         FieldLabel(text = param.label, highlighted = field.highlighted)
         Spacer(modifier = Modifier.height(6.dp))
-        Box(modifier = Modifier.onGloballyPositioned { container = it }) {
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val cellWidth = (maxWidth - OptionGap) / 2
+            // Grid position of the selected option. offset() mirrors x in RTL, matching the Rows.
+            val target: DpOffset? = if (selectedIndex < 0) null else DpOffset(
+                x = (cellWidth + OptionGap) * (selectedIndex % 2),
+                y = (OptionHeight + OptionGap) * (selectedIndex / 2),
+            )
+            val highlight = remember { Animatable(DpOffset.Zero, DpOffset.VectorConverter) }
+            var highlightPlaced by remember { mutableStateOf(false) }
+            LaunchedEffect(target) {
+                when {
+                    target == null -> highlightPlaced = false
+                    !highlightPlaced -> {
+                        highlight.snapTo(target)
+                        highlightPlaced = true
+                    }
+                    else -> highlight.animateTo(target, highlightSpring())
+                }
+            }
+
             OptionRows(param.options) { option ->
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
-                        .onGloballyPositioned { coordinates ->
-                            if (optionCoordinates[option.value] !== coordinates) optionCoordinates[option.value] = coordinates
-                        }
+                        .height(OptionHeight)
                         .graphicsLayer {
                             scaleX = scales.getValue(option.value)
                             scaleY = scaleX
@@ -135,14 +130,12 @@ fun NotificationOptionGroup(
                 )
             }
 
-            if (target != null && highlightPlaced) {
-                val rect = highlight.value
-                val density = LocalDensity.current
+            if (target != null && highlightPlaced && selectedValue != null) {
                 val scale = scales.getValue(selectedValue)
                 Box(
                     modifier = Modifier
-                        .offset { IntOffset(rect.left.roundToInt(), rect.top.roundToInt()) }
-                        .size(with(density) { rect.width.toDp() }, with(density) { rect.height.toDp() })
+                        .offset(x = highlight.value.x, y = highlight.value.y)
+                        .size(width = cellWidth, height = OptionHeight)
                         .graphicsLayer {
                             scaleX = scale
                             scaleY = scale
@@ -173,9 +166,9 @@ private fun OptionRows(
     options: List<NotifyOption>,
     item: @Composable RowScope.(NotifyOption) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(OptionGap)) {
         options.chunked(2).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(OptionGap)) {
                 row.forEach { option -> item(option) }
                 if (row.size == 1) Spacer(modifier = Modifier.weight(1f))
             }
@@ -201,7 +194,7 @@ private fun NotificationOptionContent(
 
     Row(
         modifier = modifier
-            .height(44.dp)
+            .height(OptionHeight)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
