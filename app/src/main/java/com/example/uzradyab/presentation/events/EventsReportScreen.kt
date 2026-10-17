@@ -154,7 +154,7 @@ fun EventsReportScreen(
                 fontSize = 12.sp,
                 lineHeight = 20.sp,
                 fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Right,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 8.dp)
