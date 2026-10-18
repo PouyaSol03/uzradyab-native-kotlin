@@ -23,6 +23,7 @@ import javax.inject.Inject
 import com.example.uzradyab.core.utils.EventLabels
 import com.example.uzradyab.core.utils.FormatUtils
 import com.example.uzradyab.core.utils.ImmutableListWrapper
+import com.example.uzradyab.core.utils.JalaliUtils
 import com.example.uzradyab.core.utils.emptyImmutableList
 import com.example.uzradyab.core.utils.toImmutable
 
@@ -186,13 +187,19 @@ class EventsReportViewModel @Inject constructor(
                 
                 return Pair(sdf.format(from.time), sdf.format(toCal.time))
             }
+            // Persian week starts on Saturday; month means the current Jalali month.
             EventDateFilter.CurrentWeek -> {
-                cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+                val jDate = JalaliUtils.gregorianToJalali(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))
+                val daysSinceSaturday = JalaliUtils.getDayOfWeekJalali(jDate[0], jDate[1], jDate[2])
+                cal.add(Calendar.DAY_OF_MONTH, -daysSinceSaturday)
                 cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
             }
             EventDateFilter.CurrentMonth -> {
-                cal.set(Calendar.DAY_OF_MONTH, 1)
-                cal.set(Calendar.HOUR_OF_DAY, 0)
+                val jDate = JalaliUtils.gregorianToJalali(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))
+                val monthStart = JalaliUtils.jalaliToGregorian(jDate[0], jDate[1], 1)
+                cal.set(monthStart[0], monthStart[1] - 1, monthStart[2], 0, 0, 0)
             }
             EventDateFilter.Custom -> {
                 val state = _uiState.value
