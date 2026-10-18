@@ -24,4 +24,9 @@ interface NotificationApi {
         @Path("userId") userId: String,
         @Body request: FcmRegisterRequestDto
     )
+
+    @POST("handle_events/fcm/unregister/{userId}/")
+    suspend fun unregisterFcmToken(
+        @Path("userId") userId: String
+    )
 }

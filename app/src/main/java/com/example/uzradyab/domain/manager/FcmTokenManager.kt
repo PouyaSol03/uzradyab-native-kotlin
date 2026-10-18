@@ -5,6 +5,10 @@ import com.example.uzradyab.domain.repository.AuthRepository
 import com.example.uzradyab.domain.repository.TokenRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -17,6 +21,8 @@ class FcmTokenManager @Inject constructor(
     private val traccarApi: TraccarApi,
     private val tokenRepository: TokenRepository
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     private suspend fun getCurrentToken(): String? = suspendCancellableCoroutine { cont ->
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -30,10 +36,12 @@ class FcmTokenManager @Inject constructor(
         }
     }
 
-    suspend fun syncCurrentToken(): Result<Unit> = runCatching {
-        val token = getCurrentToken() ?: return Result.failure(Exception("Could not fetch FCM token"))
-        syncToken(token).getOrThrow()
-    }
+    // Runs in the manager's own scope so leaving the sign-in screen does not cancel the registration
+    suspend fun syncCurrentToken(): Result<Unit> = scope.async {
+        val token = getCurrentToken()
+            ?: return@async Result.failure<Unit>(Exception("Could not fetch FCM token"))
+        syncToken(token)
+    }.await()
 
     suspend fun removeCurrentToken(): Result<Unit> = runCatching {
         val token = getCurrentToken() ?: return Result.failure(Exception("Could not fetch FCM token"))

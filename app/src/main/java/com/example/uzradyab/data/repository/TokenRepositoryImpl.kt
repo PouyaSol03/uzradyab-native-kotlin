@@ -32,6 +32,11 @@ class TokenRepositoryImpl @Inject constructor(
             var currentDelay = 2000L
 
             for (attempt in 0..maxRetries) {
+                // Abort if the user logged out or changed while waiting, so the token never lands on a stale account
+                if (authRepository.currentSession.firstOrNull()?.id?.toString() != userId) {
+                    Log.d("TokenRepositoryImpl", "⚠️ توکن ارسال نشد: نشست کاربر تغییر کرده است. (UserId: $userId)")
+                    return@withContext Result.failure(Exception("Session changed"))
+                }
                 try {
                     Log.d("TokenRepositoryImpl", "🚀 SENDING: Attempting to send FCM Token to endpoint... (UserId: $userId, Attempt: ${attempt + 1})")
                     val request = FcmRegisterRequestDto(fcmToken = token)
