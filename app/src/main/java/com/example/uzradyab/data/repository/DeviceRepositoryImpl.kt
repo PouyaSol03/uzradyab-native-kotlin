@@ -50,7 +50,11 @@ class DeviceRepositoryImpl @Inject constructor(
             if (offset == 0) {
                 currentOffset = devices.size
                 hasMoreDevices = devices.size >= limit
-                deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
+                // Only prune when the first page is the whole list. With more pages, devices beyond it
+                // (loaded by paging or search) still belong to the user and may be the selected one.
+                if (!hasMoreDevices) {
+                    deviceDao.deleteOldUserDeviceCrossRefs(session.id, devices.map { it.id })
+                }
             } else {
                 currentOffset += devices.size
                 hasMoreDevices = devices.size >= limit
