@@ -226,7 +226,19 @@ class EventsReportViewModel @Inject constructor(
                 return "$label | از ${FormatUtils.formatEventTimeJalali(sdf.format(Date(state.customFromDate)))} تا ${FormatUtils.formatEventTimeJalali(sdf.format(Date(state.customToDate)))}"
             }
         }
-        val jDateStr = com.example.uzradyab.core.utils.JalaliUtils.getTodayJalaliString().substringAfter("| ").trim()
-        return "$label | $jDateStr"
+        // The date comes from the range start, so «دیروز» shows yesterday and week/month show where they begin.
+        val fromText = jalaliDayText(fromIso)
+        return when (filter) {
+            EventDateFilter.CurrentWeek, EventDateFilter.CurrentMonth -> "$label | از $fromText تا امروز"
+            else -> "$label | $fromText"
+        }
+    }
+
+    /** "26 مهر 1405" in Persian digits for an ISO instant, using the Tehran calendar day. */
+    private fun jalaliDayText(iso: String): String {
+        val date = FormatUtils.parseIsoDate(iso) ?: return ""
+        val cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tehran")).apply { time = date }
+        val jDate = JalaliUtils.gregorianToJalali(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))
+        return JalaliUtils.run { "${jDate[2]} ${getMonthName(jDate[1])} ${jDate[0]}".toPersianDigits() }
     }
 }
