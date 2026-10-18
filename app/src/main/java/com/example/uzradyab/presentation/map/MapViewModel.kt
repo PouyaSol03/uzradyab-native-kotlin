@@ -105,7 +105,8 @@ class MapViewModel @Inject constructor(
         val lastDeviceId = settings.second
         val config = settings.third
         
-        val selected = local.selectedDeviceId 
+        // A selection that is no longer in the device list falls back instead of leaving Home empty.
+        val selected = local.selectedDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: lastDeviceId?.takeIf { id -> snapshot.devices.any { it.id == id } }
             ?: snapshot.devices.firstOrNull()?.id
             
